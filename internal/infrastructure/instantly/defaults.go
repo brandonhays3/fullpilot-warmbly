@@ -1,8 +1,10 @@
 package instantly
 
-// TODO: once config.WarmupDefaults(provider) lands in
-// internal/config/constants.go, derive these from it instead of keeping a
-// private copy here. The numbers must agree with that table.
+import (
+	"strconv"
+
+	"github.com/warmbly/warmbly/internal/config"
+)
 
 // Warmbly provider strings as stored in email_accounts.provider.
 const (
@@ -12,25 +14,20 @@ const (
 )
 
 // WarmupDefaults is the per-provider warmup profile applied to every mailbox
-// Warmbly enrolls in Instantly: +2 a day, 65% replies, read emulation on,
-// every day of the week, 63% opens, 100% spam rescue, 34% marked important.
-// The daily ceiling is the only number that differs: 30 for Gmail and custom
-// IMAP/SMTP, 16 for Outlook.
+// Fullpilot enrolls in Instantly, derived from config.WarmupDefaults. Rates
+// are sent as fractions, which is what Instantly's API examples use.
 func WarmupDefaults(provider string) WarmupSettings {
-	limit := 30
-	if provider == providerOutlook {
-		limit = 16
-	}
+	d := config.WarmupDefaults(provider)
 	return WarmupSettings{
-		Limit:     limit,
-		Increment: "2",
-		ReplyRate: 0.65,
+		Limit:     d.DailyLimit,
+		Increment: strconv.Itoa(d.IncreasePerDay),
+		ReplyRate: float64(d.ReplyRate) / 100,
 		Advanced: &WarmupAdvanced{
-			OpenRate:      0.63,
-			ImportantRate: 0.34,
-			ReadEmulation: true,
-			SpamSaveRate:  1.0,
-			WeekdayOnly:   false,
+			OpenRate:      float64(d.OpenRate) / 100,
+			ImportantRate: float64(d.MarkImportant) / 100,
+			ReadEmulation: d.ReadEmulation,
+			SpamSaveRate:  float64(d.SpamProtection) / 100,
+			WeekdayOnly:   d.WeekdaysOnly,
 		},
 	}
 }

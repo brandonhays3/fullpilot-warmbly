@@ -287,6 +287,28 @@ Dashboard and admin are rebranded to Fullpilot (see `warmbly/FULLPILOT.md`,
 (`apps/dashboard/src/app/globals.css` tokens, `apps/dashboard/public/logo-blue.svg`).
 Primary #0c58c6, text #02101e, Rethink Sans.
 
+## AI, Instantly, and other keys (added 2026-09-09 evening)
+
+`/opt/warmbly/.env` on the VM (backend + consumer): `AI_PROVIDER=openrouter`,
+`AI_API_KEY` (Secret Manager `warmbly-openrouter-api-key`),
+`AI_MODEL=anthropic/claude-sonnet-5`, `AI_MODEL_CLASSIFY=openai/gpt-5.6-luna`
+(cheap reply classifier, fork feature), `INSTANTLY_API_KEY` (Secret Manager
+`warmbly-instantly-api-key`, used by the fork's Instantly warmup integration).
+Also `EMAIL_BRAND_NAME=Fullpilot`, `AWS_REQUEST_CHECKSUM_CALCULATION` /
+`AWS_RESPONSE_CHECKSUM_VALIDATION=when_required` (Cloud Storage S3 compat; the
+real fix is in the fork's storage client, which strips Accept-Encoding before
+signing).
+
+`warmbly-google-service-account` in Secret Manager holds the
+cloud-768@data-286013 service account JSON from fullpilot_sequencer. Warmbly
+only uses `GOOGLE_APPLICATION_CREDENTIALS_JSON` for Cloud Tasks webhook auth
+(`TASKS_PROVIDER=gcloud`), which this deployment does not use, so it is NOT
+wired into the env.
+
+`warmblyctl mailbox ...` needs `WARMBLY_API_KEY` (create one in Settings > API
+keys) to work; without it, mailbox removal was done with
+`delete from email_accounts where id=...` (FKs cascade).
+
 ## Custom code and deploys
 
 Fork: https://github.com/brandonhays3/fullpilot-warmbly

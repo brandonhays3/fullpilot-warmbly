@@ -120,4 +120,19 @@ registry. None of them contain secrets.
   deleted: settings page + nav entry, mailbox page banners/panels, onboarding
   step, connect-modal info box, drawer warmup card, `/connect` route.
   `useCloudPool` and the cloud-link API client remain (harmless, always "not linked").
+- **Product batch, 2026-09-09 evening** (four parallel agents, merged):
+  wordmark lockup; no connection pill; no raw UUIDs in headers; Active instead
+  of Subscribed; flow editor fits on open with a fixed right pane; test send
+  lists tag-matched mailboxes and editable recipient. One-click unsubscribe
+  removed; opt-out line off by default; plain text default; campaign daily
+  limit retired (mailbox `campaign_limit` only); `config.MailboxDefaults` and
+  `config.WarmupDefaults` per provider; no default signature; three advisor
+  findings removed. Mailbox sync boundary (`mailbox_sync_boundaries`,
+  migration 000136): nothing before first connect is ever synced, per address,
+  survives reconnect. Unibox: only campaign-linked mail is classified and shown
+  in Inbox; everything else in the Other tab; `AI_MODEL_CLASSIFY` for reply
+  classification. Instantly warmup (`INSTANTLY_API_KEY`, migration 000137
+  `email_accounts.warmup_provider`): enabling warmup enrolls the mailbox in
+  Instantly (SMTP/IMAP created via API; Gmail/Outlook must be added in
+  Instantly's app first, dialog explains), internal warmup skipped for those.
 - **Deploy tooling** under `deploy/fullpilot/`.
