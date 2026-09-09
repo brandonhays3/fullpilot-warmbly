@@ -124,6 +124,18 @@ Quarantined and blocked mailboxes are selected as neither sender nor recipient. 
 
 Getting back in requires requalifying, not just waiting: healthy authentication, no recent complaints or hard-bounce spikes, no recent invalid-token attempts, and spam placement back to a low level. Return is gradual, not a jump back to the old ceiling.
 
+## Warming through Instantly
+
+A self-hosted instance can hand warmup to [Instantly.ai](https://instantly.ai) instead of running the built-in pool. The operator sets `INSTANTLY_API_KEY` (see [configuration](/development/configuration/#integrations)); nothing else changes in the dashboard.
+
+With the key set, starting warmup on a mailbox does the following:
+
+- looks the address up in your Instantly workspace. An SMTP/IMAP mailbox that is not there yet is added with its stored credentials. A Google or Microsoft mailbox has to be connected inside Instantly first, because its sign-in happens there; the dashboard says so and offers a **Check again** button once you have added it
+- applies one warmup profile per provider: `+2` emails a day, a daily ceiling of `30` (`16` for Outlook), `65%` replies, read emulation on, every day of the week, `63%` opens, `100%` rescued from spam, `34%` marked important
+- turns warmup on in Instantly and records the mailbox as warmed there. The built-in scheduler sends nothing for it, not even the in-campaign health-check volume, and the mailbox only receives from the local pool
+
+Pausing or stopping warmup pauses it in Instantly too. The mailbox drawer's Warmup tab shows Instantly's status, health score, inbox and spam counts, and the settings applied; the ramp fields stay hidden while Instantly warms the mailbox. Removing the key later leaves an enrolled mailbox alone until you stop and start warmup, which hands it back to the built-in pool. `GET /emails/:id/warmup/instantly` exposes the same status to the API.
+
 ## Graduating to cold sending
 
 Warmup ending does not mean full cold volume the next day. A mailbox joining a campaign starts at a cold volume set by how long it warmed and adds `5` a day from there. See [Easing out of warmup](/guides/campaigns/) for the bands.

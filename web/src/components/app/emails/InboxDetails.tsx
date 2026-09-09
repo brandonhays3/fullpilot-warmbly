@@ -65,6 +65,8 @@ import UpdateCredentialsDialog from "./UpdateCredentialsDialog";
 import EmailEditor from "../EmailEditor";
 import SendingBehaviorTab from "./SendingBehaviorTab";
 import SyncStatusCard from "./SyncStatusCard";
+import InstantlyWarmupCard from "./InstantlyWarmupCard";
+import InstantlyAccountMissingDialog, { INSTANTLY_ACCOUNT_MISSING } from "./InstantlyAccountMissingDialog";
 import useCloudPool from "@/hooks/useCloudPool";
 import { Toggle } from "@/components/app/campaigns/preferences/components/CampaignPreferenceBoolBox";
 import useSendingBehavior from "@/lib/api/hooks/app/emails/useSendingBehavior";
@@ -1049,11 +1051,21 @@ function WarmupTab({ form, update, status, mailbox, canWarmup = true }: { form: 
     // When Fullpilot Cloud warms this mailbox the local controls step aside.
     const pool = useCloudPool();
     const inCloud = pool.connected && pool.isEnrolled(mailbox.id);
+    // Instantly warms it: the ramp fields below are not what runs.
+    const viaInstantly = !!mailbox.warmup && mailbox.warmup_provider === "instantly";
+    const [instantlyMissing, setInstantlyMissing] = useState(false);
 
     const run = (action: "start" | "pause" | "resume" | "stop", verb: string) =>
         life.mutate(action, {
             onSuccess: () => toast.success(`Warmup ${verb}`),
-            onError: (e) => toast.error(buildError(e as unknown as AppError)),
+            onError: (e) => {
+                const err = e as unknown as AppError;
+                if (err.code === INSTANTLY_ACCOUNT_MISSING) {
+                    setInstantlyMissing(true);
+                    return;
+                }
+                toast.error(buildError(err));
+            },
         });
 
     const stopReset = () => {
@@ -1085,8 +1097,8 @@ function WarmupTab({ form, update, status, mailbox, canWarmup = true }: { form: 
                         <FlameIcon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                        <div className="text-[12.5px] font-medium text-slate-900">{active ? "Warming up" : paused ? "Paused" : "Warmup off"}</div>
-                        <div className="text-[11px] text-slate-400 truncate">{active ? "Building sender reputation" : paused ? "Ramp progress kept — resume anytime" : "Not building reputation"}</div>
+                        <div className="text-[12.5px] font-medium text-slate-900">{active ? (viaInstantly ? "Warming via Instantly" : "Warming up") : paused ? (viaInstantly ? "Paused in Instantly" : "Paused") : "Warmup off"}</div>
+                        <div className="text-[11px] text-slate-400 truncate">{active ? (viaInstantly ? "Instantly's network is building sender reputation" : "Building sender reputation") : paused ? (viaInstantly ? "Resume to turn it back on in Instantly" : "Ramp progress kept — resume anytime") : "Not building reputation"}</div>
                     </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -1134,6 +1146,15 @@ function WarmupTab({ form, update, status, mailbox, canWarmup = true }: { form: 
             </div>
             )}
 
+            {/* Instantly: status when it warms the mailbox, what a start does when it would */}
+            {!inCloud && <InstantlyWarmupCard mailbox={mailbox} />}
+            <InstantlyAccountMissingDialog
+                open={instantlyMissing}
+                email={mailbox.email}
+                onClose={() => setInstantlyMissing(false)}
+                onRetry={() => life.mutateAsync("start")}
+            />
+
             {/* Upsell when warmup isn't available on the plan */}
             {!inCloud && off && !canWarmup && (
                 <div className="px-5 py-4">
@@ -1143,8 +1164,8 @@ function WarmupTab({ form, update, status, mailbox, canWarmup = true }: { form: 
                 </div>
             )}
 
-            {/* Live volume */}
-            {ws && active && (
+            {/* Live volume (local pool only) */}
+            {ws && active && !viaInstantly && (
                 <div className="px-5 py-4">
                     <Eyebrow>Today</Eyebrow>
                     <div className="mt-2 flex items-center gap-2 text-[12.5px] text-slate-700">
@@ -1189,7 +1210,9 @@ function WarmupTab({ form, update, status, mailbox, canWarmup = true }: { form: 
                 </div>
             )}
 
-            {/* Ramp configuration */}
+            {/* Ramp configuration and window drive the built-in pool only */}
+            {!viaInstantly && (
+            <>
             <div className="px-5 py-5 space-y-5">
                 <Eyebrow>Ramp configuration</Eyebrow>
                 <FieldShell label="Starting volume" hint="Emails per day when warmup begins.">
@@ -1238,6 +1261,8 @@ function WarmupTab({ form, update, status, mailbox, canWarmup = true }: { form: 
                     </div>
                 </FieldShell>
             </div>
+            </>
+            )}
         </div>
     );
 }

@@ -83,6 +83,8 @@ type Email struct {
 	WarmupStartTime string     `json:"warmup_start_time"`
 	WarmupEndTime   string     `json:"warmup_end_time"`
 	WarmupDays      int        `json:"warmup_days"`
+	// WarmupProvider says who runs warmup: Warmbly's own pool or Instantly.
+	WarmupProvider string `json:"warmup_provider"`
 
 	Timezone string `json:"timezone"`
 
@@ -121,6 +123,18 @@ func (e *Email) DomainAuthBlocked(now time.Time, grace time.Duration) bool {
 // mailbox keeps its ramp progress (the anchor is shifted forward on resume).
 func (e *Email) IsWarmupPaused() bool {
 	return e.Warmup != nil && e.WarmupPausedAt != nil
+}
+
+// Values of email_accounts.warmup_provider.
+const (
+	WarmupProviderInternal  = "internal"
+	WarmupProviderInstantly = "instantly"
+)
+
+// WarmsViaInstantly reports whether Instantly runs this mailbox's warmup, in
+// which case the local scheduler must not send warmup mail for it.
+func (e *Email) WarmsViaInstantly() bool {
+	return e.WarmupProvider == WarmupProviderInstantly
 }
 
 // EmailAuthTarget is a mailbox due for a sending-domain authentication check,

@@ -154,6 +154,12 @@ var (
 	// Disconnecting a mailbox has to reach the machine syncing it before the
 	// row goes: afterwards there is no assignment left to read and nothing that
 	// can repair a missed removal, so the mailbox would sync on forever.
+	// ErrInstantlyAccountMissing: warmup is delegated to Instantly, but the
+	// mailbox is not in that workspace and the API cannot add an OAuth
+	// mailbox on its own. The dashboard turns this into an "add it in
+	// Instantly first" dialog.
+	ErrInstantlyAccountMissing = NewWithIdentifier(Conflict, "instantly_account_missing",
+		"This mailbox is not in your Instantly workspace yet. Add it at app.instantly.ai/app/accounts, then try again.")
 	ErrEmailWorkerUnreachable = NewWithIdentifier(ServiceUnavailable, "mailbox_worker_unreachable",
 		"This mailbox could not be disconnected right now because the machine syncing it could not be reached. Nothing was removed, so try again in a moment.")
 

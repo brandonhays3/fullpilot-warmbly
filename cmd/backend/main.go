@@ -118,6 +118,7 @@ import (
 	"github.com/warmbly/warmbly/internal/infrastructure/encryptedkeys"
 	"github.com/warmbly/warmbly/internal/infrastructure/eventbus"
 	"github.com/warmbly/warmbly/internal/infrastructure/gtasks"
+	"github.com/warmbly/warmbly/internal/infrastructure/instantly"
 	"github.com/warmbly/warmbly/internal/infrastructure/kafka"
 	"github.com/warmbly/warmbly/internal/infrastructure/kms"
 	"github.com/warmbly/warmbly/internal/infrastructure/pubsub"
@@ -1214,6 +1215,12 @@ func main() {
 		)
 		// Fan out email-account lifecycle events to customer webhooks.
 		emailService.WireWebhooks(webhookService)
+		// INSTANTLY_API_KEY hands warmup to Instantly.ai; unset keeps the
+		// built-in pool.
+		if instantlyClient := instantly.NewFromEnv(); instantlyClient != nil {
+			emailService.WireInstantly(instantlyClient)
+			log.Printf("Warmup provider: Instantly.ai (INSTANTLY_API_KEY set); the built-in pool skips enrolled mailboxes")
+		}
 		// Every connect path checks the workspace's mailbox allowance
 		// (fair use for paid plans, the free cap otherwise).
 		emailService.WireMailboxAllowance(organizationService)

@@ -47,9 +47,26 @@ func (s *emailService) Get(ctx context.Context, orgID, emailAccountID string) (*
 }
 
 func (s *emailService) Update(ctx context.Context, userID, emailAccountID string, udata *models.UpdateEmail) (*models.Email, *errx.Error) {
+	// A PATCH that flips warmup is the same transition as the lifecycle
+	// endpoints, so Instantly follows it too.
+	provider := ""
+	if udata.Warmup != nil {
+		action := "stop"
+		if *udata.Warmup {
+			action = "start"
+		}
+		var xerr *errx.Error
+		if provider, xerr = s.instantlyTransition(ctx, userID, emailAccountID, action); xerr != nil {
+			return nil, xerr
+		}
+	}
+
 	account, err := s.emailRepository.Update(ctx, userID, emailAccountID, udata)
 	if err != nil {
 		return nil, err
+	}
+	if xerr := s.recordWarmupProvider(ctx, account, provider); xerr != nil {
+		return nil, xerr
 	}
 
 	s.syncWarmupPoolMembership(ctx, account)
@@ -97,9 +114,18 @@ func (s *emailService) BulkUpdateTags(ctx context.Context, userID string, emailI
 // (the API handler triggers EnsureWarmupScheduled) — this service has no
 // Cloud Tasks client.
 func (s *emailService) SetWarmupLifecycle(ctx context.Context, userID, emailAccountID, action string) (*models.Email, *errx.Error) {
+	// Instantly first: if it refuses, the local row must not claim warmup is on.
+	provider, xerr := s.instantlyTransition(ctx, userID, emailAccountID, action)
+	if xerr != nil {
+		return nil, xerr
+	}
+
 	account, err := s.emailRepository.SetWarmupLifecycle(ctx, userID, emailAccountID, action)
 	if err != nil {
 		return nil, err
+	}
+	if xerr := s.recordWarmupProvider(ctx, account, provider); xerr != nil {
+		return nil, xerr
 	}
 
 	s.syncWarmupPoolMembership(ctx, account)
@@ -376,8 +402,9 @@ func (s *emailService) syncWarmupPoolMembership(ctx context.Context, account *mo
 		return
 	}
 
+	// A mailbox Instantly warms sends nothing through the local pool.
 	role := "recipient_only"
-	if account.Warmup != nil {
+	if account.Warmup != nil && !account.WarmsViaInstantly() {
 		role = "sender_receiver"
 	}
 	if xerr := s.warmupService.EnsurePoolMembershipWithRole(ctx, account.ID, s.resolveWarmupPoolType(ctx, account), role); xerr != nil {

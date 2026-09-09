@@ -349,6 +349,7 @@ Plain SMTP and IMAP mailboxes need none of this. If a worker is missing these va
 |---|---|---|
 | `<PROVIDER>_OAUTH_CLIENT_ID`, `<PROVIDER>_OAUTH_CLIENT_SECRET` | OAuth clients for the CRM and messaging integrations | unset |
 | `INTEGRATIONS_OAUTH_REDIRECT_URL` | Shared redirect URI for those flows | derived from `API_PUBLIC_URL` |
+| `INSTANTLY_API_KEY` | An Instantly.ai API v2 key with the `accounts` scopes. When set, starting warmup on a mailbox enrolls it in Instantly warmup through Instantly's API instead of the built-in pool ([guide](/guides/warmup/#warming-through-instantly)). Unset keeps the built-in warmup | unset |
 
 ## AI and search
 

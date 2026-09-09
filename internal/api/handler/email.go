@@ -158,6 +158,26 @@ func (h *Handler) ResumeWarmup(c *gin.Context) { h.warmupLifecycle(c, "resume") 
 // progress.
 func (h *Handler) StopWarmup(c *gin.Context) { h.warmupLifecycle(c, "stop") }
 
+// GetInstantlyWarmup reports the Instantly side of a mailbox's warmup: whether
+// the integration is configured, whether this mailbox is warmed there, and the
+// status and totals Instantly holds for it. Read-only.
+// GET /emails/:id/warmup/instantly
+func (h *Handler) GetInstantlyWarmup(c *gin.Context) {
+	orgID := middleware.GetOrganizationID(c)
+	if orgID == nil {
+		errx.Handle(c, errx.New(errx.BadRequest, "no organization selected"))
+		return
+	}
+
+	resp, err := h.EmailService.InstantlyWarmupStatus(c.Request.Context(), orgID.String(), c.Param("id"))
+	if err != nil {
+		errx.Handle(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
 func (h *Handler) warmupLifecycle(c *gin.Context, action string) {
 	userIDStr := middleware.GetUserID(c)
 	emailAccountID := c.Param("id")

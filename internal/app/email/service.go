@@ -16,6 +16,7 @@ import (
 	"github.com/warmbly/warmbly/internal/errx"
 	"github.com/warmbly/warmbly/internal/events"
 	"github.com/warmbly/warmbly/internal/infrastructure/cache"
+	"github.com/warmbly/warmbly/internal/infrastructure/instantly"
 	"github.com/warmbly/warmbly/internal/infrastructure/pubsub"
 	"github.com/warmbly/warmbly/internal/models"
 	"github.com/warmbly/warmbly/internal/pkg/dnsauth"
@@ -32,6 +33,12 @@ type EmailService interface {
 	// SetWarmupLifecycle starts, pauses, resumes, or disables warmup for a
 	// mailbox. start/resume preserve ramp progress; disable turns warmup off.
 	SetWarmupLifecycle(ctx context.Context, userID, emailAccountID, action string) (*models.Email, *errx.Error)
+	// InstantlyWarmupStatus reports whether the Instantly integration is on,
+	// whether this mailbox is warmed there, and what Instantly says about it.
+	InstantlyWarmupStatus(ctx context.Context, orgID, emailAccountID string) (*InstantlyWarmup, *errx.Error)
+	// WireInstantly hands warmup to Instantly.ai for every start; nil keeps
+	// Warmbly's own pool in charge.
+	WireInstantly(c *instantly.Client)
 	// SetSendHold holds a mailbox in reserve or releases it; a release lands
 	// wherever its warmup health says, so an unhealthy mailbox rests.
 	SetSendHold(ctx context.Context, orgID, emailAccountID string, hold bool) (*models.SendLifecycleState, *errx.Error)
@@ -150,6 +157,9 @@ type emailService struct {
 	lifecycleRepo repository.SendLifecycleRepository
 	// accountErrors is resolved-on-reconnect error state. Optional/nil-safe.
 	accountErrors repository.EmailAccountErrorRepository
+	// instantly is nil unless INSTANTLY_API_KEY is set; then every warmup
+	// start enrolls the mailbox there and the local pool leaves it alone.
+	instantly *instantly.Client
 }
 
 // WireAccountErrors attaches the mailbox error log so reconnects can resolve it.

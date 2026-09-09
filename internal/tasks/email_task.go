@@ -87,6 +87,12 @@ func (s *tasksService) HandleEmailTask(task *proto.ProcessTask) *errx.Error {
 		executionStatus = "skipped_cloud_warmup"
 		return nil
 	}
+	// Same for a mailbox handed to Instantly: its chain ends here.
+	if account.WarmsViaInstantly() {
+		_ = s.taskRepo.UpdateTaskStatus(ctx, taskID, "cancelled")
+		executionStatus = "skipped_instantly_warmup"
+		return nil
+	}
 	// Keep the warmup chain alive while the mailbox is actively warming OR
 	// while it backs a live campaign (the low-volume health-check lane). Once
 	// neither holds, the chain is allowed to wind down.
