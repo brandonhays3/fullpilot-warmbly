@@ -161,13 +161,12 @@ export function ThreadView({ threadId, emailId }: ThreadViewProps) {
   const [labelMenuOpen, setLabelMenuOpen] = React.useState(false);
 
   // CRM context rail (right side). Open by default on wide screens (lg+),
-  // where it renders as a static rail. Below lg it renders as an overlay
-  // drawer, so it starts closed and is opened from the header toggle.
-  const [crmOpen, setCrmOpen] = React.useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(min-width: 1024px)").matches,
-  );
+  // The contact panel starts closed on every thread and is opened from the
+  // header toggle, so a thread never opens with two panes fighting for width.
+  const [crmOpen, setCrmOpen] = React.useState(false);
+  React.useEffect(() => {
+    setCrmOpen(false);
+  }, [threadId]);
 
   // `c` opens the label menu while a thread is open — ignored while
   // typing into the composer / any input so it never eats keystrokes.
@@ -358,8 +357,8 @@ export function ThreadView({ threadId, emailId }: ThreadViewProps) {
   return (
     <div className="flex h-full min-h-0">
       <div className="flex-1 flex flex-col min-w-0 bg-white">
-      <div className="h-12 px-3 sm:px-5 border-b border-slate-200 flex items-center gap-2 sm:gap-3 shrink-0 bg-white">
-        <span className="hidden sm:inline text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium">
+      <div className="h-12 px-3 sm:px-5 border-b border-slate-200 flex items-center gap-2 sm:gap-3 shrink-0 bg-white min-w-0 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <span className="hidden sm:inline text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium shrink-0">
           Thread
         </span>
         <div className="hidden sm:block h-4 w-px bg-slate-200" />

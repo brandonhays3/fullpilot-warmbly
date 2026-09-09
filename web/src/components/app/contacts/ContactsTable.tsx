@@ -1565,15 +1565,6 @@ function LeadProgressStrip({
                 <StripChip Icon={CornerUpLeftIcon} label="Not replied" n={eng?.notReplied} {...engaged("not_replied")} />
             </div>
             <div className="ml-auto flex items-center gap-2 text-[10.5px] text-slate-400 tabular-nums">
-                {counts.active > 0 && (
-                    <span className="inline-flex items-center gap-1 text-emerald-600 font-medium">
-                        <span className="relative flex size-1.5">
-                            <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-60 animate-ping" />
-                            <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
-                        </span>
-                        Live
-                    </span>
-                )}
                 <span>
                     {hasMore ? `${loaded} of ${total} loaded` : `${total} lead${total === 1 ? "" : "s"}`}
                 </span>
