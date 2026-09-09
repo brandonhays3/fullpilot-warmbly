@@ -5,7 +5,7 @@
 // On-theme: slate/sky, rounded-md, 12.5px base.
 
 import type Campaign from "@/lib/api/models/app/campaigns/Campaign";
-import { Label, NumberInput, TextInput } from "@/components/ui/field";
+import { Label, TextInput } from "@/components/ui/field";
 import SenderSelector from "./SenderSelector";
 import { SettingRow, Toggle } from "./components/CampaignPreferenceBoolBox";
 import { SelectMenu, type SelectOption } from "@/components/ui/select-menu";
@@ -17,9 +17,6 @@ const UNSUB_MODES: SelectOption[] = [
     { value: "link", label: "Unsubscribe link" },
     { value: "off", label: "Nothing" },
 ];
-
-const DAILY_MIN = 3;
-const DAILY_MAX = 5000;
 
 type SetCampaign = React.Dispatch<React.SetStateAction<Campaign>>;
 
@@ -57,7 +54,8 @@ export function GeneralSection({
     );
 }
 
-/** Sending accounts — the unified tag/mailbox picker + per-mailbox daily cap. */
+/** Sending accounts — the unified tag/mailbox picker. The daily cap is a
+ * mailbox setting, so there is no per-campaign limit here. */
 export function SendingAccountsSection({
     newCampaign,
     setNewCampaign,
@@ -69,8 +67,6 @@ export function SendingAccountsSection({
     explicitAccounts: string[];
     setExplicitAccounts: React.Dispatch<React.SetStateAction<string[]>>;
 }) {
-    const dailyInvalid = newCampaign.daily_limit < DAILY_MIN || newCampaign.daily_limit > DAILY_MAX;
-    const dailyHigh = !dailyInvalid && newCampaign.daily_limit > 100;
     return (
         <div className="space-y-4">
             <div>
@@ -82,26 +78,9 @@ export function SendingAccountsSection({
                     onAccountsChange={setExplicitAccounts}
                 />
                 <p className="text-[11px] text-slate-400 mt-1.5">
-                    Pick tags, specific mailboxes, or both — volume is split evenly across the resolved pool.
-                    Leave empty to send from every active mailbox.
-                </p>
-            </div>
-            <div>
-                <Label>Daily limit per mailbox</Label>
-                <NumberInput
-                    value={newCampaign.daily_limit}
-                    min={DAILY_MIN}
-                    max={DAILY_MAX}
-                    onChange={(v) => setNewCampaign((bef) => ({ ...bef, daily_limit: v }))}
-                    suffix="emails / day"
-                    className="w-48"
-                />
-                <p className={`text-[11px] mt-1.5 ${dailyInvalid ? "text-rose-500" : dailyHigh ? "text-amber-600" : "text-slate-400"}`}>
-                    {dailyInvalid
-                        ? `Must be between ${DAILY_MIN} and ${DAILY_MAX}.`
-                        : dailyHigh
-                          ? "Well above the 30–50/day safe cold-outreach band. Every mailbox in the pool needs the reputation and provider capacity to carry this."
-                          : `${DAILY_MIN}–${DAILY_MAX}. Default 50 — stay conservative until reputation is proven.`}
+                    Pick tags, specific mailboxes, or both. Volume is split evenly across the resolved pool, and each
+                    mailbox sends up to its own daily cap, set on the mailbox. Leave empty to send from every active
+                    mailbox.
                 </p>
             </div>
         </div>
@@ -121,7 +100,7 @@ export function DeliverabilitySection({
     // default rather than assumed.
     const { data: outreach } = useOutreachSettings();
     const mode = newCampaign.unsubscribe_mode ?? "inherit";
-    const effectiveMode = mode === "inherit" || !mode ? (outreach?.unsubscribe?.mode ?? "text") : mode;
+    const effectiveMode = mode === "inherit" || !mode ? (outreach?.unsubscribe?.mode ?? "off") : mode;
     const plainTextLinkOptOut = newCampaign.text_only && effectiveMode === "link";
 
     return (
@@ -188,28 +167,17 @@ export function DeliverabilitySection({
                 <UTMFields campaign={newCampaign} setNewCampaign={setNewCampaign} />
             )}
             <SettingRow
-                title="Unsubscribe header"
-                description="Add a List-Unsubscribe header so mail clients can show their own one-click unsubscribe. It is a header, not visible copy, so it changes nothing about how the email reads and works on plain-text sends too. This is the opt-out Gmail and Yahoo look for; leave it on."
-                control={
-                    <Toggle
-                        id="campaign-pref-unsub"
-                        value={newCampaign.unsubscribe_header}
-                        onChange={(v) => setNewCampaign((bef) => ({ ...bef, unsubscribe_header: v }))}
-                    />
-                }
-            />
-            <SettingRow
                 title="Opt-out line"
                 description={
                     <>
-                        The opt-out appended after the signature of every email in this campaign. Reply to opt out reads
-                        as a personal email and is honoured automatically; a link is for lists that need one, and the
-                        header above already covers the bulk-sender rules. The workspace default is set under Settings
-                        &gt; Sending.
+                        What this campaign appends after the signature, if anything. Nothing is the default: a reply
+                        that asks to stop is detected and honoured automatically either way. Reply to opt out adds a
+                        sentence that reads as a personal email; a link is for lists that need one. The workspace
+                        default is set under Settings &gt; Sending.
                         {plainTextLinkOptOut && (
                             <span className="mt-1 block text-amber-700">
                                 This campaign sends plain text only, where a link has nowhere to hide its address: the
-                                recipient reads the full unsubscribe URL. Prefer the header and the reply line here.
+                                recipient reads the full unsubscribe URL. Prefer the reply line here.
                             </span>
                         )}
                     </>

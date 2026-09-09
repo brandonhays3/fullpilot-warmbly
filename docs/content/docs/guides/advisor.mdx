@@ -55,7 +55,7 @@ Only the first two badge a nav tab.
 
 **Warmup**: warmup off while sending cold (critical on a new mailbox); warmup left paused; a ceiling too low to balance cold volume (roughly half the cold cap); reply rate under `20%`, making warmup one-way; quarantined or blocked from the pool.
 
-**Campaigns**: no follow-ups; reply rate under `1%` at volume, escalating under `0.3%`; one step replying below a quarter of the campaign's best (compared only against siblings, which share an audience); one-click unsubscribe off; a daily limit above what its mailboxes can send; no active sender; follow-up spacing outside `2` to `14` days; under `7` days of leads left; no A/B test at high volume; a sending window too narrow for the volume; contacts enrolled in several running campaigns.
+**Campaigns**: reply rate under `1%` at volume, escalating under `0.3%`; one step replying below a quarter of the campaign's best (compared only against siblings, which share an audience); no active sender; under `7` days of leads left at the pace its mailboxes allow; no A/B test at high volume; a sending window too narrow for the mailboxes' daily volume; contacts enrolled in several running campaigns.
 
 **Copy** (conservative, and drafts are skipped): a merge variable that will not resolve, shipping a literal `{{token}}`; two or more bulk-mail phrases (one is never flagged); over `200` words; a subject over `60` characters; more than two links in a first touch; a shouting subject.
 
@@ -95,8 +95,6 @@ Under **Settings > Workspace**, off by default. It only takes fixes that are bou
 - lowering a cap above the safe band, or one a new mailbox jumped to early
 - cutting the cap on a mailbox drawing complaints
 - widening a gap that is too short
-- matching a campaign's daily limit to its mailboxes' real capacity
-- turning on one-click unsubscribe
 
 **It never pauses sending, edits copy, starts or resumes warmup, or acts without an undo.** Eligible findings are marked **Auto** on the card whether or not it is on, so the set is visible before you enable it. It acts as the member who enabled it, with their permissions, logged as them, and stops if that person leaves. At most ten fixes per evaluation.
 

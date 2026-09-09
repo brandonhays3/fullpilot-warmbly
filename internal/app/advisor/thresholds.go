@@ -76,14 +76,6 @@ const (
 	// worse than the campaign's best step is worth rewriting.
 	stepDropoffFactor = 4.0
 
-	// --- sequence shape ----------------------------------------------------
-	// A single-email cold campaign leaves most of its replies unclaimed.
-	minRecommendedSteps = 3
-	// Follow-ups closer together than this read as pestering.
-	minFollowUpDays = 2
-	// And further apart than this lose the thread entirely.
-	maxFollowUpDays = 14
-
 	// --- list hygiene ------------------------------------------------------
 	roleAddressShareWarn = 15.0
 	freeMailShareWarn    = 40.0

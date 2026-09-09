@@ -637,13 +637,11 @@ func (s *tasksService) HandleCampaignTask(task *proto.ProcessTask) *errx.Error {
 		}
 	}
 
-	// STEP 15.5: The List-Unsubscribe header carries the same signed link.
-	// Off when the campaign disabled it, or when no link could be minted: a
-	// header pointing nowhere is worse than none.
+	// STEP 15.5: No List-Unsubscribe header, whatever the campaign's stored
+	// unsubscribe_header flag says. The product carries its opt-out in the
+	// body (the reply line or link) and honours replies that ask to stop; a
+	// one-click header is what marks a message as bulk mail to the filters.
 	headerURL := ""
-	if campaign.UnsubscribeHeader {
-		headerURL = unsubscribeURL
-	}
 
 	// STEP 15.9: Reserve the send BEFORE it goes on the bus. Once the command is
 	// published the recipient's copy is committed, so the record of the attempt

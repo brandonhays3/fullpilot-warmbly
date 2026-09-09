@@ -76,8 +76,8 @@ Returns the `AdvancedOutreachSettings` object directly (not wrapped in an envelo
     "show_dlq_stats": true
   },
   "unsubscribe": {
-    "mode": "text",
-    "text": "If this isn't relevant, just reply and let me know and I won't email you again.",
+    "mode": "off",
+    "text": "",
     "link_intro": "Not the right person, or not interested?",
     "link_text": "Unsubscribe"
   },
@@ -85,7 +85,7 @@ Returns the `AdvancedOutreachSettings` object directly (not wrapped in an envelo
 }
 ```
 
-The `unsubscribe` block is the workspace default for the opt-out appended after the signature of every campaign email: `mode` is `text` (a reply-to-opt-out sentence, the default), `link` (a sentence with the recipient's signed unsubscribe link) or `off`; a campaign's own `unsubscribe_mode` (`inherit` by default) overrides it. Copy fields are single lines of at most 300 characters and fall back to the defaults when blank. See the [unsubscribe guide](/guides/unsubscribe/).
+The `unsubscribe` block is the workspace default for the opt-out appended after the signature of a campaign email: `mode` is `off` (nothing appended, the default), `text` (a reply-to-opt-out sentence) or `link` (a sentence with the recipient's signed unsubscribe link); a campaign's own `unsubscribe_mode` (`inherit` by default) overrides it. Copy fields are single lines of at most 300 characters. The link fields fall back to the defaults when blank; `text` does not, so `text` mode with a blank sentence appends nothing. See the [unsubscribe guide](/guides/unsubscribe/).
 
 <Callout type="info" title="Content score floor is clamped">
 `preflight.min_content_score` is stored clamped to `1`-`100`. A value outside that range is corrected on write rather than rejected, so a floor above `100` cannot flag every campaign permanently. Set `preflight.check_content_score` to `false` to turn the check off; the score never blocks or delays a send either way. See [Content checks](/guides/campaigns/).

@@ -21,9 +21,11 @@ export interface PreflightSettings {
     min_content_score: number;
 }
 
-// The in-body opt-out every campaign email carries unless a campaign
-// overrides it. "text" is a reply-to-opt-out sentence, "link" a sentence with
-// a real unsubscribe link, "off" nothing.
+// The in-body opt-out a campaign email carries, unless a campaign overrides
+// it. "off" appends nothing (the default; a reply that asks to stop is still
+// honoured automatically), "text" a reply-to-opt-out sentence, "link" a
+// sentence with a real unsubscribe link. It is the only opt-out mechanism:
+// no List-Unsubscribe header is ever sent.
 export type UnsubscribeMode = "text" | "link" | "off";
 
 export interface UnsubscribeSettings {
@@ -33,12 +35,17 @@ export interface UnsubscribeSettings {
     link_text: string;
 }
 
+// Off with no sentence, matching the backend default. Text mode with a blank
+// sentence appends nothing, so the wording has to be written to take effect.
 export const DEFAULT_UNSUBSCRIBE: UnsubscribeSettings = {
-    mode: "text",
-    text: "If this isn't relevant, just reply and let me know and I won't email you again.",
+    mode: "off",
+    text: "",
     link_intro: "Not the right person, or not interested?",
     link_text: "Unsubscribe",
 };
+
+// A suggestion shown as the wording placeholder; never applied on its own.
+export const EXAMPLE_UNSUBSCRIBE_TEXT = "If this isn't relevant, just reply and let me know and I won't email you again.";
 
 export interface OutreachSettings {
     bounce_pipeline: Record<string, unknown>;

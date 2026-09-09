@@ -268,7 +268,10 @@ func (r *campaignRepository) Create(ctx context.Context, userID string, orgID *u
 			return nil, err
 		}
 	}
-	dailyLimit := config.CampaignLimitDefault
+	// The column is kept for API compatibility only: the scheduler consults
+	// each mailbox's own campaign_limit and never this value, so a new
+	// campaign stores the ceiling rather than a number that looks like a cap.
+	dailyLimit := config.CampaignDailyLimitUnbounded
 	if data.DailyLimit != nil {
 		if err := validate.CampaignDailyLimit(*data.DailyLimit); err != nil {
 			return nil, err
@@ -343,11 +346,15 @@ func (r *campaignRepository) Create(ctx context.Context, userID string, orgID *u
 	if data.LinkTracking != nil {
 		linkTracking = *data.LinkTracking
 	}
-	textOnly := false
+	// Plain text by default: cold email from a person has no HTML part, and
+	// filters score it that way.
+	textOnly := true
 	if data.TextOnly != nil {
 		textOnly = *data.TextOnly
 	}
-	unsubHeader := true
+	// The List-Unsubscribe header is never sent; the column only records
+	// what a caller asked for.
+	unsubHeader := false
 	if data.UnsubscribeHeader != nil {
 		unsubHeader = *data.UnsubscribeHeader
 	}

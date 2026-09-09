@@ -3,21 +3,23 @@ title: Unsubscribe and suppression
 description: How recipients opt out of campaign email, what Warmbly does when they do, and how the suppression list works.
 ---
 
-Every campaign email gives its recipient a way to stop hearing from you, and every opt-out is honoured automatically across the whole workspace. This page covers the three mechanisms, the suppression list behind them, and the settings that shape what a recipient sees.
+Every recipient of a campaign email can stop hearing from you by replying and saying so, and every opt-out is honoured automatically across the whole workspace. This page covers the mechanisms, the suppression list behind them, and the settings that shape what a recipient sees.
 
 ## What a recipient sees
 
-Warmbly appends an opt-out to every campaign email, after the signature. There are three modes, set for the workspace under **Settings > Sending > Unsubscribe** and overridable per campaign under **Preferences**:
+By default, nothing: a campaign email ends with the body and the signature, the way an email from a person does. A reply that asks to stop is detected and honoured automatically (see below), so the opt-out is real without a footer announcing it.
+
+A workspace that wants a visible opt-out can append one after the signature. There are three modes, set for the workspace under **Settings > Sending > Opt-out line** and overridable per campaign under **Preferences**:
 
 | Mode | What is appended | Default |
 | --- | --- | --- |
-| Reply to opt out | A plain sentence such as "If this isn't relevant, just reply and let me know and I won't email you again." | Yes |
+| Nothing | No opt-out in the body | Yes |
+| Reply to opt out | A plain sentence you write, for example "If this isn't relevant, just reply and let me know and I won't email you again." Nothing is appended until the sentence is written. | |
 | Unsubscribe link | A sentence with a real link, for example "Not the right person, or not interested? Unsubscribe" | |
-| Nothing | No opt-out in the body | |
 
 The wording of the sentence and of the link text is yours to change.
 
-**Reply to opt out** is the default because it reads as a personal email, which is what cold outreach is. A formal unsubscribe link and footer are the strongest signal a mailbox provider has that a message is bulk marketing, and several deliverability teams report worse placement for cold email that carries one. A reply that asks to stop is detected and honoured automatically (see below), so the plain sentence is a real mechanism, not a courtesy. CAN-SPAM, CASL and the Australian Spam Act all accept a reply as the opt-out method.
+**Reply to opt out** reads as a personal email, which is what cold outreach is. A formal unsubscribe link and footer are the strongest signal a mailbox provider has that a message is bulk marketing, and several deliverability teams report worse placement for cold email that carries one. CAN-SPAM, CASL and the Australian Spam Act all accept a reply as the opt-out method.
 
 **Unsubscribe link** is the right choice when your list skews toward consumers, when your legal team asks for a link, or when your volume is high enough that provider bulk-sender rules apply. The link is unique to the recipient and campaign, signed so it cannot be guessed or altered, and valid for a year after the send. Clicking it opens a plain confirmation page with one button. Nothing happens until the button is pressed, because link scanners and preview fetchers follow every link in an email. The page then offers a way back for anyone who unsubscribed by mistake.
 
@@ -29,15 +31,13 @@ Two things follow from that. The plain-text alternative of the message has nowhe
 
 ### Plain-text campaigns
 
-A campaign with **Plain text only** switched on ships no HTML at all, so there is nothing for a link to hide inside: link mode and a hand-placed variable both print the full signed address in the copy, which is the one place a cold email least wants a long tracking-shaped URL. The composer warns while you are writing and the launch check warns again before you start.
+A campaign with **Plain text only** switched on (the default) ships no HTML at all, so there is nothing for a link to hide inside: link mode and a hand-placed variable both print the full signed address in the copy, which is the one place a cold email least wants a long tracking-shaped URL. The composer warns while you are writing and the launch check warns again before you start.
 
-The answer there is the header. It is not visible copy, it works the same on a plain-text send, and it is what Gmail and Yahoo actually look for. Leave **Unsubscribe header** on, leave the opt-out line as the reply sentence, and the recipient gets a one-click control in their mail client plus a human sentence in the message.
+On a plain-text campaign, leave the opt-out line off or use the reply sentence. Either way a reply that asks to stop is honoured.
 
-## The List-Unsubscribe header
+## No List-Unsubscribe header
 
-Independently of the body, each campaign can attach the `List-Unsubscribe` and `List-Unsubscribe-Post` headers (RFC 8058). Mail clients that recognise them show their own **Unsubscribe** control next to the sender's name, and pressing it opts the recipient out with no page at all. The toggle is **Preferences > Unsubscribe header**, on by default.
-
-Two things to know. Gmail only shows its button for mail it already classes as bulk, so a one-to-one style cold email from a Workspace mailbox usually does not get one. And Google and Yahoo require the header only above roughly five thousand messages a day to their consumer inboxes, which no mailbox at Warmbly's default limits approaches. The header costs nothing and is worth leaving on; it is not a substitute for the opt-out line.
+Warmbly never adds the `List-Unsubscribe` and `List-Unsubscribe-Post` headers (RFC 8058) to a campaign email. Those headers are how bulk senders identify themselves to mailbox providers, and a cold email from a person carries none. Google and Yahoo require them only above roughly five thousand messages a day to their consumer inboxes, which no mailbox at Warmbly's limits approaches. The `unsubscribe_header` field on the API is accepted for compatibility and has no effect.
 
 ## Replies that ask to stop
 
@@ -45,7 +45,7 @@ Warmbly reads every reply to a campaign email. One that asks to stop, in wording
 
 A reply that says "not interested" is classed as negative and can stop the sequence, but it does not suppress the contact. Someone who says no today may be a fit next year; someone who says stop is asking not to be contacted at all.
 
-Turn this off with **Settings > Sending > Honour replies that ask to stop** if you would rather handle such replies by hand. Leaving it off with the reply-to-opt-out line in place means promising an opt-out you then honour manually.
+Turn this off with **Settings > Sending > Honour replies that ask to stop** if you would rather handle such replies by hand. With no opt-out line in the body, this detection is the recipient's way out, so the launch check warns when both are off. Leaving it off with the reply-to-opt-out line in place means promising an opt-out you then honour manually.
 
 ## The suppression list
 
@@ -53,7 +53,7 @@ Turn this off with **Settings > Sending > Honour replies that ask to stop** if y
 
 | Source | How it got there |
 | --- | --- |
-| Unsubscribed | Clicked the link, pressed the mail client's button, or replied asking to stop |
+| Unsubscribed | Replied asking to stop, or clicked the link when a campaign carries one |
 | Spam complaint | The recipient's provider sent a complaint report for a message you sent |
 | Bounced | A permanent delivery failure for the address |
 | Added by hand | Someone on the team added it |
@@ -71,10 +71,10 @@ Suppression entries travel with a [workspace export](/guides/workspace-export-im
 
 ## Webhooks and the API
 
-An opt-out fires the `campaign.unsubscribed` [webhook](/guides/webhooks/) with a `source` of `one_click` (the mail client's button), `link` (the link in the email), `reply` (a reply asking to stop) or `action` (a sequence's **Unsubscribe** step).
+An opt-out fires the `campaign.unsubscribed` [webhook](/guides/webhooks/) with a `source` of `link` (the link in the email), `reply` (a reply asking to stop), `action` (a sequence's **Unsubscribe** step) or `one_click` (a mail client's own button on an email sent before the header was retired).
 
 The suppression list is available over the API as `GET /suppressions`, `POST /suppressions` and `DELETE /suppressions/:id`. See [deliverability and ops](/api/reference/deliverability-ops/#list-the-suppression-list).
 
 ## Self-hosting
 
-Unsubscribe links are served by the API process on the origin in `API_PUBLIC_URL`, so that variable must be set to the address recipients can reach. Without it Warmbly cannot mint links: the header is left off, and the link mode falls back to the reply-to-opt-out sentence. Links are signed under `AUTH_SECRET`; rotating it invalidates links in emails already sent.
+Unsubscribe links are served by the API process on the origin in `API_PUBLIC_URL`, so that variable must be set to the address recipients can reach. Without it Warmbly cannot mint links, and the link mode falls back to the reply-to-opt-out sentence. Links are signed under `AUTH_SECRET`; rotating it invalidates links in emails already sent.

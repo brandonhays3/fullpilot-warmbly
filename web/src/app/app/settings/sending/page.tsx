@@ -22,6 +22,7 @@ import VerificationSettings from "@/components/app/contacts/VerificationSettings
 import {
     DEFAULT_PREFERRED_HOURS,
     DEFAULT_UNSUBSCRIBE,
+    EXAMPLE_UNSUBSCRIBE_TEXT,
     describeHours,
     formatHour,
     type OutreachSettings,
@@ -299,8 +300,8 @@ function UnsubscribeRows({
     value: UnsubscribeSettings;
     onChange: (next: Partial<UnsubscribeSettings>) => void;
 }) {
-    const mode = (value.mode || "text") as UnsubscribeMode;
-    const text = value.text || DEFAULT_UNSUBSCRIBE.text;
+    const mode = (value.mode || "off") as UnsubscribeMode;
+    const text = value.text.trim();
     const intro = value.link_intro || DEFAULT_UNSUBSCRIBE.link_intro;
     const linkText = value.link_text || DEFAULT_UNSUBSCRIBE.link_text;
     return (
@@ -309,10 +310,10 @@ function UnsubscribeRows({
                 label="Opt-out line"
                 description={
                     mode === "text"
-                        ? "A plain sentence inviting a reply. Reads like a personal email; the reply is detected and honoured automatically."
+                        ? "A plain sentence inviting a reply, appended after the signature. Reads like a personal email; the reply is detected and honoured automatically. Nothing is appended until you write the sentence."
                         : mode === "link"
-                          ? "A sentence with a real unsubscribe link. One click on a confirmation page; the mail client may also show its own Unsubscribe button. Reads as bulk mail where a reply reads as a person, so keep it for lists that need a link. On a plain-text campaign it prints the full address in the copy."
-                          : "No opt-out in the body. Keep the unsubscribe header on in each campaign, or you are relying on recipients replying."
+                          ? "A sentence with a real unsubscribe link. One click on a confirmation page. Reads as bulk mail where a reply reads as a person, so keep it for lists that need a link. On a plain-text campaign it prints the full address in the copy."
+                          : "Nothing appended (the default). A reply that asks to stop is still detected and honoured automatically."
                 }
             >
                 <SelectMenu
@@ -325,11 +326,15 @@ function UnsubscribeRows({
                 />
             </Row>
             {mode === "text" && (
-                <Row label="Wording" description="One sentence, appended after the signature." align="start">
+                <Row
+                    label="Wording"
+                    description="One sentence, appended after the signature. Left empty, nothing is appended."
+                    align="start"
+                >
                     <TextInput
                         value={value.text}
                         onChange={(v) => onChange({ text: v })}
-                        placeholder={DEFAULT_UNSUBSCRIBE.text}
+                        placeholder={EXAMPLE_UNSUBSCRIBE_TEXT}
                         className="w-full sm:w-[420px]"
                     />
                 </Row>
@@ -358,7 +363,7 @@ function UnsubscribeRows({
                 <Row label="Preview" align="start">
                     <p className="w-full sm:w-[420px] rounded-md border border-slate-200 bg-slate-50/60 px-3 py-2 text-[12px] text-slate-500">
                         {mode === "text" ? (
-                            text
+                            text || <span className="italic">Nothing is appended until the wording is written.</span>
                         ) : (
                             <>
                                 {intro} <span className="underline text-slate-600">{linkText}</span>

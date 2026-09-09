@@ -40,9 +40,9 @@ A `data` plus `pagination` envelope. `next_cursor` is the campaign id to resume 
       "stop_on_reply": true,
       "open_tracking": true,
       "link_tracking": true,
-      "text_only": false,
-      "daily_limit": 50,
-      "unsubscribe_header": true,
+      "text_only": true,
+      "daily_limit": 5000,
+      "unsubscribe_header": false,
       "risky_emails": false,
       "cc": [],
       "bcc": [],
@@ -121,7 +121,7 @@ Project an audience against a sender pool before a campaign exists: how many con
 | --- | --- | --- | --- |
 | `segment_ids` | string[] | yes | Segments making up the audience (at most 20). A contact in several of them is counted once. |
 | `email_tag_ids` | string[] | no | Mailbox tags that resolve the pool. Omit or send `[]` for every active mailbox in the workspace. |
-| `daily_limit` | integer | no | Per-mailbox campaign cap to apply (defaults to `50`). Each mailbox counts the smaller of this and its own cap. |
+| `daily_limit` | integer | no | Accepted for compatibility and ignored. Each mailbox counts its own daily cap. |
 | `days` | integer (0-127) | no | Weekday bitmask of sending days, bit 0 = Monday. Defaults to weekdays. |
 | `timezone` | string | no | IANA timezone the days are counted in. Defaults to UTC. |
 | `start_date` | string (RFC 3339) | no | When sending begins. Omit for now. |
@@ -161,9 +161,9 @@ Create a campaign. Only `name` is required, every other field is optional and ap
 | `utm_source` | string | no | Overrides the default `warmbly`. Empty means the default. Up to 128 characters. |
 | `utm_medium` | string | no | Overrides the default `email`. Empty means the default. |
 | `utm_campaign` | string | no | Overrides the default, the campaign name as a slug. Empty means the default. |
-| `text_only` | boolean | no | Send plain text only: no HTML part, and open and click tracking are off regardless of their flags. |
-| `daily_limit` | integer | no | Per-campaign daily send cap. |
-| `unsubscribe_header` | boolean | no | Add the RFC 8058 one-click unsubscribe header. |
+| `text_only` | boolean | no | Send plain text only: no HTML part, and open and click tracking are off regardless of their flags. Default `true`. |
+| `daily_limit` | integer | no | Stored and returned for compatibility, validated `3` to `5000`, and not a cap: the scheduler only consults each mailbox's own daily cap. Defaults to `5000`. |
+| `unsubscribe_header` | boolean | no | Stored and returned for compatibility. No `List-Unsubscribe` header is ever sent. Default `false`. |
 | `risky_emails` | boolean | no | Allow sending to risky/unverified addresses. |
 | `cc` | string[] | no | Static CC list. |
 | `bcc` | string[] | no | Static BCC list. |
@@ -201,8 +201,7 @@ Create a campaign. Only `name` is required, every other field is optional and ap
   "stop_on_reply": true,
   "open_tracking": true,
   "link_tracking": true,
-  "daily_limit": 40,
-  "unsubscribe_header": true,
+  "text_only": false,
   "timezone": "America/New_York",
   "email_tag_ids": ["3b0a...", "9d2c..."],
   "sender_strategy": "tags",
@@ -255,7 +254,6 @@ A campaign with `continuous` set stays `active` when it runs out of leads and ca
 ```json
 {
   "name": "Q3 outbound (renamed)",
-  "daily_limit": 35,
   "stop_on_reply": true,
   "schedule_windows": [[],[{"start":540,"end":1020}],[{"start":540,"end":1020}],[],[],[],[]]
 }
@@ -631,7 +629,7 @@ Delete a campaign attachment and its stored object. **Scope** `WRITE_CAMPAIGNS` 
 
 `POST /campaigns/:id/preflight`
 
-Run the campaign's preflight validation checks (tracking domain, unsubscribe header, daily limit, schedule window, A/B configuration, and more) and return a scored report. No mail is sent. **Scope** `SEND_CAMPAIGNS` · **Org permission** `send_campaigns`.
+Run the campaign's preflight validation checks (tracking domain, a way to opt out, schedule window, A/B configuration, and more) and return a scored report. No mail is sent. **Scope** `SEND_CAMPAIGNS` · **Org permission** `send_campaigns`.
 
 | Parameter | In | Type | Description |
 | --- | --- | --- | --- |

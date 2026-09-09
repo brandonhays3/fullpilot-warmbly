@@ -11,7 +11,7 @@ You need at least one active mailbox and a contact list. Warm new mailboxes befo
 
 ## Create a campaign
 
-**Campaigns** > **New campaign** opens a wizard that first asks what you are sending: a **sequence** or a [one-time email](#one-time-emails). For a sequence the steps are **Basics** (name, description), **Schedule** (timezone, sending days, hours), **Sending** (mailbox tags, daily limit per mailbox, stop on reply, open and click tracking, UTM parameters, unsubscribe header), and **First email** (subject, body, optional follow-ups). Follow-ups added here are connected in order, each waiting the number of days you set after the previous step; open the Steps tab to rearrange, branch, or change the waits. Only a name is required; the first email can be skipped and written in the full editor on the Steps tab, and everything else except the campaign type can be changed later from settings. The choice between a sequence and a one-time email is fixed at creation: switching means creating a new campaign. Closing a wizard with unsaved edits asks before discarding them.
+**Campaigns** > **New campaign** opens a wizard that first asks what you are sending: a **sequence** or a [one-time email](#one-time-emails). For a sequence the steps are **Basics** (name, description), **Schedule** (timezone, sending days, hours), **Sending** (mailbox tags, stop on reply, plain text only, and for HTML campaigns open and click tracking and UTM parameters), and **First email** (subject, body, optional follow-ups). Follow-ups added here are connected in order, each waiting the number of days you set after the previous step; open the Steps tab to rearrange, branch, or change the waits. Only a name is required; the first email can be skipped and written in the full editor on the Steps tab, and everything else except the campaign type can be changed later from settings. The choice between a sequence and a one-time email is fixed at creation: switching means creating a new campaign. Closing a wizard with unsaved edits asks before discarding them.
 
 The campaign starts as a **draft**. Nothing sends until you start it.
 
@@ -27,7 +27,7 @@ In the campaigns list a one-time email carries a **One-time** badge and reads **
 
 ## Plain text only
 
-**Settings** > **Plain text only** sends the campaign without an HTML part. Recipients get the plain-text body with the mailbox's plain-text signature, and because open pixels and wrapped links need HTML, open and click tracking are off for that campaign whatever their toggles say. Test emails respect it too, so what lands in your own inbox is what recipients get.
+New campaigns are plain text. **Settings** > **Plain text only**, on by default, sends the campaign without an HTML part. Recipients get the plain-text body with the mailbox's plain-text signature, and because open pixels and wrapped links need HTML, open and click tracking are off for that campaign whatever their toggles say. Test emails respect it too, so what lands in your own inbox is what recipients get. Switch it off for a campaign that needs HTML.
 
 ## Senders and rotation
 
@@ -57,11 +57,10 @@ Warmbly is mailbox-first: safe volume is the sum of each mailbox's budget, not o
 
 | Limit | Default | What it does |
 | --- | --- | --- |
-| Per-mailbox cold cap | `50`/day | Hard ceiling for cold mail from one mailbox |
-| Minimum gap | `600s` | Shortest spacing between two sends from one mailbox, always enforced |
-| Campaign daily limit | Per campaign | A per-mailbox cap for this campaign, validated `3` to `5000` |
+| Per-mailbox cold cap | `15`/day (Google Workspace), `5`/day (Microsoft 365, SMTP/IMAP) | Hard ceiling for cold mail from one mailbox |
+| Minimum gap | `1200s` (Google Workspace), `600s` (Microsoft 365, SMTP/IMAP) | Shortest spacing between two sends from one mailbox, always enforced |
 
-The campaign daily limit applies as a minimum against the cold cap, so it can lower a mailbox's volume but never raise it above the mailbox's own daily cap (default `50`/day).
+The daily cap is a mailbox setting, not a campaign one: a campaign has no daily limit of its own and sends whatever its mailboxes allow. Change a mailbox's cap on its **Settings** tab (see [mailboxes](/guides/mailboxes/#sending-controls)). The `daily_limit` field on the API is accepted for compatibility and ignored.
 
 Only an email actually handed to a sending worker counts against a mailbox's daily budget and its minimum gap. The scheduler's own wake-ups, a step it deferred because its slot was not due yet, and action or wait steps never do, so a campaign started outside its sending window still has its whole budget when the window opens. When every mailbox on a campaign has used its budget for the day, the campaign stays active and waits for the next day; the activity log notes it once per day. It also waits, rather than pausing, when every mailbox is outside its own hours, resting, or held back by warmup health.
 
@@ -175,7 +174,7 @@ Every campaign has a **⋯** menu, on its row in the list and in the header of i
 
 ## Auto-pause guardrails
 
-**Preferences** > **Opt-out line** chooses what this campaign appends after the signature: the workspace default from **Settings > Sending**, a reply-to-opt-out sentence, an unsubscribe link, or nothing. **Unsubscribe header** attaches the RFC 8058 headers alongside. See [unsubscribe and suppression](/guides/unsubscribe/).
+**Preferences** > **Opt-out line** chooses what this campaign appends after the signature: the workspace default from **Settings > Sending**, a reply-to-opt-out sentence, an unsubscribe link, or nothing. Nothing is appended by default; a reply that asks to stop is honoured automatically either way. See [unsubscribe and suppression](/guides/unsubscribe/).
 
 **Preferences** > **Auto-pause** stops a campaign the moment its rates leave the band you set, instead of waiting for a mailbox provider to react. Off by default.
 
@@ -230,7 +229,7 @@ The mailbox starts at a volume set by how long it warmed, then adds `5` a day un
 | one to two weeks | `10`/day |
 | two weeks or more | `20`/day |
 
-The ramp only ever **lowers** a cap, never raises one, so your configured limit and the campaign's daily limit still bind. A spam placement pauses the climb for the same three days it pauses the warmup ramp, and the paused days are subtracted rather than made up. The mailbox drawer shows today's allowance and roughly when it reaches your cap.
+The ramp only ever **lowers** a cap, never raises one, so the mailbox's own daily cap still binds. A spam placement pauses the climb for the same three days it pauses the warmup ramp, and the paused days are subtracted rather than made up. The mailbox drawer shows today's allowance and roughly when it reaches your cap.
 
 <Callout type="info" title="Only for mailboxes that warmed">
 A mailbox that never used warmup is not gated. This exists to smooth the warmup-to-cold transition, not to cap senders who never opted into warmup.

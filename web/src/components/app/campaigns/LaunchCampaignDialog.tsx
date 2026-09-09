@@ -1,7 +1,7 @@
 // Launch campaign dialog.
 //
 // A purpose-built, animated launch experience that replaces the generic
-// "Start X?" confirm. It shows a short pre-flight summary (daily cap,
+// "Start X?" confirm. It shows a short pre-flight summary (format,
 // schedule, tracking, steps) derived from the campaign, then runs through
 // idle → launching → live with motion: the launching state reuses the same
 // dot-grid loader as the running indicator, and success springs a check in
@@ -15,7 +15,7 @@ import {
     CalendarClockIcon,
     CheckIcon,
     EyeIcon,
-    GaugeIcon,
+    FileTextIcon,
     ListChecksIcon,
     RocketIcon,
     XIcon,
@@ -244,9 +244,9 @@ export default function LaunchCampaignDialog({
                                     {/* Pre-flight summary */}
                                     <div className="px-5 grid grid-cols-2 gap-2">
                                         <SummaryChip
-                                            icon={<GaugeIcon className="w-4 h-4" />}
-                                            label="Daily cap"
-                                            value={`${c.daily_limit}/mailbox`}
+                                            icon={<FileTextIcon className="w-4 h-4" />}
+                                            label="Format"
+                                            value={c.text_only ? "Plain text" : "HTML"}
                                         />
                                         <SummaryChip
                                             icon={<CalendarClockIcon className="w-4 h-4" />}

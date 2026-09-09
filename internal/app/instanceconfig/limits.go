@@ -29,8 +29,11 @@ func Limits() []LimitGroup {
 		{
 			Title: "Sending",
 			Entries: []LimitEntry{
-				{"Default campaign cap", n(config.CampaignLimitDefault), "emails/day", "Per mailbox, before any organization override."},
-				{"Minimum gap between sends", n(config.MinWaitTimeDefault), "seconds", "Per mailbox. Spacing matters more than throughput."},
+				{"Default campaign cap, Google Workspace", n(config.MailboxDefaults(config.MailboxProviderGoogle).CampaignLimit), "emails/day", "Per mailbox on connect. The only daily send cap the scheduler consults; campaigns carry none of their own."},
+				{"Default campaign cap, Microsoft 365", n(config.MailboxDefaults(config.MailboxProviderOutlook).CampaignLimit), "emails/day", "Per mailbox on connect."},
+				{"Default campaign cap, SMTP/IMAP", n(config.MailboxDefaults(config.MailboxProviderSMTPIMAP).CampaignLimit), "emails/day", "Per mailbox on connect."},
+				{"Minimum gap between sends, Google Workspace", n(config.MailboxDefaults(config.MailboxProviderGoogle).MinWaitTime), "seconds", "Per mailbox. Spacing matters more than throughput."},
+				{"Minimum gap between sends, Microsoft 365 and SMTP/IMAP", n(config.MailboxDefaults(config.MailboxProviderOutlook).MinWaitTime), "seconds", "Per mailbox."},
 				{"Highest campaign cap accepted", n(config.LimitMax), "emails/day", "The largest per-mailbox cap the API will store."},
 				{"Lowest campaign cap accepted", n(config.LimitMin), "emails/day", "The smallest per-mailbox cap the API will store."},
 				{"Campaign ramp start", n(config.CampaignRampStartDefault), "emails/day", "Where a new campaign sender starts before the ramp lifts it."},

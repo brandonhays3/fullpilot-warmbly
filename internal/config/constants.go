@@ -12,9 +12,13 @@ const (
 	LimitMax = 5000
 
 	CampaignDailyLimitMin = 3
+	// CampaignDailyLimitUnbounded is what a new campaign stores in its
+	// daily_limit column. The per-mailbox cap (each mailbox's own
+	// campaign_limit, see MailboxDefaults) is the only daily send cap the
+	// scheduler consults; the campaign column is kept for API compatibility
+	// and is written at the ceiling so nothing reads it as a tighter bound.
+	CampaignDailyLimitUnbounded = LimitMax
 
-	CampaignLimitDefault  = 50
-	MinWaitTimeDefault    = 600
 	WarmupBaseDefault     = 10
 	WarmupMaxDefault      = 40
 	WarmupIncreaseDefault = 1
@@ -380,4 +384,85 @@ var InboundClassificationHeaders = []string{
 	"X-Autoreply",
 	"X-Autorespond",
 	"X-Auto-Response-Suppress",
+}
+
+// MailboxProviderGoogle, MailboxProviderOutlook and MailboxProviderSMTPIMAP
+// are the provider column values a mailbox row carries (they mirror
+// models.InboxProvider, which cannot be imported from here).
+const (
+	MailboxProviderGoogle   = "gmail"
+	MailboxProviderOutlook  = "outlook"
+	MailboxProviderSMTPIMAP = "smtp_imap"
+)
+
+// MailboxSendDefaults are the sending controls a newly connected mailbox
+// starts with. They are per provider because each provider's tolerance for
+// cold volume from a fresh mailbox differs, and they are the only daily send
+// cap the campaign scheduler consults: a campaign has no cap of its own.
+type MailboxSendDefaults struct {
+	// CampaignLimit is the cold campaign cap, emails per day.
+	CampaignLimit int
+	// MinWaitTime is the floor between two sends from the mailbox, seconds.
+	MinWaitTime int
+}
+
+// MailboxDefaults returns the sending defaults for a mailbox of the given
+// provider ("gmail", "outlook", "smtp_imap"). Google Workspace tolerates a
+// little more cold volume from a fresh mailbox than Microsoft 365 or a bare
+// SMTP host, so it starts at 15/day with a 20 minute gap; everything else
+// starts at 5/day with a 10 minute gap. An unknown provider gets the
+// conservative SMTP/IMAP numbers.
+func MailboxDefaults(provider string) MailboxSendDefaults {
+	switch provider {
+	case MailboxProviderGoogle:
+		return MailboxSendDefaults{CampaignLimit: 15, MinWaitTime: 1200}
+	case MailboxProviderOutlook:
+		return MailboxSendDefaults{CampaignLimit: 5, MinWaitTime: 600}
+	default:
+		return MailboxSendDefaults{CampaignLimit: 5, MinWaitTime: 600}
+	}
+}
+
+// WarmupProviderDefaults are the warmup settings a mailbox of one provider
+// starts with in the external warmup integration. Rates are percentages.
+type WarmupProviderDefaults struct {
+	// IncreasePerDay is how many more warmup emails the mailbox sends each
+	// day while it ramps.
+	IncreasePerDay int
+	// DailyLimit is the warmup ceiling, emails per day.
+	DailyLimit int
+	// ReplyRate is the share of received warmup emails that get a reply.
+	ReplyRate int
+	// ReadEmulation opens and scrolls received warmup mail like a person.
+	ReadEmulation bool
+	// WeekdaysOnly restricts warmup sends to Monday through Friday.
+	WeekdaysOnly bool
+	// OpenRate is the share of received warmup emails that are opened.
+	OpenRate int
+	// SpamProtection is the share of warmup mail landing in spam that is
+	// rescued to the inbox.
+	SpamProtection int
+	// MarkImportant is the share of received warmup emails marked important.
+	MarkImportant int
+}
+
+// WarmupDefaults returns the warmup defaults for a mailbox of the given
+// provider ("gmail", "outlook", "smtp_imap"). Only the daily ceiling varies:
+// Outlook starts lower because Microsoft 365 throttles a fresh tenant sooner.
+// An unknown provider gets the Gmail/SMTP numbers.
+func WarmupDefaults(provider string) WarmupProviderDefaults {
+	d := WarmupProviderDefaults{
+		IncreasePerDay: 2,
+		DailyLimit:     30,
+		ReplyRate:      65,
+		ReadEmulation:  true,
+		WeekdaysOnly:   false,
+		OpenRate:       63,
+		SpamProtection: 100,
+		MarkImportant:  34,
+	}
+	if provider == MailboxProviderOutlook {
+		d.DailyLimit = 16
+	}
+	return d
 }
