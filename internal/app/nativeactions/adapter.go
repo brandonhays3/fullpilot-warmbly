@@ -169,7 +169,7 @@ func (a Adapter) AddToCampaign(ctx context.Context, orgID, actorID, contactID, c
 	return nil
 }
 
-// LabelThread applies unibox conversation labels to a thread on behalf of the
+// LabelThread applies unified inbox conversation labels to a thread on behalf of the
 // mailbox owner (the advanced service guards category ownership). The error is
 // already a plain error, so it passes straight through.
 func (a Adapter) LabelThread(ctx context.Context, userID uuid.UUID, threadID string, categoryIDs []uuid.UUID) error {

@@ -1,6 +1,6 @@
 // Package inboxagent implements the inbox agent (M10): a paid, opt-in feature
 // that drafts a suggested reply when an inbound HUMAN reply lands, persists it
-// awaiting a human Approve-and-send / Edit / Discard in the unibox, and never
+// awaiting a human Approve-and-send / Edit / Discard in the unified inbox, and never
 // sends on its own. It runs in the consumer (where inbound replies are ingested)
 // off the advanced-outreach reply hook, on a detached context so it never blocks
 // reply processing.

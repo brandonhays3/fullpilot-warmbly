@@ -60,7 +60,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/app/oauth-apps": "OAuth apps",
   "/app/integrations": "Integrations",
   "/app/audit": "Audit log",
-  "/app/unibox": "Unibox",
+  "/app/unibox": "Unified Inbox",
 
   // Settings
   "/app/settings/profile": "Profile",
@@ -96,7 +96,7 @@ const PARAM_ROUTES: ReadonlyArray<readonly [RegExp, string]> = [
   [/^\/app\/automations\/[^/]+$/, "Automation"],
   [/^\/app\/forms\/[^/]+$/, "Form"],
   [/^\/app\/contacts\/segments\/[^/]+$/, "Segment"],
-  [/^\/app\/unibox(\/.*)?$/, "Unibox"],
+  [/^\/app\/unibox(\/.*)?$/, "Unified Inbox"],
   [/^\/app\/settings\/billing\/[^/]+$/, "Billing"],
   [/^\/app\/admin\/workers\/[^/]+$/, "Worker"],
 ];

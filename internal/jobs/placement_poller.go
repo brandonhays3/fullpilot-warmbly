@@ -10,7 +10,7 @@ import (
 )
 
 // PlacementPoller reconciles pending seed inbox-placement results: each tick it
-// looks up each in-flight test's token in the receiving seed's unibox entries
+// looks up each in-flight test's token in the receiving seed's unified inbox entries
 // and classifies where the probe landed (Inbox / Spam / Promotions / other),
 // completing the test once every result resolves or the classify timeout
 // passes. It is a thin scheduler around placement.Service.ClassifyPending; all

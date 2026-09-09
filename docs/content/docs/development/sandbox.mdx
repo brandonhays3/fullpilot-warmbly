@@ -3,7 +3,7 @@ title: Sandbox
 description: A fully working local demo environment, with live sending, replies, opens, clicks, warmup, and a full history and analytics dataset running end to end.
 ---
 
-The sandbox turns a local stack into a living product demo. It seeds a showcase organization ("Sunrise Labs") whose mailboxes really send and really sync, backfills a complete history and analytics dataset so every dashboard surface is populated on first load, then runs a simulator that plays the internet: it delivers captured mail into recipient inboxes, opens tracking pixels, clicks tracked links, and replies as the seeded contacts. Campaign stats climb, the unibox fills with threaded replies, warmup interactions verify, and the dashboard updates in realtime, all through production code paths. The only simulated thing is the humans.
+The sandbox turns a local stack into a living product demo. It seeds a showcase organization ("Sunrise Labs") whose mailboxes really send and really sync, backfills a complete history and analytics dataset so every dashboard surface is populated on first load, then runs a simulator that plays the internet: it delivers captured mail into recipient inboxes, opens tracking pixels, clicks tracked links, and replies as the seeded contacts. Campaign stats climb, the unified inbox fills with threaded replies, warmup interactions verify, and the dashboard updates in realtime, all through production code paths. The only simulated thing is the humans.
 
 ## Quick start
 
@@ -73,7 +73,7 @@ The simulator bridges the two and plays every human:
 
 1. It polls Mailpit's API for new messages (the read flag is its cursor).
 2. Mail addressed to a hosted mailbox (for example warmup mail between pool members) is appended into that user's Dovecot inbox. The recipient's worker sync picks it up, the warmup token verifies, and engagement actions run against the real IMAP folders.
-3. Mail addressed to a seeded contact triggers a persona: after humanized delays, most contacts open the pixel against the local tracking service, some click the tracked link, and some reply. Replies are composed with correct `In-Reply-To` threading and appended into the sending mailbox's inbox, so reply attribution, the reply classifier, `EMAIL_REPLIED` realtime events, and the unibox all behave exactly as in production. A slice of replies are out-of-office autoresponders (with `Auto-Submitted` headers) so classifier gating is visible too.
+3. Mail addressed to a seeded contact triggers a persona: after humanized delays, most contacts open the pixel against the local tracking service, some click the tracked link, and some reply. Replies are composed with correct `In-Reply-To` threading and appended into the sending mailbox's inbox, so reply attribution, the reply classifier, `EMAIL_REPLIED` realtime events, and the unified inbox all behave exactly as in production. A slice of replies are out-of-office autoresponders (with `Auto-Submitted` headers) so classifier gating is visible too.
 
 Personas are derived from a hash of the contact's address, so behavior is stable across restarts without any extra state: roughly 92% open, 57% of openers click, 45% of openers reply, with reply tones split across interested, question, not-interested, and out-of-office. The rates are deliberately hotter than real-world outreach so the demo stays lively.
 
@@ -109,7 +109,7 @@ A tour that shows the platform working end to end:
 
 1. **Dashboard**: the overview lands full. Overall stats, top campaigns, recent activity, account health, and the daily trend chart are all populated from the seeded history before a single live send.
 2. **Campaigns**: all four buckets are filled (active, paused, completed, draft). Open the Sunrise Q3 launch campaign; sent counts tick up as the scheduler paces live sends across the twenty mailboxes, and opens, clicks, and replies accumulate on top of the seeded funnel.
-3. **Unibox**: replies arrive threaded under the original message with full bodies, synced by the worker over IMAP. Out-of-office autoresponders appear but do not count as human replies.
+3. **Unified Inbox**: replies arrive threaded under the original message with full bodies, synced by the worker over IMAP. Out-of-office autoresponders appear but do not count as human replies.
 4. **Deliverability and analytics**: the deliverability view shows bounces, complaints, and unsubscribes with rates; reply intents and the suppression list are populated; mailboxes surface one resolved and one open error.
 5. **Mailboxes**: each sender shows warmup activity climbing its ramp; the warmup pool exchanges verified mail between accounts.
 6. **Mailpit** (`http://localhost:18025`): the raw wire view; every message the platform sends, including warmup tokens and tracking rewrites.
@@ -122,7 +122,7 @@ A tour that shows the platform working end to end:
 
 **Sends fail with TLS errors.** The worker must run with `MAIL_TLS_INSECURE=true` (set by `make worker`). Production configurations must never set it.
 
-**Replies missing from the unibox.** Confirm the simulator is running and the consumer is up: delivery is simulator to Dovecot to worker IMAP sync to the event bus to consumer.
+**Replies missing from the unified inbox.** Confirm the simulator is running and the consumer is up: delivery is simulator to Dovecot to worker IMAP sync to the event bus to consumer.
 
 **Opens/clicks not counting.** The tracking service must be up (`make sandbox` runs it as a container; `make tracking` runs it natively if you have cargo). The consumer processes tracking events into campaign stats.
 

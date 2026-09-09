@@ -174,7 +174,7 @@ export const shortcutDefinitions = {
     { keys: ['g', 'e'], description: 'Go to Email Accounts' },
     { keys: ['g', 'c'], description: 'Go to Contacts' },
     { keys: ['g', 'm'], description: 'Go to Campaigns' },
-    { keys: ['g', 'u'], description: 'Go to Unibox' },
+    { keys: ['g', 'u'], description: 'Go to Unified Inbox' },
     { keys: ['g', 'a'], description: 'Go to Analytics' },
     { keys: ['g', 'p'], description: 'Go to Pipelines' },
     { keys: ['g', 'd'], description: 'Go to Deals' },

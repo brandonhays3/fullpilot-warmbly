@@ -1,4 +1,4 @@
-// ContactContextPanel : the CRM rail of the unibox thread reader.
+// ContactContextPanel : the CRM rail of the unified inbox thread reader.
 //
 // Given the sender address of the open thread, it resolves the contact and
 // surfaces the customer-relationship context inline: who they are, which

@@ -11,7 +11,7 @@ import (
 // Extra sandbox-history UUIDs (all carry the "aaaa" sandbox marker). Kept
 // disjoint from the identity/campaign IDs declared in seed.go.
 var (
-	// Unibox inbound messages (77777777-aaaa-...).
+	// Unified Inbox inbound messages (77777777-aaaa-...).
 	uniboxReplyPositive1 = uuid.MustParse("77777777-aaaa-0000-0000-000000000001")
 	uniboxReplyPositive2 = uuid.MustParse("77777777-aaaa-0000-0000-000000000002")
 	uniboxReplyPositive3 = uuid.MustParse("77777777-aaaa-0000-0000-000000000003")

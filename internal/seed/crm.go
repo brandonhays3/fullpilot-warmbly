@@ -81,7 +81,7 @@ func seedCRMDeals(ctx context.Context, pool *pgxpool.Pool, _ *Result) error {
 	deals := []deal{
 		{DealAcmeBigID, StageDemoID, "Northwind - team-wide rollout", 24_000, "open", false, contactID(0x01, 1)},
 		{DealAcmeWonID, StageWonID, "Initech - pilot extension", 6_000, "won", true, contactID(0x01, 1)},
-		// Deals tied to other contacts that also appear in the unibox, so opening
+		// Deals tied to other contacts that also appear in the unified inbox, so opening
 		// their threads shows live pipeline in the CRM panel — not just Aiden's.
 		{uuid.MustParse("0000000d-0000-0000-0000-000000000003"), StageDemoID, "Vandelay - list hygiene retainer", 9_000, "open", false, contactID(0x01, 7)},
 		{uuid.MustParse("0000000d-0000-0000-0000-000000000004"), StageDemoID, "Hooli - deliverability pilot", 15_000, "open", false, contactID(0x01, 4)},

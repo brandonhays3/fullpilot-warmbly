@@ -209,7 +209,7 @@ func (h *Handler) ReorderTemplates(c *gin.Context) {
 }
 
 // RenderTemplate expands {{.Key}} placeholders in subject + body fields
-// using a caller-supplied variable map. Used by Unibox to preview a reply
+// using a caller-supplied variable map. Used by Unified Inbox to preview a reply
 // before scheduling the send.
 // POST /templates/:id/render
 func (h *Handler) RenderTemplate(c *gin.Context) {

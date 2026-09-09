@@ -14,7 +14,7 @@ import (
 	"github.com/warmbly/warmbly/internal/models"
 )
 
-// gateUnibox enforces feature access for any unibox endpoint that
+// gateUnibox enforces feature access for any unified inbox endpoint that
 // needs an org context. Returns true when the caller is allowed.
 func (h *Handler) gateUnibox(c *gin.Context) bool {
 	if h.FeatureGateService == nil {
@@ -26,7 +26,7 @@ func (h *Handler) gateUnibox(c *gin.Context) bool {
 	}
 	canUse, _ := h.FeatureGateService.CanUseUnibox(c.Request.Context(), *orgID)
 	if !canUse {
-		errx.Handle(c, errx.New(errx.Forbidden, "Unibox requires an active trial or paid subscription"))
+		errx.Handle(c, errx.New(errx.Forbidden, "Unified Inbox requires an active trial or paid subscription"))
 		return false
 	}
 	return true
@@ -46,13 +46,13 @@ func (h *Handler) GetUniboxIncoming(c *gin.Context) {
 		return
 	}
 
-	// Check if organization can use unibox (active free trial or paid subscription)
+	// Check if organization can use unified inbox (active free trial or paid subscription)
 	if h.FeatureGateService != nil {
 		orgID := middleware.GetOrganizationID(c)
 		if orgID != nil {
 			canUse, _ := h.FeatureGateService.CanUseUnibox(c.Request.Context(), *orgID)
 			if !canUse {
-				errx.Handle(c, errx.New(errx.Forbidden, "Unibox requires an active trial or paid subscription"))
+				errx.Handle(c, errx.New(errx.Forbidden, "Unified Inbox requires an active trial or paid subscription"))
 				return
 			}
 		}
@@ -222,7 +222,7 @@ func (h *Handler) GetUniboxEmail(c *gin.Context) {
 	if h.FeatureGateService != nil {
 		canUse, _ := h.FeatureGateService.CanUseUnibox(c.Request.Context(), *orgID)
 		if !canUse {
-			errx.Handle(c, errx.New(errx.Forbidden, "Unibox requires an active trial or paid subscription"))
+			errx.Handle(c, errx.New(errx.Forbidden, "Unified Inbox requires an active trial or paid subscription"))
 			return
 		}
 	}
@@ -261,7 +261,7 @@ func (h *Handler) GetUniboxThread(c *gin.Context) {
 	if h.FeatureGateService != nil {
 		canUse, _ := h.FeatureGateService.CanUseUnibox(c.Request.Context(), *orgID)
 		if !canUse {
-			errx.Handle(c, errx.New(errx.Forbidden, "Unibox requires an active trial or paid subscription"))
+			errx.Handle(c, errx.New(errx.Forbidden, "Unified Inbox requires an active trial or paid subscription"))
 			return
 		}
 	}
@@ -438,7 +438,7 @@ type UniboxReplyRequest struct {
 	ScheduledAt    *time.Time `json:"scheduled_at,omitempty"`
 }
 
-// UniboxReply schedules a reply email from Unibox.
+// UniboxReply schedules a reply email from Unified Inbox.
 // POST /unibox/reply
 func (h *Handler) UniboxReply(c *gin.Context) {
 	orgID := middleware.GetOrganizationID(c)

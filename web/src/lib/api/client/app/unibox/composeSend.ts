@@ -1,4 +1,4 @@
-// Fresh outbound email from the unibox composer. When email_account_id is
+// Fresh outbound email from the unified inbox composer. When email_account_id is
 // omitted the backend auto-picks the best sender and reports it back.
 
 import Request from "../../Request";

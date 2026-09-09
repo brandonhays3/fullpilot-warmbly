@@ -35,7 +35,7 @@ type AIDraftRepository interface {
 	GetDraft(ctx context.Context, orgID, id uuid.UUID) (*models.AIThreadDraft, error)
 	// ListPendingDrafts returns the org's pending drafts, newest first.
 	ListPendingDrafts(ctx context.Context, orgID uuid.UUID, limit int) ([]models.AIThreadDraft, error)
-	// CountPendingDrafts returns the org's pending-draft count (the unibox badge).
+	// CountPendingDrafts returns the org's pending-draft count (the unified inbox badge).
 	CountPendingDrafts(ctx context.Context, orgID uuid.UUID) (int64, error)
 	// SetDraftStatus transitions a PENDING draft to approved/discarded. Returns
 	// false when the draft is missing or already resolved (idempotent human action).

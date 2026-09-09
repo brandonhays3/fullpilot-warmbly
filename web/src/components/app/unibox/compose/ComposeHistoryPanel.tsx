@@ -1,7 +1,7 @@
 // ComposeHistoryPanel — everything you've ever exchanged with the recipient,
 // without leaving the composer. Tabs split the full back-and-forth from just
 // what we sent them; the search box narrows by subject. Rows open the real
-// thread in the unibox so the composer stays a quick reference, not a fork
+// thread in the unified inbox so the composer stays a quick reference, not a fork
 // of the inbox.
 
 import React from "react";

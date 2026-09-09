@@ -14,11 +14,11 @@ import (
 )
 
 func (s *JobsService) HandleFlagsAdd(ctx context.Context, e *models.JobEventFlags) error {
-	// Tampering check first: verified warmup mail is NOT in the unibox, so we
+	// Tampering check first: verified warmup mail is NOT in the unified inbox, so we
 	// detect it via the warmup_received record. If the recipient marked a
 	// warmup email as spam, that harms the pool — penalise the sender for the
 	// spam signal AND ban the harmer (they can appeal). Warmup mail isn't
-	// tracked in the unibox, so there's nothing else to do for it.
+	// tracked in the unified inbox, so there's nothing else to do for it.
 	if s.WarmupRepo != nil {
 		if rec, _ := s.WarmupRepo.GetWarmupReceived(ctx, e.EmailID, e.ID); rec != nil {
 			if containsSpamFlag(e.Flags) && s.WarmupService != nil {

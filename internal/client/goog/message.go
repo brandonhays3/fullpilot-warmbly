@@ -109,7 +109,7 @@ func parseGmailDate(dateText string) time.Time {
 	return date
 }
 
-// gmailFolder maps Gmail labels to the canonical unibox folder. Precedence
+// gmailFolder maps Gmail labels to the canonical unified inbox folder. Precedence
 // mirrors Gmail's own UI: trash and spam are exclusive, a draft is a draft,
 // inbox wins over sent for self-addressed mail, and mail carrying none of
 // these labels is archived.

@@ -32,8 +32,8 @@ type FeatureGateService interface {
 	// Free-trial orgs may use warmup during their 14-day window.
 	CanUseWarmup(ctx context.Context, orgID uuid.UUID) (bool, *errx.Error)
 
-	// CanUseUnibox checks if an organization can use the unibox feature.
-	// Free-trial orgs may use unibox during their 14-day window.
+	// CanUseUnibox checks if an organization can use the unified inbox feature.
+	// Free-trial orgs may use unified inbox during their 14-day window.
 	CanUseUnibox(ctx context.Context, orgID uuid.UUID) (bool, *errx.Error)
 
 	// CanAddInbox returns whether the org may connect another email account.
@@ -179,7 +179,7 @@ func (s *featureGateService) CanUseWarmup(ctx context.Context, orgID uuid.UUID) 
 	return false, nil
 }
 
-// CanUseUnibox checks if an organization can use the unibox feature.
+// CanUseUnibox checks if an organization can use the unified inbox feature.
 // Same trial allowance as warmup.
 func (s *featureGateService) CanUseUnibox(ctx context.Context, orgID uuid.UUID) (bool, *errx.Error) {
 	if s.selfHost {

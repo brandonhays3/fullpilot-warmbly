@@ -110,7 +110,7 @@ func Limits() []LimitGroup {
 				{"Backfill pace", n(config.SyncBackfillPerMinute), "messages/minute", "Per mailbox during the initial import of history."},
 				{"Flood threshold", n(config.SyncFloodPerHour), "messages/hour", "New live mail seen in one hour that deactivates the mailbox outright."},
 				{"Chronic overage", n(config.SyncThrottleEscalationDays), "days of 7", "Daily budget exhausted on this many of the last seven days deactivates the mailbox. The daily budgets and the backfill window are editable on Instance settings."},
-				{"Unibox page size", n(config.UniboxLimitDefault), "messages", "Default page size, range " + n(config.UniboxLimitMin) + " to " + n(config.UniboxLimitMax) + "."},
+				{"Unified Inbox page size", n(config.UniboxLimitDefault), "messages", "Default page size, range " + n(config.UniboxLimitMin) + " to " + n(config.UniboxLimitMax) + "."},
 				{"Sequence step delay", n(config.SequenceWaitAfterMax), "days", "The largest per-step wait a sequence can store."},
 				{"Sequence subject", n(config.SequenceSubjectLimit), "characters", "Per step."},
 				{"Sequence body", n(config.SequenceBodyLimit), "characters", "Per step."},

@@ -12,7 +12,7 @@ const (
 	// CostAgentIteration is one iteration of the dashboard agent loop.
 	CostAgentIteration = 1
 
-	// CostReplyDraft is one context-grounded unibox reply draft.
+	// CostReplyDraft is one context-grounded unified inbox reply draft.
 	CostReplyDraft = 2
 
 	// CostResearchRun is one contact research run (nothing_found included).

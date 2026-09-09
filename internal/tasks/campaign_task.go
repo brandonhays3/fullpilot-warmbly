@@ -1086,7 +1086,7 @@ func (s *tasksService) executeActionNode(ctx context.Context, campaign *models.C
 		}
 		return nil
 	case "label_email":
-		// Apply unibox labels to the contact's most recent conversation. A no-op
+		// Apply unified inbox labels to the contact's most recent conversation. A no-op
 		// when the contact has no thread yet (returns "" thread, nil error).
 		if len(cfg.LabelIDs) == 0 {
 			return nil
