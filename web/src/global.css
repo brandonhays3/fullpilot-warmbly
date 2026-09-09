@@ -25,13 +25,15 @@
      (Tailwind gray) with the brand navy at the dark end. */
   --color-slate-50: #f9fafb;
   --color-slate-100: #f3f4f6;
-  --color-slate-200: #e5e7eb;
-  --color-slate-300: #d1d5db;
-  --color-slate-400: #9ca3af;
-  --color-slate-500: #6b7280;
-  --color-slate-600: #4b5563;
-  --color-slate-700: #374151;
-  --color-slate-800: #1f2937;
+  --color-slate-200: #e2e5e9;
+  --color-slate-300: #c4c9d0;
+  /* Secondary text is one step darker than Tailwind's scale so muted labels
+     and helper copy stay readable without glasses. */
+  --color-slate-400: #6b7280;
+  --color-slate-500: #4b5563;
+  --color-slate-600: #374151;
+  --color-slate-700: #1f2937;
+  --color-slate-800: #111827;
   --color-slate-900: #02101e;
   --color-slate-950: #02101e;
 
@@ -69,7 +71,7 @@
   --secondary: #171717;
   --secondary-foreground: #ffffff;
   --muted: #f9fafb;
-  --muted-foreground: #6b7280;
+  --muted-foreground: #4b5563;
   --accent: #f3f4f6;
   --accent-foreground: #02101e;
   --destructive: #ef4444;

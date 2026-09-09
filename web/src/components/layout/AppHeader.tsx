@@ -105,12 +105,9 @@ export function AppHeader({ onMenu }: { onMenu?: () => void }) {
                 section crumbs are redundant with each page's own title on a
                 phone, so they only show on >=md. */}
             <div className="flex items-center gap-1.5 min-w-0 flex-1 pr-2 md:pr-4">
-                <Crumb>
-                    <OrgSwitcher />
-                </Crumb>
-                {crumbs.map(({ seg, to }) => (
+                {crumbs.map(({ seg, to }, i) => (
                     <div key={to} className="hidden md:flex items-center gap-2 min-w-0">
-                        <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                        {i > 0 && <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />}
                         {to === currentPath ? (
                             <span className="text-[13px] font-medium text-slate-900 truncate">
                                 {pretty(seg)}
@@ -133,6 +130,10 @@ export function AppHeader({ onMenu }: { onMenu?: () => void }) {
                     <CreditsMeter />
                     <div className="h-4 w-px bg-slate-200/80" />
                 </div>
+                {/* Workspace switcher lives at the right edge, next to the
+                    account controls, rather than heading the breadcrumb. */}
+                <OrgSwitcher />
+                <div className="h-4 w-px bg-slate-200/80 hidden sm:block" />
                 <PresenceAvatars />
                 <NotificationBell />
                 <AssistantButton />
@@ -151,9 +152,6 @@ export function AppHeader({ onMenu }: { onMenu?: () => void }) {
     );
 }
 
-function Crumb({ children }: { children: React.ReactNode }) {
-    return <div className="flex items-center gap-2 min-w-0">{children}</div>;
-}
 
 // The assistant toggle, with a live status badge so background work is never
 // invisible: pulsing sky while a run streams, amber when a tool waits for
