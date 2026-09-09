@@ -195,9 +195,6 @@ export default function MembersSettingsPage() {
                                                                 </span>
                                                             )}
                                                         </div>
-                                                        <div className="text-[10.5px] text-slate-400 truncate font-mono leading-tight">
-                                                            {m.user_id.slice(0, 8)}
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
