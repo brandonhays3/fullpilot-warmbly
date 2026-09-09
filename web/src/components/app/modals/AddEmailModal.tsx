@@ -617,7 +617,7 @@ const PROVIDER_SETUP: Record<OAuthProvider, { label: string; vars: string[] }> =
     },
 };
 
-function ProviderNotConfigured({ provider, selfHosted }: { provider: OAuthProvider; selfHosted: boolean }) {
+function ProviderNotConfigured({ provider }: { provider: OAuthProvider; selfHosted: boolean }) {
     const { label, vars } = PROVIDER_SETUP[provider];
     return (
         <div className="p-4">

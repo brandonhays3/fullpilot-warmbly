@@ -2,7 +2,7 @@
 
 export const Logo = ({ className }: { className: string }) => {
     return (
-        <svg className={className} viewBox="250 320 1000 926" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Fullpilot">
+        <svg className={className} viewBox="190 260 1120 1120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Fullpilot">
             <g fill="currentColor">
                 <path d="M276.6,911.33q5.22,15.3,11.38,30.14h924q6.15-14.84,11.38-30.14Z" />
                 <path d="M378.57,415.28a503,503,0,0,0-48.51,63.23h839.88a503,503,0,0,0-48.51-63.23Z" />
