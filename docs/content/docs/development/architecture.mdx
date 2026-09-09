@@ -135,8 +135,8 @@ See `internal/app/releases/service.go`.
 
 Cold-email throughput is mailbox-first, not worker-first. A worker's safe outbound volume is the sum of its assigned mailbox budgets, not a flat global cap. Defaults in `internal/config/constants.go`:
 
-- default cold campaign cap per mailbox: 50/day
-- default minimum gap per mailbox: 600s
+- default cold campaign cap per mailbox, by provider on connect (`config.MailboxDefaults`): 15/day for Google Workspace, 5/day for Microsoft 365 and SMTP/IMAP. Campaigns carry no daily limit of their own
+- default minimum gap per mailbox: 1200s for Google Workspace, 600s for Microsoft 365 and SMTP/IMAP
 - default warmup start per mailbox: 10/day
 - default warmup ceiling per mailbox: 40/day
 - default warmup ramp: +1/day

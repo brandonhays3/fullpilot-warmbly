@@ -43,7 +43,7 @@ Editing the ranges does not change today. Today keeps the workday it already sta
 
 Sending behavior can only ever **lower** volume or **delay** a send. It can never raise a mailbox above its own daily cap or bring a send forward.
 
-- The day's rolled target is applied as a minimum against the mailbox's daily cap and the campaign's daily limit. If the mailbox is capped at `50` and the day rolls `38`, the day is `38`.
+- The day's rolled target is applied as a minimum against the mailbox's daily cap. If the mailbox is capped at `50` and the day rolls `38`, the day is `38`.
 - The delay range replaces the mailbox's fixed minimum gap while behavior is on.
 - A campaign's own sending windows still apply. A send has to satisfy both calendars: the campaign's window in the campaign timezone, and the mailbox's workday in the mailbox timezone.
 - Warmup follows the same working days, hours, and break, so warmup mail is not arriving at 03:00 from a mailbox whose campaign mail keeps office hours. Warmup is **not** charged against the cold daily or hourly ceilings; it has its own ramp.

@@ -27,9 +27,6 @@ import buildError from "@/lib/helper/buildError";
 import useCampaignSenders from "@/lib/api/hooks/app/campaigns/useCampaignSenders";
 import useReplaceCampaignSenders from "@/lib/api/hooks/app/campaigns/useReplaceCampaignSenders";
 
-const DAILY_MIN = 3;
-const DAILY_MAX = 5000;
-
 // One scrolling page — every section stacks in order and the left nav is a
 // scrollspy over these ids.
 const SECTIONS = [
@@ -38,12 +35,12 @@ const SECTIONS = [
     {
         id: "senders",
         label: "Sending accounts",
-        description: "Which mailboxes send this campaign — by tag, individually, or both — and the per-mailbox daily cap.",
+        description: "Which mailboxes send this campaign: by tag, individually, or both. Each sends up to its own daily cap.",
     },
     {
         id: "deliverability",
         label: "Deliverability",
-        description: "Reply handling, open/link tracking, and the unsubscribe header.",
+        description: "Reply handling, plain text, open/link tracking, and the opt-out line.",
     },
     {
         id: "rotation",
@@ -197,7 +194,6 @@ export default function CampaignPreferences() {
             ...(!sameIdSet(newData.email_tags ?? [], campaign.email_tags ?? []) && {
                 email_tags: newData.email_tags,
             }),
-            ...(newData.daily_limit !== campaign.daily_limit && { daily_limit: newData.daily_limit }),
             ...(newData.stop_on_reply !== campaign.stop_on_reply && { stop_on_reply: newData.stop_on_reply }),
             ...(newData.text_only !== campaign.text_only && { text_only: newData.text_only }),
             ...(newData.open_tracking !== campaign.open_tracking && { open_tracking: newData.open_tracking }),
@@ -206,9 +202,6 @@ export default function CampaignPreferences() {
             ...(newData.utm_source !== campaign.utm_source && { utm_source: newData.utm_source }),
             ...(newData.utm_medium !== campaign.utm_medium && { utm_medium: newData.utm_medium }),
             ...(newData.utm_campaign !== campaign.utm_campaign && { utm_campaign: newData.utm_campaign }),
-            ...(newData.unsubscribe_header !== campaign.unsubscribe_header && {
-                unsubscribe_header: newData.unsubscribe_header,
-            }),
             ...(newData.unsubscribe_mode !== campaign.unsubscribe_mode && {
                 unsubscribe_mode: newData.unsubscribe_mode,
             }),
@@ -279,9 +272,6 @@ export default function CampaignPreferences() {
     }, [explicitAccounts, savedAccounts]);
 
     const validationError = (): string | null => {
-        if (newData.daily_limit < DAILY_MIN || newData.daily_limit > DAILY_MAX) {
-            return `Daily limit must be between ${DAILY_MIN} and ${DAILY_MAX}.`;
-        }
         if (newData.ramp_enabled && newData.ramp_start > newData.ramp_ceiling) {
             return "Ramp start must be less than or equal to the ramp ceiling.";
         }

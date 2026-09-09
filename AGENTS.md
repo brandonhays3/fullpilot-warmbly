@@ -394,12 +394,17 @@ Do not think of a worker as having one flat global send limit. A worker's safe o
 
 These are the current built-in defaults and guardrails:
 
-- default cold campaign cap per mailbox: `50` emails/day
-- default minimum gap per mailbox: `600` seconds between sends
+- the daily send cap is a mailbox setting only. `campaigns.daily_limit` is kept for API compatibility but the scheduler never consults it; a campaign sends what its mailboxes allow
+- default cold campaign cap and minimum gap per mailbox, set on connect by provider (`config.MailboxDefaults(provider)`):
+  - Google Workspace / Gmail: `15` emails/day, `1200` seconds between sends
+  - Microsoft 365 / Outlook: `5` emails/day, `600` seconds between sends
+  - SMTP/IMAP: `5` emails/day, `600` seconds between sends
 - default warmup start per mailbox: `10` emails/day
 - default warmup ceiling per mailbox: `40` emails/day
 - default warmup ramp: `+1` email/day
+- warmup integration defaults per provider (`config.WarmupDefaults(provider)`): +2/day ramp, daily ceiling `30` (Gmail, SMTP/IMAP) or `16` (Outlook), reply rate `65%`, open rate `63%`, spam protection `100%`, mark important `34%`, read emulation on, weekdays only off
 - `campaign_limit` updates are validated up to `config.LimitMax` (`5000`); the dashboard warns above `100`
+- new campaigns are plain text (`text_only = true`); no `List-Unsubscribe` header is ever sent; no opt-out line is appended unless the workspace writes one (`Settings > Sending`); a new mailbox has no signature until one is written
 
 Relevant code:
 

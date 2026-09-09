@@ -1751,10 +1751,16 @@ func (s *service) RunPreflight(ctx context.Context, organizationID, campaignID u
 		checks = append(checks, check)
 	}
 
+	// No List-Unsubscribe header is ever sent, so the opt-out is the body
+	// line or the reply detection: a recipient who writes back asking to stop
+	// is suppressed automatically when that is on. The check key keeps its
+	// historical name for API clients.
 	if settings.Preflight.CheckUnsubscribeHeader {
 		optOut := settings.Unsubscribe.Effective(campaign.UnsubscribeMode)
-		bodyOptOut := optOut.Mode != models.UnsubscribeModeOff
-		pass := campaign.UnsubscribeHeader || bodyOptOut
+		bodyOptOut := optOut.Mode == models.UnsubscribeModeLink ||
+			(optOut.Mode == models.UnsubscribeModeText && strings.TrimSpace(optOut.Text) != "")
+		repliesHonoured := settings.ReplyIntent.Enabled && settings.ReplyIntent.AutoSuppressOnUnsubWord
+		pass := bodyOptOut || repliesHonoured
 		check := models.PreflightCheckResult{
 			Key:      "unsubscribe_header",
 			Passed:   pass,
@@ -1763,20 +1769,17 @@ func (s *service) RunPreflight(ctx context.Context, organizationID, campaignID u
 		}
 		switch {
 		case !pass:
-			check.Message = "Recipients have no way to opt out: the unsubscribe header and the opt-out line are both off."
-			check.Remediation = "Turn the opt-out line back on in Settings > Sending or on the campaign, or enable the unsubscribe header."
+			check.Message = "Recipients have no way to opt out: there is no opt-out line and replies that ask to stop are not honoured automatically."
+			check.Remediation = "Turn on Honour replies that ask to stop in Settings > Sending, or add an opt-out line there or on the campaign."
 			recommendations = append(recommendations, "Give recipients a way to opt out.")
-		case !campaign.UnsubscribeHeader:
-			check.Message = "Opt-out line is on; the List-Unsubscribe header is off."
 		case !bodyOptOut:
-			check.Message = "List-Unsubscribe header is on; no opt-out line in the body."
+			check.Message = "No opt-out line in the body; a reply that asks to stop is honoured automatically."
 		}
 		checks = append(checks, check)
 	}
 
 	// A plain-text campaign has no HTML for an anchor to hide a URL in, so an
-	// in-body opt-out link prints its whole signed address in the copy. The
-	// List-Unsubscribe header does the same job and the reader never sees it.
+	// in-body opt-out link prints its whole signed address in the copy.
 	if settings.Preflight.CheckUnsubscribeHeader && campaign.TextOnly {
 		checks = append(checks, s.plainTextOptOutCheck(ctx, campaign, settings.Unsubscribe, &recommendations))
 	}
@@ -2080,7 +2083,7 @@ func (s *service) plainTextOptOutCheck(ctx context.Context, campaign *models.Cam
 
 	check := plainTextOptOutResult(where)
 	if !check.Passed {
-		*recommendations = append(*recommendations, "On a plain-text campaign, let the unsubscribe header carry the opt-out instead of a link in the body.")
+		*recommendations = append(*recommendations, "On a plain-text campaign, use the reply-to-opt-out line instead of a link in the body.")
 	}
 	return check
 }
@@ -2134,7 +2137,7 @@ func plainTextOptOutResult(where string) models.PreflightCheckResult {
 	}
 	check.Passed = false
 	check.Message = fmt.Sprintf("This campaign sends plain text only and %s, so recipients read the whole signed unsubscribe address instead of a word.", where)
-	check.Remediation = "Keep the List-Unsubscribe header on and switch the opt-out line to Reply to opt out, or turn plain text off so the link can render as a word."
+	check.Remediation = "Switch the opt-out line to Reply to opt out, or turn plain text off so the link can render as a word."
 	return check
 }
 

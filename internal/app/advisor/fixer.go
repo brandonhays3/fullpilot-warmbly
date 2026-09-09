@@ -78,12 +78,9 @@ var agentFixable = map[string]bool{
 	"copy_shouty_subject":   true,
 	"copy_too_many_links":   true,
 
-	// Sequence shape: steps are ours to add and re-time.
-	"campaign_no_followups":       true,
-	"campaign_followup_spacing":   true,
-	"campaign_step_dropoff":       true,
-	"campaign_capacity_shortfall": true,
-	"campaign_narrow_window":      true,
+	// Sequence shape and schedule: steps and windows are ours to edit.
+	"campaign_step_dropoff":  true,
+	"campaign_narrow_window": true,
 
 	// List membership: contacts are ours to filter and correct.
 	"list_role_addresses":               true,

@@ -149,14 +149,16 @@ Only two patterns deactivate a mailbox's sync, and both mean something is wrong 
 
 Set these on the mailbox's **Settings** tab. They apply to the next scheduled send, not retroactively.
 
-| Control | Default | Range |
-|---------|---------|-------|
-| Daily campaign cap | `50`/day | `0` to `5000` |
-| Minimum gap between sends | `600s` (10 minutes) | A hard floor, with jitter added on top |
+The defaults depend on the provider the mailbox was connected through, because each tolerates a different amount of cold volume from a fresh mailbox:
 
-The default of `50` is deliberately conservative. `30` to `50`/day is the normal safe band; a fresh mailbox should start at `10` to `20` and ramp. Raise the cap only for a mailbox with proven reputation and low complaint and bounce rates.
+| Control | Google Workspace / Gmail | Microsoft 365 / Outlook | SMTP/IMAP | Range |
+|---------|---------|---------|---------|-------|
+| Daily campaign cap | `15`/day | `5`/day | `5`/day | `0` to `5000` |
+| Minimum gap between sends | `1200s` (20 minutes) | `600s` (10 minutes) | `600s` (10 minutes) | A hard floor, with jitter added on top |
 
-The range goes up to `5000` so a high-capacity mailbox (a warmed Google Workspace account allows `2000`/day, Microsoft 365 more) is not artificially blocked, and the dashboard shows a warning on anything above `100`. A high cap only raises the ceiling: the campaign's own daily limit, the ramp, sending behaviour, and your workspace's daily send limit all still apply, and the smallest one wins. The minimum gap is a throughput bound of its own: at the default `600s` a mailbox tops out around `144` sends in a `24`-hour window, so a cap above that only takes effect together with a shorter gap.
+This is the only daily send cap there is: campaigns have no daily limit of their own, and a campaign sends whatever the mailboxes attached to it allow. The defaults are deliberately conservative. A fresh mailbox should stay there until it has warmed and shown clean complaint and bounce rates, then ramp; `30` to `50`/day is the normal safe band for a mailbox with proven reputation.
+
+The range goes up to `5000` so a high-capacity mailbox (a warmed Google Workspace account allows `2000`/day, Microsoft 365 more) is not artificially blocked, and the dashboard shows a warning on anything above `100`. A high cap only raises the ceiling: the ramp, sending behaviour, and your workspace's daily send limit all still apply, and the smallest one wins. The minimum gap is a throughput bound of its own: at the default `600s` a mailbox tops out around `144` sends in a `24`-hour window, so a cap above that only takes effect together with a shorter gap.
 
 <Callout type="warn" title="Do not jump a new mailbox to a high cap">
   A new mailbox has no reputation. Sudden high volume from a cold inbox is one of the fastest ways to land in spam. Scaling cold outreach means adding mailboxes, not cranking one mailbox's cap.
@@ -168,7 +170,7 @@ SMTP mailboxes get a **Keep a copy of sent mail** toggle, on by default. SMTP su
 
 Turn it off when your provider already saves its own copy of anything submitted over SMTP, which Gmail, Fastmail and Zoho do, or the folder ends up with two of every message. Gmail and Outlook mailboxes connected with OAuth never show the toggle: their APIs file the copy themselves. Warmup mail is never filed, since it would bury your real sent mail.
 
-The same tab sets the **display name**, **reply-to** (empty uses the mailbox address), **signature** in plain text and HTML, and **tags** for grouping. A new display name is on the From header of the next message the mailbox sends, campaign, reply or warmup alike; nothing needs to be reconnected.
+The same tab sets the **display name**, **reply-to** (empty uses the mailbox address), **signature** in plain text and HTML, and **tags** for grouping. A newly connected mailbox has no signature: nothing is generated from the display name, and campaign emails carry no signature until you write one here. A new display name is on the From header of the next message the mailbox sends, campaign, reply or warmup alike; nothing needs to be reconnected.
 
 The HTML signature is placed in a block of its own one line below the body, so it arrives without the stack of blank lines above it that Apple Mail and Outlook used to show. Put any extra spacing you want inside the signature itself. The plain-text signature follows the body after a single blank line.
 

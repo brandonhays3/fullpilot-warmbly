@@ -1,9 +1,6 @@
 package utils
 
-func GetSignatureHTML(name string) string {
-	return "<p><b>Best Regards,</b></p><p>" + name + "</p>"
-}
-
-func GetSignaturePlain(name string) string {
-	return "Best Regards,\n" + name
-}
+// A newly connected mailbox carries no signature. The generated
+// "Best Regards, <name>" lines that used to live here were the only thing
+// that ever filled one in automatically; the signature is whatever the
+// person writes on the mailbox's settings.

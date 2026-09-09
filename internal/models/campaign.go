@@ -109,11 +109,15 @@ type Campaign struct {
 	Status      string `json:"status"`
 	Kind        string `json:"kind"`
 
-	StopOnReply       bool `json:"stop_on_reply"`
-	OpenTracking      bool `json:"open_tracking"`
-	LinkTracking      bool `json:"link_tracking"`
-	TextOnly          bool `json:"text_only"`
-	DailyLimit        int  `json:"daily_limit"`
+	StopOnReply  bool `json:"stop_on_reply"`
+	OpenTracking bool `json:"open_tracking"`
+	LinkTracking bool `json:"link_tracking"`
+	TextOnly     bool `json:"text_only"`
+	// DailyLimit is kept for API compatibility and is not a cap: the
+	// scheduler only consults each mailbox's own campaign_limit.
+	DailyLimit int `json:"daily_limit"`
+	// UnsubscribeHeader is kept for API compatibility; the List-Unsubscribe
+	// header is never sent whatever it holds.
 	UnsubscribeHeader bool `json:"unsubscribe_header"`
 	RiskyEmails       bool `json:"risky_emails"`
 	// UnsubscribeMode is the in-body opt-out: inherit | text | link | off.

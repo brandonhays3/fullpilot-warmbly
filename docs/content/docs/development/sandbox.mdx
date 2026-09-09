@@ -56,7 +56,7 @@ The seeded problems, all in `internal/sandbox/advisor.go`:
 - `liam.walsh@sunrise.test` has a month of real sending behind it (1,600 completed tasks) with 72 bounces and one complaint, putting it at `4.5%` bounce and `0.06%` complaint. Both come from real `tasks` and `deliverability_events` rows, so the Advisor's numbers reconcile with the Deliverability page rather than contradicting it. Its cap is also raised to 120/day.
 - `yuki.sato@sunrise.test` has SPF and DKIM but no DMARC, and a 90-second gap between sends.
 - `erik.lund@sunrise.test` was connected six days ago, went straight to the full 50/day cap, and has warmup paused.
-- "Q4 outbound (first draft)" is a paused campaign written the way first drafts get written: one email with no follow-up, one-click unsubscribe off, a shouting subject line that truncates, 246 words, four links, bulk-mail phrasing, and an `{{if}}` with no `{{end}}` (which does not fail a send, it silently degrades to literal text). Its 160-contact audience is a quarter shared inboxes with a third missing the first name the copy greets on.
+- "Q4 outbound (first draft)" is a paused campaign written the way first drafts get written: a shouting subject line that truncates, 246 words, four links, bulk-mail phrasing, and an `{{if}}` with no `{{end}}` (which does not fail a send, it silently degrades to literal text). Its 160-contact audience is a quarter shared inboxes with a third missing the first name the copy greets on.
 
 Nothing here stops the sandbox sending: caps go up rather than down, gaps get shorter, the authentication columns are observation-only, and the deliberately-rough campaign stays paused so it never mails the synthetic list.
 

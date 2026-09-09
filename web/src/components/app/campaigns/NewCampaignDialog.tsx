@@ -110,12 +110,13 @@ type Draft = {
     startTime: string;
     endTime: string;
     emailTagIds: string[];
-    dailyLimit: number;
     stopOnReply: boolean;
+    // Plain text by default: no HTML part, so the tracking toggles below
+    // only apply once it is switched off.
+    textOnly: boolean;
     openTracking: boolean;
     linkTracking: boolean;
     utmTracking: boolean;
-    unsubHeader: boolean;
     sequences: SequenceDraft[];
     // One-time only.
     segmentIds: string[];
@@ -133,12 +134,11 @@ const initialDraft = (timezone: string): Draft => ({
     startTime: "08:00",
     endTime: "18:00",
     emailTagIds: [],
-    dailyLimit: 50,
     stopOnReply: true,
+    textOnly: true,
     openTracking: true,
     linkTracking: true,
     utmTracking: true,
-    unsubHeader: true,
     sequences: [newSequence(0)],
     segmentIds: [],
     sendMode: "now",
@@ -319,10 +319,10 @@ export function NewCampaignDialog({ open, onClose }: Props) {
         draft.emailTagIds.length > 0 ||
         draft.segmentIds.length > 0 ||
         !draft.stopOnReply ||
+        !draft.textOnly ||
         !draft.openTracking ||
         !draft.linkTracking ||
         !draft.utmTracking ||
-        !draft.unsubHeader ||
         draft.sequences.some((s) => s.subject.trim() !== "" || s.body_plain.trim() !== "");
 
     const isPending = create.isPending || submitting;
@@ -378,11 +378,10 @@ export function NewCampaignDialog({ open, onClose }: Props) {
             days: draft.days,
             start_time: draft.startTime,
             end_time: draft.endTime,
-            daily_limit: draft.dailyLimit,
+            text_only: draft.textOnly,
             open_tracking: draft.openTracking,
             link_tracking: draft.linkTracking,
             utm_tracking: draft.utmTracking,
-            unsubscribe_header: draft.unsubHeader,
             email_tag_ids: draft.emailTagIds,
             steps: buildSteps(),
         };
@@ -973,24 +972,9 @@ function SendingStep({ draft, patch }: { draft: Draft; patch: (p: Partial<Draft>
                         onRemove={(t) => patch({ emailTagIds: draft.emailTagIds.filter((id) => id !== t) })}
                     />
                     <p className="text-[11px] text-slate-400 mt-1">
-                        Mailbox tags this campaign rotates through. Leave empty to use every active mailbox.
+                        Mailbox tags this campaign rotates through. Leave empty to use every active mailbox. Each
+                        mailbox sends up to its own daily cap, set on the mailbox.
                     </p>
-                </div>
-
-                <div className="flex items-start justify-between gap-5">
-                    <div className="min-w-0">
-                        <p className="text-[12.5px] text-slate-900 font-medium">Daily limit per mailbox</p>
-                        <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                            3 to 5,000. Stay near 50 until the mailboxes have proven their reputation.
-                        </p>
-                    </div>
-                    <NumberInput
-                        value={draft.dailyLimit}
-                        min={3}
-                        max={5000}
-                        onChange={(v) => patch({ dailyLimit: v })}
-                        className="w-24 shrink-0"
-                    />
                 </div>
 
                 <div className="border border-slate-200 rounded-md divide-y divide-slate-100 overflow-hidden">
@@ -1003,29 +987,33 @@ function SendingStep({ draft, patch }: { draft: Draft; patch: (p: Partial<Draft>
                         />
                     )}
                     <SwitchRow
-                        label="Track opens"
-                        description="Insert a transparent pixel to measure inbox impressions."
-                        value={draft.openTracking}
-                        onChange={(v) => patch({ openTracking: v })}
+                        label="Plain text only"
+                        description="Send as simple text, the way a person writes. Best for deliverability; there is no HTML part, so opens and clicks cannot be tracked."
+                        value={draft.textOnly}
+                        onChange={(v) => patch({ textOnly: v })}
                     />
-                    <SwitchRow
-                        label="Track clicks"
-                        description="Wrap links so each click, and which link it was, appears in your live feed and the contact's activity."
-                        value={draft.linkTracking}
-                        onChange={(v) => patch({ linkTracking: v })}
-                    />
-                    <SwitchRow
-                        label="Add UTM parameters"
-                        description="Tag every link with utm_source, utm_medium, utm_campaign and a per-link utm_content for your web analytics. Editable later in settings."
-                        value={draft.utmTracking}
-                        onChange={(v) => patch({ utmTracking: v })}
-                    />
-                    <SwitchRow
-                        label="Unsubscribe header"
-                        description="Add List-Unsubscribe, which most providers require for bulk mail."
-                        value={draft.unsubHeader}
-                        onChange={(v) => patch({ unsubHeader: v })}
-                    />
+                    {!draft.textOnly && (
+                        <>
+                            <SwitchRow
+                                label="Track opens"
+                                description="Insert a transparent pixel to measure inbox impressions."
+                                value={draft.openTracking}
+                                onChange={(v) => patch({ openTracking: v })}
+                            />
+                            <SwitchRow
+                                label="Track clicks"
+                                description="Wrap links so each click, and which link it was, appears in your live feed and the contact's activity."
+                                value={draft.linkTracking}
+                                onChange={(v) => patch({ linkTracking: v })}
+                            />
+                            <SwitchRow
+                                label="Add UTM parameters"
+                                description="Tag every link with utm_source, utm_medium, utm_campaign and a per-link utm_content for your web analytics. Editable later in settings."
+                                value={draft.utmTracking}
+                                onChange={(v) => patch({ utmTracking: v })}
+                            />
+                        </>
+                    )}
                 </div>
             </div>
         </div>
@@ -1092,7 +1080,7 @@ function EmailsStep({
                     </button>
                     <span className="text-slate-300">·</span>
                     <button type="button" onClick={() => goToKey("sending")} className="hover:text-slate-900 hover:underline underline-offset-2">
-                        {draft.dailyLimit}/day per mailbox
+                        {draft.textOnly ? "plain text" : "HTML"}
                     </button>
                     <span className="text-slate-300">·</span>
                     <button type="button" onClick={() => goToKey("sending")} className="hover:text-slate-900 hover:underline underline-offset-2">
@@ -1260,7 +1248,6 @@ function SendStep({
     const estimate = useCampaignEstimate({
         segment_ids: draft.segmentIds,
         email_tag_ids: draft.emailTagIds,
-        daily_limit: draft.dailyLimit,
         days: draft.days,
         timezone: draft.timezone,
         start_date: at ? at.toISOString() : undefined,

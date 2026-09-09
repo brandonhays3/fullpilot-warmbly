@@ -45,9 +45,9 @@ func (s *tasksService) SendTestEmail(ctx context.Context, orgID uuid.UUID, accou
 		renderFor = *contact
 	}
 
-	// A test send carries the real opt-out footer and header so the sender
-	// sees exactly what a recipient will, but its link names no contact
-	// (uuid.Nil), so clicking it can never suppress anyone.
+	// A test send carries the real opt-out footer so the sender sees exactly
+	// what a recipient will, but its link names no contact (uuid.Nil), so
+	// clicking it can never suppress anyone.
 	optOut := s.resolveOptOut(ctx, orgID, campaign)
 	var unsubscribeURL string
 	if s.unsubLinks != nil && s.unsubLinks.Enabled() {
@@ -58,10 +58,8 @@ func (s *tasksService) SendTestEmail(ctx context.Context, orgID uuid.UUID, accou
 	bodyHTML, bodyPlain := finishBody(rendered.BodyHTML, rendered.BodyPlain, campaign.TextOnly, account, &optOut, unsubscribeURL)
 	subject := "[TEST] " + rendered.Subject
 
+	// Never a List-Unsubscribe header, on a test send as on a real one.
 	headerURL := ""
-	if campaign.UnsubscribeHeader {
-		headerURL = unsubscribeURL
-	}
 
 	// Tracking is deliberately off: a test open or click must not count.
 	emailMsg := EmailMessage{

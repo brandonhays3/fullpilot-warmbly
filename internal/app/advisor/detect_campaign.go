@@ -10,14 +10,12 @@ import (
 
 // campaignDetectors cover campaign shape and performance: whether a campaign is
 // configured to succeed, and whether it is actually succeeding.
+//
+// A campaign has no daily limit of its own: what it can send in a day is the
+// sum of its mailboxes' caps (SenderCapacity), which is the number every
+// volume check below reasons from.
 func campaignDetectors() []Detector {
 	return []Detector{
-		{
-			Key:      "campaign_no_followups",
-			Category: models.AdvisorCategoryCampaign,
-			About:    "A cold campaign with a single email and no follow-up steps. Most replies to cold outreach arrive on a follow-up rather than the first send, so a one-step campaign gives up most of its own results.",
-			Run:      detectNoFollowUps,
-		},
 		{
 			Key:      "campaign_reply_rate_low",
 			Category: models.AdvisorCategoryCampaign,
@@ -31,28 +29,10 @@ func campaignDetectors() []Detector {
 			Run:      detectStepDropoff,
 		},
 		{
-			Key:      "campaign_unsubscribe_header_off",
-			Category: models.AdvisorCategoryCampaign,
-			About:    "Whether a campaign sends the List-Unsubscribe header. Google's bulk sender rules require one-click unsubscribe on marketing mail, and an easy unsubscribe is what stops an uninterested recipient reaching for the spam button instead.",
-			Run:      detectUnsubscribeHeaderOff,
-		},
-		{
-			Key:      "campaign_capacity_shortfall",
-			Category: models.AdvisorCategoryCampaign,
-			About:    "A campaign whose daily limit exceeds what its attached mailboxes can safely send. The campaign will silently deliver less than configured, or push mailboxes past their caps.",
-			Run:      detectCapacityShortfall,
-		},
-		{
 			Key:      "campaign_no_senders",
 			Category: models.AdvisorCategoryCampaign,
 			About:    "A running campaign with no active mailbox resolving for it, usually after a tag was renamed or a mailbox disconnected. The campaign is live and sending nothing.",
 			Run:      detectNoSenders,
-		},
-		{
-			Key:      "campaign_followup_spacing",
-			Category: models.AdvisorCategoryCampaign,
-			About:    "The gap between follow-up steps. Too close reads as pestering and drives unsubscribes and complaints; too far apart and the recipient no longer remembers the first email.",
-			Run:      detectFollowUpSpacing,
 		},
 		{
 			Key:      "campaign_list_exhaustion",
@@ -69,7 +49,7 @@ func campaignDetectors() []Detector {
 		{
 			Key:      "campaign_narrow_window",
 			Category: models.AdvisorCategoryCampaign,
-			About:    "A sending window too short to fit the campaign's daily volume at safe pacing. The campaign either underdelivers or compresses its sends into a burst.",
+			About:    "A sending window too short to fit the campaign's mailboxes' daily volume at safe pacing. The campaign either underdelivers or compresses its sends into a burst.",
 			Run:      detectNarrowWindow,
 		},
 		{
@@ -88,39 +68,6 @@ func runningCampaigns(s *repository.AdvisorSnapshot) []repository.AdvisorCampaig
 		if c.Status == "active" {
 			out = append(out, c)
 		}
-	}
-	return out
-}
-
-func detectNoFollowUps(s *repository.AdvisorSnapshot) []Finding {
-	out := []Finding{}
-	for _, c := range s.Campaigns {
-		if c.Status == "draft" || c.EmailStepCount == 0 || c.EmailStepCount >= 2 {
-			continue
-		}
-
-		out = append(out, Finding{
-			Key:         "campaign_no_followups",
-			GroupTitle:  "{count} campaigns are a single email with no follow-up",
-			Category:    models.AdvisorCategoryCampaign,
-			Severity:    models.AdvisorMedium,
-			Surface:     models.AdvisorSurfaceCampaigns,
-			EntityType:  "campaign",
-			EntityID:    ref(c.ID),
-			EntityLabel: c.Name,
-			Impact:      clampImpact(35 + c.LeadsTotal/100),
-			Title:       fmt.Sprintf("%s is a single email with no follow-up", c.Name),
-			Detail: fmt.Sprintf(
-				"%s sends one email and stops. Most replies to cold outreach arrive on a follow-up rather than the first send, so a one-step campaign gives up the majority of its own results across %s.",
-				c.Name, plural(c.LeadsTotal, "lead", "leads")),
-			Remedy: fmt.Sprintf("Add two or three short follow-ups, %d to %d days apart. They should add a new angle rather than repeat the first email.", minFollowUpDays, maxFollowUpDays/2),
-			Evidence: map[string]any{
-				"campaign":          c.Name,
-				"email_steps":       c.EmailStepCount,
-				"leads":             c.LeadsTotal,
-				"recommended_steps": minRecommendedSteps,
-			},
-		})
 	}
 	return out
 }
@@ -253,97 +200,6 @@ func detectStepDropoff(s *repository.AdvisorSnapshot) []Finding {
 	return out
 }
 
-func detectUnsubscribeHeaderOff(s *repository.AdvisorSnapshot) []Finding {
-	out := []Finding{}
-	for _, camp := range s.Campaigns {
-		if camp.Status == "draft" || camp.UnsubscribeHeader {
-			continue
-		}
-
-		severity := models.AdvisorMedium
-		if camp.Status == "active" {
-			severity = models.AdvisorHigh
-		}
-
-		out = append(out, Finding{
-			Key:         "campaign_unsubscribe_header_off",
-			GroupTitle:  "{count} campaigns send without a one-click unsubscribe",
-			Category:    models.AdvisorCategoryCampaign,
-			Severity:    severity,
-			Surface:     models.AdvisorSurfaceCampaigns,
-			EntityType:  "campaign",
-			EntityID:    ref(camp.ID),
-			EntityLabel: camp.Name,
-			Impact:      clampImpact(45 + camp.Sent/100),
-			Title:       fmt.Sprintf("%s sends without a one-click unsubscribe", camp.Name),
-			Detail: fmt.Sprintf(
-				"%s has the List-Unsubscribe header switched off. Google's bulk sender rules require one-click unsubscribe, and more practically: a recipient who cannot find an easy way out reaches for the spam button instead, which costs far more than an unsubscribe does.",
-				camp.Name),
-			Remedy: "Turn the unsubscribe header on. It is a header, not visible copy, so it changes nothing about how the email reads.",
-			Evidence: map[string]any{
-				"campaign":       camp.Name,
-				"status":         camp.Status,
-				"sends_30d":      camp.Sent,
-				"complaints_30d": camp.Complaints,
-			},
-			Action: auto(withUndo(campaignAction(camp.ID,
-				"Turn on one-click unsubscribe",
-				map[string]any{"unsubscribe_header": true},
-				change("List-Unsubscribe header", "off", "on"),
-			), map[string]any{"campaign_id": camp.ID.String(), "unsubscribe_header": false})),
-		})
-	}
-	return out
-}
-
-func detectCapacityShortfall(s *repository.AdvisorSnapshot) []Finding {
-	// Safe capacity is the sum of the attached mailboxes' own caps, which is
-	// the platform's mailbox-first sending model: a campaign cannot be safer
-	// than the mailboxes carrying it.
-	out := []Finding{}
-	for _, camp := range runningCampaigns(s) {
-		if camp.SenderCount == 0 || camp.DailyLimit <= 0 {
-			continue
-		}
-		// SenderCapacity is the sum of THIS campaign's own senders' caps, which
-		// is what actually bounds it: the per-mailbox cap always wins over the
-		// campaign's daily limit.
-		capacity := camp.SenderCapacity
-		if capacity == 0 || camp.DailyLimit <= capacity {
-			continue
-		}
-
-		out = append(out, Finding{
-			Key:         "campaign_capacity_shortfall",
-			GroupTitle:  "{count} campaigns ask for more volume than their mailboxes can send",
-			Category:    models.AdvisorCategoryCampaign,
-			Severity:    models.AdvisorMedium,
-			Surface:     models.AdvisorSurfaceCampaigns,
-			EntityType:  "campaign",
-			EntityID:    ref(camp.ID),
-			EntityLabel: camp.Name,
-			Impact:      clampImpact(30 + (camp.DailyLimit-capacity)/5),
-			Title:       fmt.Sprintf("%s asks for more volume than its mailboxes can send", camp.Name),
-			Detail: fmt.Sprintf(
-				"%s is set to send %d emails a day, but the mailboxes attached to it add up to %d a day at their own caps. The per-mailbox caps win, so the campaign will quietly deliver less than it reports.",
-				camp.Name, camp.DailyLimit, capacity),
-			Remedy: "Either lower the campaign's daily limit to match, or connect more mailboxes. Raising the per-mailbox caps to close the gap is the option that costs reputation.",
-			Evidence: map[string]any{
-				"campaign":         camp.Name,
-				"campaign_limit":   camp.DailyLimit,
-				"mailbox_capacity": capacity,
-				"sender_count":     camp.SenderCount,
-			},
-			Action: auto(withUndo(campaignAction(camp.ID,
-				fmt.Sprintf("Match the campaign to %d/day", capacity),
-				map[string]any{"daily_limit": capacity},
-				change("Campaign daily limit", fmt.Sprintf("%d/day", camp.DailyLimit), fmt.Sprintf("%d/day", capacity)),
-			), map[string]any{"campaign_id": camp.ID.String(), "daily_limit": camp.DailyLimit})),
-		})
-	}
-	return out
-}
-
 func detectNoSenders(s *repository.AdvisorSnapshot) []Finding {
 	out := []Finding{}
 	for _, camp := range runningCampaigns(s) {
@@ -384,95 +240,15 @@ func detectNoSenders(s *repository.AdvisorSnapshot) []Finding {
 	return out
 }
 
-func detectFollowUpSpacing(s *repository.AdvisorSnapshot) []Finding {
-	names := map[string]string{}
-	statuses := map[string]string{}
-	for _, camp := range s.Campaigns {
-		names[camp.ID.String()] = camp.Name
-		statuses[camp.ID.String()] = camp.Status
-	}
-
-	out := []Finding{}
-	for _, st := range s.Steps {
-		// Position 0 is the first email; its wait is a start delay, not spacing.
-		if st.Kind != "email" || st.Position == 0 {
-			continue
-		}
-		if statuses[st.CampaignID.String()] == "draft" {
-			continue
-		}
-		if st.WaitAfter >= minFollowUpDays && st.WaitAfter <= maxFollowUpDays {
-			continue
-		}
-
-		label := st.Name
-		if label == "" {
-			label = fmt.Sprintf("Step %d", st.Position+1)
-		}
-
-		var detail, remedy string
-		var want int
-		if st.WaitAfter < minFollowUpDays {
-			want = 3
-			detail = fmt.Sprintf(
-				"%s in %s follows the previous email after %s. Follow-ups this close together read as pestering, and they drive unsubscribes and spam complaints rather than replies.",
-				label, names[st.CampaignID.String()], plural(st.WaitAfter, "day", "days"))
-			remedy = "Give it three or four days. Nothing is lost by waiting, and the follow-up lands as a reminder rather than a second demand."
-		} else {
-			want = 7
-			detail = fmt.Sprintf(
-				"%s in %s waits %d days after the previous email. By then the recipient has no memory of the first message, so the follow-up has to reintroduce itself and loses the thread's context.",
-				label, names[st.CampaignID.String()], st.WaitAfter)
-			remedy = "Bring it back to about a week. Follow-ups work by being recognisably part of the same conversation."
-		}
-
-		out = append(out, Finding{
-			Key:         "campaign_followup_spacing",
-			GroupTitle:  "{count} follow-ups are badly spaced",
-			Category:    models.AdvisorCategoryCampaign,
-			Severity:    models.AdvisorLow,
-			Surface:     models.AdvisorSurfaceCampaigns,
-			EntityType:  "step",
-			EntityID:    ref(st.ID),
-			EntityLabel: fmt.Sprintf("%s / %s", names[st.CampaignID.String()], label),
-			ParentType:  "campaign",
-			ParentID:    ref(st.CampaignID),
-			Impact:      15,
-			Title:       fmt.Sprintf("%s follows too %s", label, map[bool]string{true: "soon", false: "late"}[st.WaitAfter < minFollowUpDays]),
-			Detail:      detail,
-			Remedy:      remedy,
-			Evidence: map[string]any{
-				"campaign":      names[st.CampaignID.String()],
-				"step":          label,
-				"wait_days":     st.WaitAfter,
-				"recommended":   want,
-				"step_position": st.Position + 1,
-			},
-			Action: withUndo(toolAction("update_campaign_step",
-				fmt.Sprintf("Wait %d days instead", want),
-				map[string]any{
-					"campaign_id": st.CampaignID.String(),
-					"step_id":     st.ID.String(),
-					"wait_days":   want,
-				},
-				change("Wait before this step", plural(st.WaitAfter, "day", "days"), plural(want, "day", "days")),
-			), map[string]any{
-				"campaign_id": st.CampaignID.String(),
-				"step_id":     st.ID.String(),
-				"wait_days":   st.WaitAfter,
-			}),
-		})
-	}
-	return out
-}
-
 func detectListExhaustion(s *repository.AdvisorSnapshot) []Finding {
 	out := []Finding{}
 	for _, camp := range runningCampaigns(s) {
-		if camp.DailyLimit <= 0 || camp.LeadsRemaining <= 0 {
+		// The campaign drains its list at the pace its mailboxes allow.
+		perDay := camp.SenderCapacity
+		if perDay <= 0 || camp.LeadsRemaining <= 0 {
 			continue
 		}
-		daysLeft := int(math.Floor(float64(camp.LeadsRemaining) / float64(camp.DailyLimit)))
+		daysLeft := int(math.Floor(float64(camp.LeadsRemaining) / float64(perDay)))
 		if daysLeft > listExhaustionDays {
 			continue
 		}
@@ -489,8 +265,8 @@ func detectListExhaustion(s *repository.AdvisorSnapshot) []Finding {
 			Impact:      clampImpact(25 + (listExhaustionDays-daysLeft)*3),
 			Title:       fmt.Sprintf("%s is %s out of leads", camp.Name, whenExhausted(daysLeft)),
 			Detail: fmt.Sprintf(
-				"%s has %s left to reach at %d a day, so it is %s out. Campaigns do not announce that they have finished their list; they just stop producing results while still looking active.",
-				camp.Name, plural(camp.LeadsRemaining, "lead", "leads"), camp.DailyLimit, whenExhausted(daysLeft)),
+				"%s has %s left to reach at %d a day across its mailboxes, so it is %s out. Campaigns do not announce that they have finished their list; they just stop producing results while still looking active.",
+				camp.Name, plural(camp.LeadsRemaining, "lead", "leads"), perDay, whenExhausted(daysLeft)),
 			Remedy: "Add more contacts now if the campaign is working, or let it finish and read the numbers before building the next list.",
 			Steps: []string{
 				"Decide whether this campaign is working before you feed it. Check its reply rate on the campaign page.",
@@ -499,12 +275,12 @@ func detectListExhaustion(s *repository.AdvisorSnapshot) []Finding {
 				"Either way, build the next list while this one drains, so there is no gap where the mailboxes sit idle.",
 			},
 			Evidence: map[string]any{
-				"campaign":        camp.Name,
-				"leads_remaining": camp.LeadsRemaining,
-				"leads_total":     camp.LeadsTotal,
-				"daily_limit":     camp.DailyLimit,
-				"days_remaining":  daysLeft,
-				"replies_30d":     camp.Replied,
+				"campaign":         camp.Name,
+				"leads_remaining":  camp.LeadsRemaining,
+				"leads_total":      camp.LeadsTotal,
+				"mailbox_capacity": perDay,
+				"days_remaining":   daysLeft,
+				"replies_30d":      camp.Replied,
 			},
 		})
 	}
@@ -566,7 +342,9 @@ func detectNoABTest(s *repository.AdvisorSnapshot) []Finding {
 func detectNarrowWindow(s *repository.AdvisorSnapshot) []Finding {
 	out := []Finding{}
 	for _, camp := range runningCampaigns(s) {
-		if camp.DailyLimit <= 0 || camp.SenderCount == 0 {
+		// What the campaign wants to send in a day is what its mailboxes allow.
+		volume := camp.SenderCapacity
+		if volume <= 0 || camp.SenderCount == 0 {
 			continue
 		}
 		windowMinutes := minutesBetween(camp.StartTime, camp.EndTime)
@@ -582,7 +360,7 @@ func detectNarrowWindow(s *repository.AdvisorSnapshot) []Finding {
 			}
 		}
 		achievable := (windowMinutes * 60 / gap) * camp.SenderCount
-		if achievable <= 0 || camp.DailyLimit <= achievable {
+		if achievable <= 0 || volume <= achievable {
 			continue
 		}
 
@@ -595,26 +373,26 @@ func detectNarrowWindow(s *repository.AdvisorSnapshot) []Finding {
 			EntityType:  "campaign",
 			EntityID:    ref(camp.ID),
 			EntityLabel: camp.Name,
-			Impact:      clampImpact(25 + (camp.DailyLimit-achievable)/5),
+			Impact:      clampImpact(25 + (volume-achievable)/5),
 			Title:       fmt.Sprintf("%s cannot fit its daily volume into its sending window", camp.Name),
 			Detail: fmt.Sprintf(
-				"%s wants %d emails a day but its %s window fits about %d at safe pacing across %s. The campaign will either underdeliver or compress its sends into a burst, and bursts are what filters notice.",
-				camp.Name, camp.DailyLimit, humanMinutes(windowMinutes), achievable, plural(camp.SenderCount, "mailbox", "mailboxes")),
-			Remedy: "Widen the sending window, add mailboxes, or lower the daily limit. Widening the window is free and changes nothing about how the mail looks.",
+				"%s's mailboxes allow %d emails a day but its %s window fits about %d at safe pacing across %s. The campaign will either underdeliver or compress its sends into a burst, and bursts are what filters notice.",
+				camp.Name, volume, humanMinutes(windowMinutes), achievable, plural(camp.SenderCount, "mailbox", "mailboxes")),
+			Remedy: "Widen the sending window, add mailboxes, or lower the mailboxes' daily caps. Widening the window is free and changes nothing about how the mail looks.",
+			Steps: []string{
+				"Open the campaign's schedule and widen the sending window. A full working day fits the volume at the mailboxes' own gaps.",
+				"If the window has to stay short, add mailboxes so each one carries less of the day.",
+				"Otherwise lower the daily cap on the mailboxes attached to this campaign until the window fits; the cap is on each mailbox's settings.",
+			},
 			Evidence: map[string]any{
 				"campaign":         camp.Name,
-				"daily_limit":      camp.DailyLimit,
+				"mailbox_capacity": volume,
 				"window":           fmt.Sprintf("%s-%s", camp.StartTime, camp.EndTime),
 				"window_minutes":   windowMinutes,
 				"achievable_sends": achievable,
 				"sender_count":     camp.SenderCount,
 				"min_gap_seconds":  gap,
 			},
-			Action: auto(withUndo(campaignAction(camp.ID,
-				fmt.Sprintf("Set the daily limit to %d", achievable),
-				map[string]any{"daily_limit": achievable},
-				change("Campaign daily limit", fmt.Sprintf("%d/day", camp.DailyLimit), fmt.Sprintf("%d/day", achievable)),
-			), map[string]any{"campaign_id": camp.ID.String(), "daily_limit": camp.DailyLimit})),
 		})
 	}
 	return out

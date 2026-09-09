@@ -267,8 +267,12 @@ func (s *schedulerService) placeCampaignSend(ctx context.Context, campaign *mode
 	// warmup traffic and its reputation; it just is not offered cold sends.
 	lifecycles, lifecyclesKnown := s.sendLifecycles(ctx, accounts)
 
+	// The daily cap is the mailbox's own campaign_limit: a campaign carries no
+	// daily limit of its own (campaigns.daily_limit is kept for compatibility
+	// and never consulted), so the ramp, graduation and risk multipliers
+	// below can only lower what the mailbox allows.
 	effectiveCap := func(acct models.Email) int {
-		lim := min(acct.CampaignLimit, campaign.DailyLimit)
+		lim := acct.CampaignLimit
 		if campaign.RampEnabled {
 			lim = min(lim, campaignRampCeiling(true, campaign.RampStart, campaign.RampIncrement, campaign.RampCeiling, campaign.RampLevel))
 		}

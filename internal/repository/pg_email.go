@@ -15,7 +15,6 @@ import (
 	"github.com/warmbly/warmbly/internal/models"
 	"github.com/warmbly/warmbly/internal/observability/errs"
 	"github.com/warmbly/warmbly/internal/pkg/encrypt"
-	"github.com/warmbly/warmbly/internal/utils"
 	"github.com/warmbly/warmbly/internal/utils/paging"
 	"github.com/warmbly/warmbly/internal/utils/validate"
 )
@@ -360,8 +359,10 @@ func (r *emailRepository) NewOauthAccount(ctx context.Context, userID string, da
 		return nil, xerr
 	}
 
-	sigplain := utils.GetSignaturePlain(data.Name)
-	sightml := utils.GetSignatureHTML(data.Name)
+	// A new mailbox starts with no signature: the one to send is whatever the
+	// person writes on the mailbox's settings, never a generated "Best
+	// Regards" line. The sending caps are per provider (config.MailboxDefaults).
+	defaults := config.MailboxDefaults(string(data.Provider))
 
 	t := time.Now()
 	id := uuid.New()
@@ -370,8 +371,8 @@ func (r *emailRepository) NewOauthAccount(ctx context.Context, userID string, da
 	// be seeded with a random RID, which silently broke segment-aware content
 	// selection because a random tag never matches a real segment.
 	query := `
-		INSERT INTO email_accounts (id, user_id, organization_id, email, name, provider, signature_plain, signature_html, tracking_domain, last_synced_at, created_at, updated_at, warmup_tag)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10, $10, $11)
+		INSERT INTO email_accounts (id, user_id, organization_id, email, name, provider, signature_plain, signature_html, tracking_domain, last_synced_at, created_at, updated_at, warmup_tag, campaign_limit, min_wait_time)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10, $10, $11, $12, $13)
 	`
 
 	params := []any{
@@ -381,11 +382,13 @@ func (r *emailRepository) NewOauthAccount(ctx context.Context, userID string, da
 		data.Email,
 		data.Name,
 		data.Provider,
-		sigplain,
-		sightml,
+		"",
+		"",
 		"",
 		t,
 		"",
+		defaults.CampaignLimit,
+		defaults.MinWaitTime,
 	}
 
 	_, err = tx.Exec(
@@ -439,8 +442,8 @@ func (r *emailRepository) NewOauthAccount(ctx context.Context, userID string, da
 
 		Name: data.Name,
 
-		SignaturePlain: sigplain,
-		SignatureHTML:  sightml,
+		SignaturePlain: "",
+		SignatureHTML:  "",
 		SignatureSync:  true,
 		SignatureCode:  false,
 
@@ -449,8 +452,8 @@ func (r *emailRepository) NewOauthAccount(ctx context.Context, userID string, da
 
 		LastSyncedAt: t,
 
-		CampaignLimit: config.CampaignLimitDefault,
-		MinWaitTime:   config.MinWaitTimeDefault,
+		CampaignLimit: defaults.CampaignLimit,
+		MinWaitTime:   defaults.MinWaitTime,
 
 		WarmupBase:      config.WarmupBaseDefault,
 		WarmupMax:       config.WarmupMaxDefault,
@@ -469,15 +472,14 @@ func (r *emailRepository) NewManagedAccount(ctx context.Context, userID string, 
 		errs.CaptureException(errors.New("managed account: unsupported provider"))
 		return nil, errx.InternalError()
 	}
-	sigplain := utils.GetSignaturePlain(data.Name)
-	sightml := utils.GetSignatureHTML(data.Name)
+	defaults := config.MailboxDefaults(string(data.Provider))
 	t := time.Now()
 	id := uuid.New()
 	query := `
-		INSERT INTO email_accounts (id, user_id, organization_id, email, name, provider, signature_plain, signature_html, tracking_domain, last_synced_at, created_at, updated_at, warmup_tag)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10, $10, $11)
+		INSERT INTO email_accounts (id, user_id, organization_id, email, name, provider, signature_plain, signature_html, tracking_domain, last_synced_at, created_at, updated_at, warmup_tag, campaign_limit, min_wait_time)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10, $10, $11, $12, $13)
 	`
-	if _, err := r.DB.Exec(ctx, query, id, userID, data.OrganizationID, data.Email, data.Name, data.Provider, sigplain, sightml, "", t, ""); err != nil {
+	if _, err := r.DB.Exec(ctx, query, id, userID, data.OrganizationID, data.Email, data.Name, data.Provider, "", "", "", t, "", defaults.CampaignLimit, defaults.MinWaitTime); err != nil {
 		db.CaptureError(err, query, nil, "exec")
 		return nil, errx.InternalError()
 	}
@@ -500,15 +502,14 @@ func (r *emailRepository) NewSMTPIMAPAccount(ctx context.Context, userID string,
 		return nil, xerr
 	}
 
-	sigplain := utils.GetSignaturePlain(data.Name)
-	sightml := utils.GetSignatureHTML(data.Name)
+	defaults := config.MailboxDefaults(config.MailboxProviderSMTPIMAP)
 
 	id := uuid.New()
 	t := time.Now()
 
 	query := `
-		INSERT INTO email_accounts (id, user_id, organization_id, email, name, provider, signature_plain, signature_html, tracking_domain, last_synced_at, updated_at, created_at, warmup_tag)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10, $10, $11)
+		INSERT INTO email_accounts (id, user_id, organization_id, email, name, provider, signature_plain, signature_html, tracking_domain, last_synced_at, updated_at, created_at, warmup_tag, campaign_limit, min_wait_time)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10, $10, $11, $12, $13)
 	`
 	params := []any{
 		id,
@@ -516,12 +517,14 @@ func (r *emailRepository) NewSMTPIMAPAccount(ctx context.Context, userID string,
 		data.OrganizationID,
 		data.Email,
 		data.Name,
-		"smtp_imap",
-		sigplain,
-		sightml,
+		config.MailboxProviderSMTPIMAP,
+		"",
+		"",
 		"",
 		t,
 		"",
+		defaults.CampaignLimit,
+		defaults.MinWaitTime,
 	}
 
 	_, err = tx.Exec(
@@ -606,18 +609,18 @@ func (r *emailRepository) NewSMTPIMAPAccount(ctx context.Context, userID string,
 
 		Name: data.Name,
 
-		SignaturePlain: sigplain,
-		SignatureHTML:  sightml,
+		SignaturePlain: "",
+		SignatureHTML:  "",
 		SignatureSync:  true,
 		SignatureCode:  false,
 
-		Provider: "smtp_imap",
+		Provider: config.MailboxProviderSMTPIMAP,
 		Status:   "active",
 
 		LastSyncedAt: t,
 
-		CampaignLimit: config.CampaignLimitDefault,
-		MinWaitTime:   config.MinWaitTimeDefault,
+		CampaignLimit: defaults.CampaignLimit,
+		MinWaitTime:   defaults.MinWaitTime,
 
 		WarmupBase:      config.WarmupBaseDefault,
 		WarmupMax:       config.WarmupMaxDefault,

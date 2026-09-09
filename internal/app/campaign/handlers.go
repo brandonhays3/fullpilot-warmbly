@@ -1055,12 +1055,13 @@ func (s *campaignService) Estimate(ctx context.Context, orgID uuid.UUID, in *mod
 		out.Recipients = n
 	}
 
-	dailyLimit := config.CampaignLimitDefault
+	// daily_limit is still accepted for compatibility but is not a cap: the
+	// scheduler only consults each mailbox's own campaign_limit, so the
+	// estimate does the same.
 	if in.DailyLimit != nil {
 		if xerr := validate.CampaignDailyLimit(*in.DailyLimit); xerr != nil {
 			return nil, xerr
 		}
-		dailyLimit = *in.DailyLimit
 	}
 
 	// Same pool resolution as the scheduler: tags when given, otherwise
@@ -1078,7 +1079,7 @@ func (s *campaignService) Estimate(ctx context.Context, orgID uuid.UUID, in *mod
 	}
 	out.Mailboxes = len(accounts)
 	for _, acct := range accounts {
-		lim := min(acct.CampaignLimit, dailyLimit)
+		lim := acct.CampaignLimit
 		if lim < 0 {
 			lim = 0
 		}

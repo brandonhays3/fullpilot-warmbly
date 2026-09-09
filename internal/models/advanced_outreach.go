@@ -79,7 +79,7 @@ func (s *AdvancedOutreachSettings) Normalize() {
 		s.Preflight.MinContentScore = 1
 	}
 	if !ValidUnsubscribeMode(string(s.Unsubscribe.Mode)) || s.Unsubscribe.Mode == UnsubscribeModeInherit {
-		s.Unsubscribe.Mode = UnsubscribeModeText
+		s.Unsubscribe.Mode = UnsubscribeModeOff
 	}
 	s.Unsubscribe.Text = clampLine(s.Unsubscribe.Text)
 	s.Unsubscribe.LinkIntro = clampLine(s.Unsubscribe.LinkIntro)
@@ -96,11 +96,11 @@ func clampLine(v string) string {
 	return v
 }
 
-// UnsubscribeMode is how a campaign email carries its opt-out. "text" appends
-// a plain sentence inviting a reply (the default: it reads as a personal
-// email and the reply is honoured automatically), "link" appends a sentence
-// with a real unsubscribe link, "off" appends nothing. A campaign's own
-// column may also hold "inherit", which follows the workspace setting.
+// UnsubscribeMode is how a campaign email carries its opt-out. "off" appends
+// nothing (the default: a reply that asks to stop is honoured automatically
+// either way), "text" appends a plain sentence inviting a reply, "link"
+// appends a sentence with a real unsubscribe link. A campaign's own column
+// may also hold "inherit", which follows the workspace setting.
 type UnsubscribeMode string
 
 const (
@@ -120,7 +120,10 @@ func ValidUnsubscribeMode(m string) bool {
 }
 
 const (
-	DefaultUnsubscribeText      = "If this isn't relevant, just reply and let me know and I won't email you again."
+	// DefaultUnsubscribeText is empty on purpose: no opt-out sentence is
+	// appended unless a workspace writes one. Text mode with a blank
+	// sentence appends nothing.
+	DefaultUnsubscribeText      = ""
 	DefaultUnsubscribeLinkIntro = "Not the right person, or not interested?"
 	DefaultUnsubscribeLinkText  = "Unsubscribe"
 	UnsubscribeCopyMaxLen       = 300
@@ -132,8 +135,9 @@ const (
 // looks for it on a plain-text campaign.
 const UnsubscribeLinkToken = "{{.UnsubscribeLink}}"
 
-// UnsubscribeSettings is the workspace default for the in-body opt-out. The
-// List-Unsubscribe header is a per-campaign flag and is not part of this.
+// UnsubscribeSettings is the workspace default for the in-body opt-out. It is
+// the only opt-out mechanism a campaign email carries: no List-Unsubscribe
+// header is ever sent.
 type UnsubscribeSettings struct {
 	Mode UnsubscribeMode `json:"mode"`
 	// Text is the sentence appended in "text" mode.
@@ -144,18 +148,16 @@ type UnsubscribeSettings struct {
 }
 
 // Effective resolves a campaign's stored mode against the workspace default
-// and fills any blank copy with the defaults, so the send path never has to
-// think about settings written before this block existed.
+// and fills blank link copy with the defaults, so the send path never has to
+// think about settings written before this block existed. The text-mode
+// sentence is deliberately not filled in: blank means nothing is appended.
 func (u UnsubscribeSettings) Effective(campaignMode string) UnsubscribeSettings {
 	out := u
 	if m := UnsubscribeMode(campaignMode); m != "" && m != UnsubscribeModeInherit && ValidUnsubscribeMode(campaignMode) {
 		out.Mode = m
 	}
 	if !ValidUnsubscribeMode(string(out.Mode)) || out.Mode == UnsubscribeModeInherit {
-		out.Mode = UnsubscribeModeText
-	}
-	if strings.TrimSpace(out.Text) == "" {
-		out.Text = DefaultUnsubscribeText
+		out.Mode = UnsubscribeModeOff
 	}
 	if strings.TrimSpace(out.LinkIntro) == "" {
 		out.LinkIntro = DefaultUnsubscribeLinkIntro
@@ -621,11 +623,12 @@ func DefaultAdvancedOutreachSettings() AdvancedOutreachSettings {
 			ShowIntentSummary:  true,
 			ShowDLQStats:       true,
 		},
-		// A plain reply-to-opt-out sentence by default: it satisfies CAN-SPAM,
-		// CASL and the Spam Act (all accept a reply mechanism), and it reads
-		// as a personal email where a formal link reads as bulk mail.
+		// Nothing appended by default: a cold email from a person carries no
+		// opt-out footer, and a reply that asks to stop is honoured
+		// automatically regardless. A workspace that wants a sentence or a
+		// link turns it on under Settings > Sending.
 		Unsubscribe: UnsubscribeSettings{
-			Mode:      UnsubscribeModeText,
+			Mode:      UnsubscribeModeOff,
 			Text:      DefaultUnsubscribeText,
 			LinkIntro: DefaultUnsubscribeLinkIntro,
 			LinkText:  DefaultUnsubscribeLinkText,
