@@ -2,10 +2,12 @@ package email
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/mail"
+	"net/url"
 	"strings"
 	"time"
 
@@ -155,7 +157,7 @@ func (s *emailService) OAuthFinish(ctx context.Context, userID, code, state stri
 		return nil, false, errx.ErrEmailOnboardExchange
 	}
 
-	owner, xerr := fetchInboxOwner(ctx, provider, tok.AccessToken)
+	owner, xerr := fetchInboxOwner(ctx, provider, cfg, tok)
 	if xerr != nil {
 		return nil, false, xerr
 	}
@@ -453,18 +455,49 @@ func deriveNameFromEmail(email string) string {
 	return strings.Title(local)
 }
 
-// inboxOwner is the per-provider user info shape we normalize on.
+// inboxOwner is the per-provider user info shape we normalize on. Name is
+// the account's real name ("First Last") when the provider gives one, and
+// empty otherwise; the callers fall back to the address's local part only
+// then.
 type inboxOwner struct {
 	Email string
 	Name  string
 }
 
-func fetchInboxOwner(ctx context.Context, provider models.InboxProvider, accessToken string) (*inboxOwner, *errx.Error) {
+// fullName joins the provider's given and family names, falling back to the
+// display name when only that is set. Trimmed so a provider that leaves one
+// half empty yields "First" rather than "First ".
+func fullName(given, family, display string) string {
+	name := strings.TrimSpace(strings.TrimSpace(given) + " " + strings.TrimSpace(family))
+	if name == "" {
+		name = strings.TrimSpace(display)
+	}
+	return name
+}
+
+// isFallbackName reports whether a stored mailbox name is one the connect
+// flow derived from the address rather than one the provider or the user
+// gave, so a reauth may replace it with the real name.
+func isFallbackName(name, email string) bool {
+	name = strings.TrimSpace(name)
+	return name == "" || strings.EqualFold(name, email) || strings.EqualFold(name, deriveNameFromEmail(email))
+}
+
+// fetchInboxOwner resolves the address and real name behind a fresh consent.
+// cfg is the client the consent ran against: for Microsoft it decides whether
+// the token can reach Graph at all.
+func fetchInboxOwner(ctx context.Context, provider models.InboxProvider, cfg *oauth2.Config, tok *oauth2.Token) (*inboxOwner, *errx.Error) {
+	if tok == nil {
+		return nil, errx.ErrEmailOnboardUserInfo
+	}
 	switch provider {
 	case models.InboxProviderGoogle:
-		return fetchGmailOwner(ctx, accessToken)
+		return fetchGmailOwner(ctx, tok.AccessToken)
 	case models.InboxProviderOutlook:
-		return fetchOutlookOwner(ctx, accessToken)
+		if config.OutlookGraphScoped(cfg) {
+			return fetchOutlookOwner(ctx, tok.AccessToken)
+		}
+		return fetchOutlookOIDCOwner(ctx, cfg, tok)
 	default:
 		return nil, errx.ErrEmailOnboardProvider
 	}
@@ -472,51 +505,82 @@ func fetchInboxOwner(ctx context.Context, provider models.InboxProvider, accessT
 
 var httpClient = &http.Client{Timeout: 10 * time.Second}
 
-func fetchGmailOwner(ctx context.Context, token string) (*inboxOwner, *errx.Error) {
-	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "https://gmail.googleapis.com/gmail/v1/users/me/profile", nil)
+// Provider identity endpoints. Variables so tests can point them at a local
+// server.
+var (
+	googleUserinfoURL    = "https://www.googleapis.com/oauth2/v3/userinfo"
+	gmailProfileURL      = "https://gmail.googleapis.com/gmail/v1/users/me/profile"
+	graphMeURL           = "https://graph.microsoft.com/v1.0/me"
+	microsoftUserinfoURL = "https://graph.microsoft.com/oidc/userinfo"
+)
+
+// getJSON performs a bearer-authenticated GET and decodes the body into out.
+// Any transport error, non-200 status or undecodable body is reported as the
+// one onboarding error the caller can show.
+func getJSON(ctx context.Context, url, token string, out any) *errx.Error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return errx.ErrEmailOnboardUserInfo
+	}
 	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Accept", "application/json")
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return nil, errx.ErrEmailOnboardUserInfo
+		return errx.ErrEmailOnboardUserInfo
 	}
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode != http.StatusOK {
-		return nil, errx.ErrEmailOnboardUserInfo
+		return errx.ErrEmailOnboardUserInfo
 	}
-	var out struct {
-		EmailAddress string `json:"emailAddress"`
+	if err := json.Unmarshal(body, out); err != nil {
+		return errx.ErrEmailOnboardUserInfo
 	}
-	if err := json.Unmarshal(body, &out); err != nil {
-		return nil, errx.ErrEmailOnboardUserInfo
-	}
-	if out.EmailAddress == "" {
-		return nil, errx.ErrEmailOnboardUserInfo
-	}
-	return &inboxOwner{Email: out.EmailAddress}, nil
+	return nil
 }
 
-func fetchOutlookOwner(ctx context.Context, token string) (*inboxOwner, *errx.Error) {
-	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "https://graph.microsoft.com/v1.0/me", nil)
-	req.Header.Set("Authorization", "Bearer "+token)
+// fetchGmailOwner reads the account's address and real name from Google's
+// OpenID userinfo endpoint (openid email profile), which is where the given
+// and family names live; the Gmail profile endpoint has only the address.
+// The profile endpoint stays as the fallback for a consent that predates the
+// identity scopes, so an older client can still connect, just without a name.
+func fetchGmailOwner(ctx context.Context, token string) (*inboxOwner, *errx.Error) {
+	var info struct {
+		Email      string `json:"email"`
+		GivenName  string `json:"given_name"`
+		FamilyName string `json:"family_name"`
+		Name       string `json:"name"`
+	}
+	if xerr := getJSON(ctx, googleUserinfoURL, token, &info); xerr == nil && info.Email != "" {
+		return &inboxOwner{Email: info.Email, Name: fullName(info.GivenName, info.FamilyName, info.Name)}, nil
+	}
 
-	resp, err := httpClient.Do(req)
-	if err != nil {
+	var profile struct {
+		EmailAddress string `json:"emailAddress"`
+	}
+	if xerr := getJSON(ctx, gmailProfileURL, token, &profile); xerr != nil {
+		return nil, xerr
+	}
+	if profile.EmailAddress == "" {
 		return nil, errx.ErrEmailOnboardUserInfo
 	}
-	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
-	if resp.StatusCode != http.StatusOK {
-		return nil, errx.ErrEmailOnboardUserInfo
-	}
+	return &inboxOwner{Email: profile.EmailAddress}, nil
+}
+
+// fetchOutlookOwner resolves the owner through Graph /me, for a consent that
+// carries a Graph scope. givenName and surname are the real name; displayName
+// is the fallback, since a tenant can leave the split fields empty.
+func fetchOutlookOwner(ctx context.Context, token string) (*inboxOwner, *errx.Error) {
 	var out struct {
 		Mail              string `json:"mail"`
 		UserPrincipalName string `json:"userPrincipalName"`
 		DisplayName       string `json:"displayName"`
+		GivenName         string `json:"givenName"`
+		Surname           string `json:"surname"`
 	}
-	if err := json.Unmarshal(body, &out); err != nil {
-		return nil, errx.ErrEmailOnboardUserInfo
+	if xerr := getJSON(ctx, graphMeURL, token, &out); xerr != nil {
+		return nil, xerr
 	}
 	addr := out.Mail
 	if addr == "" {
@@ -525,5 +589,113 @@ func fetchOutlookOwner(ctx context.Context, token string) (*inboxOwner, *errx.Er
 	if addr == "" {
 		return nil, errx.ErrEmailOnboardUserInfo
 	}
-	return &inboxOwner{Email: addr, Name: out.DisplayName}, nil
+	return &inboxOwner{Email: addr, Name: fullName(out.GivenName, out.Surname, out.DisplayName)}, nil
+}
+
+// oidcClaims are the identity claims both the id_token and the OIDC userinfo
+// endpoint can carry.
+type oidcClaims struct {
+	Email             string `json:"email"`
+	PreferredUsername string `json:"preferred_username"`
+	GivenName         string `json:"given_name"`
+	FamilyName        string `json:"family_name"`
+	Name              string `json:"name"`
+}
+
+func (c oidcClaims) address() string {
+	if c.Email != "" {
+		return c.Email
+	}
+	// Entra's preferred_username is the UPN, which is the address on every
+	// mailbox account (a guest's would carry #EXT#, and cannot be a mailbox).
+	if strings.Contains(c.PreferredUsername, "@") && !strings.Contains(c.PreferredUsername, "#EXT#") {
+		return c.PreferredUsername
+	}
+	return ""
+}
+
+// fetchOutlookOIDCOwner resolves the owner for a consent with no Graph scope
+// (the IMAP/SMTP resource): the access token cannot reach /me, so the id_token
+// the token endpoint returned alongside it is read first, and the OIDC
+// userinfo endpoint fills in the split name Entra leaves out of the id_token
+// by default. That endpoint wants a token for itself, which the refresh token
+// buys with the identity scopes alone, one request, no new consent.
+func fetchOutlookOIDCOwner(ctx context.Context, cfg *oauth2.Config, tok *oauth2.Token) (*inboxOwner, *errx.Error) {
+	claims := idTokenClaims(tok)
+	owner := &inboxOwner{Email: claims.address(), Name: fullName(claims.GivenName, claims.FamilyName, "")}
+
+	if (owner.Email == "" || owner.Name == "") && cfg != nil && tok.RefreshToken != "" {
+		if infoTok := userinfoToken(ctx, cfg, tok.RefreshToken); infoTok != "" {
+			var info oidcClaims
+			if xerr := getJSON(ctx, microsoftUserinfoURL, infoTok, &info); xerr == nil {
+				if owner.Email == "" {
+					owner.Email = info.address()
+				}
+				if owner.Name == "" {
+					owner.Name = fullName(info.GivenName, info.FamilyName, info.Name)
+				}
+			}
+		}
+	}
+	if owner.Name == "" {
+		owner.Name = strings.TrimSpace(claims.Name)
+	}
+	if owner.Email == "" {
+		return nil, errx.ErrEmailOnboardUserInfo
+	}
+	return owner, nil
+}
+
+// idTokenClaims decodes the id_token's payload. The token arrived over TLS
+// straight from the issuer's token endpoint in the same response as the
+// access token, so its signature adds nothing here and is not checked.
+func idTokenClaims(tok *oauth2.Token) oidcClaims {
+	var claims oidcClaims
+	raw, _ := tok.Extra("id_token").(string)
+	parts := strings.Split(raw, ".")
+	if len(parts) < 2 {
+		return claims
+	}
+	payload, err := base64.RawURLEncoding.DecodeString(strings.TrimRight(parts[1], "="))
+	if err != nil {
+		return claims
+	}
+	_ = json.Unmarshal(payload, &claims)
+	return claims
+}
+
+// userinfoToken redeems the refresh token for an access token scoped to the
+// identity claims only, which Entra issues for its OIDC userinfo endpoint.
+// Empty on any failure; the caller has the id_token to fall back on.
+func userinfoToken(ctx context.Context, cfg *oauth2.Config, refreshToken string) string {
+	form := url.Values{
+		"grant_type":    {"refresh_token"},
+		"refresh_token": {refreshToken},
+		"client_id":     {cfg.ClientID},
+		"scope":         {"openid email profile"},
+	}
+	if cfg.ClientSecret != "" {
+		form.Set("client_secret", cfg.ClientSecret)
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, cfg.Endpoint.TokenURL, strings.NewReader(form.Encode()))
+	if err != nil {
+		return ""
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return ""
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return ""
+	}
+	var out struct {
+		AccessToken string `json:"access_token"`
+	}
+	if err := json.Unmarshal(body, &out); err != nil {
+		return ""
+	}
+	return out.AccessToken
 }

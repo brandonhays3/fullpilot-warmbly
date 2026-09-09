@@ -69,6 +69,16 @@ func (s *JobsService) runAuthCheckSweep(ctx context.Context, staleAfter time.Dur
 		seen[domain] = struct{}{}
 
 		res := dnsauth.Check(ctx, domain, nil)
+		// A public mail provider's domain (gmail.com, outlook.com, ...) is
+		// not the owner's to authenticate. Record that it was looked at so
+		// it is not claimed again until stale, and clear any verdict a
+		// sweep from before this distinction left behind.
+		if res.NotApplicable {
+			if uerr := s.EmailRepository.MarkDomainAuthNotApplicable(ctx, domain, res.Summary, checkedAt); uerr != nil {
+				log.Warn().Str("domain", domain).Str("error", uerr.Error()).Msg("auth-check sweep: failed to mark public mail domain")
+			}
+			continue
+		}
 		state := res.State()
 		transitions, uerr := s.EmailRepository.UpdateDomainAuthState(ctx, domain, state, res.SPFFound, res.DKIMFound, res.DMARCFound, res.DMARCPolicy, res.Summary, checkedAt)
 		if uerr != nil {

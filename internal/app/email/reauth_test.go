@@ -106,6 +106,32 @@ func TestFinishReauth_WrongAccountIsRefused(t *testing.T) {
 	}
 }
 
+func TestFinishReauth_ReplacesFallbackNameWithRealName(t *testing.T) {
+	svc, repo, _, sess := reauthFixture("gmail", "ana.silva@example.com")
+	repo.account.Name = "Ana Silva" // what deriveNameFromEmail produced at connect
+
+	tok := &oauth2.Token{AccessToken: "a", RefreshToken: "r"}
+	if _, xerr := svc.finishReauth(context.Background(), sess, models.InboxProviderGoogle, tok, &inboxOwner{Email: "ana.silva@example.com", Name: "Ana Silva Ferreira"}); xerr != nil {
+		t.Fatalf("finishReauth: %v", xerr)
+	}
+	if repo.updated == nil || repo.updated.Name == nil || *repo.updated.Name != "Ana Silva Ferreira" {
+		t.Fatalf("real name not written: %+v", repo.updated)
+	}
+}
+
+func TestFinishReauth_KeepsAUserChosenName(t *testing.T) {
+	svc, repo, _, sess := reauthFixture("gmail", "ana.silva@example.com")
+	repo.account.Name = "Sales Team"
+
+	tok := &oauth2.Token{AccessToken: "a", RefreshToken: "r"}
+	if _, xerr := svc.finishReauth(context.Background(), sess, models.InboxProviderGoogle, tok, &inboxOwner{Email: "ana.silva@example.com", Name: "Ana Silva"}); xerr != nil {
+		t.Fatalf("finishReauth: %v", xerr)
+	}
+	if repo.updated == nil || repo.updated.Name != nil {
+		t.Fatalf("a user-chosen name must survive a reauth: %+v", repo.updated)
+	}
+}
+
 func TestFinishReauth_UpdatesTokensResolvesErrorsAndReactivates(t *testing.T) {
 	svc, repo, errs, sess := reauthFixture("gmail", "owner@example.com")
 

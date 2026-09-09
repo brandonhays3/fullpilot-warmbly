@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/warmbly/warmbly/internal/config"
+	"github.com/warmbly/warmbly/internal/pkg/maildomain"
 	"golang.org/x/oauth2"
 )
 
@@ -111,9 +112,15 @@ func (e *Email) IsWarmingActive() bool {
 // DomainAuthBlocked reports whether this mailbox's sending domain has been
 // failing authentication long enough to stop cold sends and warmup sends.
 // Only a sustained "failing" gates: "unknown", an unstamped clock, and
-// anything inside the grace window all pass through.
+// anything inside the grace window all pass through. A mailbox on a public
+// mail provider is never gated: its domain's records are the provider's, so
+// a stored "failing" there can only be a stale verdict from before the sweep
+// learned to skip such domains.
 func (e *Email) DomainAuthBlocked(now time.Time, grace time.Duration) bool {
 	if e.AuthState != AuthStateFailing || e.AuthFailingSince == nil {
+		return false
+	}
+	if maildomain.PublicMailDomain(e.Email) {
 		return false
 	}
 	return !now.Before(e.AuthFailingSince.Add(grace))

@@ -306,6 +306,14 @@ func (s *emailService) RefreshDomainAuth(ctx context.Context, orgID, emailAccoun
 		return res, nil
 	}
 
+	// A public mail provider's domain has no verdict to record, only the
+	// reason there is none; this also clears a stale "failing" from before
+	// such domains were skipped, which is what a Re-check button is for.
+	if res.NotApplicable {
+		_ = s.emailRepository.MarkDomainAuthNotApplicable(ctx, domain, res.Summary, time.Now())
+		return res, nil
+	}
+
 	// Persist best-effort: the caller asked for a live check and gets the live
 	// answer either way. A failed write only means the sweep re-derives it.
 	_, _ = s.emailRepository.UpdateDomainAuthState(

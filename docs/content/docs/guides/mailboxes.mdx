@@ -11,11 +11,11 @@ Open **Accounts** and choose **Add account**.
 
 | Provider | Method | Notes |
 |----------|--------|-------|
-| Gmail / Google Workspace | OAuth (`gmail`) | Recommended. No password stored. Sends and syncs over the Gmail API |
-| Outlook / Microsoft 365 | OAuth (`outlook`) | Recommended. No password stored. Runs on Microsoft Graph |
+| Gmail / Google Workspace | OAuth (`gmail`) | Recommended. No password stored. Sends through Gmail's SMTP and syncs over its IMAP with the OAuth token, or over the Gmail API, depending on how the instance is configured |
+| Outlook / Microsoft 365 | OAuth (`outlook`) | Recommended. No password stored. Sends through Exchange Online's SMTP and syncs over its IMAP with the OAuth token, or over Microsoft Graph, depending on how the instance is configured |
 | Any other server | IMAP + SMTP (`smtp_imap`) | Custom domains, self-hosted, or providers without OAuth. Any IMAP server works, including Outlook.com, Microsoft 365 over IMAP, Yahoo, Fastmail, Zoho, cPanel and self-hosted Dovecot |
 
-**OAuth** sends you to your provider's consent screen and returns a token instead of a password. Both OAuth providers use the provider's native API, never IMAP or SMTP, so consent asks to send mail and to read and organize your mailbox. It needs no app passwords or server settings. Note that Google revokes Gmail tokens when the account's password changes, so a password change there means [re-authorizing the mailbox](#reconnecting-an-account) once.
+**OAuth** sends you to your provider's consent screen and returns a token instead of a password. Consent asks to send mail and to read and organize your mailbox, plus your name and address so the mailbox is named after you (first and last name as the provider has them; you can rename it afterwards). It needs no app passwords or server settings. Which endpoints the token is used against, the provider's IMAP and SMTP or its API, is an instance setting ([`OAUTH_MAILBOX_TRANSPORT`](/development/configuration/#mailbox-connections)); switching it means [re-authorizing](#reconnecting-an-account) mailboxes consented under the other one, and a reconnect also refreshes a mailbox name that was derived from the address. Note that Google revokes Gmail tokens when the account's password changes, so a password change there means re-authorizing the mailbox once.
 
 **IMAP / SMTP** needs host, port, username, and password for each direction:
 

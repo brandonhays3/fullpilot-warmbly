@@ -2,8 +2,12 @@ package worker
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	"github.com/rs/zerolog/log"
+	"github.com/warmbly/warmbly/internal/app/worker/wmail"
+	"github.com/warmbly/warmbly/internal/errx"
 	"github.com/warmbly/warmbly/internal/models"
 )
 
@@ -23,6 +27,7 @@ func (w *WorkerService) HandleAddEmail(ctx context.Context, e *models.AddWorkerE
 
 	if err := w.mailManager.AddWMail(ctx, e); err != nil {
 		log.Error().Err(err).Str("email_id", e.ID.String()).Msg("failed to add email account to worker")
+		w.reportLoadAuthFailure(e, err)
 		return err
 	}
 
@@ -39,6 +44,37 @@ func (w *WorkerService) HandleAddEmail(ctx context.Context, e *models.AddWorkerE
 		go mail.StartSyncWorker(mail.Ctx)
 	}
 
-	log.Info().Str("email_id", e.ID.String()).Str("email", e.Email).Msg("email account added to worker")
+	log.Info().Str("email_id", e.ID.String()).Str("email", e.Email).Str("transport", string(mail.Transport)).Msg("email account added to worker")
 	return nil
+}
+
+// reportLoadAuthFailure raises EMAIL_AUTH_ERROR when a mailbox is refused at
+// load for its credentials, so the control plane deactivates it and the owner
+// is asked to reconnect. Without it the reconciler republishes the same
+// refused mailbox every few minutes and nobody is told. The case that
+// produces it: an OAuth mailbox moved to the smtp transport whose consent
+// carries no IMAP/SMTP scope. Anything else (a dead server, a missing
+// payload) is left to the next republish.
+func (w *WorkerService) reportLoadAuthFailure(e *models.AddWorkerEmail, err error) {
+	var mailErr *errx.MailError
+	if !errors.As(err, &mailErr) || wmail.DetermineErrorEventType(mailErr) != models.JobEventTypeEmailAuthError {
+		return
+	}
+	userInfo := mailErr.GetUserErrorInfo()
+	event := models.EmailErrorEvent{
+		EmailAccountID: e.ID.String(),
+		UserID:         e.UserID.String(),
+		ErrorCode:      string(mailErr.Code),
+		ErrorType:      string(mailErr.Type),
+		ResolveMethod:  string(mailErr.ResolveMethod),
+		Message:        mailErr.Message,
+		UserVisible:    mailErr.IsUserVisible(),
+		UserTitle:      userInfo.Title,
+		UserMessage:    userInfo.Message,
+		ActionRequired: userInfo.ActionRequired,
+		Timestamp:      time.Now().Unix(),
+	}
+	if perr := w.Produce(models.JobEventTypeEmailAuthError, e.ID.String(), event); perr != nil {
+		log.Error().Err(perr).Str("email_id", e.ID.String()).Msg("failed to produce email auth error event")
+	}
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 	"github.com/warmbly/warmbly/internal/app/instancesettings"
+	"github.com/warmbly/warmbly/internal/config"
 	"github.com/warmbly/warmbly/internal/errx"
 	"github.com/warmbly/warmbly/internal/models"
 	"github.com/warmbly/warmbly/internal/repository"
@@ -300,6 +301,7 @@ func (s *emailService) buildAddWorkerEmail(ctx context.Context, acc *models.Emai
 			Token:         oauthToken(creds),
 			LastHistoryID: s.lastHistoryFor(ctx, userID, acc.ID, acc.LastID),
 		}
+		s.applyOAuthTransport(ctx, out, userID, acc)
 	case models.InboxProviderOutlook:
 		creds, cerr := s.emailRepository.GetOAuthCredentials(ctx, acc.ID)
 		if cerr != nil {
@@ -310,6 +312,7 @@ func (s *emailService) buildAddWorkerEmail(ctx context.Context, acc *models.Emai
 			Token:      oauthToken(creds),
 			DeltaLinks: s.deltaLinksFor(ctx, userID, acc.ID),
 		}
+		s.applyOAuthTransport(ctx, out, userID, acc)
 	case models.InboxProviderSMTPIMAP:
 		creds, cerr := s.emailRepository.GetSMTPCredentials(ctx, acc.ID)
 		if cerr != nil {
@@ -328,6 +331,23 @@ func (s *emailService) buildAddWorkerEmail(ctx context.Context, acc *models.Emai
 	}
 
 	return out, nil
+}
+
+// applyOAuthTransport stamps the transport an OAuth mailbox is driven with
+// (OAUTH_MAILBOX_TRANSPORT). On the smtp transport the worker syncs over IMAP,
+// so the payload also carries the saved folder cursors an smtp_imap mailbox
+// gets. Stamped per mailbox so a later per-mailbox switch only changes what
+// is resolved here.
+func (s *emailService) applyOAuthTransport(ctx context.Context, out *models.AddWorkerEmail, userID uuid.UUID, acc *models.Email) {
+	transport := models.ParseMailTransport(config.OAuthMailboxTransport())
+	out.Transport = string(transport)
+	if transport != models.MailTransportSMTP {
+		return
+	}
+	out.ImapSync = true
+	out.SmtpImap = &models.AddWorkerEmailSmtpImapData{
+		Mailboxes: s.mailboxesFor(ctx, userID, acc.ID),
+	}
 }
 
 // lastHistoryFor is the Gmail checkpoint a (re)loaded mailbox resumes from.

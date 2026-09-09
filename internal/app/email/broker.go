@@ -39,7 +39,7 @@ func (s *emailService) OAuthConnectWithCode(ctx context.Context, userID string, 
 	if err != nil {
 		return nil, errx.ErrEmailOnboardExchange
 	}
-	owner, xerr := fetchInboxOwner(ctx, provider, tok.AccessToken)
+	owner, xerr := fetchInboxOwner(ctx, provider, cfg, tok)
 	if xerr != nil {
 		return nil, xerr
 	}

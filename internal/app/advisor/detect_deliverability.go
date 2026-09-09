@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/warmbly/warmbly/internal/models"
+	"github.com/warmbly/warmbly/internal/pkg/maildomain"
 	"github.com/warmbly/warmbly/internal/repository"
 )
 
@@ -234,6 +235,14 @@ func detectDomainAuth(s *repository.AdvisorSnapshot) []Finding {
 		// failed transiently). Reporting it as failing would cry wolf on every
 		// freshly-connected mailbox.
 		if m.AuthState == "unknown" || m.AuthState == "" {
+			continue
+		}
+		// gmail.com, outlook.com and the like are authenticated by the
+		// provider. There is no record the owner could add, so a finding
+		// would send them to a registrar that is not theirs. The sweep
+		// stores "unknown" for these; this also covers a verdict stored
+		// before it did.
+		if maildomain.PublicMailDomain(m.Email) {
 			continue
 		}
 		if m.AuthSPF && m.AuthDKIM && m.AuthDMARC {

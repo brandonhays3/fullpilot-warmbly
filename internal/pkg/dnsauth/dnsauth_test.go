@@ -304,3 +304,23 @@ func TestSummaryNamesInheritedSource(t *testing.T) {
 		t.Errorf("Summary = %q, want %q", res.Summary, want)
 	}
 }
+
+func TestCheckPublicMailDomainsAreNotApplicable(t *testing.T) {
+	// A consumer provider's records are the provider's. No lookup runs (the
+	// empty resolver here would answer "found nothing" and read as failing),
+	// the verdict is "unknown", and the summary says why.
+	for _, d := range []string{"gmail.com", "Googlemail.com", "outlook.com", "hotmail.co.uk", "yahoo.com", "icloud.com", "proton.me", "gmx.de"} {
+		t.Run(d, func(t *testing.T) {
+			res := checkWith(d, nil, stubResolver(nil))
+			if !res.NotApplicable {
+				t.Error("NotApplicable = false, want true")
+			}
+			if got := res.State(); got != "unknown" {
+				t.Errorf("State() = %q, want %q", got, "unknown")
+			}
+			if res.Summary != NotApplicableSummary {
+				t.Errorf("Summary = %q, want %q", res.Summary, NotApplicableSummary)
+			}
+		})
+	}
+}
