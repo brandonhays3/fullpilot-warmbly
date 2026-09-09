@@ -109,7 +109,7 @@ func (h *Handler) AdminTestNotificationChannel(c *gin.Context) {
 
 	event := opsnotify.NewEvent(
 		opsnotify.EventTest,
-		"Test alert from Warmbly",
+		"Test alert from Fullpilot",
 		"If you can read this, this channel is wired up correctly.",
 		opsnotify.Field{Label: "Channel", Value: firstNonBlank(ch.Name, ch.Type)},
 	)

@@ -8,7 +8,7 @@ import (
 
 // This file defines the provider-agnostic agent-loop contract used by every
 // server-side AI feature (dashboard agent, contact research, automation AI
-// nodes, inbox agent). Warmbly's hosted product runs on OpenAI; the same
+// nodes, inbox agent). Fullpilot's hosted product runs on OpenAI; the same
 // interface lets a self-hoster point at any OpenAI-compatible endpoint
 // (Ollama, vLLM, LocalAI, OpenRouter) via an AI_PROVIDER preset or AI_BASE_URL, or use the
 // Anthropic connector, without any caller change.
@@ -239,7 +239,7 @@ type ProviderConfig struct {
 }
 
 // NewProvider selects and constructs the active provider. OpenAI is preferred
-// (Warmbly's hosted default and the pluggable self-host path); the Anthropic
+// (Fullpilot's hosted default and the pluggable self-host path); the Anthropic
 // connector is used only when no OpenAI key is present. Returns
 // ErrProviderNotConfigured when neither is set.
 func NewProvider(cfg ProviderConfig) (Provider, error) {

@@ -118,7 +118,7 @@ func (c *Client) Send(
 		headers["References"] = mid
 	}
 
-	// Add custom headers (e.g., X-Warmbly-Token for warmup)
+	// Add custom headers (e.g., X-Fullpilot-Token for warmup)
 	if len(customHeaders) > 0 {
 		for k, v := range customHeaders[0] {
 			headers[k] = v

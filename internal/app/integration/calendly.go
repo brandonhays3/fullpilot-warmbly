@@ -97,7 +97,7 @@ type CalComPayload struct {
 	} `json:"payload"`
 }
 
-// ContactByEmailFunc resolves a Warmbly contact id from an email, scoped to the
+// ContactByEmailFunc resolves a Fullpilot contact id from an email, scoped to the
 // org. Provided as a function type so this package does not import the full
 // contact service (which would create an import cycle).
 type ContactByEmailFunc func(ctx context.Context, orgID uuid.UUID, email string) (*uuid.UUID, error)
@@ -108,7 +108,7 @@ type ContactByEmailFunc func(ctx context.Context, orgID uuid.UUID, email string)
 // attacker-supplied id without verifying org ownership).
 type ContactVerifyFunc func(ctx context.Context, orgID, contactID uuid.UUID) (bool, error)
 
-// BookingMatcher joins an inbound booking payload to a Warmbly contact. It
+// BookingMatcher joins an inbound booking payload to a Fullpilot contact. It
 // prefers a verified id hint (deterministic, survives a different reply-to
 // email) and falls back to an org-scoped email lookup.
 type BookingMatcher struct {

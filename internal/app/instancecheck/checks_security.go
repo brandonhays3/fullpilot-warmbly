@@ -66,7 +66,7 @@ func checkSecretPublishedDefault(ctx context.Context, d Deps, in Input) *Finding
 
 	return result(CategorySecurity, severity, "Published default secrets in use",
 		fmt.Sprintf("%s still %s the published default value from docker-compose.yml. "+
-			"Those values are public in the Warmbly repository, so anyone can forge a session token "+
+			"Those values are public in the Fullpilot repository, so anyone can forge a session token "+
 			"or unwrap every organization key. Generate real values with `make gen-key` and restart.",
 			strings.Join(offenders, ", "), verb),
 		docsSecrets)
@@ -112,7 +112,7 @@ func checkTrustedProxiesUnset(ctx context.Context, d Deps, in Input) *Finding {
 	}
 	return result(CategorySecurity, SeverityWarning, "Proxy headers are not trusted",
 		"This request arrived with an X-Forwarded-For header but TRUSTED_PROXIES is empty, "+
-			"so Warmbly is recording your proxy's address as the client address. "+
+			"so Fullpilot is recording your proxy's address as the client address. "+
 			"The per-IP login limiter, session records, audit rows and API key IP allowlists are all reading the wrong address. "+
 			"Set TRUSTED_PROXIES to your proxy's CIDR.",
 		docsProxy)

@@ -1,5 +1,5 @@
 // Package updater is the host-side agent that applies an update to a
-// self-hosted Warmbly: pull the checkout, rebuild, restart, and wait for the
+// self-hosted Fullpilot: pull the checkout, rebuild, restart, and wait for the
 // backend to answer again. It runs next to the stack (a compose sidecar that
 // holds the docker socket, or a systemd unit on a bare-metal host) and the
 // backend drives it over a token-authenticated HTTP API that is never exposed

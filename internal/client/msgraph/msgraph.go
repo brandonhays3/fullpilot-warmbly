@@ -1,4 +1,4 @@
-// Package msgraph is a thin Microsoft Graph mail client for Warmbly's
+// Package msgraph is a thin Microsoft Graph mail client for Fullpilot's
 // Outlook/Microsoft 365 mailboxes. It mirrors the shape of internal/client/goog
 // (the Gmail API client): a per-mailbox Client with OnMessage* callbacks, an
 // OAuth2 token source that persists refreshes, RAW MIME sending, delta-based
@@ -51,7 +51,7 @@ type Client struct {
 	// as sync runs; OnDelta persists each new value off the disposable worker.
 	DeltaLinks map[string]string
 
-	// folderIDs caches resolved folder ids (e.g. the created "Warmbly" folder)
+	// folderIDs caches resolved folder ids (e.g. the created "Fullpilot" folder)
 	// so we don't re-list on every warmup action.
 	folderIDs map[string]string
 	mu        sync.Mutex
@@ -83,7 +83,7 @@ func (c *Client) Init(ctx context.Context, token *oauth2.Token, cfg oauth2.Confi
 }
 
 // InitWithSource builds the client on a caller-owned token source (brokered
-// tokens from Warmbly Cloud); nothing is persisted from it.
+// tokens from Fullpilot Cloud); nothing is persisted from it.
 func (c *Client) InitWithSource(ctx context.Context, ts oauth2.TokenSource) *errx.MailError {
 	c.hc = oauth2.NewClient(ctx, ts)
 	if c.DeltaLinks == nil {

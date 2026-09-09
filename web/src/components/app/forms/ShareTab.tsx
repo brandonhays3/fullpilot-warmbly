@@ -191,12 +191,12 @@ export default function ShareTab({ form, baseUrl }: { form: Form; baseUrl: strin
                     <Snippet
                         label="JavaScript embed"
                         hint="recommended, self-sizing"
-                        code={`<script src="${scriptUrl}" async></script>\n<div data-warmbly-form="${form.public_id}"></div>`}
+                        code={`<script src="${scriptUrl}" async></script>\n<div data-fullpilot-form="${form.public_id}"></div>`}
                     />
                     <Snippet
                         label="Popup"
                         hint="opens in an overlay"
-                        code={`<script src="${scriptUrl}" async></script>\n<button data-warmbly-popup="${form.public_id}">Get started</button>`}
+                        code={`<script src="${scriptUrl}" async></script>\n<button data-fullpilot-popup="${form.public_id}">Get started</button>`}
                     />
                     <Snippet
                         label="Plain iframe"

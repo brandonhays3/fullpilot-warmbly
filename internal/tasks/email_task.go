@@ -81,7 +81,7 @@ func (s *tasksService) HandleEmailTask(task *proto.ProcessTask) *errx.Error {
 	if account == nil {
 		return errx.ErrNotFound
 	}
-	// A mailbox enrolled in Warmbly Cloud is warmed there; the local chain ends here.
+	// A mailbox enrolled in Fullpilot Cloud is warmed there; the local chain ends here.
 	if s.cloudLink != nil && s.cloudLink.IsEnrolled(ctx, account.ID) {
 		_ = s.taskRepo.UpdateTaskStatus(ctx, taskID, "cancelled")
 		executionStatus = "skipped_cloud_warmup"

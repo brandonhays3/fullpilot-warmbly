@@ -161,7 +161,7 @@ function CLIAuthInner() {
                 <div className="mt-5 flex items-center justify-center gap-3 text-[12px] text-white/70">
                     <Link to="/app/emails" className="hover:text-white transition-colors">Back to dashboard</Link>
                     <span className="text-white/40">·</span>
-                    <a href="https://docs.warmbly.com/api/cli/" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">About the CLI</a>
+                    <a href="https://www.fullpilot.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">About the CLI</a>
                 </div>
             </div>
         </div>
@@ -484,7 +484,7 @@ function DoneStep({ approved, info, orgName, onAnother }: { approved: boolean; i
                     API keys <ArrowRightIcon className="w-3.5 h-3.5" />
                 </Link>
                 <a
-                    href="https://docs.warmbly.com/api/cli/"
+                    href="https://www.fullpilot.com"
                     target="_blank"
                     rel="noreferrer"
                     className="h-10 px-4 rounded-md border border-slate-200 hover:border-slate-300 text-slate-800 text-[13.5px] font-medium inline-flex items-center gap-1.5 transition-colors"

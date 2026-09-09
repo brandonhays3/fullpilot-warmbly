@@ -128,11 +128,11 @@ func (m *Manifest) Info() *models.OrgArchiveInfo {
 	}
 }
 
-// Validate rejects a file that is not a Warmbly archive, or one this build
+// Validate rejects a file that is not a Fullpilot archive, or one this build
 // cannot read, before any of it is applied.
 func (m *Manifest) Validate() error {
 	if m.Kind != ArchiveKind {
-		return fmt.Errorf("not a Warmbly organization archive (found kind %q)", m.Kind)
+		return fmt.Errorf("not a Fullpilot organization archive (found kind %q)", m.Kind)
 	}
 	if m.FormatVersion <= 0 {
 		return fmt.Errorf("archive has no format version")

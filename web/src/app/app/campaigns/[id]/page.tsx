@@ -131,7 +131,7 @@ export default function CampaignOverview() {
                             )}
                             <AnalyticsShareButton
                                 data={shareData}
-                                filename={`warmbly-${campaign.id}.png`}
+                                filename={`fullpilot-${campaign.id}.png`}
                             />
                         </SectionBar>
                         <StatStrip cols={5}>

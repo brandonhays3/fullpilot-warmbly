@@ -193,7 +193,7 @@ func (s *Subscription) CanUseWarmup() bool {
 
 // CanUseUnibox returns true if user can use unibox feature.
 // Same trial allowance as warmup so a free-trial user can interact with
-// their connected mailbox while evaluating Warmbly.
+// their connected mailbox while evaluating Fullpilot.
 func (s *Subscription) CanUseUnibox() bool {
 	return s.HasPaidSubscription() || s.IsInFreeTrial()
 }

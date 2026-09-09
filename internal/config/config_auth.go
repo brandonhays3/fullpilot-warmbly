@@ -45,7 +45,7 @@ type AuthConfig struct {
 	// bound to — the registrable domain the dashboard is served from
 	// (e.g. "app.warmbly.com"), with no scheme or port. WebAuthnRPOrigins
 	// are the full scheme-qualified origins allowed to run ceremonies
-	// (e.g. "https://app.warmbly.com"). Both are derived from APP_URL /
+	// (e.g. "https://portal.fullpilot.com"). Both are derived from APP_URL /
 	// CORS_ALLOW_ORIGINS so self-hosted and local-dev deployments work out
 	// of the box, and can be overridden explicitly with WEBAUTHN_RP_ID /
 	// WEBAUTHN_RP_ORIGINS. Changing the RP ID invalidates every enrolled
@@ -85,7 +85,7 @@ func (c *Config) LoadAuthConfig(ctx context.Context) (*AuthConfig, error) {
 	// deployments keep working; rotating it invalidates enrolled TOTP secrets.
 	twoFASecret := c.GetSecretOptional(ctx, "TWOFA_SECRET", "twofa_secret", authSecret)
 
-	rpDisplayName := c.GetStringOptional(ctx, "WEBAUTHN_RP_DISPLAY_NAME", "webauthn/rp_display_name", "Warmbly")
+	rpDisplayName := c.GetStringOptional(ctx, "WEBAUTHN_RP_DISPLAY_NAME", "webauthn/rp_display_name", "Fullpilot")
 	rpIDRaw := c.GetStringOptional(ctx, "WEBAUTHN_RP_ID", "webauthn/rp_id", "")
 	rpOriginsRaw := c.GetStringOptional(ctx, "WEBAUTHN_RP_ORIGINS", "webauthn/rp_origins", "")
 	rpID, rpOrigins := resolveWebAuthnRP(rpIDRaw, rpOriginsRaw)

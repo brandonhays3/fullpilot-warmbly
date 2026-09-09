@@ -46,7 +46,7 @@ func (r *Result) Print(w io.Writer) {
 	b := &strings.Builder{}
 	b.WriteString("\n")
 	b.WriteString("======================================================================\n")
-	b.WriteString("                       Warmbly dev seed complete\n")
+	b.WriteString("                       Fullpilot dev seed complete\n")
 	b.WriteString("======================================================================\n\n")
 	fmt.Fprintf(b, "Password for every user:   %s\n\n", r.Password)
 

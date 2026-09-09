@@ -189,7 +189,7 @@ func (b *NATSBus) Publish(ctx context.Context, topic, key string, payload []byte
 		// partition/affinity hint (one mailbox, one org), not a unique event
 		// id, so feeding it to JetStream's dedup window would silently drop
 		// every event after the first for that key within the window.
-		msg.Header.Set("Warmbly-Key", key)
+		msg.Header.Set("Fullpilot-Key", key)
 	}
 
 	_, err := b.js.PublishMsg(ctx, msg)
@@ -238,7 +238,7 @@ func (b *NATSBus) Subscribe(ctx context.Context, topics []string, group string, 
 	cc, err := cons.Consume(func(m jetstream.Msg) {
 		hctx, cancel := context.WithTimeout(ctx, handlerTimeout())
 		defer cancel()
-		key := m.Headers().Get("Warmbly-Key")
+		key := m.Headers().Get("Fullpilot-Key")
 		if key == "" {
 			key = m.Headers().Get(nats.MsgIdHdr)
 		}

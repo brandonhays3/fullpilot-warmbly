@@ -1,4 +1,4 @@
-// Package orgtransfer moves a whole organization between Warmbly instances.
+// Package orgtransfer moves a whole organization between Fullpilot instances.
 //
 // The problem it solves is concrete: someone runs a self-hosted instance, wants
 // to move to the cloud (or the other way, or between two self-hosts), and needs
@@ -16,7 +16,7 @@
 //   - Rows travel as jsonb in both directions, so Postgres does every type
 //     conversion and no Go-side column mapping can drift from the schema.
 //
-// Secrets get their own treatment. Warmbly seals mailbox credentials under an
+// Secrets get their own treatment. Fullpilot seals mailbox credentials under an
 // instance key and everything else under a per-organization DEK, and neither
 // key is portable. So an export opens them locally and re-seals them under a
 // key derived from an operator-supplied passphrase, and an import reverses

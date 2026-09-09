@@ -519,7 +519,7 @@ func sampleEventData(triggerEvent string) map[string]any {
 // updates connection health) -> execAction. The automation-wide filter is
 // merged into the node config so any intent/confidence gate still applies.
 // runGraphAction executes one action node and returns a label + the action error
-// (for run-history recording). Native (Warmbly-internal) actions run without a
+// (for run-history recording). Native (Fullpilot-internal) actions run without a
 // connection; everything else builds a synthetic dispatch target and reuses
 // runAction -> execAction.
 func (s *service) runGraphAction(ctx context.Context, a models.Automation, n models.AutomationNode, eventType string, data map[string]any) (string, error) {

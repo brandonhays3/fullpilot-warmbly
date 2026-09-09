@@ -39,7 +39,7 @@ func (c *Client) AddFlag(ctx context.Context, messageID string) error {
 // nothing was moved.
 //
 // The Junk check is the point: engagementPlan runs move_to_warmbly first, so by
-// the time this runs the message is usually in the untracked Warmbly folder.
+// the time this runs the message is usually in the untracked Fullpilot folder.
 // Moving it unconditionally would undo that foldering and drop it back into the
 // tracked Inbox under a new id, where live sync reads it as new mail. The IMAP
 // path guards the same way with IsSpamMailbox.
@@ -91,7 +91,7 @@ func (c *Client) messageParentFolder(ctx context.Context, messageID string) (str
 }
 
 // MoveToFolder moves the message into a named folder, creating it if needed.
-// Used for the "Warmbly" sorting folder. Returns the message's new id.
+// Used for the "Fullpilot" sorting folder. Returns the message's new id.
 func (c *Client) MoveToFolder(ctx context.Context, messageID, folderName string) (string, error) {
 	folderID, err := c.ensureFolder(ctx, folderName)
 	if err != nil {

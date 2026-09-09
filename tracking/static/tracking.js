@@ -1,7 +1,7 @@
 /* Warmbly website tracking. Records page views for the workspace whose site
  * key the script tag carries, sends nothing before consent when the
  * workspace requires it, and honours Global Privacy Control / Do Not Track.
- * API: warmbly('consent','granted'|'denied'), warmbly('page'), warmbly('reset'). */
+ * API: fullpilot('consent','granted'|'denied'), fullpilot('page'), fullpilot('reset'). */
 (function () {
   if (window.__wbly) return;
   window.__wbly = 1;
@@ -109,7 +109,7 @@
   }
   w.addEventListener('popstate', function () { setTimeout(send, 0); });
 
-  var queued = (w.warmbly && w.warmbly.q) || [];
+  var queued = (w.fullpilot && w.fullpilot.q) || [];
   function api(cmd, arg) {
     if (cmd === 'consent') {
       if (arg === 'granted') { set(CON, 'granted'); send(); }
@@ -120,8 +120,8 @@
       send();
     }
   }
-  w.warmbly = function () { api.apply(null, arguments); };
-  w.warmbly.q = [];
+  w.fullpilot = function () { api.apply(null, arguments); };
+  w.fullpilot.q = [];
   for (var q = 0; q < queued.length; q++) api.apply(null, queued[q]);
   send();
 })();

@@ -15,7 +15,7 @@ import (
 // Mindroot Ltd with links to someone else's dashboard: AppURL derives from
 // APP_URL and the rest are overridable with EMAIL_BRAND_*.
 var (
-	CompanyName    = brandEnv("EMAIL_BRAND_NAME", "Warmbly")
+	CompanyName    = brandEnv("EMAIL_BRAND_NAME", "Fullpilot")
 	LegalEntity    = brandEnv("EMAIL_BRAND_LEGAL_ENTITY", "Mindroot Ltd")
 	CompanyNumber  = brandEnv("EMAIL_BRAND_COMPANY_NUMBER", "16543299")
 	PlaceOfReg     = brandEnv("EMAIL_BRAND_PLACE_OF_REG", "England and Wales")
@@ -43,7 +43,7 @@ func appURL() string {
 			return v
 		}
 	}
-	return "https://app.warmbly.com"
+	return "https://portal.fullpilot.com"
 }
 
 // WebsiteLabel is the display text for the footer website link, derived from

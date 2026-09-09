@@ -34,19 +34,19 @@ import (
 
 // SignatureHeader is the HTTP header carrying the HMAC signature on each
 // outbound webhook POST. Format matches Stripe's: `t=<unix>,v1=<hex>`.
-const SignatureHeader = "X-Warmbly-Signature"
+const SignatureHeader = "X-Fullpilot-Signature"
 
 // EventHeader carries the event type so subscribers can route without
 // having to parse the body.
-const EventHeader = "X-Warmbly-Event"
+const EventHeader = "X-Fullpilot-Event"
 
 // EventIDHeader carries the unique event identifier so subscribers can
 // dedupe replays. Stable across retries — it is the idempotency key.
-const EventIDHeader = "X-Warmbly-Event-Id"
+const EventIDHeader = "X-Fullpilot-Event-Id"
 
 // ChallengeHeader lets a receiver echo the verification challenge in a response
 // header instead of the body, if that is easier for their framework.
-const ChallengeHeader = "X-Warmbly-Webhook-Challenge"
+const ChallengeHeader = "X-Fullpilot-Webhook-Challenge"
 
 // verificationMaxAttempts bounds challenge retries so a never-echoing endpoint
 // is not hammered (separate from the larger event-delivery budget).
@@ -489,7 +489,7 @@ func (s *service) enqueueChallenge(ctx context.Context, endpoint *models.Webhook
 		Data: map[string]any{
 			"challenge":   token,
 			"endpoint_id": endpoint.ID,
-			"message":     "Echo the challenge value (in the body or the X-Warmbly-Webhook-Challenge header) to verify this endpoint.",
+			"message":     "Echo the challenge value (in the body or the X-Fullpilot-Webhook-Challenge header) to verify this endpoint.",
 		},
 	}
 	body, err := json.Marshal(payload)
@@ -798,7 +798,7 @@ func (w *DeliveryWorker) deliver(ctx context.Context, d *models.WebhookDelivery)
 	req.Host = parsed.Host
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "Warmbly-Webhooks/1.0")
+	req.Header.Set("User-Agent", "Fullpilot-Webhooks/1.0")
 	req.Header.Set(SignatureHeader, FormatSignatureHeader(timestamp, signature))
 	req.Header.Set(EventHeader, d.EventType)
 	req.Header.Set(EventIDHeader, d.EventID.String())

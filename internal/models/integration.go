@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// IntegrationProvider identifies one third-party system Warmbly can connect
+// IntegrationProvider identifies one third-party system Fullpilot can connect
 // to. Adding a new provider here is enough to make it visible in the
 // dashboard's catalog. The actual connect/disconnect logic is handled in
 // the integration service's per-provider switch.
@@ -78,7 +78,7 @@ const (
 	// IntegrationAuthAPIKey is a provider-issued API token the user pastes
 	// (used only where the provider offers no OAuth app, e.g. Close).
 	IntegrationAuthAPIKey IntegrationAuthMethod = "api_key"
-	// IntegrationAuthWebhook is an inbound URL Warmbly mints (Calendly, Cal.com)
+	// IntegrationAuthWebhook is an inbound URL Fullpilot mints (Calendly, Cal.com)
 	// or an outbound URL the user pastes (Discord).
 	IntegrationAuthWebhook IntegrationAuthMethod = "webhook"
 )
@@ -149,13 +149,13 @@ type IntegrationCatalogEntry struct {
 	// for non-OAuth providers. Surfaced so the consent screen is honest.
 	Scopes []string `json:"scopes,omitempty"`
 
-	// Events lists the Warmbly events this provider can react to (so the UI
+	// Events lists the Fullpilot events this provider can react to (so the UI
 	// can offer "notify on positive reply", etc).
 	Events []string `json:"events,omitempty"`
 
 	// ActionTypes lists the provider action identifiers that have a real
 	// backend handler. The dashboard reads this so the automation builder only
-	// offers actions Warmbly can actually execute (a provider with no action
+	// offers actions Fullpilot can actually execute (a provider with no action
 	// types should not surface an automation/subscription builder at all).
 	ActionTypes []string `json:"action_types,omitempty"`
 
@@ -260,7 +260,7 @@ const (
 	IntegrationActionCloseUpsert        IntegrationAction = "close.upsert_lead"
 	IntegrationActionGenericWebhookPing IntegrationAction = "webhook.ping"
 
-	// Native (Warmbly-internal) actions: CRM/contact mutations that need no
+	// Native (Fullpilot-internal) actions: CRM/contact mutations that need no
 	// external connection. Run against the contact resolved from the event data.
 	IntegrationActionAddTag        IntegrationAction = "warmbly.add_tag"
 	IntegrationActionRemoveTag     IntegrationAction = "warmbly.remove_tag"
@@ -292,7 +292,7 @@ const (
 	// IntegrationActionUpsertContact creates a contact from templated event
 	// fields, or enriches the one already holding that email, then tags it and
 	// enrols it in a campaign. The lead-intake action: an inbound webhook or a
-	// form submission becomes a contact without leaving Warmbly.
+	// form submission becomes a contact without leaving Fullpilot.
 	IntegrationActionUpsertContact IntegrationAction = "warmbly.upsert_contact"
 	// IntegrationActionAddToCampaign enrols the event's contact in a campaign.
 	IntegrationActionAddToCampaign IntegrationAction = "warmbly.add_to_campaign"
@@ -327,7 +327,7 @@ func IsAIAction(a IntegrationAction) bool {
 	}
 }
 
-// IsNativeAction reports whether an action is a Warmbly-internal CRM/contact
+// IsNativeAction reports whether an action is a Fullpilot-internal CRM/contact
 // mutation (no external connection required).
 func IsNativeAction(a IntegrationAction) bool {
 	switch a {
@@ -343,7 +343,7 @@ func IsNativeAction(a IntegrationAction) bool {
 	}
 }
 
-// IntegrationEventSubscription routes a Warmbly event to a provider action.
+// IntegrationEventSubscription routes a Fullpilot event to a provider action.
 type IntegrationEventSubscription struct {
 	ID             uuid.UUID         `json:"id"`
 	ConnectionID   uuid.UUID         `json:"connection_id"`
@@ -500,7 +500,7 @@ type DryRunResponse struct {
 	Data  map[string]any         `json:"data"`
 }
 
-// IntegrationFieldMapping is one Warmbly-field -> provider-field mapping row.
+// IntegrationFieldMapping is one Fullpilot-field -> provider-field mapping row.
 // SubscriptionID scopes a mapping to a single automation; when nil the mapping
 // is a connection default applied to every automation for that object/direction.
 type IntegrationFieldMapping struct {

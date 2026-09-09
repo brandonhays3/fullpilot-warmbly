@@ -1,5 +1,5 @@
 // Package adminoutreach is the platform-mailer composer: an admin types
-// a message, picks a recipient, and Warmbly sends from its noreply
+// a message, picks a recipient, and Fullpilot sends from its noreply
 // address with a configurable Reply-To so replies route to a real
 // inbox. Distinct from the campaign emailsend path (which sends
 // through customer mailboxes) so the two abuse surfaces never share

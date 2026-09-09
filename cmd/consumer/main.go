@@ -312,7 +312,7 @@ func main() {
 	// able to launch the flow here too. Without this it would be stamped sent and
 	// never fire. Mirrors the scheduler's automationRunner wiring.
 	advancedService.WireAutomationRunner(integrationServiceC)
-	// Native (Warmbly-internal) automation actions run wherever the event is
+	// Native (Fullpilot-internal) automation actions run wherever the event is
 	// dispatched. Reply/bounce/warmup events dispatch in THIS process, so without
 	// wiring native actions here a reply-triggered automation's add_tag /
 	// create_deal / label_email node would fail with "native actions are not

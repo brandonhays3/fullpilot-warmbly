@@ -166,7 +166,7 @@ type creditService struct {
 	dailyLimit int
 	monitor    func(orgID uuid.UUID, balance int)
 	// selfHost bypasses the credit ledger (BILLING_PROVIDER=none): the operator
-	// pays their AI provider directly, so Warmbly's credit metering is moot and
+	// pays their AI provider directly, so Fullpilot's credit metering is moot and
 	// every consume succeeds without debiting.
 	selfHost bool
 }

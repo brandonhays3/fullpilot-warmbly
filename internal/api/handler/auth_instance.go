@@ -10,7 +10,7 @@ import (
 )
 
 // InstanceVersion answers GET /v1/auth/instance for any signed-in member of a
-// self-hosted instance: which Warmbly this is and whether a newer one exists.
+// self-hosted instance: which Fullpilot this is and whether a newer one exists.
 // It carries no updater detail and no log; applying the update lives in the
 // admin panel. Hosted deployments answer self_hosted=false and nothing else,
 // so the dashboard has nothing to show there.

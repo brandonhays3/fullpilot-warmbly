@@ -102,7 +102,7 @@ func (j *TrialExpirationJob) Run(ctx context.Context) error {
 		if j.notifier != nil && sub.OrganizationID != uuid.Nil {
 			j.notifier.NotifyOrg(ctx, sub.OrganizationID, models.PermManageBilling, uuid.Nil,
 				models.NotifBillingAlert,
-				"Your Warmbly trial has expired",
+				"Your Fullpilot trial has expired",
 				"Campaigns are paused and warmup is disabled until you upgrade.",
 				"/app/settings/billing", nil,
 				"trial_expired:"+sub.OrganizationID.String())
@@ -124,7 +124,7 @@ func (j *TrialExpirationJob) notifyTrialExpired(ctx context.Context, userID inte
 		return
 	}
 
-	subject := "Your Warmbly trial has expired"
+	subject := "Your Fullpilot trial has expired"
 	body, err := templates.GenerateTrialExpiredHTML()
 	if err != nil {
 		// GenerateTrialExpiredHTML already reported to Sentry.

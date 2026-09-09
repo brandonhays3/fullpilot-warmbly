@@ -138,11 +138,11 @@ func (s *Server) Router(trustedProxies []string) (*gin.Engine, error) {
 	return r, nil
 }
 
-// requireRenderToken rejects API calls whose X-Warmbly-Render token is
+// requireRenderToken rejects API calls whose X-Fullpilot-Render token is
 // missing, forged, expired or minted for another form. The app treats the
 // stale_page error as "refresh this tab".
 func (s *Server) requireRenderToken(c *gin.Context) {
-	token := c.GetHeader("X-Warmbly-Render")
+	token := c.GetHeader("X-Fullpilot-Render")
 	if token == "" || !verifyRenderToken(s.renderKey, c.Param("publicID"), token, time.Now()) {
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "stale_page"})
 		return

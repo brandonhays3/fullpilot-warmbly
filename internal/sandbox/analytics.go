@@ -397,7 +397,7 @@ func seedMailboxErrors(ctx context.Context, pool *pgxpool.Pool) error {
 			sandboxMailboxes[3].id, // Tom Abel
 			"SENDING_TOO_FAST", "WARNING", "RETRY",
 			"Provider asked us to slow down",
-			"The provider throttled a burst of sends. Warmbly backed off and spaced the queue out; no mail was lost.",
+			"The provider throttled a burst of sends. Fullpilot backed off and spaced the queue out; no mail was lost.",
 			true, 4.0,
 		},
 		{

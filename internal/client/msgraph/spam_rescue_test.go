@@ -60,7 +60,7 @@ func TestRemoveFromSpamMovesAMessageThatIsInJunk(t *testing.T) {
 	}
 }
 
-// The regression: engagementPlan folders into Warmbly first, so the rescue
+// The regression: engagementPlan folders into Fullpilot first, so the rescue
 // usually runs against a message that is no longer in Junk. Moving it then
 // undoes the foldering and re-admits it to the tracked Inbox under a new id.
 func TestRemoveFromSpamLeavesAMessageThatIsNotInJunk(t *testing.T) {
@@ -74,7 +74,7 @@ func TestRemoveFromSpamLeavesAMessageThatIsNotInJunk(t *testing.T) {
 		t.Fatalf("RemoveFromSpam: %v", err)
 	}
 	if rt.moved() {
-		t.Error("a message outside Junk must not be moved: that undoes the Warmbly foldering")
+		t.Error("a message outside Junk must not be moved: that undoes the Fullpilot foldering")
 	}
 	if newID != "" {
 		t.Errorf("new id = %q, want empty (nothing moved)", newID)

@@ -427,7 +427,7 @@ export default function MailboxesPage() {
                     sort={sort.by ? sort : undefined}
                     onSortChange={setSort}
                     storageKey="admin.mailboxes"
-                    csvName="warmbly-mailboxes"
+                    csvName="fullpilot-mailboxes"
                     noun="mailboxes"
                     emptyTitle="No mailboxes"
                     emptyHint="No mailboxes match these filters."

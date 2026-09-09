@@ -14,10 +14,10 @@ import (
 	"github.com/warmbly/warmbly/internal/models"
 )
 
-// Cloud-managed mailboxes: the grant lives on Warmbly Cloud; this instance sends with brokered access tokens.
+// Cloud-managed mailboxes: the grant lives on Fullpilot Cloud; this instance sends with brokered access tokens.
 
 var (
-	ErrNotManaged   = errx.NewWithIdentifier(errx.NotFound, "cloud_link_not_managed", "This mailbox is not managed by Warmbly Cloud.")
+	ErrNotManaged   = errx.NewWithIdentifier(errx.NotFound, "cloud_link_not_managed", "This mailbox is not managed by Fullpilot Cloud.")
 	ErrOAuthSession = errx.NewWithIdentifier(errx.NotFound, "cloud_link_oauth_session", "That sign-in session is unknown or has expired. Start again.")
 )
 

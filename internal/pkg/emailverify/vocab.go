@@ -4,7 +4,7 @@ import "strings"
 
 // External verification vocabularies. A customer who verified a list with
 // another service brings a status column along; these tables read the words
-// each service writes and fold them into Warmbly's four statuses, so nobody
+// each service writes and fold them into Fullpilot's four statuses, so nobody
 // has to pick a provider or translate a column by hand.
 
 // ExternalVerdict is one recognised external status.
@@ -115,7 +115,7 @@ var vocabularies = map[string]map[string]ExternalVerdict{
 		"ipblocked":           {Status: StatusUnknown},
 		"servicenotavailable": {Status: StatusUnknown},
 	},
-	// Warmbly's own statuses, so a Warmbly export re-imports losslessly.
+	// Fullpilot's own statuses, so a Fullpilot export re-imports losslessly.
 	ProviderBuiltin: {
 		"valid":   {Status: StatusValid},
 		"risky":   {Status: StatusRisky},

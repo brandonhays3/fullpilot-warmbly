@@ -141,7 +141,7 @@ type PoolLinkEnrollRequest struct {
 	Warmup   PoolLinkWarmupSettings   `json:"warmup"`
 }
 
-// PoolLinkOAuthStartRequest asks the cloud for a Google or Microsoft consent URL on Warmbly's app.
+// PoolLinkOAuthStartRequest asks the cloud for a Google or Microsoft consent URL on Fullpilot's app.
 type PoolLinkOAuthStartRequest struct {
 	Provider  InboxProvider `json:"provider"`
 	ReturnURL string        `json:"return_url"`

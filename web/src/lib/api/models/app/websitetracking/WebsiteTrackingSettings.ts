@@ -40,7 +40,7 @@ export function trackingSnippet(settings: WebsiteTrackingSettings): string {
     const base = trackingBaseUrl(settings.tracking_host) || "https://<your-tracking-host>";
     const consent = settings.consent_mode === "implicit" ? ' data-consent="implicit"' : "";
     return [
-        "<script>window.warmbly=window.warmbly||function(){(window.warmbly.q=window.warmbly.q||[]).push(arguments)};</script>",
+        "<script>window.fullpilot=window.fullpilot||function(){(window.fullpilot.q=window.fullpilot.q||[]).push(arguments)};</script>",
         `<script async src="${base}/tracking.js" data-site="${settings.site_key}"${consent}></script>`,
     ].join("\n");
 }

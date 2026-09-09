@@ -9,7 +9,7 @@ import (
 	"github.com/warmbly/warmbly/internal/models"
 )
 
-// webAuthnUser adapts a Warmbly user plus their stored passkeys to the
+// webAuthnUser adapts a Fullpilot user plus their stored passkeys to the
 // webauthn.User interface the engine needs for both ceremonies.
 type webAuthnUser struct {
 	user        *models.User

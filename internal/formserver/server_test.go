@@ -140,7 +140,7 @@ func get(r *gin.Engine, path, renderToken string) *httptest.ResponseRecorder {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, path, nil)
 	if renderToken != "" {
-		req.Header.Set("X-Warmbly-Render", renderToken)
+		req.Header.Set("X-Fullpilot-Render", renderToken)
 	}
 	r.ServeHTTP(w, req)
 	return w
@@ -151,7 +151,7 @@ func post(r *gin.Engine, path, renderToken string, body any) *httptest.ResponseR
 	req := httptest.NewRequest(http.MethodPost, path, strings.NewReader(string(raw)))
 	req.Header.Set("Content-Type", "application/json")
 	if renderToken != "" {
-		req.Header.Set("X-Warmbly-Render", renderToken)
+		req.Header.Set("X-Fullpilot-Render", renderToken)
 	}
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -326,7 +326,7 @@ func TestFormServerRecordsEventsWithViewDedupe(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "/api/forms/pubtest123/events", strings.NewReader(`{"type":"view","visitor_key":"vk-3"}`))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Warmbly-Render", token)
+	req.Header.Set("X-Fullpilot-Render", token)
 	req.Header.Set("Sec-Purpose", "prefetch")
 	r.ServeHTTP(w, req)
 	time.Sleep(50 * time.Millisecond)

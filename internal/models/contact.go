@@ -241,7 +241,7 @@ const (
 )
 
 // ContactVerificationWrite is a verdict to store on a contact, already
-// normalised into Warmbly's vocabulary.
+// normalised into Fullpilot's vocabulary.
 type ContactVerificationWrite struct {
 	Status    string
 	SubStatus string
@@ -625,7 +625,7 @@ type AddContact struct {
 	CustomFields map[string]string `json:"custom_fields"`
 
 	// VerificationStatus is a verdict the caller already holds for this
-	// address, in Warmbly's vocabulary or any provider's the platform knows
+	// address, in Fullpilot's vocabulary or any provider's the platform knows
 	// (ZeroBounce, MillionVerifier, NeverBounce, ...). VerificationProvider
 	// optionally names that vocabulary; without it the value is recognised by
 	// itself. An unrecognised value is a 400. Stored as an imported verdict,

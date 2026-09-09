@@ -94,7 +94,7 @@ type TasksService interface {
 	SetFormLinks(m FormLinkMinter)
 }
 
-// CloudLinkReader reports whether Warmbly Cloud warms a mailbox.
+// CloudLinkReader reports whether Fullpilot Cloud warms a mailbox.
 type CloudLinkReader interface {
 	IsEnrolled(ctx context.Context, accountID uuid.UUID) bool
 }
@@ -169,7 +169,7 @@ type tasksService struct {
 	// Optional/nil-safe: without it the persisted auth state stays
 	// observe-only and no warmup send is ever blocked.
 	domainAuth DomainAuthPolicy
-	// cloudLink is nil on instances that are not linked to Warmbly Cloud.
+	// cloudLink is nil on instances that are not linked to Fullpilot Cloud.
 	cloudLink CloudLinkReader
 
 	// unsubLinks mints the signed per-recipient unsubscribe links. Nil or

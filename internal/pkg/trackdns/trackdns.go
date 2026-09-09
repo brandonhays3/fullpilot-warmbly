@@ -120,7 +120,7 @@ func verify(ctx context.Context, r Resolver, domain, target string) Result {
 		return res
 	case target == "":
 		res.Code = CodeNoTarget
-		res.Reason = "This Warmbly install has no tracking host configured, so there is nothing to point a CNAME at yet. Ask your administrator to set TRACKING_DOMAIN."
+		res.Reason = "This Fullpilot install has no tracking host configured, so there is nothing to point a CNAME at yet. Ask your administrator to set TRACKING_DOMAIN."
 		return res
 	case domain == target:
 		// The shared host itself. Nothing to check, and nothing gained.

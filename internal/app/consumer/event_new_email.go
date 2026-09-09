@@ -25,13 +25,13 @@ func (s *JobsService) HandleNewEmail(ctx context.Context, e *models.JobEventNewE
 		return nil
 	}
 	// Check for warmup token header in message headers.
-	// Try the current header name first, then the legacy "X-Warmbly-Token"
+	// Try the current header name first, then the legacy "X-Fullpilot-Token"
 	// so messages in flight during the rollout continue to verify.
 	warmupToken := extractHeaderValue(e.Message, config.WarmupVerifyHeader)
 	if warmupToken == "" {
-		warmupToken = extractHeaderValue(e.Message, "X-Warmbly-Token")
+		warmupToken = extractHeaderValue(e.Message, "X-Fullpilot-Token")
 	}
-	// A mailbox Warmbly Cloud warms receives the cloud's tokens: the cloud
+	// A mailbox Fullpilot Cloud warms receives the cloud's tokens: the cloud
 	// vouches for those; anything else is ordinary mail this instance cannot score.
 	if warmupToken != "" && s.CloudLink != nil && s.CloudLink.IsEnrolled(ctx, e.Message.EmailID) {
 		if ok, err := s.CloudLink.VerifyWarmupToken(ctx, e.Message.EmailID, warmupToken); err == nil && ok {
@@ -133,7 +133,7 @@ func extractHeaderValue(msg *models.EmailMessageStoreData, headerName string) st
 		return ""
 	}
 
-	// Check flags for X-Warmbly-Token (workers store custom headers in flags for detection)
+	// Check flags for X-Fullpilot-Token (workers store custom headers in flags for detection)
 	for _, flag := range msg.Flags {
 		if strings.HasPrefix(flag, headerName+":") {
 			return strings.TrimPrefix(flag, headerName+":")

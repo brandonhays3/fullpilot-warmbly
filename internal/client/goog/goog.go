@@ -45,7 +45,7 @@ func (c *Client) Init(ctx context.Context, token *oauth2.Token, cfg oauth2.Confi
 }
 
 // InitWithSource builds the client on a caller-owned token source (brokered
-// tokens from Warmbly Cloud); nothing is persisted from it.
+// tokens from Fullpilot Cloud); nothing is persisted from it.
 func (c *Client) InitWithSource(ctx context.Context, ts oauth2.TokenSource) *errx.MailError {
 	httpClient := oauth2.NewClient(ctx, ts)
 	var err error

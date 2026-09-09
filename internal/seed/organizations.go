@@ -19,8 +19,8 @@ func seedOrganizations(ctx context.Context, pool *pgxpool.Pool, r *Result) error
 	// Slugs are namespaced "warmbly-..." to avoid colliding with main's
 	// seedRich, which uses bare "acme"/"beta"/"gamma".
 	orgs := []org{
-		{OrgAcmeID, "Warmbly Pro Demo", "warmbly-pro-demo", UserOwnerID, "pro"},
-		{OrgGlobexID, "Warmbly Trial Demo", "warmbly-trial-demo", UserFounderID, "free-trial"},
+		{OrgAcmeID, "Fullpilot Pro Demo", "warmbly-pro-demo", UserOwnerID, "pro"},
+		{OrgGlobexID, "Fullpilot Trial Demo", "warmbly-trial-demo", UserFounderID, "free-trial"},
 	}
 
 	for _, o := range orgs {

@@ -245,7 +245,7 @@ export function UTMFields({
                 <Label>utm_source</Label>
                 <TextInput
                     value={campaign.utm_source}
-                    placeholder="warmbly"
+                    placeholder="fullpilot"
                     onChange={(v) => setNewCampaign((bef) => ({ ...bef, utm_source: v }))}
                     className="w-full"
                 />

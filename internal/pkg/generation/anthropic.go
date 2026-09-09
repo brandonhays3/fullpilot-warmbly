@@ -24,7 +24,7 @@ const (
 	ModelWritingFree = "claude-3-5-haiku-latest"
 	ModelWritingPaid = "claude-sonnet-4-6"
 
-	// OpenAI models. These are the PRIMARY writing/agent models for Warmbly's
+	// OpenAI models. These are the PRIMARY writing/agent models for Fullpilot's
 	// hosted product (OpenAI-first) and the default for any OpenAI-compatible
 	// self-hosted endpoint.
 	ModelWritingFreeOpenAI = "gpt-4o-mini"

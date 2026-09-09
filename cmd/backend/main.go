@@ -1523,7 +1523,7 @@ func main() {
 		// "run_automation" node, the same flow the scheduler runs at a step
 		// boundary. Backend ingests deliverability + can process replies too.
 		advancedService.WireAutomationRunner(integrationServiceForHandler)
-		// Wire native (Warmbly-internal) automation actions + realtime now that
+		// Wire native (Fullpilot-internal) automation actions + realtime now that
 		// the advanced/contact/org services exist (the integration service was
 		// constructed earlier).
 		integrationServiceForHandler.SetNativeActions(nativeactions.Adapter{

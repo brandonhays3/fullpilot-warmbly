@@ -43,7 +43,7 @@ const (
 	ContactImportTargetSubscribed ContactImportColumnTarget = "subscribed"
 	ContactImportTargetCategories ContactImportColumnTarget = "categories"
 	// ContactImportTargetVerificationStatus reads a verdict column written by
-	// Warmbly or another verification service (ZeroBounce, MillionVerifier,
+	// Fullpilot or another verification service (ZeroBounce, MillionVerifier,
 	// NeverBounce, ...). Values are recognised by vocabulary; a value nobody
 	// knows leaves the contact unverified rather than failing the row.
 	ContactImportTargetVerificationStatus ContactImportColumnTarget = "verification_status"

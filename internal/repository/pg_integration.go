@@ -102,7 +102,7 @@ type IntegrationRepository interface {
 	// counter after too many consecutive AI-credit failures.
 	DisableAutomationForCredits(ctx context.Context, id uuid.UUID) error
 
-	// Field mappings (Warmbly field -> provider field). ListFieldMappings returns
+	// Field mappings (Fullpilot field -> provider field). ListFieldMappings returns
 	// every mapping for a connection; ReplaceConnectionFieldMappings swaps the
 	// connection-default (unscoped) push map for one object atomically.
 	ListFieldMappings(ctx context.Context, orgID, connID uuid.UUID) ([]models.IntegrationFieldMapping, error)

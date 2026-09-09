@@ -109,7 +109,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Mailboxes managed by Warmbly Cloud send with access tokens the backend
+	// Mailboxes managed by Fullpilot Cloud send with access tokens the backend
 	// brokers; the refresh grant never reaches the worker.
 	tokenBroker, err := repository.NewHTTPBrokeredTokenClient(internalBaseURL, internalToken)
 	if err != nil {

@@ -16,7 +16,7 @@ const welcomeContent = `
 Welcome
 </p>
 <h2 style="margin:0 0 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-weight:600;font-size:20px;color:#0f172a;letter-spacing:-0.01em;">
-{{if .FirstName}}Hi {{.FirstName}}, welcome to Warmbly{{else}}Welcome to Warmbly{{end}}
+{{if .FirstName}}Hi {{.FirstName}}, welcome to Fullpilot{{else}}Welcome to Fullpilot{{end}}
 </h2>
 <p style="margin:0 0 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;color:#475569;line-height:20px;">
 Your account is ready. From here you can connect mailboxes, warm them up, and start outbound campaigns, all in one place.

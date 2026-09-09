@@ -100,8 +100,8 @@ func TestNATSBus_PublishSetsNoMsgID(t *testing.T) {
 	if id := msg.Header.Get(nats.MsgIdHdr); id != "" {
 		t.Fatalf("Publish set %s=%q; the key is a partition hint and must not drive JetStream dedup", nats.MsgIdHdr, id)
 	}
-	if k := msg.Header.Get("Warmbly-Key"); k != key {
-		t.Fatalf("Warmbly-Key = %q, want %q", k, key)
+	if k := msg.Header.Get("Fullpilot-Key"); k != key {
+		t.Fatalf("Fullpilot-Key = %q, want %q", k, key)
 	}
 }
 

@@ -1,6 +1,6 @@
 // Package aitools is the shared tool registry every AI surface runs on: the
 // dashboard agent (M3), contact research (M5), automation AI nodes, the inbox
-// agent, and the Warmbly MCP server (M8). A Tool is the LLM-facing projection
+// agent, and the Fullpilot MCP server (M8). A Tool is the LLM-facing projection
 // of an existing product capability. Handlers call SERVICE-LAYER functions only
 // (the same ones the HTTP handlers use), executing AS the invoking user with
 // their permission bits enforced, so a tool can never do more than the caller

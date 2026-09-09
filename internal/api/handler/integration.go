@@ -51,7 +51,7 @@ func (h *Handler) requireIntegrationActor(c *gin.Context, requirePaid bool) (org
 }
 
 // ListIntegrationCatalog returns the static metadata for every integration
-// Warmbly supports, annotated with whether each OAuth provider is wired.
+// Fullpilot supports, annotated with whether each OAuth provider is wired.
 func (h *Handler) ListIntegrationCatalog(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"catalog": h.IntegrationService.Catalog()})
 }
@@ -537,7 +537,7 @@ func (h *Handler) ReplaceConnectionFieldMappings(c *gin.Context) {
 				return
 			}
 		} else if strings.TrimSpace(m.WarmblyField) == "" {
-			errx.JSON(c, errx.New(errx.BadRequest, "mapping for "+m.ExternalField+" needs a Warmbly field"))
+			errx.JSON(c, errx.New(errx.BadRequest, "mapping for "+m.ExternalField+" needs a Fullpilot field"))
 			return
 		}
 		mappings = append(mappings, models.IntegrationFieldMapping{
@@ -610,7 +610,7 @@ func (h *Handler) GetConnectionWebhookSecret(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"signing_secret":   secret,
-		"signature_header": "X-Warmbly-Signature",
+		"signature_header": "X-Fullpilot-Signature",
 		"scheme":           "HMAC-SHA256 of \"{t}.{body}\", sent as t=<unix>,v1=<hex>",
 	})
 }

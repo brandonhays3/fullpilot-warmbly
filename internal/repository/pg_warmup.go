@@ -1164,7 +1164,7 @@ func (r *warmupRepository) RecordWarmupTokenDelivery(ctx context.Context, taskID
 // there are only ever a handful, so this is one indexed lookup on a path every
 // inbound message takes.
 //
-// The pair key is deliberately narrow. Warmup partners are other Warmbly
+// The pair key is deliberately narrow. Warmup partners are other Fullpilot
 // mailboxes, so without the subject and the two-day window a real email
 // between two pool members could claim a pending token and vanish from the
 // recipient's unibox.

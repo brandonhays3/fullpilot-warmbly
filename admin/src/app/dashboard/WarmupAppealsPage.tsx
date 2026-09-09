@@ -253,7 +253,7 @@ function AppealsTab() {
                     onRetry={() => refetch()}
                     errorTitle="Failed to load appeals"
                     storageKey="admin.warmup-appeals"
-                    csvName="warmbly-warmup-appeals"
+                    csvName="fullpilot-warmup-appeals"
                     noun="appeals"
                     emptyTitle="No appeals"
                     emptyHint={
@@ -492,7 +492,7 @@ function BlockedTab() {
                 onRetry={() => refetch()}
                 errorTitle="Failed to load blocked mailboxes"
                 storageKey="admin.warmup-blocked"
-                csvName="warmbly-warmup-blocked"
+                csvName="fullpilot-warmup-blocked"
                 noun="mailboxes"
                 emptyTitle="No blocked mailboxes"
                 emptyHint="No mailboxes are currently blocked from warmup."

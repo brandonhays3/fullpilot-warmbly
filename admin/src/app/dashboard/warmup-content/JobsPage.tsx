@@ -294,7 +294,7 @@ export default function JobsPage() {
                 onRowClick={(j) => setOpenId(j.id)}
                 errorTitle="Failed to load jobs"
                 storageKey="admin.warmup-content.jobs"
-                csvName="warmbly-warmup-content-jobs"
+                csvName="fullpilot-warmup-content-jobs"
                 noun="jobs"
                 emptyTitle="No generation jobs"
                 emptyHint="Queue a job from the Generate tab to see it here."

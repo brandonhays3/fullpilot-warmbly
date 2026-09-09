@@ -20,7 +20,7 @@ import (
 // It creates the message as a draft and then sends the draft, rather than
 // posting to /me/sendMail, because Exchange stamps its own internetMessageId
 // when the item is created and discards the Message-ID we supply. Mail sent
-// with sendMail therefore reaches recipients under an id Warmbly has never
+// with sendMail therefore reaches recipients under an id Fullpilot has never
 // seen, which leaves warmup tokens unverifiable and campaign replies
 // unthreadable. Creating the draft first lets us read that id before the
 // message leaves, so the draft MIME deliberately carries no Message-ID of our

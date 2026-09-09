@@ -159,7 +159,7 @@ export default function LimitsSettingsPage() {
                         <p className="text-[11px] text-slate-500">
                             Subject to review per our{" "}
                             <a
-                                href="https://warmbly.com/terms"
+                                href="https://www.fullpilot.com/terms"
                                 target="_blank"
                                 rel="noreferrer"
                                 className="underline"

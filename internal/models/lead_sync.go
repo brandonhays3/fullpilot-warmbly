@@ -22,7 +22,7 @@ const (
 )
 
 // LeadSyncSource is a saved, re-runnable binding between a Google Sheet (read
-// through an existing google_sheets OAuth connection) and Warmbly's contact
+// through an existing google_sheets OAuth connection) and Fullpilot's contact
 // importer. New rows create contacts; rows matching an existing contact by
 // email are updated. A source optionally enrols new/updated leads into a
 // campaign and/or tags them with categories.

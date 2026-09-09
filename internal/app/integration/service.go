@@ -62,7 +62,7 @@ type Service interface {
 	// RotateInboundSecret regenerates the inbound URL secret (Calendly/Cal.com).
 	RotateInboundSecret(ctx context.Context, orgID, id uuid.UUID, provider models.IntegrationProvider) (string, error)
 
-	// Event subscriptions wire a Warmbly event to a provider action.
+	// Event subscriptions wire a Fullpilot event to a provider action.
 	ListEventSubscriptions(ctx context.Context, orgID, connID uuid.UUID) ([]models.IntegrationEventSubscription, error)
 	CreateEventSubscription(ctx context.Context, orgID, connID uuid.UUID, eventType string, action models.IntegrationAction, config map[string]any, enabled bool) (*models.IntegrationEventSubscription, error)
 	DeleteEventSubscription(ctx context.Context, orgID, id uuid.UUID) error
@@ -113,7 +113,7 @@ type Service interface {
 	// results are returned so the UI can report exactly what synced.
 	PushContacts(ctx context.Context, orgID, connID uuid.UUID, contacts []PushContact) (*PushResult, error)
 
-	// Field mappings drive how Warmbly fields project onto provider fields.
+	// Field mappings drive how Fullpilot fields project onto provider fields.
 	ListFieldMappings(ctx context.Context, orgID, connID uuid.UUID) ([]models.IntegrationFieldMapping, error)
 	// ReplaceFieldMappings swaps the connection-default map for one object.
 	ReplaceFieldMappings(ctx context.Context, orgID, connID uuid.UUID, object string, mappings []models.IntegrationFieldMapping) error
@@ -303,7 +303,7 @@ func (s *service) Connect(ctx context.Context, orgID, userID uuid.UUID, provider
 	case isAutomationProvider(provider):
 		// Automation tools (Zapier/Make/n8n) need no credential to connect: we
 		// fan events to a per-automation webhook URL, and the reverse direction
-		// (the tool calling us) authenticates with a Warmbly API key created in
+		// (the tool calling us) authenticates with a Fullpilot API key created in
 		// the API-keys page, not stored here. So connecting is one click.
 		status = models.IntegrationStatusConnected
 	case hasAnyCredential(config):
@@ -713,7 +713,7 @@ func (s *service) validateAutomationGraph(ctx context.Context, orgID uuid.UUID, 
 			if strings.TrimSpace(string(n.Action)) == "" {
 				return errors.New("an action node is missing its action")
 			}
-			// Native (Warmbly-internal) actions run on the event's contact with no
+			// Native (Fullpilot-internal) actions run on the event's contact with no
 			// external connection — validate their own config instead.
 			if models.IsNativeAction(n.Action) {
 				if err := validateNativeActionConfig(n.Action, n.Config); err != nil {
@@ -1160,9 +1160,9 @@ func (s *service) SendTestEvent(ctx context.Context, orgID, connID uuid.UUID) (i
 		"event_name":    "Test event",
 		"contact_email": "test@warmbly.com",
 		"invitee_email": "test@warmbly.com",
-		"subject":       "Warmbly test event",
+		"subject":       "Fullpilot test event",
 		"intent":        "positive",
-		"content":       "This is a test event from Warmbly.",
+		"content":       "This is a test event from Fullpilot.",
 	}
 
 	count := 0
@@ -1349,7 +1349,7 @@ func buildDisplayFields(provider models.IntegrationProvider, config map[string]a
 	case models.IntegrationDiscord:
 		pick("server")
 	case models.IntegrationZapier, models.IntegrationMake, models.IntegrationN8N:
-		// Outbound-via-Warmbly-API providers: minimal display fields.
+		// Outbound-via-Fullpilot-API providers: minimal display fields.
 	case models.IntegrationMillionVerifier:
 		// Credits are filled in at connect time from the provider.
 	}

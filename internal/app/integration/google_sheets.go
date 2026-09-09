@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// SheetsClient is the Google Sheets v4 wrapper Warmbly uses for lead I/O.
+// SheetsClient is the Google Sheets v4 wrapper Fullpilot uses for lead I/O.
 // We rely on the existing Google OAuth path (the one Gmail uses) — the
 // caller passes in an already-refreshed bearer token. Sheets sits on the
 // same OAuth2 surface as Gmail, so an account that connected for mailbox

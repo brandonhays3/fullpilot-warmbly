@@ -577,7 +577,7 @@ function RegisterModal({ onClose }: { onClose: () => void }) {
                                                 <TextInput
                                                     value={webhookUrl}
                                                     onChange={setWebhookUrl}
-                                                    placeholder="https://hooks.acme.com/warmbly"
+                                                    placeholder="https://hooks.acme.com/fullpilot"
                                                     className="w-full"
                                                 />
                                                 <p className="mt-1 text-[11px] text-slate-400 leading-relaxed">
@@ -1221,7 +1221,7 @@ function EditModal({ app, onClose }: { app: OAuthApplication; onClose: () => voi
                     </div>
                     <div>
                         <Label>Webhook URL</Label>
-                        <TextInput value={webhookUrl} onChange={setWebhookUrl} placeholder="https://hooks.acme.com/warmbly" className="w-full" />
+                        <TextInput value={webhookUrl} onChange={setWebhookUrl} placeholder="https://hooks.acme.com/fullpilot" className="w-full" />
                         <p className="mt-1 text-[11px] text-slate-400 leading-relaxed">
                             Must be https and its host must fall within the allowed webhook domains above. Leave empty to disable webhooks.
                         </p>

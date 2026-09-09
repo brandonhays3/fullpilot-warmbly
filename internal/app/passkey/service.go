@@ -1,5 +1,5 @@
 // Package passkey implements the WebAuthn (passkey) ceremonies and credential
-// management for Warmbly. It is a control-plane service: passkeys are stored
+// management for Fullpilot. It is a control-plane service: passkeys are stored
 // in Postgres and a passkey sign-in mints a normal session via the token
 // service, exactly like password or OAuth login.
 //

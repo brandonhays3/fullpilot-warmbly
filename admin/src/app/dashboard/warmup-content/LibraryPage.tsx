@@ -285,7 +285,7 @@ export default function LibraryPage() {
                 onRowClick={(c) => setOpenId(c.id)}
                 errorTitle="Failed to load conversations"
                 storageKey="admin.warmup-content.library"
-                csvName="warmbly-warmup-content"
+                csvName="fullpilot-warmup-content"
                 noun="conversations"
                 emptyTitle="No conversations"
                 emptyHint="No warmup content matches these filters."

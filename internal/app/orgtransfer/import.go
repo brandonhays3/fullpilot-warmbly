@@ -706,7 +706,7 @@ func indexEntries(zr *zip.Reader) map[string]*zip.File {
 func readManifest(entries map[string]*zip.File) (*Manifest, error) {
 	entry, ok := entries[manifestPath]
 	if !ok {
-		return nil, errors.New("archive has no manifest.json, so it is not a Warmbly organization archive")
+		return nil, errors.New("archive has no manifest.json, so it is not a Fullpilot organization archive")
 	}
 	rc, err := entry.Open()
 	if err != nil {

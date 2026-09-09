@@ -50,7 +50,7 @@ func checkSecrets() []string {
 
 	list := strings.Join(offenders, ", ")
 	if isDevEnv() || strings.EqualFold(os.Getenv("ALLOW_INSECURE_DEFAULTS"), "true") {
-		log.Printf("Warning: using the published default value for %s. Anyone can read these from the Warmbly repository. Generate real values before this instance is reachable by other people (make gen-key).", list)
+		log.Printf("Warning: using the published default value for %s. Anyone can read these from the Fullpilot repository. Generate real values before this instance is reachable by other people (make gen-key).", list)
 		return offenders
 	}
 

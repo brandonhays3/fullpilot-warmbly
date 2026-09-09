@@ -137,7 +137,7 @@ func Run(
 		// something the mailbox sent?" (tasks, message map, unibox threads).
 		internal.GET("/sync/own-conversation", h.InternalSyncOwnConversation)
 
-		// Brokered credential for a mailbox managed by Warmbly Cloud.
+		// Brokered credential for a mailbox managed by Fullpilot Cloud.
 		internal.GET("/cloud-link/token/:id", h.InternalCloudLinkToken)
 
 		// Worker bootstrap config + heartbeat. Workers POST their identity
@@ -386,7 +386,7 @@ func Run(
 		jwtOnly := base.Group("")
 		jwtOnly.Use(m.AuthMiddleware())
 
-		// Warmbly MCP server: exposes the shared tool registry over the MCP
+		// Fullpilot MCP server: exposes the shared tool registry over the MCP
 		// streamable-HTTP transport. Accepts an API key (static header) or an OAuth
 		// 2.1 access token (one-command `claude mcp add` + browser sign-in); an
 		// unauthenticated request gets the RFC 9728 discovery challenge. Each tool is
@@ -1272,7 +1272,7 @@ func Run(
 				poolLinkInstance.POST("/mailboxes/adopt", h.PoolLinkAdopt)
 			}
 
-			// Self-hosted side: Settings > Warmbly Cloud.
+			// Self-hosted side: Settings > Fullpilot Cloud.
 			// Reads are member-visible (no secrets travel); linking is a settings
 			// change and per-mailbox enrollment is a mailbox change.
 			cloudLink := jwtOnly.Group("/cloud-link")

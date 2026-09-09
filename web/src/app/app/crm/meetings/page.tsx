@@ -115,7 +115,7 @@ function downloadICS(m: MeetingBooking) {
         "VERSION:2.0",
         "PRODID:-//Fullpilot//Meetings//EN",
         "BEGIN:VEVENT",
-        `UID:${m.id}@warmbly`,
+        `UID:${m.id}@fullpilot`,
         m.scheduled_for ? `DTSTART:${gcalStamp(m.scheduled_for)}` : "",
         `DTEND:${endStamp(m)}`,
         `SUMMARY:${esc(m.event_name || "Meeting")}`,

@@ -15,7 +15,7 @@ func updateChecks() []check {
 }
 
 // checkUpdateAvailable is the health-page twin of the top-bar indicator, so an
-// operator who only reads findings still learns a newer Warmbly exists.
+// operator who only reads findings still learns a newer Fullpilot exists.
 func checkUpdateAvailable(ctx context.Context, d Deps, _ Input) *Finding {
 	if d.Updates == nil {
 		return nil
@@ -27,7 +27,7 @@ func checkUpdateAvailable(ctx context.Context, d Deps, _ Input) *Finding {
 	var msg string
 	switch {
 	case st.Reason == "release" && st.Latest != nil:
-		msg = fmt.Sprintf("Warmbly %s is available and this instance runs %s. ", st.Latest.Tag, st.Running.Version)
+		msg = fmt.Sprintf("Fullpilot %s is available and this instance runs %s. ", st.Latest.Tag, st.Running.Version)
 	case st.Updater.Checkout != nil:
 		msg = fmt.Sprintf("The checkout is %d commits behind %s. ", st.Updater.Checkout.Behind, st.Updater.Checkout.Branch)
 	default:

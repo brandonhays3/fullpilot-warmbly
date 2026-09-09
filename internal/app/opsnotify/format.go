@@ -42,7 +42,7 @@ func discordPayload(e Event) map[string]any {
 		"title":       truncate(e.Title, 256),
 		"description": truncate(e.Summary, 4096),
 		"color":       severityColorInt(e.Severity),
-		"footer":      map[string]any{"text": "Warmbly"},
+		"footer":      map[string]any{"text": "Fullpilot"},
 	}
 	if len(fields) > 0 {
 		embed["fields"] = fields
@@ -80,9 +80,9 @@ func slackPayload(e Event) map[string]any {
 }
 
 func emailSubject(e Event) string {
-	prefix := "[Warmbly]"
+	prefix := "[Fullpilot]"
 	if e.Severity == SeverityUrgent {
-		prefix = "[Warmbly] Urgent:"
+		prefix = "[Fullpilot] Urgent:"
 	}
 	return prefix + " " + e.Title
 }
@@ -106,7 +106,7 @@ func emailBodyHTML(e Event) string {
 	if e.Link != "" {
 		sb.WriteString(`<p style="margin:0 0 12px"><a href="` + esc(e.Link) + `">Open in the admin panel</a></p>`)
 	}
-	sb.WriteString(`<p style="margin:16px 0 0;color:#94a3b8;font-size:12px">You are receiving this because this address is an operator notification channel on your Warmbly instance.</p>`)
+	sb.WriteString(`<p style="margin:16px 0 0;color:#94a3b8;font-size:12px">You are receiving this because this address is an operator notification channel on your Fullpilot instance.</p>`)
 	sb.WriteString(`</div>`)
 	return sb.String()
 }

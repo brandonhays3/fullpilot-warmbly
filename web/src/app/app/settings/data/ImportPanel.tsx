@@ -109,7 +109,7 @@ export default function ImportPanel({
                     <div className="text-[11.5px] text-slate-500 leading-tight mt-0.5">
                         {file
                             ? formatBytes(file.size)
-                            : "A .warmbly.zip file exported from this or another instance."}
+                            : "A .fullpilot.zip file exported from this or another instance."}
                     </div>
                 </div>
                 <input

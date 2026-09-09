@@ -363,7 +363,7 @@ function CreateModal({ catalog, onClose }: { catalog: WebhookEventDescriptor[]; 
                                         <>
                                             <div>
                                                 <Label>Endpoint URL</Label>
-                                                <TextInput value={url} onChange={setUrl} placeholder="https://acme.com/webhooks/warmbly" className="w-full" />
+                                                <TextInput value={url} onChange={setUrl} placeholder="https://acme.com/webhooks/fullpilot" className="w-full" />
                                                 <p className="mt-1 text-[11px] text-slate-400">
                                                     Must be HTTPS. We POST a signed JSON body here for each subscribed event.
                                                 </p>
@@ -1022,7 +1022,7 @@ function SettingsTab({
         <div className="p-5 space-y-5">
             <div>
                 <Label>Endpoint URL</Label>
-                <TextInput value={url} onChange={setUrl} placeholder="https://acme.com/webhooks/warmbly" className="w-full" />
+                <TextInput value={url} onChange={setUrl} placeholder="https://acme.com/webhooks/fullpilot" className="w-full" />
                 {urlChanged && (
                     <p className="mt-1 text-[11px] text-amber-700">
                         Changing the URL re-arms verification. The endpoint must reply 2xx to a fresh test event.

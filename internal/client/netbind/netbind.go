@@ -2,7 +2,7 @@
 //
 // Use cases:
 //   - Self-hoster on a single-IP VPS: no env var set, default route is used.
-//   - Hosted Warmbly on a multi-IP box: WORKER_BIND_IP set per process so
+//   - Hosted Fullpilot on a multi-IP box: WORKER_BIND_IP set per process so
 //     SMTP/IMAP/HTTPS egress leaves from the assigned IP.
 //   - Multi-egress per process (future): callers pass an explicit *net.TCPAddr
 //     overriding the env-var fallback.

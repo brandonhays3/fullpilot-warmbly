@@ -385,7 +385,7 @@ func domainAuthSteps(missing []string) []string {
 	}
 	return append(steps,
 		"Give DNS up to a few hours to propagate. Most providers are much faster.",
-		"Send yourself a test message and check the headers show a pass for each record. Warmbly re-checks the domain on its own schedule and this clears itself once it does.",
+		"Send yourself a test message and check the headers show a pass for each record. Fullpilot re-checks the domain on its own schedule and this clears itself once it does.",
 	)
 }
 

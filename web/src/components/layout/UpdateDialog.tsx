@@ -45,7 +45,7 @@ import buildError from "@/lib/helper/buildError";
 import { markUpdateStarted, readUpdateStarted, clearUpdateStarted } from "@/lib/updateSession";
 import { cn } from "@/lib/utils";
 
-const DOCS_UPDATES = "https://docs.warmbly.com/development/updates/";
+const DOCS_UPDATES = "https://www.fullpilot.com";
 
 interface Props {
     open: boolean;

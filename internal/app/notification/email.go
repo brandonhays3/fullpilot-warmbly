@@ -223,7 +223,7 @@ func (s *service) sendUserEmail(ctx context.Context, userID uuid.UUID, rows []mo
 		for _, n := range rows {
 			items = append(items, templates.DigestItem{Title: n.Title, Body: n.Body, URL: absoluteLink(n.Link)})
 		}
-		subject = fmt.Sprintf("%d updates in your Warmbly workspace", len(rows))
+		subject = fmt.Sprintf("%d updates in your Fullpilot workspace", len(rows))
 		html, gerr = templates.GenerateDigestHTML(len(rows), items)
 	}
 	if gerr != nil {
@@ -258,7 +258,7 @@ func absoluteLink(link string) string {
 	}
 	base := strings.TrimRight(os.Getenv("APP_URL"), "/")
 	if base == "" {
-		base = "https://app.warmbly.com"
+		base = "https://portal.fullpilot.com"
 	}
 	return base + link
 }

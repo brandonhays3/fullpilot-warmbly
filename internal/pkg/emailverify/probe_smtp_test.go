@@ -183,7 +183,7 @@ func TestConfigDefaultsDoNotInventAHeloHost(t *testing.T) {
 	if c.MailFrom != "" {
 		t.Fatalf("MailFrom defaulted to %q with no usable host", c.MailFrom)
 	}
-	c2 := Config{HeloHost: "Verify.Warmbly.com."}.withDefaults()
+	c2 := Config{HeloHost: "Verify.Fullpilot.com."}.withDefaults()
 	if c2.HeloHost != "verify.warmbly.com" {
 		t.Fatalf("HeloHost = %q, want the normalized name", c2.HeloHost)
 	}

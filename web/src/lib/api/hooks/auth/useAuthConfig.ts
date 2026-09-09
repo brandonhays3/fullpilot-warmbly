@@ -29,7 +29,7 @@ export const AUTH_CONFIG_FALLBACK: AuthConfig = {
     // than presenting an unreachable backend as an unlocked one.
     billing_enabled: true,
     setup_required: false,
-    docs_url: "https://docs.warmbly.com/development/accounts-and-access/",
+    docs_url: "https://www.fullpilot.com",
 };
 
 export default function useAuthConfig() {

@@ -79,7 +79,7 @@ const TYPES: {
         value: "webhook",
         label: "Webhook",
         icon: Webhook,
-        placeholder: "https://example.com/hooks/warmbly",
+        placeholder: "https://example.com/hooks/fullpilot",
         help: "Receives the event as JSON. Set a secret to have it signed with HMAC-SHA256.",
     },
     {

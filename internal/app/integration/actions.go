@@ -41,7 +41,7 @@ type automationEventPayload struct {
 
 // automationDeliver POSTs a structured event to a generic automation webhook,
 // HMAC-signing it with the connection's signing secret (same scheme as our
-// customer webhooks: `X-Warmbly-Signature: t=<unix>,v1=<hmac>` over `t.body`)
+// customer webhooks: `X-Fullpilot-Signature: t=<unix>,v1=<hmac>` over `t.body`)
 // and retrying transient (5xx / network) failures with linear backoff. 4xx is
 // treated as a permanent misconfiguration and not retried.
 func automationDeliver(ctx context.Context, targetURL, secret, eventType string, payload automationEventPayload) error {
@@ -88,7 +88,7 @@ func automationDeliver(ctx context.Context, targetURL, secret, eventType string,
 // newDeliveryID returns a fresh idempotency / delivery id for a webhook event.
 func newDeliveryID() string { return uuid.New().String() }
 
-// Warmbly's sky accent (Tailwind sky-500, #0EA5E9) brands outbound notification
+// Fullpilot's sky accent (Tailwind sky-500, #0EA5E9) brands outbound notification
 // cards: an integer for Discord embeds, a hex string for Slack attachments.
 const (
 	notifyAccentInt = 0x0EA5E9
@@ -127,7 +127,7 @@ func slackPostMessage(ctx context.Context, token, channel string, msg eventMessa
 		"color":    notifyAccentHex,
 		"fallback": msg.plainText(),
 		"title":    truncateRunes(msg.Title, 256),
-		"footer":   "Warmbly",
+		"footer":   "Fullpilot",
 		"ts":       time.Now().Unix(),
 	}
 	if msg.Custom != "" {
@@ -176,14 +176,14 @@ func slackPostMessage(ctx context.Context, token, channel string, msg eventMessa
 }
 
 // discordEmbedPayload builds a Discord webhook body as a single rich embed in
-// Warmbly's sky theme (title + optional description + contact/subject fields +
+// Fullpilot's sky theme (title + optional description + contact/subject fields +
 // footer/timestamp) rather than a plain content line, so notifications render as
 // branded cards. Discord ignores unknown top-level keys, so embeds are the body.
 func discordEmbedPayload(msg eventMessage) map[string]any {
 	embed := map[string]any{
 		"title":     truncateRunes(msg.Title, 256),
 		"color":     notifyAccentInt,
-		"footer":    map[string]any{"text": "Warmbly"},
+		"footer":    map[string]any{"text": "Fullpilot"},
 		"timestamp": time.Now().UTC().Format(time.RFC3339),
 	}
 	if msg.Custom != "" {

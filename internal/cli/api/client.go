@@ -1,8 +1,8 @@
-// Package api is the CLI's HTTP client for the public Warmbly REST API.
+// Package api is the CLI's HTTP client for the public Fullpilot REST API.
 //
 // It exists so every command speaks to the API the same way: one place that
 // knows the /v1 prefix, the bearer header, the idempotency header, the error
-// envelope and how to walk a cursor. Nothing here is Warmbly-specific beyond
+// envelope and how to walk a cursor. Nothing here is Fullpilot-specific beyond
 // those; the typed commands are a table on top of it.
 package api
 

@@ -6,7 +6,7 @@ import (
 	"github.com/warmbly/warmbly/internal/models"
 )
 
-// project.go turns a Warmbly source record into provider destination properties
+// project.go turns a Fullpilot source record into provider destination properties
 // using the connection's configured field map — this is the pivot that makes the
 // CRM handlers config-driven instead of hardcoding props["firstname"]. When no
 // map is configured the provider's default identity map is used, so an
@@ -163,7 +163,7 @@ func effectiveFieldMap(provider models.IntegrationProvider, object string, rows 
 	return out
 }
 
-// eventSource normalizes an event/dispatch payload into the Warmbly source field
+// eventSource normalizes an event/dispatch payload into the Fullpilot source field
 // vocabulary the field map reads from.
 func eventSource(data map[string]any) map[string]any {
 	src := map[string]any{

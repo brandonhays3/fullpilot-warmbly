@@ -31,7 +31,7 @@ const OutlookDesktopRedirect = "http://127.0.0.1"
 
 // GoogleDesktopRedirect is the loopback redirect_uri for GoogleDesktop. The
 // port is arbitrary; nothing listens on it.
-const GoogleDesktopRedirect = "http://localhost:17777/warmbly/oauth"
+const GoogleDesktopRedirect = "http://localhost:17777/fullpilot/oauth"
 
 // redirectOverride lets a deployment present a redirect_uri that is already
 // registered on an existing OAuth client (a host it controls that forwards to
@@ -63,7 +63,7 @@ func GoogleOauth2Inbox(baseURL string) *oauth2.Config {
 // GoogleDesktopOauth2Inbox is the desktop-type Gmail client, read from
 // BOX_GOOGLE_DESKTOP_CLIENT_ID/SECRET. Desktop clients are verified for the
 // full mail scope rather than the granular gmail.* ones; the Gmail API accepts
-// it for every method Warmbly calls.
+// it for every method Fullpilot calls.
 func GoogleDesktopOauth2Inbox() *oauth2.Config {
 	return &oauth2.Config{
 		ClientID:     os.Getenv("BOX_GOOGLE_DESKTOP_CLIENT_ID"),

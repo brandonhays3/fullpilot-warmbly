@@ -137,7 +137,7 @@ function WebsiteTrackingSettingsView() {
                             label="Consent"
                             description={
                                 draft.consent_mode === "explicit"
-                                    ? "The snippet stores and sends nothing until your page calls warmbly('consent', 'granted'), typically from your cookie banner."
+                                    ? "The snippet stores and sends nothing until your page calls fullpilot('consent', 'granted'), typically from your cookie banner."
                                     : "Views are recorded as soon as the page loads. Choose this only where you have a lawful basis without a prior opt-in."
                             }
                         >
@@ -210,7 +210,7 @@ function WebsiteTrackingSettingsView() {
 
             <Section
                 eyebrow="Install"
-                description="Paste this before the closing </head> tag on every page. The first line lets you call warmbly() before the script has loaded."
+                description="Paste this before the closing </head> tag on every page. The first line lets you call fullpilot() before the script has loaded."
             >
                 {isLoading || !data ? (
                     <div className="h-16 rounded bg-slate-100 animate-pulse" />
@@ -251,9 +251,9 @@ function WebsiteTrackingSettingsView() {
                 description="Page URL and title, referrer, UTM parameters, language, timezone and screen size come from the browser. Device, operating system and browser are read on the server from the request. Visitors who send Global Privacy Control or Do Not Track are never recorded, and a contact's visits are deleted with the contact."
             >
                 <p className="text-[11.5px] text-slate-500">
-                    Call <code className="font-mono text-slate-700">warmbly(&apos;consent&apos;, &apos;denied&apos;)</code> to
+                    Call <code className="font-mono text-slate-700">fullpilot(&apos;consent&apos;, &apos;denied&apos;)</code> to
                     clear the visitor id on this browser, or{" "}
-                    <code className="font-mono text-slate-700">warmbly(&apos;reset&apos;)</code> when a shared device changes
+                    <code className="font-mono text-slate-700">fullpilot(&apos;reset&apos;)</code> when a shared device changes
                     hands.
                 </p>
             </Section>

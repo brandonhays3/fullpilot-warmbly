@@ -10,12 +10,12 @@ import (
 type SyncDirection string
 
 const (
-	SyncDirectionPush SyncDirection = "push" // Warmbly -> provider (the default)
-	SyncDirectionPull SyncDirection = "pull" // provider -> Warmbly (Phase Later)
+	SyncDirectionPush SyncDirection = "push" // Fullpilot -> provider (the default)
+	SyncDirectionPull SyncDirection = "pull" // provider -> Fullpilot (Phase Later)
 	SyncDirectionBoth SyncDirection = "both"
 )
 
-// FieldTransform names a value transform applied while projecting a Warmbly
+// FieldTransform names a value transform applied while projecting a Fullpilot
 // field onto a provider field.
 type FieldTransform string
 
@@ -36,7 +36,7 @@ const (
 	WritePolicyUpdateOnly   WritePolicy = "update_only"
 )
 
-// FieldMapEntry maps one Warmbly source field to one provider destination field.
+// FieldMapEntry maps one Fullpilot source field to one provider destination field.
 // A "custom:<key>" WarmblyField reads from the contact's custom_fields map.
 type FieldMapEntry struct {
 	WarmblyField  string         `json:"warmbly_field"`
@@ -116,7 +116,7 @@ func (c AutomationConfig) Validate(pc *ProviderCapability, action IntegrationAct
 				return fmt.Errorf("the static mapping for %q needs a value", fm.ExternalField)
 			}
 		} else if fm.WarmblyField == "" {
-			return fmt.Errorf("the mapping for %q is missing a Warmbly field", fm.ExternalField)
+			return fmt.Errorf("the mapping for %q is missing a Fullpilot field", fm.ExternalField)
 		}
 	}
 	if pc == nil {

@@ -87,7 +87,7 @@ func (m *GraphMessage) toEmailData() *models.EmailMessageData {
 
 	// Surface the warmup verification token as a pseudo-flag ("Header:value").
 	// The consumer's warmup detector reads it from Flags to identify warmup mail
-	// and file it into the Warmbly folder instead of the inbox.
+	// and file it into the Fullpilot folder instead of the inbox.
 	if tok := m.header(config.WarmupVerifyHeader); tok != "" {
 		flags = append(flags, config.WarmupVerifyHeader+":"+tok)
 	}

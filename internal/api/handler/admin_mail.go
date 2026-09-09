@@ -61,8 +61,8 @@ func (h *Handler) AdminSendTestEmail(c *gin.Context) {
 		return
 	}
 
-	const subject = "Warmbly test email"
-	body := `<p>This is a test message from your Warmbly deployment.</p>` +
+	const subject = "Fullpilot test email"
+	body := `<p>This is a test message from your Fullpilot deployment.</p>` +
 		`<p>If you are reading it in your inbox, login codes, password resets and team invitations will reach your users.</p>` +
 		`<p>Transport: ` + transport.Description + `</p>`
 

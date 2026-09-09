@@ -292,7 +292,7 @@ export default function WorkersPage() {
                     sort={sort.by ? sort : undefined}
                     onSortChange={setSort}
                     storageKey="admin.workers"
-                    csvName="warmbly-workers"
+                    csvName="fullpilot-workers"
                     noun="workers"
                     emptyTitle="No workers"
                     emptyHint="No workers match these filters."

@@ -58,11 +58,11 @@ func (c *client) do(ctx context.Context, method, path string, body any, out any)
 		req.Header.Set("Authorization", "Bearer "+c.token)
 	}
 	if c.version != "" {
-		req.Header.Set("X-Warmbly-Instance-Version", c.version)
+		req.Header.Set("X-Fullpilot-Instance-Version", c.version)
 	}
 	res, err := c.http.Do(req)
 	if err != nil {
-		return errx.NewWithIdentifier(errx.ServiceUnavailable, "cloud_link_unreachable", fmt.Sprintf("Warmbly Cloud could not be reached: %v", err))
+		return errx.NewWithIdentifier(errx.ServiceUnavailable, "cloud_link_unreachable", fmt.Sprintf("Fullpilot Cloud could not be reached: %v", err))
 	}
 	defer res.Body.Close()
 	raw, _ := io.ReadAll(io.LimitReader(res.Body, 4<<20))
@@ -71,7 +71,7 @@ func (c *client) do(ctx context.Context, method, path string, body any, out any)
 		_ = json.Unmarshal(raw, &re)
 		code := errx.Code(res.StatusCode)
 		if re.Message == "" {
-			re.Message = fmt.Sprintf("Warmbly Cloud answered %d", res.StatusCode)
+			re.Message = fmt.Sprintf("Fullpilot Cloud answered %d", res.StatusCode)
 		}
 		if re.Code == "" {
 			re.Code = "cloud_link_remote"
@@ -80,7 +80,7 @@ func (c *client) do(ctx context.Context, method, path string, body any, out any)
 	}
 	if out != nil && len(raw) > 0 {
 		if err := json.Unmarshal(raw, out); err != nil {
-			return errx.NewWithIdentifier(errx.ServiceUnavailable, "cloud_link_bad_response", "Warmbly Cloud returned an unreadable response.")
+			return errx.NewWithIdentifier(errx.ServiceUnavailable, "cloud_link_bad_response", "Fullpilot Cloud returned an unreadable response.")
 		}
 	}
 	return nil

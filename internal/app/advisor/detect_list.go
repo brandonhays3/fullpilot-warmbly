@@ -274,7 +274,7 @@ func detectUnsubscribedEnrolled(s *repository.AdvisorSnapshot) []Finding {
 }
 
 // usesFirstName reports whether the copy actually greets people by first name.
-// Warmbly templates are Go templates, so the field is written `.FirstName`
+// Fullpilot templates are Go templates, so the field is written `.FirstName`
 // (`{{.FirstName}}`, `{{if .FirstName}}`, `{{.FirstName | title}}`) or, for the
 // index form a spaced custom key would take, `"first_name"`. Checking the
 // property rather than one literal spelling keeps this from silently never

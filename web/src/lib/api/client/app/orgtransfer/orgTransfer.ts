@@ -108,6 +108,6 @@ export async function downloadOrgExport(id: string): Promise<{ blob: Blob; filen
     const match = /filename="?([^"]+)"?/.exec(disposition);
     return {
         blob: res.data,
-        filename: match?.[1] ?? `workspace-${id.slice(0, 8)}.warmbly.zip`,
+        filename: match?.[1] ?? `workspace-${id.slice(0, 8)}.fullpilot.zip`,
     };
 }

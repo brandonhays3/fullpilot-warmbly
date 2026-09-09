@@ -8,7 +8,7 @@ import (
 	"github.com/emersion/go-imap/v2"
 )
 
-const WarmupFolderName = "Warmbly"
+const WarmupFolderName = "Fullpilot"
 
 // MarkAsRead sets the \Seen flag on the given UID in mailboxName.
 func (c *Client) MarkAsRead(ctx context.Context, mailboxName string, uid uint32) error {
@@ -74,7 +74,7 @@ func (c *Client) RemoveFromSpam(ctx context.Context, sourceMailbox, inboxName st
 }
 
 // MoveToFolder moves the UID from sourceMailbox into dstFolder, creating
-// dstFolder if it does not exist. Use for the "Warmbly" sorting label.
+// dstFolder if it does not exist. Use for the "Fullpilot" sorting label.
 func (c *Client) MoveToFolder(ctx context.Context, sourceMailbox, dstFolder string, uid uint32) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -96,7 +96,7 @@ func (c *Client) MoveToFolder(ctx context.Context, sourceMailbox, dstFolder stri
 // personalPrefixLocked is the prefix this server keeps user folders under. It
 // is "" almost everywhere, but Dovecot is commonly configured with "INBOX.",
 // where creating a folder at the root fails with "nonexistent namespace" and
-// the Warmbly foldering silently never happens. Cached per connection; a
+// the Fullpilot foldering silently never happens. Cached per connection; a
 // server without NAMESPACE keeps the root. mu must be held.
 func (c *Client) personalPrefixLocked() string {
 	if c.nsPrefix != nil {

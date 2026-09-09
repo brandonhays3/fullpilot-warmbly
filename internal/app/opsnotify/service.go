@@ -172,9 +172,9 @@ func (s *service) postSigned(ctx context.Context, ch instancesettings.NotifyChan
 	headers := map[string]string{}
 	if ch.Secret != "" {
 		now := time.Now()
-		headers["X-Warmbly-Signature"] = webhook.FormatSignatureHeader(now, webhook.Sign(ch.Secret, now, body))
+		headers["X-Fullpilot-Signature"] = webhook.FormatSignatureHeader(now, webhook.Sign(ch.Secret, now, body))
 	}
-	headers["X-Warmbly-Event"] = event.Key
+	headers["X-Fullpilot-Event"] = event.Key
 	return s.send(ctx, ch.Target, body, headers)
 }
 
@@ -184,7 +184,7 @@ func (s *service) send(ctx context.Context, url string, body []byte, headers map
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "Warmbly-Ops-Notifier/1")
+	req.Header.Set("User-Agent", "Fullpilot-Ops-Notifier/1")
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}

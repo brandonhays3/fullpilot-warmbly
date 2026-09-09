@@ -1,5 +1,5 @@
 // Package placement implements seed inbox-placement testing: send a tokenized
-// copy of a real template through a real sender to a panel of Warmbly-controlled
+// copy of a real template through a real sender to a panel of Fullpilot-controlled
 // SEED mailboxes, then classify where each landed (Inbox / Spam / Promotions /
 // other) per provider.
 //

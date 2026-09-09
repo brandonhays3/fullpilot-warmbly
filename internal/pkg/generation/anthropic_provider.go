@@ -13,7 +13,7 @@ import (
 )
 
 // anthropicProvider is the optional self-host connector: it drives the same
-// tool-use agent loop over Anthropic's Messages API. Warmbly's hosted product
+// tool-use agent loop over Anthropic's Messages API. Fullpilot's hosted product
 // runs on OpenAI; this exists so a self-hoster who prefers Anthropic can set
 // AI_PROVIDER=anthropic and get the identical Provider
 // behavior.

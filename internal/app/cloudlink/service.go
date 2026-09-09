@@ -21,11 +21,11 @@ import (
 const DefaultCloudURL = "https://api.warmbly.com"
 
 var (
-	ErrNotConnected    = errx.NewWithIdentifier(errx.Conflict, "cloud_link_not_connected", "This instance is not connected to Warmbly Cloud.")
+	ErrNotConnected    = errx.NewWithIdentifier(errx.Conflict, "cloud_link_not_connected", "This instance is not connected to Fullpilot Cloud.")
 	ErrAlreadyLinked   = errx.NewWithIdentifier(errx.Conflict, "cloud_link_connected", "This instance is already connected. Disconnect first to link a different workspace.")
 	ErrNoPendingCode   = errx.NewWithIdentifier(errx.NotFound, "cloud_link_no_pending", "No connection in progress. Start again.")
 	ErrCodeExpired     = errx.NewWithIdentifier(errx.NotFound, "cloud_link_code_expired", "The code expired before it was approved. Start again.")
-	ErrOAuthMailbox    = errx.NewWithIdentifier(errx.Unprocessable, "cloud_link_oauth_mailbox", "Google and Microsoft sign-in mailboxes cannot be warmed by Warmbly Cloud yet, because their refresh grant is bound to this instance's own OAuth app. Connect the mailbox with SMTP/IMAP (an app password) to enroll it.")
+	ErrOAuthMailbox    = errx.NewWithIdentifier(errx.Unprocessable, "cloud_link_oauth_mailbox", "Google and Microsoft sign-in mailboxes cannot be warmed by Fullpilot Cloud yet, because their refresh grant is bound to this instance's own OAuth app. Connect the mailbox with SMTP/IMAP (an app password) to enroll it.")
 	ErrMailboxInactive = errx.NewWithIdentifier(errx.Unprocessable, "cloud_link_mailbox_inactive", "Only active mailboxes can be enrolled.")
 )
 
@@ -67,7 +67,7 @@ func instanceName() string {
 	if host, err := os.Hostname(); err == nil && host != "" {
 		return host
 	}
-	return "Self-hosted Warmbly"
+	return "Self-hosted Fullpilot"
 }
 
 // PendingConnect is an in-flight device-code handshake, held in memory.

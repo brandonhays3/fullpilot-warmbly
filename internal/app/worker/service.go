@@ -34,7 +34,7 @@ type WorkerService struct {
 	// endpoint) the worker needs to refresh delegated tokens locally. Cfg is not
 	// serialized in the AddWorkerEmail payload, so the worker rebuilds it here.
 	OauthInbox *config.Oauth2Inbox
-	// TokenBroker serves mailboxes managed by Warmbly Cloud (brokered access
+	// TokenBroker serves mailboxes managed by Fullpilot Cloud (brokered access
 	// tokens over the internal API). Optional: nil refuses such mailboxes.
 	TokenBroker repository.BrokeredTokenClient
 

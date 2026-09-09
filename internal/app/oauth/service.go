@@ -1,4 +1,4 @@
-// Package oauth implements Warmbly's OAuth2 authorization server: third-party
+// Package oauth implements Fullpilot's OAuth2 authorization server: third-party
 // app registration, the authorization-code flow (client secret required, PKCE
 // optional), token issue/refresh/revoke, and bearer-token validation. Issued
 // access tokens carry an API-permission bitmask, so they authenticate through the

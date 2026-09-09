@@ -42,10 +42,10 @@ var notificationTmpl = template.Must(template.New("notification_content").Parse(
 
 // GenerateNotificationHTML renders a generic notification email. ctaURL
 // is optional (empty drops the button); ctaLabel defaults to "Open in
-// Warmbly" when a URL is present but no label is supplied.
+// Fullpilot" when a URL is present but no label is supplied.
 func GenerateNotificationHTML(title, body, ctaURL, ctaLabel string) (string, error) {
 	if ctaURL != "" && ctaLabel == "" {
-		ctaLabel = "Open in Warmbly"
+		ctaLabel = "Open in Fullpilot"
 	}
 	data := struct {
 		Title    string
@@ -60,7 +60,7 @@ func GenerateNotificationHTML(title, body, ctaURL, ctaLabel string) (string, err
 	}
 	subject := title
 	if subject == "" {
-		subject = "Notification from Warmbly"
+		subject = "Notification from Fullpilot"
 	}
 	return renderEmail(subject, buf.String())
 }

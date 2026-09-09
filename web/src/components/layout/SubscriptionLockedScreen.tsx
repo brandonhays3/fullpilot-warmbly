@@ -9,7 +9,7 @@ import { getPlan } from "@/lib/plans";
 import { useAppStore } from "@/stores";
 import { useUpgradeDialog } from "@/hooks/context/upgrade";
 
-const SELF_HOST_DOCS = "https://docs.warmbly.com/development/deployment-guide/";
+const SELF_HOST_DOCS = "https://www.fullpilot.com";
 
 export default function SubscriptionLockedScreen({ feature }: { feature: string }) {
     const isOwner = useAppStore((s) => s.currentOrganization?.role === "owner");
@@ -68,7 +68,7 @@ export default function SubscriptionLockedScreen({ feature }: { feature: string 
                         body="Run the whole platform on your server, unlimited, then link the instance so this workspace warms its mailboxes."
                         cta="Self-host guide"
                         href={SELF_HOST_DOCS}
-                        secondary={{ label: "Linked instances", to: "/app/settings/warmbly-cloud" }}
+                        secondary={{ label: "Linked instances", to: "/app/settings/connections" }}
                     />
                     <Path
                         icon={CloudIcon}

@@ -22,7 +22,7 @@ import (
 //
 // Issue #193: Microsoft Graph drops custom headers in transit and re-stamps the
 // Message-ID, so warmup sent from an Outlook mailbox arrives at every recipient
-// carrying no verify header and under an id Warmbly never minted. Matched only
+// carrying no verify header and under an id Fullpilot never minted. Matched only
 // on the header it counted for nobody and was filed in the recipient's unibox
 // as ordinary mail. What is worth proving here is the recipient-side
 // resolution, which is all SQL.
@@ -122,7 +122,7 @@ func (f *warmupFixture) mintToken(t *testing.T, repo repository.WarmupRepository
 }
 
 // arrival is the inbound event the recipient's worker produces. Outlook-sent
-// warmup has no verify pseudo-flag and a Message-ID Warmbly never minted.
+// warmup has no verify pseudo-flag and a Message-ID Fullpilot never minted.
 func (f *warmupFixture) arrival(messageID string, flags []string) *models.JobEventNewEmail {
 	return &models.JobEventNewEmail{
 		UserID: f.partnerUser,

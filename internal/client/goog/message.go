@@ -185,7 +185,7 @@ func GmailMessageToEmailData(msg *gmail.Message) *models.EmailMessageData {
 				flags = append(flags, "\\Seen")
 			}
 			// Surface the warmup verification token as a pseudo-flag so the
-			// consumer can categorize warmup mail into the Warmbly folder.
+			// consumer can categorize warmup mail into the Fullpilot folder.
 			if tok := getSingleHeader(headers, config.WarmupVerifyHeader); tok != "" {
 				flags = append(flags, config.WarmupVerifyHeader+":"+tok)
 			}

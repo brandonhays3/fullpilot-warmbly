@@ -256,7 +256,7 @@ function StatusPill({ status }: { status: APIKey["status"] }) {
 }
 
 function CodeSnippet({ prefix }: { prefix: string }) {
-    const snippet = `curl https://api.warmbly.com/v1/campaigns \\
+    const snippet = `curl https://api.portal.fullpilot.com/v1/campaigns \\
   -H "Authorization: Bearer ${prefix}…" \\
   -H "Content-Type: application/json"`;
     const [copied, setCopied] = React.useState(false);

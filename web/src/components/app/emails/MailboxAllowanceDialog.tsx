@@ -316,7 +316,7 @@ function Body({
                     <ArrowRightIcon className="w-3 h-3" />
                 </Link>
                 <a
-                    href="https://docs.warmbly.com/guides/mailboxes/#mailbox-allowance"
+                    href="https://www.fullpilot.com"
                     target="_blank"
                     rel="noreferrer"
                     className="text-[11.5px] text-slate-500 hover:text-slate-900 inline-flex items-center gap-1 transition-colors"

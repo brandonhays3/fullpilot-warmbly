@@ -261,7 +261,7 @@ export default function LoginPage() {
                                                     onChange={(e) => setEmail(e.target.value)}
                                                     onInput={() => error && setError(null)}
                                                     required
-                                                    placeholder="you@warmbly.com"
+                                                    placeholder="you@fullpilot.com"
                                                     aria-invalid={Boolean(error)}
                                                     className={cn("h-10", FOCUS_RED)}
                                                 />

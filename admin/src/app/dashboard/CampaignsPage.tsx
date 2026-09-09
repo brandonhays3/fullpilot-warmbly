@@ -354,7 +354,7 @@ export default function CampaignsPage() {
                     sort={sort.by ? sort : undefined}
                     onSortChange={setSort}
                     storageKey="admin.campaigns"
-                    csvName="warmbly-campaigns"
+                    csvName="fullpilot-campaigns"
                     noun="campaigns"
                     emptyTitle="No campaigns"
                     emptyHint="No campaigns match these filters."

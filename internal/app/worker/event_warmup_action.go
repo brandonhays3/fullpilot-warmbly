@@ -59,7 +59,7 @@ func (w *WorkerService) runGoogleWarmupActions(ctx context.Context, mail *wmail.
 		switch act {
 		case "move_to_warmbly":
 			if err := mail.GoogleData.Client.ApplyLabel(ctx, action.GmailID, imap.WarmupFolderName); err != nil {
-				log.Error().Err(err).Str("gmail_id", action.GmailID).Msg("Failed to apply Warmbly label")
+				log.Error().Err(err).Str("gmail_id", action.GmailID).Msg("Failed to apply Fullpilot label")
 			}
 		case "mark_read":
 			if err := mail.GoogleData.Client.MarkAsRead(ctx, action.GmailID); err != nil {
@@ -92,7 +92,7 @@ func (w *WorkerService) runGraphWarmupActions(ctx context.Context, mail *wmail.W
 
 	// A Graph message id changes whenever the message is moved (copy+delete), so
 	// resolve the live id from the immutable RFC Message-ID before acting. This
-	// leg may run after an earlier leg already moved the message to Warmbly.
+	// leg may run after an earlier leg already moved the message to Fullpilot.
 	msgID := action.GmailID
 	if action.RFCMessageID != "" {
 		if resolved, err := client.ResolveMessageID(ctx, action.RFCMessageID); err == nil && resolved != "" {
@@ -105,7 +105,7 @@ func (w *WorkerService) runGraphWarmupActions(ctx context.Context, mail *wmail.W
 		case "move_to_warmbly":
 			newID, err := client.MoveToFolder(ctx, msgID, imap.WarmupFolderName)
 			if err != nil {
-				log.Error().Err(err).Str("graph_id", msgID).Msg("Failed to move to Warmbly folder (Graph)")
+				log.Error().Err(err).Str("graph_id", msgID).Msg("Failed to move to Fullpilot folder (Graph)")
 				continue
 			}
 			if newID != "" {
@@ -162,7 +162,7 @@ func (w *WorkerService) runImapWarmupActions(ctx context.Context, mail *wmail.WM
 		switch act {
 		case "move_to_warmbly":
 			if err := imapClient.MoveToFolder(ctx, sourceBox.Name, imap.WarmupFolderName, uid); err != nil {
-				log.Error().Err(err).Uint32("uid", uid).Msg("Failed to move to Warmbly folder")
+				log.Error().Err(err).Uint32("uid", uid).Msg("Failed to move to Fullpilot folder")
 			}
 		case "mark_read":
 			if err := imapClient.MarkAsRead(ctx, sourceBox.Name, uid); err != nil {

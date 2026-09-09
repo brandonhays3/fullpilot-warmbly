@@ -109,7 +109,7 @@ export default function AnalyticsPage() {
         <Page>
             <PageTopbar eyebrow="Analytics" subtitle="Deliverability across the workspace">
                 <RangeTabs value={range} onChange={setRange} />
-                <AnalyticsShareButton data={shareData} filename={`warmbly-analytics-${range}.png`} />
+                <AnalyticsShareButton data={shareData} filename={`fullpilot-analytics-${range}.png`} />
             </PageTopbar>
 
             <StatStrip cols={4}>

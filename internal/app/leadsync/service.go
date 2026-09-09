@@ -1,6 +1,6 @@
 // Package leadsync implements the on-demand Google Sheets -> leads sync.
 //
-// A "lead sync source" is a saved binding between a Google Sheet and Warmbly's
+// A "lead sync source" is a saved binding between a Google Sheet and Fullpilot's
 // contact importer that the user re-runs with a "Sync now" button. There is no
 // background scheduler and no worker involvement: this is pure control-plane
 // work. SyncNow reads the sheet, encodes the rows as CSV in memory, and hands

@@ -19,7 +19,7 @@ Invitation
 You've been invited to {{.OrgName}}
 </h2>
 <p style="margin:0 0 20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;color:#475569;line-height:20px;">
-{{.InviterName}} has invited you to join <strong style="color:#0f172a;">{{.OrgName}}</strong> on Warmbly. Accept the invitation to start collaborating on mailboxes, warmup, and campaigns.
+{{.InviterName}} has invited you to join <strong style="color:#0f172a;">{{.OrgName}}</strong> on Fullpilot. Accept the invitation to start collaborating on mailboxes, warmup, and campaigns.
 </p>
 
 <table cellpadding="0" cellspacing="0" border="0" align="center" role="presentation" style="margin:0 0 24px;">
@@ -52,5 +52,5 @@ func GenerateInvitationHTML(inviterName, orgName, acceptURL string) (string, err
 		errs.CaptureException(err)
 		return "", err
 	}
-	return renderEmail("You've been invited to Warmbly", buf.String())
+	return renderEmail("You've been invited to Fullpilot", buf.String())
 }

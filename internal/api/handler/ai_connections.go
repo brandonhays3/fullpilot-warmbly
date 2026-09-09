@@ -1,5 +1,5 @@
 // Connected MCP servers (client direction). An org admin connects an external
-// MCP server; Warmbly discovers its tools and, once enabled, exposes them to the
+// MCP server; Fullpilot discovers its tools and, once enabled, exposes them to the
 // assistant as approval-gated tools. JWT + manage_settings only; bearer tokens
 // are sealed server-side and never returned.
 package handler

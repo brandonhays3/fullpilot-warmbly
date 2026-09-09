@@ -24,7 +24,7 @@ func (h *Handler) PoolLinkAuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		inst, xerr := h.PoolLinkService.AuthenticateInstance(c.Request.Context(), strings.TrimPrefix(raw, "Bearer "), c.GetHeader("X-Warmbly-Instance-Version"))
+		inst, xerr := h.PoolLinkService.AuthenticateInstance(c.Request.Context(), strings.TrimPrefix(raw, "Bearer "), c.GetHeader("X-Fullpilot-Instance-Version"))
 		if xerr != nil {
 			errx.JSON(c, xerr)
 			c.Abort()

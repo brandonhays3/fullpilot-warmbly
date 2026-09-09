@@ -121,7 +121,7 @@ func bodyText(st repository.AdvisorStep) string {
 }
 
 // detectBrokenTemplate asks the platform's own template validator whether the
-// copy parses, rather than pattern-matching for "suspicious" braces. Warmbly
+// copy parses, rather than pattern-matching for "suspicious" braces. Fullpilot
 // bodies are Go templates: `{{if .Company}}`, `{{index . "city"}}`, and
 // `{{.FirstName | title}}` are all correct, and a regex written against a
 // simpler `{{token}}` convention would flag every one of them. Reusing

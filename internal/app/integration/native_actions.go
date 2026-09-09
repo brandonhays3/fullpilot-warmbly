@@ -153,7 +153,7 @@ func parseUUIDList(ids []string) []uuid.UUID {
 	return out
 }
 
-// NativeActions runs Warmbly-internal CRM/contact mutations for automation
+// NativeActions runs Fullpilot-internal CRM/contact mutations for automation
 // action nodes (no external connection). It's a consumer-side interface so the
 // integration package needs no import of advanced/tasks/repository — a thin
 // adapter in cmd/backend satisfies it (converting *errx.Error -> error and

@@ -1,4 +1,4 @@
-// Package updates answers "is there a newer Warmbly than the one running, and
+// Package updates answers "is there a newer Fullpilot than the one running, and
 // apply it". The check side polls GitHub Releases and the host-side updater on
 // an interval, so the admin panel's top bar can show an update the moment one
 // exists. The apply side hands the job to the updater (internal/updater) and

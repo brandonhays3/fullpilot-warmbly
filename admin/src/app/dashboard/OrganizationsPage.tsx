@@ -488,7 +488,7 @@ export default function OrganizationsPage() {
                     sort={sort.by ? sort : undefined}
                     onSortChange={setSort}
                     storageKey="admin.organizations"
-                    csvName="warmbly-organizations"
+                    csvName="fullpilot-organizations"
                     noun="organizations"
                     emptyTitle="No organizations"
                     emptyHint="No organizations match these filters."

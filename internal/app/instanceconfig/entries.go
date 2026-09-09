@@ -787,7 +787,7 @@ var table = []Entry{
 	// Updates.
 	{
 		Key: "UPDATE_CHECK_ENABLED", Group: GroupUpdates, RuntimeChangeable: ChangeBootOnly,
-		Effect:     "Polls GitHub Releases for a newer Warmbly and shows it in the admin panel's top bar and on Setup and health.",
+		Effect:     "Polls GitHub Releases for a newer Fullpilot and shows it in the admin panel's top bar and on Setup and health.",
 		DocsAnchor: docsUpdates,
 		Resolve:    boolOr("UPDATE_CHECK_ENABLED", true),
 	},
@@ -805,7 +805,7 @@ var table = []Entry{
 	},
 	{
 		Key: "RELEASES_GITHUB_REPO", Group: GroupUpdates, RuntimeChangeable: ChangeBootOnly,
-		Effect:     "The owner/repo whose releases count as Warmbly versions. Point a fork's instance at the fork.",
+		Effect:     "The owner/repo whose releases count as Fullpilot versions. Point a fork's instance at the fork.",
 		DocsAnchor: docsUpdates,
 		Resolve:    envOr("RELEASES_GITHUB_REPO", "warmbly/warmbly"),
 	},

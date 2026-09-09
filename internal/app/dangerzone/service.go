@@ -57,7 +57,7 @@ type service struct {
 	notifier notify.EmailNotificationService
 
 	// frontendBaseURL is used when building cancellation links in emails.
-	// Falls back to "https://app.warmbly.com" if empty.
+	// Falls back to "https://portal.fullpilot.com" if empty.
 	frontendBaseURL string
 }
 
@@ -70,7 +70,7 @@ func NewService(
 	frontendBaseURL string,
 ) Service {
 	if frontendBaseURL == "" {
-		frontendBaseURL = "https://app.warmbly.com"
+		frontendBaseURL = "https://portal.fullpilot.com"
 	}
 	return &service{
 		repo:            repo,
@@ -441,7 +441,7 @@ func (s *service) sendUserScheduledEmail(ctx context.Context, user *models.User,
 	if s.notifier == nil {
 		return
 	}
-	subject := "Your Warmbly account is scheduled for deletion"
+	subject := "Your Fullpilot account is scheduled for deletion"
 	body, err := templates.GenerateUserDeletionScheduledHTML(firstNameOrEmail(user), d.ExecuteAfter, d.GraceDays, s.frontendBaseURL+userDangerZonePath)
 	if err != nil {
 		return

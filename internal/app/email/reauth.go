@@ -40,7 +40,7 @@ func (s *emailService) OAuthReauth(ctx context.Context, userID string, orgID *uu
 		return nil, errx.ErrEmailReauthProvider
 	}
 	// A cloud-managed mailbox has no local token row to renew; its sign-in
-	// lives on Warmbly Cloud.
+	// lives on Fullpilot Cloud.
 	if s.cloudLink != nil {
 		if m, err := s.cloudLink.GetByAccount(ctx, accountID); err == nil && m != nil && m.Managed {
 			return nil, errx.ErrEmailReauthCloudManaged

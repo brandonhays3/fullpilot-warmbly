@@ -19,7 +19,7 @@ Subscription
 Your free trial has ended
 </h2>
 <p style="margin:0 0 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;color:#475569;line-height:20px;">
-Thanks for trying Warmbly. Your trial has now ended, so we've paused your campaigns and turned off warmup to avoid any unexpected sending.
+Thanks for trying Fullpilot. Your trial has now ended, so we've paused your campaigns and turned off warmup to avoid any unexpected sending.
 </p>
 
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px;width:100%;">
@@ -64,5 +64,5 @@ func GenerateTrialExpiredHTML() (string, error) {
 		errs.CaptureException(err)
 		return "", err
 	}
-	return renderEmail("Your Warmbly trial has ended", buf.String())
+	return renderEmail("Your Fullpilot trial has ended", buf.String())
 }

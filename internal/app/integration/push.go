@@ -132,7 +132,7 @@ func (s *service) PushContacts(ctx context.Context, orgID, connID uuid.UUID, con
 		var aerr error
 		switch conn.Provider {
 		case models.IntegrationHubSpot:
-			aerr = hubspotUpsertContact(ctx, token, ct.Email, props, "Synced from Warmbly")
+			aerr = hubspotUpsertContact(ctx, token, ct.Email, props, "Synced from Fullpilot")
 		case models.IntegrationPipedrive:
 			aerr = pipedriveUpsertPerson(ctx, token, ct.Email, props)
 		case models.IntegrationSalesforce:
@@ -234,7 +234,7 @@ func providerSupportsPush(p models.IntegrationProvider) bool {
 	return false
 }
 
-// contactSource normalizes a PushContact into the Warmbly source vocabulary the
+// contactSource normalizes a PushContact into the Fullpilot source vocabulary the
 // field map projects from.
 func contactSource(ct PushContact) map[string]any {
 	return map[string]any{

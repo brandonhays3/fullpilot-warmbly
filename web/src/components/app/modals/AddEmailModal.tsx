@@ -649,7 +649,7 @@ function ProviderNotConfigured({ provider }: { provider: OAuthProvider; selfHost
             </div>
 
             <a
-                href="https://docs.warmbly.com/development/deployment-guide/#connect-mailboxes"
+                href="https://www.fullpilot.com"
                 target="_blank"
                 rel="noreferrer"
                 className="mt-3 h-7 px-2.5 inline-flex items-center gap-1.5 rounded-md border border-slate-200 text-[12.5px] text-slate-700 hover:bg-slate-50 transition-colors"
@@ -1002,7 +1002,7 @@ function ManualRedirectPanel({
                             }, 0);
                         }
                     }}
-                    placeholder="http://localhost:17777/warmbly/oauth?state=…&code=…"
+                    placeholder="http://localhost:17777/fullpilot/oauth?state=…&code=…"
                     spellCheck={false}
                     autoComplete="off"
                     disabled={submitting}

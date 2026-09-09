@@ -220,7 +220,7 @@ var (
 	ErrMailInsecureRemoteHost = MError(
 		MailErrorCritical,
 		MailErrorCodeInsecureRemoteHost,
-		"This mailbox is set to connect without encryption, which Warmbly only does to a mail server on the same machine as the worker. Point it at localhost or choose SSL/TLS or STARTTLS.",
+		"This mailbox is set to connect without encryption, which Fullpilot only does to a mail server on the same machine as the worker. Point it at localhost or choose SSL/TLS or STARTTLS.",
 		MailErrorResolveMethodReload,
 	)
 	// ErrMailCleartextAuth is our own refusal to put a password on an
@@ -230,13 +230,13 @@ var (
 	ErrMailCleartextAuth = MError(
 		MailErrorCritical,
 		MailErrorCodeAuthUnsupported,
-		"This mail server offers no encrypted connection, and Warmbly will not send a mailbox password in the clear. Use the server's TLS or STARTTLS port.",
+		"This mail server offers no encrypted connection, and Fullpilot will not send a mailbox password in the clear. Use the server's TLS or STARTTLS port.",
 		MailErrorResolveMethodReload,
 	)
 	ErrMailAuthUnsupported = MError(
 		MailErrorCritical,
 		MailErrorCodeAuthUnsupported,
-		"This mail server asks for a sign-in method Warmbly does not support. Check the server's documentation for an app password or an alternative SMTP host.",
+		"This mail server asks for a sign-in method Fullpilot does not support. Check the server's documentation for an app password or an alternative SMTP host.",
 		MailErrorResolveMethodReload,
 	)
 	ErrMailDomainAuthRejected = MError(
@@ -309,7 +309,7 @@ func (e *MailError) GetUserErrorInfo() UserErrorInfo {
 		info.ActionRequired = "The receiving server rejected this message outright. The reason it gave is in the message above."
 	case MailErrorCodeAuthUnsupported:
 		info.Title = "Sign-in method not supported"
-		info.ActionRequired = "This server asks for an authentication method Warmbly does not support. An app password, or the provider's documented SMTP host, usually works."
+		info.ActionRequired = "This server asks for an authentication method Fullpilot does not support. An app password, or the provider's documented SMTP host, usually works."
 	case MailErrorCodeRecipientRejected:
 		info.Title = "Recipient Rejected"
 		info.ActionRequired = "The recipient address was not accepted"

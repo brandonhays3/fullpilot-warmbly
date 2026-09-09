@@ -230,7 +230,7 @@ const StatsShareCard = React.forwardRef<HTMLDivElement, { data: ShareCardData; a
                     {/* footer on the sky */}
                     <div className="mt-5 flex items-center justify-between text-[16px]">
                         <span className="text-white font-semibold">
-                            warmbly.com
+                            fullpilot.com
                         </span>
                         <span className="text-white/80">
                             Cold email, warmed up.

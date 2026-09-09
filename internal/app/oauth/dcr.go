@@ -12,7 +12,7 @@ import (
 
 // Dynamic Client Registration (RFC 7591). An MCP client (Claude Code, Cursor,
 // Claude Desktop, ...) registers itself at runtime as a PUBLIC client — PKCE, no
-// secret — so a customer connects Warmbly's MCP endpoint with one `claude mcp add`
+// secret — so a customer connects Fullpilot's MCP endpoint with one `claude mcp add`
 // and a browser sign-in. Registration mints only a client_id and does NOT grant
 // access: a human still approves the exact scopes at the consent screen, and the
 // org/user are bound to the resulting grant, not to the client.

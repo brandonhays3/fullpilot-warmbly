@@ -56,7 +56,7 @@ export default function OutreachPage() {
     const qc = useQueryClient();
     const [mode, setMode] = useState<Mode>("email");
     const [target, setTarget] = useState("");
-    const [replyTo, setReplyTo] = useState("team@warmbly.com");
+    const [replyTo, setReplyTo] = useState("team@fullpilot.com");
     const [subject, setSubject] = useState("");
     const [body, setBody] = useState("");
 
@@ -298,7 +298,7 @@ export default function OutreachPage() {
                             id="reply_to"
                             value={replyTo}
                             onChange={(e) => setReplyTo(e.target.value)}
-                            placeholder="team@warmbly.com (replies will land here)"
+                            placeholder="team@fullpilot.com (replies will land here)"
                             className="font-mono text-sm"
                         />
                         <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -409,7 +409,7 @@ export default function OutreachPage() {
                     sort={sort.by ? sort : undefined}
                     onSortChange={setSort}
                     storageKey="admin.outreach"
-                    csvName="warmbly-outreach"
+                    csvName="fullpilot-outreach"
                     noun="messages"
                     emptyTitle="No outreach"
                     emptyHint="No messages match these filters."

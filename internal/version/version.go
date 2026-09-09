@@ -1,4 +1,4 @@
-// Package version holds the build identity stamped into every Warmbly binary.
+// Package version holds the build identity stamped into every Fullpilot binary.
 //
 // The values are injected at link time (see deploy/docker/*.Dockerfile and the
 // Makefile), so a binary knows which release or commit it was built from

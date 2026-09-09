@@ -347,7 +347,7 @@ export default function UsersPage() {
                     sort={sort.by ? sort : undefined}
                     onSortChange={setSort}
                     storageKey="admin.users"
-                    csvName="warmbly-users"
+                    csvName="fullpilot-users"
                     noun="users"
                     emptyTitle="No users"
                     emptyHint="No users match these filters."

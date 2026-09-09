@@ -4,7 +4,7 @@ package models
 // the onboarding + settings UI from, and that AutomationConfig.Validate checks
 // against. Adding support for a new provider action is "add a descriptor entry +
 // a handler", with no bespoke per-provider React. The descriptor only lists what
-// Warmbly can actually execute today, so the UI never offers a dead action.
+// Fullpilot can actually execute today, so the UI never offers a dead action.
 type ProviderCapability struct {
 	Provider   IntegrationProvider `json:"provider"`
 	Directions []SyncDirection     `json:"directions"`
@@ -18,14 +18,14 @@ type ProviderCapability struct {
 	SupportsBookingLink bool `json:"supports_booking_link"`
 }
 
-// FieldDef is one selectable field in the field-map editor (either a Warmbly
+// FieldDef is one selectable field in the field-map editor (either a Fullpilot
 // source field or a provider destination field).
 type FieldDef struct {
 	Key   string `json:"key"`
 	Label string `json:"label"`
 }
 
-// CapabilityObject describes one provider object Warmbly can write (contact,
+// CapabilityObject describes one provider object Fullpilot can write (contact,
 // person, lead, deal). WarmblyFields are the source fields a user can map FROM;
 // ExternalFields are the provider destination fields they can map TO. When
 // DynamicFields is true the destination list can be augmented by live discovery
@@ -81,7 +81,7 @@ func (p *ProviderCapability) Object(name string) *CapabilityObject {
 	return nil
 }
 
-// warmblyContactFields are the Warmbly contact source fields offered in the
+// warmblyContactFields are the Fullpilot contact source fields offered in the
 // field-map editor across every CRM provider.
 func warmblyContactFields() []FieldDef {
 	return []FieldDef{

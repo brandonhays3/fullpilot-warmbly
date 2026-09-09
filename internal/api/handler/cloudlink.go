@@ -10,7 +10,7 @@ import (
 	"github.com/warmbly/warmbly/internal/models"
 )
 
-// Self-hosted side of the warmup pool link: Settings > Warmbly Cloud.
+// Self-hosted side of the warmup pool link: Settings > Fullpilot Cloud.
 
 func (h *Handler) cloudLinkReady(c *gin.Context) bool {
 	if h.CloudLinkService == nil {
@@ -173,7 +173,7 @@ func (h *Handler) cloudLinkLifecycle(c *gin.Context, action string, audit models
 	c.JSON(http.StatusOK, row)
 }
 
-// Cloud-managed mailboxes: sign in through Warmbly Cloud, adopt workspace mailboxes.
+// Cloud-managed mailboxes: sign in through Fullpilot Cloud, adopt workspace mailboxes.
 
 func (h *Handler) CloudLinkOAuthStart(c *gin.Context) {
 	if !h.cloudLinkReady(c) {

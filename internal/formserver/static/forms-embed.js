@@ -1,6 +1,6 @@
 /* Warmbly Forms embed. Renders auto-resizing iframes for every
- * <div data-warmbly-form="ID"> and wires popup triggers for every
- * element with data-warmbly-popup="ID". The form itself always runs on
+ * <div data-fullpilot-form="ID"> and wires popup triggers for every
+ * element with data-fullpilot-popup="ID". The form itself always runs on
  * the Warmbly origin, so the host page's CSS and scripts cannot break
  * it and no visitor data flows through the host page. */
 (function () {
@@ -23,7 +23,7 @@
   function makeFrame(id) {
     var f = document.createElement("iframe");
     f.src = frameUrl(id);
-    f.setAttribute("data-warmbly-frame", id);
+    f.setAttribute("data-fullpilot-frame", id);
     f.setAttribute("title", "Form");
     f.style.width = "100%";
     f.style.border = "0";
@@ -36,12 +36,12 @@
   }
 
   function mountInline() {
-    var nodes = document.querySelectorAll("[data-warmbly-form]");
+    var nodes = document.querySelectorAll("[data-fullpilot-form]");
     for (var i = 0; i < nodes.length; i++) {
       var el = nodes[i];
-      if (el.getAttribute("data-warmbly-mounted")) continue;
-      el.setAttribute("data-warmbly-mounted", "1");
-      el.appendChild(makeFrame(el.getAttribute("data-warmbly-form")));
+      if (el.getAttribute("data-fullpilot-mounted")) continue;
+      el.setAttribute("data-fullpilot-mounted", "1");
+      el.appendChild(makeFrame(el.getAttribute("data-fullpilot-form")));
     }
   }
 
@@ -87,14 +87,14 @@
   }
 
   function wirePopups() {
-    var nodes = document.querySelectorAll("[data-warmbly-popup]");
+    var nodes = document.querySelectorAll("[data-fullpilot-popup]");
     for (var i = 0; i < nodes.length; i++) {
       var el = nodes[i];
-      if (el.getAttribute("data-warmbly-mounted")) continue;
-      el.setAttribute("data-warmbly-mounted", "1");
+      if (el.getAttribute("data-fullpilot-mounted")) continue;
+      el.setAttribute("data-fullpilot-mounted", "1");
       el.addEventListener("click", function (e) {
         e.preventDefault();
-        openPopup(this.getAttribute("data-warmbly-popup"));
+        openPopup(this.getAttribute("data-fullpilot-popup"));
       });
     }
   }
@@ -104,7 +104,7 @@
     var d = e.data;
     if (!d || typeof d !== "object") return;
     if (d.type === "warmbly:resize" && d.form) {
-      var frames = document.querySelectorAll('iframe[data-warmbly-frame="' + d.form + '"]');
+      var frames = document.querySelectorAll('iframe[data-fullpilot-frame="' + d.form + '"]');
       for (var i = 0; i < frames.length; i++) {
         if (e.source && frames[i].contentWindow !== e.source) continue;
         frames[i].style.height = Math.max(120, d.height | 0) + "px";

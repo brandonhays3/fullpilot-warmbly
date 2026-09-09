@@ -324,7 +324,7 @@ func renderEventMessage(sub models.IntegrationEventSubscription, data map[string
 			m.Title = "⚡ Custom event"
 		}
 	default:
-		m.Title = "Warmbly event: " + string(eventType)
+		m.Title = "Fullpilot event: " + string(eventType)
 	}
 
 	var parts []string

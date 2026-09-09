@@ -221,7 +221,7 @@ export function parseBulkFile(file: File, allowNone: boolean): Promise<{ rows: B
 
 export function downloadTemplate() {
     const csv = Papa.unparse([TEMPLATE_COLUMNS as unknown as string[], TEMPLATE_EXAMPLE]);
-    downloadBlob(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }), "warmbly-mailboxes-template.csv");
+    downloadBlob(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }), "fullpilot-mailboxes-template.csv");
 }
 
 /** Columns never written to a download: a CSV in a Downloads folder is

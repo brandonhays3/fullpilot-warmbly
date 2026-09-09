@@ -1,4 +1,4 @@
-// Warmbly MCP server (server direction). Exposes the shared tool registry over
+// Fullpilot MCP server (server direction). Exposes the shared tool registry over
 // the MCP streamable-HTTP transport at POST /api/v1/mcp, authenticated by an API
 // key. Each tool is gated by its RequiredAPIPerm bits, tools/list reflects only
 // what the key's permission mask allows, and send-class tools are never exposed.

@@ -199,7 +199,7 @@ func (s *emailService) GetTrackingDomain(ctx context.Context, orgID, emailAccoun
 		status.Message = "No custom tracking domain is set, so opens and clicks go through the shared tracking host."
 	case target == "":
 		status.Status = trackdns.CodeNoTarget
-		status.Message = "This Warmbly install has no tracking host configured, so there is nothing to point a CNAME at yet. Ask your administrator to set TRACKING_DOMAIN."
+		status.Message = "This Fullpilot install has no tracking host configured, so there is nothing to point a CNAME at yet. Ask your administrator to set TRACKING_DOMAIN."
 	case account.TrackingDomainVerified:
 		status.Status = trackdns.CodeVerified
 		status.Message = fmt.Sprintf("%s points at %s.", account.TrackingDomain, target)

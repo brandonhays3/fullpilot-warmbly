@@ -133,7 +133,7 @@ func TestGenerateRegistrationCodeHTML(t *testing.T) {
 		substr string
 	}{
 		{"contains the verification code", code},
-		{"welcome heading", "Welcome to Warmbly"},
+		{"welcome heading", "Welcome to Fullpilot"},
 		{"registration prompt", "finish creating your account"},
 		{"expiry notice", "Expires in 15 minutes"},
 		{"title tag", "<title>Your Verification Code</title>"},
@@ -323,7 +323,7 @@ func TestGenerateTrialExpiredHTML(t *testing.T) {
 		"Your free trial has ended",
 		"Choose a plan</a>",
 		AppURL + "/settings/billing", // billing CTA href
-		"<title>Your Warmbly trial has ended</title>",
+		"<title>Your Fullpilot trial has ended</title>",
 	}
 	for _, s := range checks {
 		if !strings.Contains(html, s) {
@@ -379,7 +379,7 @@ func TestGenerateNotificationHTML_WithCTA(t *testing.T) {
 		"#f5f6f8",
 		"New sign-in",
 		"Signed in from Chrome.",
-		"Open in Warmbly</a>", // default CTA label
+		"Open in Fullpilot</a>", // default CTA label
 		AppURL + "/app/settings/security",
 		"<title>New sign-in</title>",
 	}
@@ -395,7 +395,7 @@ func TestGenerateNotificationHTML_NoCTA(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GenerateNotificationHTML returned error: %v", err)
 	}
-	if strings.Contains(html, "Open in Warmbly") {
+	if strings.Contains(html, "Open in Fullpilot") {
 		t.Error("notification: no button should render when ctaURL is empty")
 	}
 }

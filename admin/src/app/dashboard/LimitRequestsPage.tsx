@@ -390,7 +390,7 @@ export default function LimitRequestsPage() {
                     sort={sort.by ? sort : undefined}
                     onSortChange={setSort}
                     storageKey="admin.limit-requests"
-                    csvName="warmbly-limit-requests"
+                    csvName="fullpilot-limit-requests"
                     noun="requests"
                     emptyTitle="No limit requests"
                     emptyHint="No requests match these filters."

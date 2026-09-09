@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	issuer        = "Warmbly"
+	issuer        = "Fullpilot"
 	pendingTTL    = 5 * time.Minute
 	maxTries      = 5  // per pending-session code attempts
 	ipLimit       = 20 // verify attempts per IP per window

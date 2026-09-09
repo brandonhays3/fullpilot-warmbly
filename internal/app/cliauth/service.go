@@ -123,7 +123,7 @@ func clip(s string, n int) string {
 func (s *service) StartCode(ctx context.Context, req models.CLIAuthStartRequest) (*models.CLIAuthStartResponse, *errx.Error) {
 	req.ClientName = clip(req.ClientName, 60)
 	if req.ClientName == "" {
-		req.ClientName = "Warmbly CLI"
+		req.ClientName = "Fullpilot CLI"
 	}
 	req.Hostname = clip(req.Hostname, 80)
 	req.CLIVersion = clip(req.CLIVersion, 40)

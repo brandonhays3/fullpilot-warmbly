@@ -185,7 +185,7 @@ func (o *Orchestrator) RenderEnrollmentEnv(ctx context.Context, workerID uuid.UU
 		return "", "", err
 	}
 	var b strings.Builder
-	b.WriteString("# Warmbly worker enrollment config\n")
+	b.WriteString("# Fullpilot worker enrollment config\n")
 	b.WriteString("WORKER_ID=")
 	b.WriteString(workerID.String())
 	b.WriteString("\n")
