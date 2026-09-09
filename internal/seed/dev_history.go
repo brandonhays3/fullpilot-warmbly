@@ -204,10 +204,10 @@ func seedDevUnibox(ctx context.Context, pool *pgxpool.Pool) error {
 		}
 	}
 
-	sender := "Dev Sender <dev.send@warmbly.test>"
-	outbound := "Dev Outbound <dev.outbound@warmbly.test>"
-	growth := "Dev Growth <dev.growth@warmbly.test>"
-	partners := "Dev Partners <dev.partners@warmbly.test>"
+	sender := "Dev Sender <dev.send@fullpilot.test>"
+	outbound := "Dev Outbound <dev.outbound@fullpilot.test>"
+	growth := "Dev Growth <dev.growth@fullpilot.test>"
+	partners := "Dev Partners <dev.partners@fullpilot.test>"
 
 	msgs := []devUniboxMsg{
 		// Positive pricing thread with Mira (reply chain, 3 messages).
@@ -216,12 +216,12 @@ func seedDevUnibox(ctx context.Context, pool *pgxpool.Pool) error {
 			"Re: Quick question about outbound at Lumina Labs",
 			"This is timely. We are re-evaluating our outbound stack this quarter. What does the team plan cost for 8 seats?",
 			true, 2.6},
-		{DevMailboxSendID, "dev-thread-mira", "<dev-mira-2@warmbly.test>", "<dev-mira-1@lumina-labs.test>", 112,
+		{DevMailboxSendID, "dev-thread-mira", "<dev-mira-2@fullpilot.test>", "<dev-mira-1@lumina-labs.test>", 112,
 			sender, "Mira Kovacs <mira.kovacs@lumina-labs.test>",
 			"Re: Quick question about outbound at Lumina Labs",
 			"Great to hear. For 8 seats the team plan lands at $340/mo, and I attached the placement report we run for every mailbox.",
 			true, 2.4},
-		{DevMailboxSendID, "dev-thread-mira", "<dev-mira-3@lumina-labs.test>", "<dev-mira-2@warmbly.test>", 113,
+		{DevMailboxSendID, "dev-thread-mira", "<dev-mira-3@lumina-labs.test>", "<dev-mira-2@fullpilot.test>", 113,
 			"Mira Kovacs <mira.kovacs@lumina-labs.test>", sender,
 			"Re: Quick question about outbound at Lumina Labs",
 			"The report is exactly what our COO wants to see. Can you hold that price until the end of the month?",
@@ -232,7 +232,7 @@ func seedDevUnibox(ctx context.Context, pool *pgxpool.Pool) error {
 			"Re: Quick question about outbound at Fieldstone",
 			"We already route everything through our CRM's sending add-on. Not sure what you would add on top of that.",
 			true, 3.4},
-		{DevMailboxOutboundID, "dev-thread-jonas", "<dev-jonas-2@warmbly.test>", "<dev-jonas-1@fieldstone.test>", 212,
+		{DevMailboxOutboundID, "dev-thread-jonas", "<dev-jonas-2@fullpilot.test>", "<dev-jonas-1@fieldstone.test>", 212,
 			outbound, "Jonas Weber <jonas.weber@fieldstone.test>",
 			"Re: Quick question about outbound at Fieldstone",
 			"Fair question. CRM add-ons send fine but rarely warm or monitor placement. Happy to run a free placement test on one mailbox so you can compare.",
@@ -250,13 +250,13 @@ func seedDevUnibox(ctx context.Context, pool *pgxpool.Pool) error {
 			"The message to omar.said@bluepeak.test could not be delivered. The recipient address was rejected by the server.",
 			false, 5.7},
 		// Warmup-style exchange (2 messages).
-		{DevMailboxPartnersID, "dev-thread-warmup", "<dev-warmup-1@warmbly-pool.test>", "", 411,
-			"Liam Farrell <liam.farrell@warmbly-pool.test>", partners,
+		{DevMailboxPartnersID, "dev-thread-warmup", "<dev-warmup-1@fullpilot-pool.test>", "", 411,
+			"Liam Farrell <liam.farrell@fullpilot-pool.test>", partners,
 			"Notes from the offsite",
 			"Thanks for sending those over. The planning doc matches what we discussed, I will pass it along to the team.",
 			true, 7.5},
-		{DevMailboxPartnersID, "dev-thread-warmup", "<dev-warmup-2@warmbly.test>", "<dev-warmup-1@warmbly-pool.test>", 412,
-			partners, "Liam Farrell <liam.farrell@warmbly-pool.test>",
+		{DevMailboxPartnersID, "dev-thread-warmup", "<dev-warmup-2@fullpilot.test>", "<dev-warmup-1@fullpilot-pool.test>", 412,
+			partners, "Liam Farrell <liam.farrell@fullpilot-pool.test>",
 			"Re: Notes from the offsite",
 			"Sounds good. Let me know if anything in the doc needs another pass before Friday.",
 			true, 7.3},
@@ -266,7 +266,7 @@ func seedDevUnibox(ctx context.Context, pool *pgxpool.Pool) error {
 			"Re: Quick question about outbound at Cinderworks",
 			"Thursday at 2pm works for a walkthrough. Send the invite and I will loop in our ops lead.",
 			false, 1.6},
-		{DevMailboxSendID, "dev-thread-nadia", "<dev-nadia-2@warmbly.test>", "<dev-nadia-1@cinderworks.test>", 115,
+		{DevMailboxSendID, "dev-thread-nadia", "<dev-nadia-2@fullpilot.test>", "<dev-nadia-1@cinderworks.test>", 115,
 			sender, "Nadia Osei <nadia.osei@cinderworks.test>",
 			"Re: Quick question about outbound at Cinderworks",
 			"Invite sent for Thursday 2pm. I included the pilot scope so your ops lead can skim it beforehand.",

@@ -35,7 +35,7 @@ var (
 // SandboxLoginEmail / SandboxLoginPassword are the dashboard credentials the
 // seeder prints; keep in sync with docs/content/docs/development/sandbox.mdx.
 const (
-	SandboxLoginEmail    = "sandbox@warmbly.test"
+	SandboxLoginEmail    = "sandbox@fullpilot.test"
 	SandboxLoginPassword = "password123"
 )
 
@@ -591,10 +591,10 @@ func seedCampaigns(ctx context.Context, pool *pgxpool.Pool) error {
 			steps: []stepSeed{
 				{uuid.MustParse("55555555-aaaa-0000-0000-000000000011"), "Intro",
 					"Quick question about {{.Company}}",
-					"Hi {{.FirstName}},\n\nWe just launched a tool that cuts outbound setup from weeks to minutes, and {{.Company}} came up twice in customer calls last month.\n\nWorth a quick look? Here is a two minute overview: https://warmbly.com/overview\n\nBest,\nSunrise team", 0},
+					"Hi {{.FirstName}},\n\nWe just launched a tool that cuts outbound setup from weeks to minutes, and {{.Company}} came up twice in customer calls last month.\n\nWorth a quick look? Here is a two minute overview: https://fullpilot.com/overview\n\nBest,\nSunrise team", 0},
 				{uuid.MustParse("55555555-aaaa-0000-0000-000000000012"), "Follow-up",
 					"Re: Quick question about {{.Company}}",
-					"Hi {{.FirstName}},\n\nFloating this back up. Happy to share the deliverability numbers from the beta if useful: https://warmbly.com/benchmarks\n\nBest,\nSunrise team", 2},
+					"Hi {{.FirstName}},\n\nFloating this back up. Happy to share the deliverability numbers from the beta if useful: https://fullpilot.com/benchmarks\n\nBest,\nSunrise team", 2},
 				{uuid.MustParse("55555555-aaaa-0000-0000-000000000013"), "Breakup",
 					"Closing the loop",
 					"Hi {{.FirstName}},\n\nSounds like the timing is off. I will stop here; if outbound comes back on the roadmap, you know where to find us.\n\nBest,\nSunrise team", 4},
@@ -607,7 +607,7 @@ func seedCampaigns(ctx context.Context, pool *pgxpool.Pool) error {
 			steps: []stepSeed{
 				{uuid.MustParse("55555555-aaaa-0000-0000-000000000021"), "Partner intro",
 					"Partnering with {{.Company}}",
-					"Hi {{.FirstName}},\n\nWe work with agencies like {{.Company}} on white-label sending infrastructure. Margins are meaningfully better than reselling seats.\n\nOpen to a short call? Details: https://warmbly.com/partners\n\nBest,\nSunrise partnerships", 0},
+					"Hi {{.FirstName}},\n\nWe work with agencies like {{.Company}} on white-label sending infrastructure. Margins are meaningfully better than reselling seats.\n\nOpen to a short call? Details: https://fullpilot.com/partners\n\nBest,\nSunrise partnerships", 0},
 				{uuid.MustParse("55555555-aaaa-0000-0000-000000000022"), "Partner follow-up",
 					"Re: Partnering with {{.Company}}",
 					"Hi {{.FirstName}},\n\nOne more nudge; the partner program closes new slots at the end of the quarter.\n\nBest,\nSunrise partnerships", 3},

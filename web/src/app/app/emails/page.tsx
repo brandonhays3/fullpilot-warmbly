@@ -78,9 +78,9 @@ const HEALTH_RANK: Record<string, number> = { healthy: 0, warning: 1, error: 2 }
 function healthTone(status?: AccountStatus): { dot: string; text: string; label: string; pulse: boolean } {
     const h = status?.health;
     if (!h) return { dot: "bg-slate-300", text: "text-slate-500", label: "—", pulse: false };
-    if (h.status === "healthy") return { dot: "bg-emerald-500", text: "text-emerald-600", label: `Healthy ${h.score}`, pulse: false };
-    if (h.status === "warning") return { dot: "bg-amber-500", text: "text-amber-600", label: `At risk ${h.score}`, pulse: true };
-    return { dot: "bg-rose-500", text: "text-rose-600", label: `Issue ${h.score}`, pulse: true };
+    if (h.status === "healthy") return { dot: "bg-emerald-500", text: "text-emerald-600", label: `Healthy ${h.score}%`, pulse: false };
+    if (h.status === "warning") return { dot: "bg-amber-500", text: "text-amber-600", label: `At risk ${h.score}%`, pulse: true };
+    return { dot: "bg-rose-500", text: "text-rose-600", label: `Issue ${h.score}%`, pulse: true };
 }
 
 import AdvisorRowFlag from "@/components/app/advisor/AdvisorRowFlag";

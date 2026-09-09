@@ -30,10 +30,10 @@ installs web dependencies on first run, starts the realtime and tracking
 services as containers, and then runs the backend, consumer, worker, dashboard,
 and admin panel together in your terminal.
 
-Open `http://localhost:5173` and log in with `dev@warmbly.com` / `password123`.
+Open `http://localhost:5173` and log in with `dev@fullpilot.com` / `password123`.
 
 <Callout type="warn" title="make dev shares its database with make up">
-Both pin the same compose project (`-p warmbly`), the same `warmbly_postgres_data` volume and the same `warmbly_dev` database, and `make dev` seeds nine fixture accounts by default, including `admin@warmbly.local` with every platform admin permission and a published password.
+Both pin the same compose project (`-p warmbly`), the same `warmbly_postgres_data` volume and the same `warmbly_dev` database, and `make dev` seeds nine fixture accounts by default, including `admin@fullpilot.local` with every platform admin permission and a published password.
 
 Those accounts are your instance's accounts. Seeding therefore spends the first-run exemption permanently: a later `make up` finds a claimed instance, issues no setup link, and the sign-up form refuses you with `403 This server is invite only`. Recover with `warmblyctl user create --email you@example.com --admin`, or start over with `make reset`, which destroys the volumes holding the encryption keys.
 
@@ -173,7 +173,7 @@ Baseline (always loads):
 
 | Field | Value |
 |-------|-------|
-| Email | `dev@warmbly.com` |
+| Email | `dev@fullpilot.com` |
 | Password | `password123` |
 
 The dev user's org always loads as a mid-flight workspace, not an empty shell:

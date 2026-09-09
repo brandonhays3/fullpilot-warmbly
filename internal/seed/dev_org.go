@@ -1,6 +1,6 @@
 package seed
 
-// Dev-org enrichment. seedBaseline (cmd/seed) creates dev@warmbly.com with a
+// Dev-org enrichment. seedBaseline (cmd/seed) creates dev@fullpilot.com with a
 // nearly-empty org; SeedDevOrg turns that org into a mid-flight workspace:
 // four warmed mailboxes, labels with real bindings, ~30 contacts, an actively
 // sending campaign with funnel history, CRM, templates, credits, and
@@ -126,10 +126,10 @@ func seedDevMailboxes(ctx context.Context, pool *pgxpool.Pool) error {
 		name  string
 		tag   string
 	}{
-		{DevMailboxSendID, "dev.send@warmbly.test", "Dev Sender", "dev-warmup-a"},
-		{DevMailboxOutboundID, "dev.outbound@warmbly.test", "Dev Outbound", "dev-warmup-b"},
-		{DevMailboxGrowthID, "dev.growth@warmbly.test", "Dev Growth", "dev-warmup-c"},
-		{DevMailboxPartnersID, "dev.partners@warmbly.test", "Dev Partners", "dev-warmup-d"},
+		{DevMailboxSendID, "dev.send@fullpilot.test", "Dev Sender", "dev-warmup-a"},
+		{DevMailboxOutboundID, "dev.outbound@fullpilot.test", "Dev Outbound", "dev-warmup-b"},
+		{DevMailboxGrowthID, "dev.growth@fullpilot.test", "Dev Growth", "dev-warmup-c"},
+		{DevMailboxPartnersID, "dev.partners@fullpilot.test", "Dev Partners", "dev-warmup-d"},
 	}
 	for _, b := range boxes {
 		if _, err := pool.Exec(ctx, `
@@ -487,7 +487,7 @@ func seedDevReplyTemplates(ctx context.Context, pool *pgxpool.Pool) error {
 		pos   int
 	}{
 		{devTplYes, "Quick yes", "Sounds great, sending a calendar invite now. Talk soon.", 0},
-		{devTplCall, "Book a call", "Happy to walk you through it. Grab a slot here: https://cal.warmbly.test/dev", 1},
+		{devTplCall, "Book a call", "Happy to walk you through it. Grab a slot here: https://cal.fullpilot.test/dev", 1},
 		{devTplNo, "Polite no", "Thanks for the note. Not a fit right now, I will remove you from this list.", 2},
 	}
 	for _, t := range tpls {
@@ -713,8 +713,8 @@ func seedDevNotifications(ctx context.Context, pool *pgxpool.Pool) error {
 	}{
 		{"inbound_reply", "Mira Kovacs replied", "New reply on RevOps outreach - July.", "/app/inbox", false, 0.2},
 		{"campaign_started", "RevOps outreach - July is live", "Your campaign started sending from 2 mailboxes.", "/app/campaigns", true, 13.9},
-		{"mailbox_connected", "dev.partners@warmbly.test connected", "SMTP and IMAP checks passed. Warmup has started.", "/app/emails", true, 8.0},
-		{"warmup_milestone", "Warmup ramping nicely", "dev.send@warmbly.test reached 30 warmup emails per day.", "/app/emails", true, 2.0},
+		{"mailbox_connected", "dev.partners@fullpilot.test connected", "SMTP and IMAP checks passed. Warmup has started.", "/app/emails", true, 8.0},
+		{"warmup_milestone", "Warmup ramping nicely", "dev.send@fullpilot.test reached 30 warmup emails per day.", "/app/emails", true, 2.0},
 		{"credits_low", "Monthly credits ran low", "You used 80% of the monthly allowance, so we drew on your purchased credits.", "/app/settings/billing", false, 4.0},
 	}
 	for i, n := range notifs {

@@ -19,8 +19,8 @@ func seedOrganizations(ctx context.Context, pool *pgxpool.Pool, r *Result) error
 	// Slugs are namespaced "warmbly-..." to avoid colliding with main's
 	// seedRich, which uses bare "acme"/"beta"/"gamma".
 	orgs := []org{
-		{OrgAcmeID, "Fullpilot Pro Demo", "warmbly-pro-demo", UserOwnerID, "pro"},
-		{OrgGlobexID, "Fullpilot Trial Demo", "warmbly-trial-demo", UserFounderID, "free-trial"},
+		{OrgAcmeID, "Fullpilot Pro Demo", "fullpilot-pro-demo", UserOwnerID, "pro"},
+		{OrgGlobexID, "Fullpilot Trial Demo", "fullpilot-trial-demo", UserFounderID, "free-trial"},
 	}
 
 	for _, o := range orgs {
@@ -81,7 +81,7 @@ func seedOrganizations(ctx context.Context, pool *pgxpool.Pool, r *Result) error
 		ON CONFLICT (organization_id, email) DO UPDATE SET
 			token = EXCLUDED.token,
 			expires_at = EXCLUDED.expires_at
-	`, inviteID, OrgAcmeID, "pending-invite@warmbly.local",
+	`, inviteID, OrgAcmeID, "pending-invite@fullpilot.local",
 		models.RolePermissions[models.RoleManager],
 		UserOwnerID, "seed-invite-token-acme-pending-0001")
 	return err

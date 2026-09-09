@@ -23,7 +23,7 @@ export function SkyChrome() {
             {/* Base tint — clean neutral, a half-step darker than white.
                 Avoid blue-leaning here; the only colour cue is the soft
                 clouds above. */}
-            <div className="absolute inset-0 bg-[#f5f6f8]" />
+            <div className="absolute inset-0 bg-[#f5f7f9]" />
 
             {/* Faint cloud blobs. Positioned to suggest a softly clouded
                 sky in the upper half. Generous blur radius + low alpha

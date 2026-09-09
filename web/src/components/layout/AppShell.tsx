@@ -67,10 +67,10 @@ export function AppShell() {
                     <AppNav open={navOpen} onClose={() => setNavOpen(false)} />
 
                     {/* Content panel — pure white work surface. The inner
-                        corner is softened (rounded-tl-2xl) only on >=md, where
+                        corner is square; the left hairline shows only on >=md, where
                         the sidebar sits beside it; on mobile the panel is
                         full-bleed with just a top hairline. */}
-                    <main className="flex-1 min-w-0 bg-white overflow-hidden border-t border-slate-200/70 md:rounded-tl-2xl md:border-l">
+                    <main className="flex-1 min-w-0 bg-white overflow-hidden border-t border-slate-200/70 md:border-l">
                         <GlobalCursorsProvider scrollRef={scrollRef}>
                             <div ref={scrollRef} className="h-full overflow-auto">
                                 <RouteBoundary>

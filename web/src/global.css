@@ -21,6 +21,32 @@
   --color-sky-800: #0a3c85;
   --color-sky-900: #0b336c;
   --color-sky-950: #071f45;
+
+  /* Neutrals: the app is written in `slate-*`; these are Fullpilot's greys
+     (Tailwind gray) with the brand navy at the dark end. */
+  --color-slate-50: #f9fafb;
+  --color-slate-100: #f3f4f6;
+  --color-slate-200: #e5e7eb;
+  --color-slate-300: #d1d5db;
+  --color-slate-400: #9ca3af;
+  --color-slate-500: #6b7280;
+  --color-slate-600: #4b5563;
+  --color-slate-700: #374151;
+  --color-slate-800: #1f2937;
+  --color-slate-900: #02101e;
+  --color-slate-950: #02101e;
+
+  /* Softer, shorter shadows than the shadcn defaults. */
+  --shadow-2xs: 0 1px 1px 0 rgb(2 16 30 / 0.03);
+  --shadow-xs: 0 1px 2px 0 rgb(2 16 30 / 0.04);
+  --shadow-sm: 0 1px 2px 0 rgb(2 16 30 / 0.05), 0 1px 3px -1px rgb(2 16 30 / 0.04);
+  --shadow-md: 0 2px 6px -1px rgb(2 16 30 / 0.06), 0 1px 2px -1px rgb(2 16 30 / 0.04);
+  --shadow-lg: 0 8px 20px -6px rgb(2 16 30 / 0.10), 0 2px 6px -2px rgb(2 16 30 / 0.05);
+  --shadow-xl: 0 16px 32px -10px rgb(2 16 30 / 0.14), 0 4px 10px -4px rgb(2 16 30 / 0.06);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 12px;
 }
 
 @layer base {
@@ -30,38 +56,40 @@
 }
 
 :root {
-  --radius: 0.5rem;
-  --foreground: oklch(0.15 0.01 260);
-  --background: oklch(1 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.01 260);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.01 260);
-  --primary: oklch(0.45 0.01 260);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.96 0.005 260);
-  --secondary-foreground: oklch(0.25 0.01 260);
-  --muted: oklch(0.97 0.003 260);
-  --muted-foreground: oklch(0.55 0.01 260);
-  --accent: oklch(0.96 0.005 260);
-  --accent-foreground: oklch(0.20 0.01 260);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.005 260);
-  --input: oklch(0.92 0.005 260);
-  --ring: oklch(0.55 0.01 260);
-  --chart-1: oklch(0.55 0.15 250);
-  --chart-2: oklch(0.60 0.12 160);
-  --chart-3: oklch(0.65 0.10 30);
-  --chart-4: oklch(0.50 0.14 300);
-  --chart-5: oklch(0.58 0.08 200);
-  --sidebar: oklch(0.98 0.002 260);
-  --sidebar-foreground: oklch(0.15 0.01 260);
-  --sidebar-primary: oklch(0.45 0.01 260);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.96 0.005 260);
-  --sidebar-accent-foreground: oklch(0.20 0.01 260);
-  --sidebar-border: oklch(0.92 0.005 260);
-  --sidebar-ring: oklch(0.55 0.01 260);
+  /* Fullpilot palette (from fullpilotv2/apps/dashboard globals.css): plain
+     neutral greys, near-black navy text, brand blue for primary and focus. */
+  --radius: 12px;
+  --foreground: #02101e;
+  --background: #ffffff;
+  --card: #ffffff;
+  --card-foreground: #02101e;
+  --popover: #ffffff;
+  --popover-foreground: #02101e;
+  --primary: #0c58c6;
+  --primary-foreground: #ffffff;
+  --secondary: #171717;
+  --secondary-foreground: #ffffff;
+  --muted: #f9fafb;
+  --muted-foreground: #6b7280;
+  --accent: #f3f4f6;
+  --accent-foreground: #02101e;
+  --destructive: #ef4444;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #0c58c6;
+  --chart-1: #0c58c6;
+  --chart-2: #6b7280;
+  --chart-3: #3b82f6;
+  --chart-4: #9ca3af;
+  --chart-5: #1d4ed8;
+  --sidebar: #f5f7f9;
+  --sidebar-foreground: #02101e;
+  --sidebar-primary: #0c58c6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ebeef1;
+  --sidebar-accent-foreground: #02101e;
+  --sidebar-border: #d5d7d8;
+  --sidebar-ring: #0c58c6;
 }
 
 .dark {

@@ -129,7 +129,7 @@ up:
 	@$(MAKE) --no-print-directory claim
 	@echo "  Dashboard: $(DASHBOARD_URL)     Admin: $(ADMIN_URL)"
 	@echo "  Health:    make doctor               Logs:  make logs"
-	@echo "  Demo data: make seed-demo            Guide: https://docs.warmbly.com/development/first-run/"
+	@echo "  Demo data: make seed-demo            Guide: https://fullpilot.com/development/first-run/"
 
 # The by-hand equivalent of "Update and restart" in the admin panel: move the
 # checkout forward, rebuild, recreate what changed. Migrations apply on boot.
@@ -190,7 +190,7 @@ claim:
 		echo "  Already have an account?  $(DASHBOARD_URL)"; \
 		echo "  Lost the password?        $(COMPOSE) exec backend warmblyctl user reset-password --email you@example.com"; \
 		echo "  See everything:           make doctor"; \
-		echo "  Why:                      https://docs.warmbly.com/development/first-run/"; \
+		echo "  Why:                      https://fullpilot.com/development/first-run/"; \
 	fi
 	@echo ""
 
@@ -231,7 +231,7 @@ seed-demo:
 #   make sandbox SEED=false       # keep existing data, just run the stack
 #
 # Ctrl-C stops the app; infra (incl. mailpit + dovecot) stays up. Log in with
-# sandbox@warmbly.test / password123. Docs: /development/sandbox/.
+# sandbox@fullpilot.test / password123. Docs: /development/sandbox/.
 SANDBOX_SVCS := postgres redis nats mailpit dovecot
 sandbox:
 	@command -v docker >/dev/null || { echo "docker is required: https://docs.docker.com/get-docker/"; exit 1; }
@@ -254,7 +254,7 @@ sandbox:
 	@BACKEND_INTERNAL_URL=http://host.docker.internal:8080 $(COMPOSE) up -d --build realtime tracking
 	@echo ""
 	@echo "Sandbox up. Dashboard http://localhost:5173  Admin http://localhost:5174  Mailpit http://localhost:18025"
-	@echo "Login: sandbox@warmbly.test / password123 (org: Sunrise Labs). Ctrl-C stops the app; infra stays up."
+	@echo "Login: sandbox@fullpilot.test / password123 (org: Sunrise Labs). Ctrl-C stops the app; infra stays up."
 	@echo ""
 	@trap 'kill 0' INT TERM; \
 	$(MAKE) --no-print-directory backend & \
@@ -296,7 +296,7 @@ sandbox-seed:
 # backend image, just `make infra` plus migrations applied (`make migrate`,
 # `make backend`, or `make run`). SEED_RICH/SEED_FULL match the old docker
 # seed profile: baseline + 3 orgs/workers/mailboxes + plans, team users
-# (incl. the admin@warmbly.local super-admin), CRM, and an API key.
+# (incl. the admin@fullpilot.local super-admin), CRM, and an API key.
 seed:
 	$(GO_DEV_ENV) SEED_RICH=true SEED_FULL=true go run ./cmd/seed
 
@@ -319,7 +319,7 @@ seed-plan:
 	$(COMPOSE) exec -T postgres psql -U warmbly -d warmbly_dev \
 		-v plan_id="$$plan_id" -v status="$$status" -v stripe_sub="$$stripe_sub" -v price="$$price" \
 		-c "INSERT INTO subscriptions (id, user_id, organization_id, plan_id, stripe_customer_id, stripe_subscription_id, stripe_price_id, status, current_period_start, current_period_end, free_trial_started_at, free_trial_ends_at, is_enterprise, created_at, updated_at) VALUES ('88888888-0000-0000-0000-000000000001', '11111111-0000-0000-0000-000000000001', '22222222-0000-0000-0000-000000000001', :'plan_id', 'cus_seed_dev', NULLIF(:'stripe_sub', ''), NULLIF(:'price', ''), :'status', NOW(), NOW() + INTERVAL '30 days', CASE WHEN :'status' = 'trialing' THEN NOW() ELSE NULL END, CASE WHEN :'status' = 'trialing' THEN NOW() + INTERVAL '14 days' ELSE NULL END, :'plan_id' = '00000000-0000-0000-0000-000000000130', NOW(), NOW()) ON CONFLICT (organization_id) DO UPDATE SET plan_id = EXCLUDED.plan_id, stripe_subscription_id = EXCLUDED.stripe_subscription_id, stripe_price_id = EXCLUDED.stripe_price_id, status = EXCLUDED.status, current_period_start = EXCLUDED.current_period_start, current_period_end = EXCLUDED.current_period_end, free_trial_started_at = EXCLUDED.free_trial_started_at, free_trial_ends_at = EXCLUDED.free_trial_ends_at, is_enterprise = EXCLUDED.is_enterprise, updated_at = NOW();"
-	@echo "Seeded dev organization switched to $(PLAN). Log in as dev@warmbly.com / password123."
+	@echo "Seeded dev organization switched to $(PLAN). Log in as dev@fullpilot.com / password123."
 
 # Stop services, keep volumes.
 stop:
@@ -581,7 +581,7 @@ GO_DEV_ENV := \
 	REDIS=redis://$(INFRA_HOST):16379 \
 	MAIL_TRANSPORT=smtp \
 	EMAIL_NAME='Warmbly Dev' \
-	EMAIL_ADDRESS=dev@warmbly.local \
+	EMAIL_ADDRESS=dev@fullpilot.local \
 	SMTP_HOST=$(INFRA_HOST) \
 	SMTP_PORT=11025 \
 	SMTP_SECURITY=none
@@ -615,7 +615,7 @@ backend:
 	WEBSOCKET_URL=ws://$(WEB_HOST):4000/socket/websocket \
 	AUTH_SECRET=local-dev-auth-secret-minimum-32-characters-long \
 	EMAIL_NAME='Warmbly Dev' \
-	EMAIL_ADDRESS=dev@warmbly.local \
+	EMAIL_ADDRESS=dev@fullpilot.local \
 	TRACKING_DOMAIN=$(INFRA_HOST):3000 \
 	MAIL_TRANSPORT=smtp \
 	SMTP_HOST=$(INFRA_HOST) \
@@ -733,7 +733,7 @@ installer-demo:
 #   make dev SEED=false           # skip fixture seeding (see the warning below)
 #   make dev AI_PROVIDER=ollama   # with the AI assistant on (see AI env above)
 #
-# Log in with dev@warmbly.com / password123 (from the seed fixtures). For the
+# Log in with dev@fullpilot.com / password123 (from the seed fixtures). For the
 # fully populated demo org instead, use `make sandbox`.
 #
 # SEEDING IS NOT REVERSIBLE FOR SELF-HOST PURPOSES. `make dev` and `make up`
@@ -755,7 +755,7 @@ dev:
 		echo "   Seeding fixture accounts into warmbly_dev."; \
 		echo ""; \
 		echo "   This is the SAME database and volume that 'make up' self-hosts"; \
-		echo "   from. It writes 9 accounts, including admin@warmbly.local with"; \
+		echo "   from. It writes 9 accounts, including admin@fullpilot.local with"; \
 		echo "   every platform admin permission and a password published in this"; \
 		echo "   repository."; \
 		echo ""; \
@@ -765,7 +765,7 @@ dev:
 		echo "     make cli ARGS=\"user create --email you@example.com --admin\""; \
 		echo ""; \
 		echo "   Skip seeding with:  make dev SEED=false"; \
-		echo "   Why: https://docs.warmbly.com/development/first-run/"; \
+		echo "   Why: https://fullpilot.com/development/first-run/"; \
 		echo "  ==================================================================="; \
 		echo ""; \
 	fi
@@ -776,7 +776,7 @@ dev:
 	@BACKEND_INTERNAL_URL=http://host.docker.internal:8080 $(COMPOSE) up -d --build realtime tracking
 	@echo ""
 	@echo "Starting backend + forms + consumer + worker + dashboard + admin. Ctrl-C stops them (infra stays up)."
-	@echo "Dashboard: $(DASHBOARD_URL)    Admin: $(ADMIN_URL)    Login: dev@warmbly.com / password123"
+	@echo "Dashboard: $(DASHBOARD_URL)    Admin: $(ADMIN_URL)    Login: dev@fullpilot.com / password123"
 	@echo ""
 	@trap 'kill 0' INT TERM; \
 	$(MAKE) --no-print-directory backend & \

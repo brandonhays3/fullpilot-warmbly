@@ -81,7 +81,7 @@ Both pin the same compose project (`-p warmbly`), the same `warmbly_postgres_dat
   Already have an account?  http://localhost:5173
   Lost the password?        docker compose -p warmbly exec backend warmblyctl user reset-password --email you@example.com
   See everything:           make doctor
-  Why:                      https://docs.warmbly.com/development/first-run/
+  Why:                      https://fullpilot.com/development/first-run/
 ```
 
 That command creates the account, an organization and a trial, and grants every platform admin bit. The password is the one you type: it prompts for it twice on a terminal, and refuses on a non-TTY rather than creating a passwordless account, so pass `--password-stdin` from a script. Then sign in at `APP_URL` with that password. See [user create](/development/warmblyctl/#user-create).
@@ -206,10 +206,10 @@ Full detail, including which values must be identical across services: [secrets]
 make seed-demo
 ```
 
-Loads the showcase workspace: mailboxes, campaigns, contacts and two weeks of history, with `dev@warmbly.com` / `password123` as the everyday login.
+Loads the showcase workspace: mailboxes, campaigns, contacts and two weeks of history, with `dev@fullpilot.com` / `password123` as the everyday login.
 
 <Callout type="warn" title="The demo seed plants a published super-admin credential">
-`make seed-demo` runs with `SEED_FULL=true`, which also inserts `admin@warmbly.local` with the password `Test1234!`, **every platform admin permission**, and a full-access API key whose secret is a constant in this repository. All three values are public. Never run it on an instance anyone else can reach, and if you already did, delete that account and revoke the key before you expose the instance.
+`make seed-demo` runs with `SEED_FULL=true`, which also inserts `admin@fullpilot.local` with the password `Test1234!`, **every platform admin permission**, and a full-access API key whose secret is a constant in this repository. All three values are public. Never run it on an instance anyone else can reach, and if you already did, delete that account and revoke the key before you expose the instance.
 </Callout>
 
 Seeding also spends the first-launch exemption, so a seeded instance never issues a claim link again. That is fine when you seeded on purpose; it is the surprise described in [if the instance already has accounts](#if-the-instance-already-has-accounts) when you did not.

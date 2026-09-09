@@ -1733,7 +1733,7 @@ func main() {
 		// freshly onboarded account send/sync and re-seeds a restarted worker.
 		go emailService.StartWorkerReconciler(ctx, 60*time.Second)
 
-		// Unibox search backfill: record the searchable text of messages synced
+		// Unified Inbox search backfill: record the searchable text of messages synced
 		// before bodies were indexed, so search covers the whole archive and not
 		// just new mail. Walks the table once, then returns.
 		go uniboxService.StartBodyTextBackfill(ctx)
@@ -1840,7 +1840,7 @@ func main() {
 
 		// Seed inbox-placement testing: send a tokenized copy of a template
 		// through a real sender to the seed panel, then classify where it landed
-		// by looking the token up in each seed's synced unibox entries.
+		// by looking the token up in each seed's synced unified inbox entries.
 		placementRepository = repository.NewPlacementRepository(primaryDB)
 		placementService = placement.NewService(placementRepository, emailRepostory, emailSender)
 		placementPoller := jobs.NewPlacementPoller(placementService, 2*time.Minute)

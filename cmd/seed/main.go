@@ -160,7 +160,7 @@ func seedBaseline(ctx context.Context, pool *pgxpool.Pool) error {
 			return fmt.Errorf("dev pool join %s: %w", a.email, err)
 		}
 	}
-	// Dev-org contacts that match the unibox senders below, so opening those
+	// Dev-org contacts that match the unified inbox senders below, so opening those
 	// threads resolves to a real contact in the CRM panel instead of
 	// "Not a known contact". The mailer-daemon bounce stays a non-contact.
 	devContacts := []struct {

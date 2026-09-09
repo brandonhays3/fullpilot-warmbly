@@ -212,7 +212,7 @@ func seedDevFormFunnel(ctx context.Context, pool *pgxpool.Pool) error {
 			) VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7, now() - make_interval(days => $8, hours => 2))
 			ON CONFLICT (id) DO NOTHING
 		`, devFormSubmissionID(i+1), devFormDemo, DevOrgID, contact, DevCampaignActiveID,
-			data, "https://forms.warmbly.com/f/"+devFormDemoPublicID, 18-i); err != nil {
+			data, "https://forms.portal.fullpilot.com/f/"+devFormDemoPublicID, 18-i); err != nil {
 			return fmt.Errorf("form submission %d: %w", i, err)
 		}
 	}

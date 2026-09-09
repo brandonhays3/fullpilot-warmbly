@@ -24,11 +24,11 @@ func seedUsers(ctx context.Context, pool *pgxpool.Pool, r *Result) error {
 		role      string
 	}
 	users := []user{
-		{UserAdminID, "Super", "Admin", "admin@warmbly.local", uint32(models.AllAdminPermissions), "super-admin"},
-		{UserOwnerID, "Olivia", "Owner", "owner@warmbly.local", 0, "org-owner"},
-		{UserFounderID, "Frank", "Founder", "founder@warmbly.local", 0, "trial-owner"},
-		{UserManagerID, "Marco", "Manager", "manager@warmbly.local", 0, "org-manager"},
-		{UserViewerID, "Vera", "Viewer", "viewer@warmbly.local", 0, "org-viewer"},
+		{UserAdminID, "Super", "Admin", "admin@fullpilot.local", uint32(models.AllAdminPermissions), "super-admin"},
+		{UserOwnerID, "Olivia", "Owner", "owner@fullpilot.local", 0, "org-owner"},
+		{UserFounderID, "Frank", "Founder", "founder@fullpilot.local", 0, "trial-owner"},
+		{UserManagerID, "Marco", "Manager", "manager@fullpilot.local", 0, "org-manager"},
+		{UserViewerID, "Vera", "Viewer", "viewer@fullpilot.local", 0, "org-viewer"},
 	}
 
 	for _, u := range users {

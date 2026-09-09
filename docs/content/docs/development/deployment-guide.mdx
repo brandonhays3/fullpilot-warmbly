@@ -116,10 +116,10 @@ To explore a populated workspace instead of an empty one:
 make seed-demo
 ```
 
-That creates `dev@warmbly.com` / `password123` along with mailboxes, campaigns, contacts, and two weeks of history. It builds the seed image each time on purpose: `compose run` otherwise reuses a stale one, which fails against a newer database schema.
+That creates `dev@fullpilot.com` / `password123` along with mailboxes, campaigns, contacts, and two weeks of history. It builds the seed image each time on purpose: `compose run` otherwise reuses a stale one, which fails against a newer database schema.
 
 <Callout type="warn" title="The demo seed plants a published super-admin credential">
-It also inserts `admin@warmbly.local` with a published password, every platform admin permission, and a full-access API key whose secret is a constant in this repository. Never run it on an instance anyone else can reach. Detail in [first run](/development/first-run/#demo-data).
+It also inserts `admin@fullpilot.local` with a published password, every platform admin permission, and a full-access API key whose secret is a constant in this repository. Never run it on an instance anyone else can reach. Detail in [first run](/development/first-run/#demo-data).
 </Callout>
 
 For a demo where mail actually flows end to end, with sends, replies, opens, and clicks, see the [sandbox](/development/sandbox/).

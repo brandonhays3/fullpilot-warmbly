@@ -137,11 +137,11 @@ func seedExtraCampaigns(ctx context.Context, pool *pgxpool.Pool) error {
 		pos      int
 	}{
 		{seqCompleted1, campaignCompleted, "Announcement", "{{.Company}} + our spring release",
-			"Hi {{.FirstName}},\n\nOur spring release is live and a few things map directly to what {{.Company}} asked for. Two minute tour: https://warmbly.com/spring\n\nBest,\nSunrise team", 0, 0},
+			"Hi {{.FirstName}},\n\nOur spring release is live and a few things map directly to what {{.Company}} asked for. Two minute tour: https://fullpilot.com/spring\n\nBest,\nSunrise team", 0, 0},
 		{seqCompleted2, campaignCompleted, "Recap", "Re: {{.Company}} + our spring release",
-			"Hi {{.FirstName}},\n\nClosing the loop before the quarter ends. Full changelog: https://warmbly.com/changelog\n\nBest,\nSunrise team", 3, 1},
+			"Hi {{.FirstName}},\n\nClosing the loop before the quarter ends. Full changelog: https://fullpilot.com/changelog\n\nBest,\nSunrise team", 3, 1},
 		{seqPaused1, campaignPaused, "Heads up", "A quick heads up for {{.Company}}",
-			"Hi {{.FirstName}},\n\nWe shipped the workflow you flagged. Want a walkthrough? https://warmbly.com/workflows\n\nBest,\nSunrise team", 0, 0},
+			"Hi {{.FirstName}},\n\nWe shipped the workflow you flagged. Want a walkthrough? https://fullpilot.com/workflows\n\nBest,\nSunrise team", 0, 0},
 	}
 	for _, s := range seqs {
 		if _, err := pool.Exec(ctx, `
