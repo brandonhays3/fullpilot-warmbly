@@ -226,11 +226,14 @@ the Google Cloud Console, set `BOX_GOOGLE_CLIENT_ID/SECRET` (secret is in
 Secret Manager `warmbly-box-google-client-secret` v2), restart. The desktop
 client then becomes the "Connect through Thunderbird's client instead" link.
 
-Outlook = "Fullpilot Sequencer Outlook" Entra app (2db46e08-…, tenant common),
-`BOX_OUTLOOK_CLIENT_ID/SECRET`, secret in `warmbly-box-outlook-client-secret`.
-Its registered redirect URIs are unknown (Entra validates only after sign-in,
-so probing is inconclusive); `https://api.portal.fullpilot.com/addresses/outlook/callback`
-must be added in the Entra app for Outlook connects to work.
+Outlook (decided 2026-09-09, same reasoning) = Thunderbird's public Microsoft
+client `9e5f94bc-e8a4-4e73-b8be-63364c29d753`, configured as
+`BOX_OUTLOOK_DESKTOP_CLIENT_ID` with no secret and NO `BOX_OUTLOOK_CLIENT_*`.
+Redirect `http://127.0.0.1` (Entra ignores the port on loopback), paste flow.
+Warmbly requests Graph scopes (Mail.Send, Mail.ReadWrite, User.Read) on that
+client via dynamic consent. The Fullpilot "Sequencer Outlook" Entra app
+(2db46e08-…) is unused; its secret stays in `warmbly-box-outlook-client-secret`
+in case its redirect URIs are ever registered.
 
 Dead ends kept for the record: `app-engine.fullpilot.com` (old EmailEngine on
 AWS App Runner, service gone) now has an A record to 34.45.45.44 and a Caddy
