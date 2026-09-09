@@ -354,6 +354,31 @@ A `400` whose `code` is `storage_limit_reached` comes from `POST /campaigns/:id/
 - `GET /organization/current/limits` reports `storage.used_bytes` and `storage.limit_bytes`, and `storage.over_quota` when a plan change left the workspace above the quota. Existing attachments keep sending either way
 - Delete attachments you no longer need (`DELETE /campaigns/:id/attachments/:attachmentId`), or move to a paid plan for the larger quota
 
+#### `instantly_account_missing`
+
+A `409` whose `code` is `instantly_account_missing` comes from `POST /emails/{id}/warmup/start`, `POST /emails/{id}/warmup/resume`, or a `PATCH /emails/{id}` that sets `warmup` to `true`, on an instance where warmup runs through Instantly (`INSTANTLY_API_KEY` is set). The mailbox is a Google or Microsoft one that is not in the Instantly workspace, and Instantly's API cannot connect an OAuth mailbox on its own. Nothing changed: warmup stays off locally and in Instantly.
+
+```json
+{
+  "error": "Conflict",
+  "message": "This mailbox is not in your Instantly workspace yet. Add it at app.instantly.ai/app/accounts, then try again.",
+  "code": "instantly_account_missing",
+  "request_id": "4bbbd1b2-8f86-47dd-8a7f-9476501ad20e"
+}
+```
+
+**How to fix:**
+- Connect the mailbox in Instantly under Accounts, then repeat the request
+- SMTP and IMAP mailboxes never hit this: they are added to Instantly with their stored credentials
+
+#### `instantly_unavailable`
+
+A `503` whose `code` is `instantly_unavailable` means Instantly's API refused or did not answer a warmup call (look it up, add the mailbox, apply settings, enable, pause). The `message` carries Instantly's own reason when it gave one, for example a workspace without an active paid plan. The local warmup state was not changed.
+
+**How to fix:**
+- Read the `message`; a plan or scope problem needs fixing in Instantly
+- Otherwise wait and retry with exponential backoff
+
 #### `mailbox_worker_unreachable`
 
 A `503` whose `code` is `mailbox_worker_unreachable` comes from `DELETE /emails/{id}`. Disconnecting a mailbox has to reach the machine that syncs it before the record goes, because once the record is gone nothing can tell that machine to stop. When the instruction cannot be delivered, nothing is removed and the mailbox is left exactly as it was.

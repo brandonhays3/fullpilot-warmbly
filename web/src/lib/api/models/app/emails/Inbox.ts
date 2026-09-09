@@ -45,6 +45,8 @@ export default interface Inbox {
     warmup_start_time?: string;
     warmup_end_time?: string;
     warmup_days?: number;
+    /** Who warms the mailbox: the built-in pool, or Instantly through its API. */
+    warmup_provider?: "internal" | "instantly";
     created_at: Date;
     updated_at: Date;
 }

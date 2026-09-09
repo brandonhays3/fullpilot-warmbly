@@ -1,5 +1,5 @@
 import { RiFireLine, RiMoreLine } from "@remixicon/react";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -22,6 +22,7 @@ import type { CloudLinkMailboxRow } from "@/lib/api/models/app/cloudlink/CloudLi
 import buildError from "@/lib/helper/buildError";
 import type { AppError } from "@/lib/api/client/normalizeError";
 import BulkWarmupDialog from "@/components/app/emails/BulkWarmupDialog";
+import InstantlyAccountMissingDialog, { INSTANTLY_ACCOUNT_MISSING } from "@/components/app/emails/InstantlyAccountMissingDialog";
 import BulkTagPopover from "@/components/app/emails/BulkTagPopover";
 import type Tag from "@/lib/api/models/app/Tag";
 import type Inbox from "@/lib/api/models/app/emails/Inbox";
@@ -39,6 +40,7 @@ import {
     Settings2Icon,
     Trash2Icon,
     XIcon,
+    ZapIcon,
 } from "lucide-react";
 import { SearchInput } from "@/components/ui/field";
 import AnimatedNumber from "@/components/ui/AnimatedNumber";
@@ -504,6 +506,9 @@ function MailboxRow({
     const off = !box.warmup;
     const paused = !!box.warmup && !!box.warmup_paused_at;
     const active = !!box.warmup && !box.warmup_paused_at;
+    // Instantly warms this mailbox; the local numbers do not apply.
+    const viaInstantly = !!box.warmup && box.warmup_provider === "instantly";
+    const [instantlyMissing, setInstantlyMissing] = useState(false);
 
     const tone = healthTone(status);
     const ws = status?.warmup_status;
@@ -530,6 +535,8 @@ function MailboxRow({
         ? cloud?.cloud
             ? `${cloud.cloud.sent_today}/${cloud.cloud.warmup?.target_volume ?? cloud.cloud.settings.base}`
             : "Cloud"
+        : viaInstantly && active
+        ? "Instantly"
         : active
         ? `${ws?.current_volume ?? 0}/${ws?.target_volume ?? box.warmup_base}`
         : paused
@@ -541,6 +548,8 @@ function MailboxRow({
         ? cloudPaused
             ? "text-amber-600"
             : "text-sky-600"
+        : viaInstantly && active
+        ? "text-sky-600"
         : active
         ? "text-orange-600"
         : paused
@@ -552,7 +561,15 @@ function MailboxRow({
     const run = (action: "start" | "pause" | "resume", verb: string) => {
         life.mutate(action, {
             onSuccess: () => toast.success(`Warmup ${verb} for ${box.email}`),
-            onError: () => toast.error("Couldn't update warmup"),
+            onError: (e) => {
+                const err = e as unknown as AppError;
+                // Instantly does not know this mailbox yet: explain, do not just fail.
+                if (err.code === INSTANTLY_ACCOUNT_MISSING) {
+                    setInstantlyMissing(true);
+                    return;
+                }
+                toast.error(buildError(err));
+            },
         });
     };
 
@@ -635,6 +652,11 @@ function MailboxRow({
                         <CloudIcon className="w-3 h-3 shrink-0" />
                         <span>{warmupLabel}</span>
                     </span>
+                ) : viaInstantly && active ? (
+                    <span className="inline-flex items-center justify-end gap-1.5" title="Warmed by Instantly">
+                        <ZapIcon className="w-3 h-3 shrink-0" />
+                        <span>{warmupLabel}</span>
+                    </span>
                 ) : active ? (
                     <span className="inline-flex items-center justify-end gap-1.5">
                         <span className="campaign-grid shrink-0" aria-hidden />
@@ -676,11 +698,11 @@ function MailboxRow({
                                 disabled={life.isPending}
                                 className="w-6 h-6 flex items-center justify-center rounded hover:bg-slate-100 text-slate-400 hover:text-orange-600 transition-colors cursor-pointer disabled:opacity-50"
                             >
-                                {inCloud ? <CloudIcon className={`w-3.5 h-3.5 ${cloudPaused ? "text-amber-500" : "text-sky-600"}`} /> : <RiFireLine className={`w-3.5 h-3.5 ${active ? "text-orange-500" : paused ? "text-amber-500" : ""}`} />}
+                                {inCloud ? <CloudIcon className={`w-3.5 h-3.5 ${cloudPaused ? "text-amber-500" : "text-sky-600"}`} /> : viaInstantly && active ? <ZapIcon className="w-3.5 h-3.5 text-sky-600" /> : <RiFireLine className={`w-3.5 h-3.5 ${active ? "text-orange-500" : paused ? "text-amber-500" : ""}`} />}
                             </button>
                         </PopoverMenuTrigger>
                         <PopoverMenuContent minWidth={208}>
-                            <PopoverMenuLabel>Warmup · {inCloud ? (cloudPaused ? "Paused in cloud" : "Fullpilot Cloud") : active ? "Active" : paused ? "Paused" : "Off"}</PopoverMenuLabel>
+                            <PopoverMenuLabel>Warmup · {inCloud ? (cloudPaused ? "Paused in cloud" : "Fullpilot Cloud") : active ? (viaInstantly ? "Instantly" : "Active") : paused ? (viaInstantly ? "Paused in Instantly" : "Paused") : "Off"}</PopoverMenuLabel>
                             {inCloud && (
                                 <>
                                     <PopoverMenuItem
@@ -755,6 +777,12 @@ function MailboxRow({
                     </button>
                 </div>
             </td>
+            <InstantlyAccountMissingDialog
+                open={instantlyMissing}
+                email={box.email}
+                onClose={() => setInstantlyMissing(false)}
+                onRetry={() => life.mutateAsync("start")}
+            />
         </tr>
     );
 }

@@ -148,6 +148,10 @@ func (s *schedulerService) CalculateNextWarmupTime(ctx context.Context, accountI
 	//   2. The mailbox backs a live campaign — keep a small health-check
 	//      volume flowing even when warmup is paused/off so reputation
 	//      signals stay fresh while it sends cold outreach.
+	// Instantly warms this mailbox; not even the health-check lane runs locally.
+	if account.WarmsViaInstantly() {
+		return time.Time{}, ErrWarmupNotEnabled
+	}
 	activelyWarming := account.IsWarmingActive()
 	inCampaign := s.accountInActiveCampaign(ctx, accountID)
 	if !activelyWarming && !inCampaign {
