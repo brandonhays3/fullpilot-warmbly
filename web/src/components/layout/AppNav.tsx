@@ -231,7 +231,7 @@ function NavRow({ item }: { item: NavItem }) {
             className={cn(
                 "group mx-2 flex items-center gap-2.5 px-2.5 h-7 rounded-md text-[12.5px] transition-colors duration-100",
                 active
-                    ? "bg-slate-200/70 text-slate-900 font-medium"
+                    ? "bg-sky-50 text-sky-700 font-medium"
                     : locked
                         ? "text-slate-400 hover:text-slate-700 hover:bg-slate-200/40"
                         : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/40",
@@ -241,7 +241,7 @@ function NavRow({ item }: { item: NavItem }) {
                 className={cn(
                     "w-[14px] h-[14px] shrink-0 transition-colors",
                     active
-                        ? "text-slate-700"
+                        ? "text-sky-600"
                         : locked
                             ? "text-slate-300 group-hover:text-slate-500"
                             : "text-slate-400 group-hover:text-slate-600",

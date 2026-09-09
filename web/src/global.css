@@ -21,6 +21,11 @@
   --color-sky-900: #0b336c;
   --color-sky-950: #071f45;
 
+  /* Hierarchy by weight, not only by grey: medium reads as 600 and
+     semibold as 700 so titles and labels stand apart from helper copy. */
+  --font-weight-medium: 600;
+  --font-weight-semibold: 700;
+
   /* Neutrals: the app is written in `slate-*`; these are Fullpilot's greys
      (Tailwind gray) with the brand navy at the dark end. */
   --color-slate-50: #f9fafb;
@@ -364,7 +369,6 @@ svg.loading circle {
     19px -19px 0 0px, 38px -19px 0 0px, 57px -19px 0 0px,
     19px 0     0 5px, 38px 0     0 5px, 57px 0     0 5px,
     19px 19px  0 0px, 38px 19px  0 0px, 57px 19px  0 0px;
-  animation: campaign-grid 3.5s infinite linear;
 }
 
 @keyframes campaign-grid {

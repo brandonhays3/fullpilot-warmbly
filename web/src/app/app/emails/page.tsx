@@ -41,6 +41,7 @@ import {
     Trash2Icon,
     XIcon,
     ZapIcon,
+    FlameIcon,
 } from "@/components/icons";
 import { SearchInput } from "@/components/ui/field";
 import AnimatedNumber from "@/components/ui/AnimatedNumber";
@@ -659,7 +660,7 @@ function MailboxRow({
                     </span>
                 ) : active ? (
                     <span className="inline-flex items-center justify-end gap-1.5">
-                        <span className="campaign-grid shrink-0" aria-hidden />
+                        <FlameIcon className="w-3 h-3 shrink-0" />
                         <span>
                             <AnimatedNumber value={ws?.current_volume ?? 0} />/
                             {ws?.target_volume ?? box.warmup_base}
