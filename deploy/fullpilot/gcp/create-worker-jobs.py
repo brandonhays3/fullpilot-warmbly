@@ -23,7 +23,6 @@ SECRETS = {
     "CREDENTIALS_ENCRYPTION_KEY": "warmbly-credentials-key",
     "AWS_ACCESS_KEY_ID": "warmbly-blob-access-key",
     "AWS_SECRET_ACCESS_KEY": "warmbly-blob-secret-key",
-    "BOX_GOOGLE_CLIENT_SECRET": "warmbly-box-google-client-secret",
     "BOX_GOOGLE_DESKTOP_CLIENT_SECRET": "warmbly-box-google-desktop-client-secret",
     "BOX_OUTLOOK_CLIENT_SECRET": "warmbly-box-outlook-client-secret",
 }

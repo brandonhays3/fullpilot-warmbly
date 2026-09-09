@@ -31,7 +31,7 @@ Three terminals:
 ```
 npm run dev        # once per session: postgres, redis, nats, mailpit in Docker + migrations
 npm run dev:run    # backend + consumer + worker natively, hot reload on Go changes
-npm run dev:web    # dashboard on http://localhost:5173 with Vite hot reload
+npm run dev:web    # dashboard on http://localhost:5173 (Vite picks 5174 if busy) with hot reload
 ```
 
 `npm run dev:admin` adds the admin panel on :5174. `npm run dev:stop` stops the
@@ -89,12 +89,35 @@ registry. None of them contain secrets.
 
 ## Fullpilot changes so far
 
-- **Gmail OAuth localhost-redirect mode** (`BOX_GOOGLE_REDIRECT_MODE=localhost`):
-  lets a desktop-type Google client (Thunderbird's public one) be used. The
-  connect modal asks the user to paste the address the consent window landed
-  on. Files: `internal/config/inbox.go`, `internal/app/email/onboarding.go`,
-  `internal/models/email.go`, `web/src/components/app/modals/AddEmailModal.tsx`,
-  `web/src/lib/api/client/app/emails/onboardOAuthStart.ts`. The reconnect
-  flow in the mailbox drawer (`web/src/lib/emails/emailOAuthPopup.ts`) is not
-  adapted yet.
+- **Gmail OAuth via a desktop-type client** (`BOX_GOOGLE_DESKTOP_CLIENT_ID/SECRET`,
+  Thunderbird's public client in production): Google only lets a desktop client
+  redirect to localhost, so the connect modal asks the user to paste the address
+  the consent window landed on and finishes from the code in it. With only the
+  desktop client configured it is the Gmail button; with a web client
+  (`BOX_GOOGLE_CLIENT_*`) too, it becomes the "Connect through Thunderbird's
+  client instead" link. `email_accounts_oauth.oauth_client` (migration 000135)
+  records which client issued a mailbox's tokens so workers refresh with the
+  same one. `BOX_GOOGLE_REDIRECT_URL` / `BOX_OUTLOOK_REDIRECT_URL` can force a
+  registered redirect_uri; a loopback one triggers the paste flow too. Files:
+  `internal/config/inbox.go`, `internal/app/email/{onboarding,reauth}.go`,
+  `internal/models/{email,worker}.go`, `internal/repository/pg_email.go`,
+  `internal/app/email/loader.go`, `internal/app/worker/mailmanager/`,
+  `internal/api/handler/{email_onboarding,auth_config}.go`,
+  `web/src/components/app/modals/AddEmailModal.tsx`,
+  `web/src/lib/api/client/app/emails/onboardOAuthStart.ts`. The reconnect flow
+  in the mailbox drawer (`web/src/lib/emails/emailOAuthPopup.ts`) is not adapted
+  for the paste step yet.
+- **Rebrand to Fullpilot** (commit "rebrand dashboard and admin to Fullpilot"):
+  Fullpilot mark in `web/src/components/svg.tsx` and `admin/src/components/Logo.tsx`
+  (source: `~/Documents/fullpilotv2/apps/dashboard/public/logo-blue.svg`);
+  favicons/app icons regenerated from it with ImageMagick; brand blue applied by
+  redefining the Tailwind `sky` scale around #0c58c6 in `web/src/global.css`
+  (so `bg-sky-600` etc. everywhere are Fullpilot blue); font Rethink Sans;
+  titles via `BRAND` in `web/src/hooks/useDocumentTitle.ts`; product name
+  replaced everywhere it was capitalized (technical `warmbly_*`, `warmbly-*`,
+  `__WARMBLY_ENV__`, URLs untouched). Self-hosted pill removed
+  (`PlanPill.tsx` returns null without billing). Every Warmbly Cloud surface
+  deleted: settings page + nav entry, mailbox page banners/panels, onboarding
+  step, connect-modal info box, drawer warmup card, `/connect` route.
+  `useCloudPool` and the cloud-link API client remain (harmless, always "not linked").
 - **Deploy tooling** under `deploy/fullpilot/`.

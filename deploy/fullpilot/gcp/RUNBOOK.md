@@ -206,22 +206,38 @@ spam complaint never touches fullpilot.com's reputation. To move it: add an A
 record on the other domain, add a Caddy block for it, set `TRACKING_DOMAIN` in
 `.env`, `docker compose up -d`.
 
-## Mailbox OAuth: two Gmail clients plus Outlook
+## Mailbox OAuth: Thunderbird's client for Gmail, Fullpilot's Entra app for Outlook
 
-Default path = Fullpilot's own apps ("Fullpilot Sequencer", Google client
-397999256581-…, and "Fullpilot Sequencer Outlook", Entra app 2db46e08-…, tenant
-common). Their redirect URIs must include
-`https://api.portal.fullpilot.com/addresses/google/callback` and
-`.../addresses/outlook/callback` respectively (registered in the Google Cloud
-Console project that owns the client, and in the Entra app). Secrets live in
-Secret Manager (`warmbly-box-google-client-secret` v2, `warmbly-box-outlook-client-secret`)
-and in `/opt/warmbly/.env`.
+Gmail path (decided 2026-09-09) = Thunderbird's public desktop-type client,
+configured as `BOX_GOOGLE_DESKTOP_*` with NO `BOX_GOOGLE_CLIENT_*` set. With
+only the desktop client present it IS the Gmail button (no alt link), and every
+connect uses the paste-the-address flow. Its ID and secret are public in
+Thunderbird's source (`mailnews/base/src/OAuth2Providers.sys.mjs`). Caveats:
+Google only lets a desktop client redirect to localhost, and using another
+product's client is against Google's API terms; Google could revoke it.
 
-Alternative Gmail path = Thunderbird's public desktop-type client, offered in
-the connect modal as "Connect through Thunderbird's client instead". Its ID and
-secret are public in Thunderbird's source (`mailnews/base/src/OAuth2Providers.sys.mjs`).
-Caveats: Google only lets a desktop client redirect to localhost, and using
-another product's client is against Google's API terms; Google could revoke it.
+Why not Fullpilot's own "Fullpilot Sequencer" Google client (397999256581-…):
+probing Google's authorize endpoint showed its only registered redirect URIs
+are `http://localhost:300{0..5}/oauth/callback` (dev URIs); nothing on a
+production host. Using it would still mean the paste flow, so Brandon chose
+Thunderbird. To switch to it later with a clean redirect: register
+`https://api.portal.fullpilot.com/addresses/google/callback` on that client in
+the Google Cloud Console, set `BOX_GOOGLE_CLIENT_ID/SECRET` (secret is in
+Secret Manager `warmbly-box-google-client-secret` v2), restart. The desktop
+client then becomes the "Connect through Thunderbird's client instead" link.
+
+Outlook = "Fullpilot Sequencer Outlook" Entra app (2db46e08-…, tenant common),
+`BOX_OUTLOOK_CLIENT_ID/SECRET`, secret in `warmbly-box-outlook-client-secret`.
+Its registered redirect URIs are unknown (Entra validates only after sign-in,
+so probing is inconclusive); `https://api.portal.fullpilot.com/addresses/outlook/callback`
+must be added in the Entra app for Outlook connects to work.
+
+Dead ends kept for the record: `app-engine.fullpilot.com` (old EmailEngine on
+AWS App Runner, service gone) now has an A record to 34.45.45.44 and a Caddy
+block forwarding `/oauth` to Warmbly's callbacks; harmless, unused, can be
+removed. `BOX_GOOGLE_REDIRECT_URL` / `BOX_OUTLOOK_REDIRECT_URL` overrides exist
+in the fork for the case where a client's registered redirect is on a host we
+control.
 
 Fork changes (branch `fullpilot`, migration 000135):
 - `BOX_GOOGLE_DESKTOP_CLIENT_ID/SECRET` configure the second client:
@@ -260,6 +276,13 @@ Local dev on Brandon's Mac: Docker Desktop 24 ships Compose 2.23 and buildx
 0.12, both too old for Warmbly's compose file; Homebrew `docker-compose` (5.x)
 and `docker-buildx` (0.37) are installed and registered via
 `cliPluginsExtraDirs` in `~/.docker/config.json`.
+
+## Branding
+
+Dashboard and admin are rebranded to Fullpilot (see `warmbly/FULLPILOT.md`,
+"Rebrand to Fullpilot"). Brand source of truth: `~/Documents/fullpilotv2`
+(`apps/dashboard/src/app/globals.css` tokens, `apps/dashboard/public/logo-blue.svg`).
+Primary #0c58c6, text #02101e, Rethink Sans.
 
 ## Custom code and deploys
 
