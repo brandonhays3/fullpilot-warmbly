@@ -30,8 +30,8 @@
      (Tailwind gray) with the brand navy at the dark end. */
   --color-slate-50: #f9fafb;
   --color-slate-100: #f3f4f6;
-  --color-slate-200: #e2e5e9;
-  --color-slate-300: #c4c9d0;
+  --color-slate-200: #e8eaee;
+  --color-slate-300: #d3d7dd;
   /* Secondary text is one step darker than Tailwind's scale so muted labels
      and helper copy stay readable without glasses. */
   --color-slate-400: #6b7280;
@@ -49,10 +49,15 @@
   --shadow-md: 0 2px 6px -1px rgb(2 16 30 / 0.06), 0 1px 2px -1px rgb(2 16 30 / 0.04);
   --shadow-lg: 0 8px 20px -6px rgb(2 16 30 / 0.10), 0 2px 6px -2px rgb(2 16 30 / 0.05);
   --shadow-xl: 0 16px 32px -10px rgb(2 16 30 / 0.14), 0 4px 10px -4px rgb(2 16 30 / 0.06);
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 12px;
+  /* Boxy everywhere: every rounded-* utility except rounded-full is square. */
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
 }
 
 @layer base {
@@ -64,7 +69,7 @@
 :root {
   /* Fullpilot palette (from fullpilotv2/apps/dashboard globals.css): plain
      neutral greys, near-black navy text, brand blue for primary and focus. */
-  --radius: 12px;
+  --radius: 0px;
   --foreground: #02101e;
   --background: #ffffff;
   --card: #ffffff;
@@ -80,8 +85,8 @@
   --accent: #f3f4f6;
   --accent-foreground: #02101e;
   --destructive: #ef4444;
-  --border: #e5e7eb;
-  --input: #e5e7eb;
+  --border: #e8eaee;
+  --input: #e8eaee;
   --ring: #0c58c6;
   --chart-1: #0c58c6;
   --chart-2: #6b7280;
@@ -630,3 +635,6 @@ button.w-8.h-8, button.size-8 { width: 2.25rem; }
 button.px-2:not(.w-7):not(.w-8):not(.size-7):not(.size-8) { padding-inline: 0.75rem; }
 button.px-2\.5 { padding-inline: 0.875rem; }
 button.px-3 { padding-inline: 1rem; }
+
+/* `rounded` without a size is a fixed 0.25rem in Tailwind; square it too. */
+.rounded { border-radius: 0; }
