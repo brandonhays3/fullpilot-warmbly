@@ -20,6 +20,7 @@ import {
   FileTextIcon,
   InboxIcon,
   MailboxIcon,
+  MailQuestionIcon,
   MoonIcon,
   MoreHorizontalIcon,
   OctagonAlertIcon,
@@ -53,6 +54,7 @@ export type UniboxScope =
   | { kind: "week" }
   | { kind: "awaiting" }
   | { kind: "agent_drafts" }
+  | { kind: "other" }
   | { kind: "snoozed" }
   | { kind: "scheduled" }
   | { kind: "folder"; folder: UniboxFolder }
@@ -213,6 +215,14 @@ export function ScopeRail({ scope, onChange }: ScopeRailProps) {
           countTone={data?.awaiting_agent_draft ? "accent" : "muted"}
           active={active === "agent_drafts"}
           onClick={() => onChange({ kind: "agent_drafts" })}
+        />
+        <Item
+          icon={<MailQuestionIcon className="w-3.5 h-3.5" />}
+          label="Other"
+          count={data?.other_unread || data?.other}
+          countTone={data?.other_unread ? "accent" : "muted"}
+          active={active === "other"}
+          onClick={() => onChange({ kind: "other" })}
         />
         <Item
           icon={<MoonIcon className="w-3.5 h-3.5" />}

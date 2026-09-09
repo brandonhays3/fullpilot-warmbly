@@ -88,6 +88,9 @@ func (w *WMail) onGoogleMessageAdded(ctx context.Context, id, threadID string) (
 		if msg == nil {
 			return true, nil // gone between the history event and now
 		}
+		if w.beforeBoundary(msg) {
+			return true, nil // received before connect: never imported
+		}
 		if msg.ThreadID == "" {
 			msg.ThreadID = threadID
 		}
@@ -162,8 +165,8 @@ func (w *WMail) googleBackfill(ctx context.Context, stats *tickStats) *errx.Mail
 		return nil
 	}
 	policy := w.gov.Policy()
-	w.tracker.startBackfill(time.Now(), policy.BackfillDays)
-	q := fmt.Sprintf("after:%d -in:trash -in:spam -in:chats", st.BackfillSince.Unix())
+	w.tracker.startBackfill(time.Now(), policy.BackfillDays, policy.SyncSince)
+	q := fmt.Sprintf("after:%d -in:trash -in:spam -in:chats", w.backfillSince().Unix())
 
 	for !stats.aborted && !stats.laneDenied(LaneBackfill) {
 		if st.BackfillSynced >= policy.BackfillMessages {
@@ -205,7 +208,7 @@ func (w *WMail) googleBackfill(ctx context.Context, stats *tickStats) *errx.Mail
 				w.CaptureError(err)
 				return nil
 			}
-			if msg == nil {
+			if msg == nil || w.beforeBoundary(msg) {
 				continue
 			}
 			if err := w.googleStore(ctx, msg); err != nil {

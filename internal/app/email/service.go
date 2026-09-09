@@ -92,6 +92,9 @@ type EmailService interface {
 	// payload: resumable backfill state, saved IMAP folder cursors, and the
 	// operator-editable budget the mailbox syncs under.
 	WireSyncState(repo repository.EmailSyncStateRepository)
+	// WireSyncBoundary attaches the sync start boundary store: the moment
+	// each address was first connected, shipped in the policy.
+	WireSyncBoundary(repo repository.MailboxSyncBoundaryRepository)
 	WireMailboxes(repo repository.MailboxRepository)
 	WireSyncBudget(src SyncBudgetSource)
 	WirePoolLink(repo repository.PoolLinkRepository)
@@ -133,6 +136,7 @@ type emailService struct {
 	graphDelta         repository.EmailGraphDeltaRepository
 	historyID          repository.EmailHistoryIDRepository
 	syncState          repository.EmailSyncStateRepository
+	syncBoundary       repository.MailboxSyncBoundaryRepository
 	mailboxes          repository.MailboxRepository
 	syncBudget         SyncBudgetSource
 	// poolLink marks linked warmup-only mailboxes, which sync with no history.
@@ -191,6 +195,12 @@ type SyncBudgetSource interface {
 // mailbox resumes its backfill and the API can report progress.
 func (s *emailService) WireSyncState(repo repository.EmailSyncStateRepository) {
 	s.syncState = repo
+}
+
+// WireSyncBoundary attaches the sync start boundary store, so the policy
+// shipped to the worker carries the moment the address was first connected.
+func (s *emailService) WireSyncBoundary(repo repository.MailboxSyncBoundaryRepository) {
+	s.syncBoundary = repo
 }
 
 // WireMailboxes attaches the IMAP folder-state repository so a reloaded IMAP
@@ -319,6 +329,6 @@ func (s *emailService) GetSyncState(ctx context.Context, userID, emailID string)
 	if xerr != nil {
 		return nil, models.SyncPolicy{}, xerr
 	}
-	data := s.syncDataFor(ctx, acc.ID)
+	data := s.syncDataFor(ctx, acc)
 	return data.State, data.Policy, nil
 }

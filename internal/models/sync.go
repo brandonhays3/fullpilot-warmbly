@@ -21,6 +21,17 @@ type SyncPolicy struct {
 	// OrgDailyMessages caps new plus backfilled messages stored across the
 	// whole organization per UTC day.
 	OrgDailyMessages int `json:"org_daily_messages" avro:"org_daily_messages"`
+	// SyncSince is the moment the address was first connected. Nothing
+	// received before it is imported or processed, on any provider, and
+	// the backfill window is capped by it. Nil only from a publisher older
+	// than the boundary.
+	SyncSince *time.Time `json:"sync_since,omitempty" avro:"sync_since"`
+}
+
+// Boundary reports whether t falls before the sync start boundary. A zero t
+// (a message with no usable date) is never cut.
+func (p SyncPolicy) Boundary(t time.Time) bool {
+	return p.SyncSince != nil && !t.IsZero() && t.Before(*p.SyncSince)
 }
 
 // SyncBackfillStatus is where the initial import stands.

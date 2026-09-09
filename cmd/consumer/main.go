@@ -250,8 +250,11 @@ func main() {
 		cfg.GetSecretOptional(ctx, "SEARCH_API_KEY", "search/api_key", ""),
 	)
 	// Provider selection mirrors the backend: AI_PROVIDER preset + AI_* vars.
+	aiProviderNameC := cfg.GetStringOptional(ctx, "AI_PROVIDER", "ai_provider", "")
+	// Reply classification runs on a cheap model of its own (AI_MODEL_CLASSIFY).
+	aiClassifyModelC := generation.ClassifyModel(aiProviderNameC, cfg.GetStringOptional(ctx, "AI_MODEL_CLASSIFY", "ai_model_classify", ""))
 	if cfgAI, rerr := generation.Resolve(generation.ProviderSettings{
-		Provider:   cfg.GetStringOptional(ctx, "AI_PROVIDER", "ai_provider", ""),
+		Provider:   aiProviderNameC,
 		APIKey:     cfg.GetSecretOptional(ctx, "AI_API_KEY", "ai_api_key", ""),
 		BaseURL:    cfg.GetStringOptional(ctx, "AI_BASE_URL", "ai_base_url", ""),
 		Model:      cfg.GetStringOptional(ctx, "AI_MODEL", "ai_model", ""),
@@ -268,7 +271,7 @@ func main() {
 	integrationServiceC.SetAISearch(aiSearchC)
 	if aiProviderC != nil {
 		replyclassify.SetModelClassifier(func(ctx context.Context, system, user string) (string, error) {
-			res, err := aiProviderC.Complete(ctx, generation.CompletionRequest{System: system, Prompt: user, MaxTokens: 16, Temperature: generation.Deterministic()})
+			res, err := aiProviderC.Complete(ctx, generation.CompletionRequest{System: system, Prompt: user, Model: aiClassifyModelC, MaxTokens: 16, Temperature: generation.Deterministic()})
 			if err != nil {
 				return "", err
 			}
@@ -410,6 +413,7 @@ func main() {
 		EmailHistoryIDRepository:    emailHistoryIDRepo,
 		EmailGraphDeltaRepository:   emailGraphDeltaRepo,
 		EmailSyncStateRepository:    repository.NewEmailSyncStateRepository(primaryDB),
+		SyncBoundaryRepo:            repository.NewMailboxSyncBoundaryRepository(primaryDB),
 		EmailAccountErrorRepository: emailAccountErrorRepo,
 		WarmupRepo:                  warmupRepo,
 		PoolLinkRepo:                repository.NewPoolLinkRepository(primaryDB.Pool),

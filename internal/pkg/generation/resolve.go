@@ -66,6 +66,23 @@ func presetFor(name string) (providerPreset, bool) {
 // It errors for a custom/openai-compatible provider with no base URL rather than
 // silently defaulting to OpenAI's public API (which would send the operator's key
 // to the wrong host).
+// DefaultOpenRouterClassifyModel is the cheap model reply classification
+// runs on when AI_PROVIDER=openrouter and AI_MODEL_CLASSIFY is unset.
+const DefaultOpenRouterClassifyModel = "openai/gpt-5.6-luna"
+
+// ClassifyModel is the model id reply classification uses: AI_MODEL_CLASSIFY
+// when set, otherwise a cheap OpenRouter default, otherwise "" so the
+// provider's own default model applies.
+func ClassifyModel(provider, configured string) string {
+	if configured = strings.TrimSpace(configured); configured != "" {
+		return configured
+	}
+	if strings.EqualFold(strings.TrimSpace(provider), "openrouter") {
+		return DefaultOpenRouterClassifyModel
+	}
+	return ""
+}
+
 func Resolve(s ProviderSettings) (ProviderConfig, error) {
 	name := strings.ToLower(strings.TrimSpace(s.Provider))
 	if name == "" {

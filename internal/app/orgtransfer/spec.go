@@ -172,6 +172,11 @@ var Tables = []Table{
 		},
 	},
 	{
+		Name: "mailbox_sync_boundaries", Group: models.OrgDataGroupCore,
+		Scope: scopeOrg,
+		Note:  "The moment each address was first connected. Travels so the destination never imports mail from before it either.",
+	},
+	{
 		Name: "email_accounts_smtp_imap", Group: models.OrgDataGroupCore,
 		Scope: `email_account_id IN ` + orgMailboxes,
 		Secrets: []SecretColumn{

@@ -19448,6 +19448,11 @@
           "org_daily_messages": {
             "type": "integer",
             "description": "New plus imported messages stored across the organization per UTC day."
+          },
+          "sync_since": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The moment the address was first connected. Nothing received before it is imported or processed, and the import never reaches past it. Absent when no boundary is recorded."
           }
         },
         "required": [

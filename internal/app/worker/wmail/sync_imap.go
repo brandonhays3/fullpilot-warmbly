@@ -260,7 +260,11 @@ func (w *WMail) imapApply(ctx context.Context, fetched []*imap.Fetched, backfill
 			return false, w.controlPlaneError(err, stats)
 		}
 		if internal == nil {
-			fresh = append(fresh, f)
+			// Received before the address was connected: never stored, and
+			// not counted as live mail either.
+			if !w.beforeBoundary(f.Email) {
+				fresh = append(fresh, f)
+			}
 			continue
 		}
 		if backfill {
@@ -399,8 +403,10 @@ func (w *WMail) imapBackfill(ctx context.Context, folders []models.Mailbox, stat
 		return nil
 	}
 	policy := w.gov.Policy()
-	w.tracker.startBackfill(time.Now(), policy.BackfillDays)
-	since := *st.BackfillSince
+	w.tracker.startBackfill(time.Now(), policy.BackfillDays, policy.SyncSince)
+	// SEARCH SINCE is date-granular; imapApply drops anything the boundary
+	// cuts by INTERNALDATE.
+	since := w.backfillSince()
 	client := w.SmtpImapData.ImapClient
 
 	allDone := true

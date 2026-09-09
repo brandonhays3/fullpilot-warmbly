@@ -11,7 +11,7 @@ The rail opens with the standard mail folders, so direction is visually clear in
 
 | Folder | Shows |
 | --- | --- |
-| Inbox | Inbound mail, plus anything filed in a custom folder at the provider |
+| Inbox | Campaign conversations: replies to something Warmbly sent, and threads Warmbly started. Everything else a mailbox receives is under **Other** |
 | Drafts | Messages sitting in a mailbox's drafts folder |
 | Sent | Outbound mail, campaign and manual |
 | Archive | Archived at the provider (Gmail's All Mail, the Archive folder elsewhere) |
@@ -30,12 +30,15 @@ The initial import that runs when a mailbox is first connected covers Inbox, Sen
 
 | View | Shows |
 | --- | --- |
-| All | Every conversation across every mailbox (except Spam and Trash) |
+| All | Every campaign conversation across every mailbox (except Spam and Trash) |
 | Unread | At least one unread message |
 | Today / This week | Activity today, or in the last 7 days |
 | Awaiting reply | The other side is waiting on you |
+| Other | Everything a mailbox receives that is not part of a campaign conversation: newsletters, notifications, mail from before Warmbly, personal threads |
 | Snoozed | Snoozed for later |
 | Scheduled | Replies queued to send later |
+
+A conversation is a campaign conversation when a message in it is a reply to something Warmbly sent from that mailbox (matched on the message ids in the reply's headers and on the thread), or when Warmbly started the thread. Only those are classified: the reply class (interested, not interested, out of office, asked to stop, and so on) that drives sequence branching, the inbox agent's drafts, and the reply-based opt-out all run on Inbox mail alone. Mail under **Other** is stored and readable, and you can reply to it, but it is never classified, never suppresses a contact, and never counts as a reply to a campaign. Once you reply to an Other thread from Warmbly, the thread moves to the Inbox.
 
 Below those, the rail lists each mailbox with its unread count, plus your **Categories** and **Tags**. Long lists collapse to the first few with a `Show all` toggle and an inline filter.
 

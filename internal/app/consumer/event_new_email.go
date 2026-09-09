@@ -63,10 +63,32 @@ func (s *JobsService) HandleNewEmail(ctx context.Context, e *models.JobEventNewE
 		}
 	}
 
+	// Inbox triage. Mail from before the address was first connected is
+	// never stored or processed (the worker already filters it; this holds
+	// against a worker that predates the boundary). Everything else is stored,
+	// but only a campaign conversation is shown in the Inbox and classified;
+	// the rest lands in the Other view untouched, so an unrelated old message
+	// can never be read as a reply and, say, opt a contact out.
+	if s.beforeSyncBoundary(ctx, e.Message) {
+		log.Debug().
+			Str("email_account_id", e.Message.EmailID.String()).
+			Str("message_id", e.Message.MessageID).
+			Msg("dropping mail received before the mailbox's sync boundary")
+		return nil
+	}
+	e.Message.CampaignLinked = s.isCampaignConversation(ctx, e.Message)
+
 	// Normal email processing
 	if err := s.UniboxRepository.CreateEntry(ctx, e.UserID, e.Message); err != nil {
 		CaptureError(e.UserID, e.Message.EmailID, err)
 		return err
+	}
+	if e.Message.CampaignLinked {
+		// A conversation never splits between the Inbox and the Other view:
+		// once a thread is linked, everything already stored in it follows.
+		if err := s.UniboxRepository.MarkThreadCampaignLinked(ctx, e.Message.EmailID, e.Message.ThreadID); err != nil {
+			log.Warn().Err(err).Str("thread_id", e.Message.ThreadID).Msg("could not lift the thread into the inbox")
+		}
 	}
 	if e.Message != nil {
 		inbox := s.emailInboxEvent(ctx, e.UserID, e.Message)
@@ -92,11 +114,57 @@ func (s *JobsService) HandleNewEmail(ctx context.Context, e *models.JobEventNewE
 	// (replyclassify) and persists reply_class/confidence/source on the contact's
 	// campaign progress, gating replied_at so automated replies (auto_reply /
 	// out_of_office) never count as a human reply for stop_on_reply / branching.
-	if s.AdvancedService != nil {
+	// It runs only for campaign conversations: classification, the opt-out
+	// detector and every side effect behind it never see other mail.
+	if s.AdvancedService != nil && e.Message.CampaignLinked {
 		_ = s.AdvancedService.ProcessIncomingReply(ctx, e.Message.EmailID, e.Message)
 	}
 
 	return nil
+}
+
+// beforeSyncBoundary reports whether the message was received before the
+// address's sync start boundary. Unknown boundary or account means no cut.
+func (s *JobsService) beforeSyncBoundary(ctx context.Context, msg *models.EmailMessageStoreData) bool {
+	if s.SyncBoundaryRepo == nil || s.EmailRepository == nil {
+		return false
+	}
+	received := msg.InternalDate
+	if received.IsZero() {
+		received = msg.SentDate
+	}
+	if received.IsZero() {
+		return false
+	}
+	account, xerr := s.EmailRepository.GetByID(ctx, msg.EmailID)
+	if xerr != nil || account == nil || account.OrganizationID == nil {
+		return false
+	}
+	since, err := s.SyncBoundaryRepo.Get(ctx, *account.OrganizationID, account.Email)
+	if err != nil {
+		log.Warn().Err(err).Str("email_account_id", msg.EmailID.String()).Msg("sync boundary lookup failed; message kept")
+		return false
+	}
+	return since != nil && received.Before(*since)
+}
+
+// isCampaignConversation decides the message's triage: it belongs to a
+// campaign conversation when anything it references (its own Message-ID for
+// a sent copy, In-Reply-To, the parent, the thread root) is something Warmbly
+// sent from this mailbox, or when its thread already holds linked mail.
+func (s *JobsService) isCampaignConversation(ctx context.Context, msg *models.EmailMessageStoreData) bool {
+	if s.UniboxRepository == nil {
+		return false
+	}
+	ids := make([]string, 0, len(msg.InReplyTo)+3)
+	ids = append(ids, msg.MessageID, msg.ParentID, msg.ThreadID)
+	ids = append(ids, msg.InReplyTo...)
+	linked, err := s.UniboxRepository.IsCampaignConversation(ctx, msg.EmailID, ids, msg.ThreadID)
+	if err != nil {
+		log.Warn().Err(err).Str("email_account_id", msg.EmailID.String()).Msg("campaign conversation lookup failed; filed under other")
+		return false
+	}
+	return linked
 }
 
 func (s *JobsService) publishEmailUpdated(ctx context.Context, userID uuid.UUID, message *models.EmailMessageStoreData) {

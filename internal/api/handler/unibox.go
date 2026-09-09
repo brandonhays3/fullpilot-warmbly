@@ -97,6 +97,17 @@ func (h *Handler) GetUniboxIncoming(c *gin.Context) {
 		params.Folder = &folder
 	}
 
+	// Triage: campaign=true is the Inbox (campaign conversations only),
+	// campaign=false the Other view. Absent = both.
+	switch c.Query("campaign") {
+	case "true":
+		v := true
+		params.CampaignLinked = &v
+	case "false":
+		v := false
+		params.CampaignLinked = &v
+	}
+
 	// Parse subject filter
 	if subject := c.Query("subject"); subject != "" {
 		params.Subject = &subject

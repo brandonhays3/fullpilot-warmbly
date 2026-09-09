@@ -78,6 +78,9 @@ func (w *WMail) onGraphMessageSeen(ctx context.Context, folder, providerID strin
 			return true, nil // gone between the delta item and now
 		}
 		msg = full.ToEmailData(folder)
+		if w.beforeBoundary(msg) {
+			return true, nil // received before connect: never imported
+		}
 		lane = w.laneOf(ctx, providerID, msg, false)
 	}
 	if !w.admit(ctx, lane, stats) {
@@ -147,8 +150,8 @@ func (w *WMail) graphBackfill(ctx context.Context, stats *tickStats) *errx.MailE
 		return nil
 	}
 	policy := w.gov.Policy()
-	w.tracker.startBackfill(time.Now(), policy.BackfillDays)
-	since := *st.BackfillSince
+	w.tracker.startBackfill(time.Now(), policy.BackfillDays, policy.SyncSince)
+	since := w.backfillSince()
 
 	allDone := true
 	for _, folder := range msgraph.BackfillFolders {
@@ -197,12 +200,16 @@ func (w *WMail) graphBackfill(ctx context.Context, stats *tickStats) *errx.MailE
 				if known != nil {
 					continue
 				}
+				msg := full.ToEmailData(folder)
+				if w.beforeBoundary(msg) {
+					continue
+				}
 				if !w.admit(ctx, LaneBackfill, stats) {
 					// Pacing: this page's link is kept; stored ids are skipped
 					// as known when it is re-listed.
 					return nil
 				}
-				if err := w.graphStore(ctx, full.ToEmailData(folder)); err != nil {
+				if err := w.graphStore(ctx, msg); err != nil {
 					return w.controlPlaneError(err, stats)
 				}
 				st.BackfillSynced++

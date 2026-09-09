@@ -86,6 +86,9 @@ func (c *Client) syncFolder(ctx context.Context, folder string) error {
 	// the priming walk as live mail.
 	if next == "" {
 		next = graphBase + "/me/mailFolders/" + folder + "/messages/delta?$select=" + url.QueryEscape(deltaSelect)
+		if !c.SyncSince.IsZero() {
+			next += "&$filter=" + url.QueryEscape("receivedDateTime ge "+c.SyncSince.UTC().Format("2006-01-02T15:04:05Z"))
+		}
 		for {
 			var pg deltaPage
 			if err := c.doJSON(ctx, "GET", next, nil, &pg); err != nil {

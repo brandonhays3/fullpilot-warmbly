@@ -128,9 +128,14 @@ type EmailMessageStoreData struct {
 	// BodyText is a bounded plain-text rendering of the message, carried on the
 	// new-email event so the consumer can make the message findable by what it
 	// says. The full body goes to object storage, never here.
-	BodyText  string    `json:"body_text,omitempty"`
-	UpdatedAt time.Time `json:"updated_at"`
-	CreatedAt time.Time `json:"created_at"`
+	BodyText string `json:"body_text,omitempty"`
+	// CampaignLinked marks a message that belongs to a campaign conversation:
+	// a reply to something Warmbly sent, or a message in a thread Warmbly
+	// started. Decided by the consumer on ingest; only linked mail is shown in
+	// the Inbox and classified.
+	CampaignLinked bool      `json:"campaign_linked"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 type EmailMessageStoreDataPreview struct {
@@ -284,9 +289,12 @@ type MailSearchParams struct {
 	// Folder narrows to one canonical folder (inbox/sent/drafts/archive/
 	// spam/trash). nil = every folder except spam and trash, so junk never
 	// bleeds into the combined view.
-	Folder   *string
-	PageSize int
-	Cursor   string
+	Folder *string
+	// CampaignLinked narrows to campaign conversations (true, the Inbox) or
+	// to everything else (false, the Other view). nil = no triage filter.
+	CampaignLinked *bool
+	PageSize       int
+	Cursor         string
 }
 
 type MarkSeen struct {
@@ -363,7 +371,11 @@ type UniboxOverview struct {
 	// AwaitingAgentDraft is the count of threads with a pending inbox-agent draft
 	// waiting for human review (M10).
 	AwaitingAgentDraft int64 `json:"awaiting_agent_draft"`
-	ScheduledPending   int64 `json:"scheduled_pending"`
+	// Other and OtherUnread count threads outside any campaign conversation
+	// (the Other view). Total, Unread, Today and Week cover the Inbox only.
+	Other            int64 `json:"other"`
+	OtherUnread      int64 `json:"other_unread"`
+	ScheduledPending int64 `json:"scheduled_pending"`
 	// ScheduledPendingMax is the hard cap on pending scheduled email
 	// tasks per user. The dashboard shows current/max so the user
 	// sees how close they are to the limit before hitting it.

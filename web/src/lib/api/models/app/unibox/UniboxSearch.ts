@@ -52,6 +52,12 @@ export interface UniboxSearchParams {
    * combined view never shows junk).
    */
   folder?: UniboxFolder;
+  /**
+   * Triage. true = campaign conversations only (the Inbox: replies to
+   * something Warmbly sent, or threads Warmbly started); false = everything
+   * else (the Other view). Undefined = both.
+   */
+  campaign?: boolean;
   /** Awaiting reply: threads where the last message was from us. */
   awaitingReply?: boolean;
   /** Agent drafts: threads with a pending inbox-agent reply draft. */
