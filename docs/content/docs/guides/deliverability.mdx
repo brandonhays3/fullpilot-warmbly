@@ -70,6 +70,8 @@ Gmail, Yahoo, and Outlook all require SPF, DKIM, and DMARC, and failed alignment
 - **Failing**: SPF or DMARC missing.
 - **Unknown**: not checked yet, or the lookup could not complete. A DNS hiccup never looks like a misconfiguration.
 
+A mailbox on a public mail provider (gmail.com, outlook.com, hotmail.com, yahoo.com, icloud.com, proton.me, gmx, zoho.com, yandex and the like) is never checked and never gated: its records are the provider's, not yours, so there is nothing to fix at a registrar. The drawer shows it as Unknown with the reason "public mail provider, not applicable", and the Advisor raises no authentication finding for it.
+
 DKIM is advisory: selectors are not discoverable from DNS, so "not found" means unconfirmed, not absent. A domain can pass on SPF and DMARC with DKIM unconfirmed.
 
 A DMARC record on the parent domain covers its subdomains, so a dedicated sending subdomain like `mail.yourdomain.com` passes on the record published at `yourdomain.com`. Where the parent sets `sp=`, that is the policy shown, because `sp=` is what the parent publishes for its subdomains. SPF works the other way: it never inherits, so every sending subdomain needs its own SPF record.

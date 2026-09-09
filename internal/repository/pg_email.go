@@ -121,6 +121,12 @@ type EmailRepository interface {
 	// mail on authentication grounds: that is strong evidence, but DNS is the
 	// authority, so the sweep confirms rather than this asserting a verdict.
 	MarkDomainAuthRecheck(ctx context.Context, domain string) error
+	// MarkDomainAuthNotApplicable records that a sending domain is a public
+	// mail provider's, whose records are not the owner's to fix: every active
+	// mailbox on it goes to "unknown" with reason as its auth_reason, its
+	// grace clock is cleared so a stale "failing" can never gate it, and
+	// checkedAt keeps the sweep from revisiting it until it is stale again.
+	MarkDomainAuthNotApplicable(ctx context.Context, domain, reason string, checkedAt time.Time) *errx.Error
 	// UpdateDomainAuthState records the SPF/DKIM/DMARC result for every active
 	// mailbox on the given sending domain in one write (auth is a per-domain
 	// property). checkedAt stamps the evaluation so the sweep can skip fresh
@@ -1823,6 +1829,30 @@ func (r *emailRepository) SetWorkerID(ctx context.Context, emailAccountID, worke
 		return errx.ErrNotFound
 	}
 
+	return nil
+}
+
+func (r *emailRepository) MarkDomainAuthNotApplicable(ctx context.Context, domain, reason string, checkedAt time.Time) *errx.Error {
+	domain = strings.ToLower(strings.TrimSpace(domain))
+	if domain == "" {
+		return nil
+	}
+	// Unlike UpdateDomainAuthState's 'unknown', which preserves the grace
+	// clock so a transient DNS error cannot dodge the gate, this clears it:
+	// the domain is not the owner's, so there is nothing a clock could be
+	// measuring toward.
+	query := `
+		UPDATE email_accounts
+		SET auth_state = $1, auth_spf = false, auth_dkim = false, auth_dmarc = false,
+		    auth_dmarc_policy = '', auth_reason = $2, auth_checked_at = $3,
+		    auth_failing_since = NULL
+		WHERE status = 'active' AND lower(split_part(email, '@', 2)) = $4
+	`
+	params := []any{models.AuthStateUnknown, reason, checkedAt, domain}
+	if _, err := r.DB.Exec(ctx, query, params...); err != nil {
+		db.CaptureError(err, query, params, "exec")
+		return errx.InternalError()
+	}
 	return nil
 }
 

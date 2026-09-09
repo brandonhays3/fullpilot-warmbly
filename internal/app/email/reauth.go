@@ -128,7 +128,15 @@ func (s *emailService) finishReauth(ctx context.Context, sess *models.EmailOnboa
 		return nil, errx.InternalError()
 	}
 
-	return s.reconnectAccount(ctx, account.ID)
+	// A mailbox connected before the identity scopes carries a name derived
+	// from its address. This consent knows the real one, so take it, but
+	// only over such a fallback: a name the user typed in stays theirs.
+	var name *string
+	if n := strings.TrimSpace(owner.Name); n != "" && isFallbackName(account.Name, account.Email) && n != account.Name {
+		name = &n
+	}
+
+	return s.reconnectAccount(ctx, account.ID, name)
 }
 
 // UpdateSMTPIMAPCredentials is the SMTP/IMAP counterpart of the OAuth reauth:
@@ -176,7 +184,7 @@ func (s *emailService) UpdateSMTPIMAPCredentials(ctx context.Context, orgID *uui
 		return nil, errx.InternalError()
 	}
 
-	return s.reconnectAccount(ctx, accountID)
+	return s.reconnectAccount(ctx, accountID, nil)
 }
 
 // reconnectAccount is the shared tail of both reconnect flows: reactivate,
@@ -185,8 +193,9 @@ func (s *emailService) UpdateSMTPIMAPCredentials(ctx context.Context, orgID *uui
 // fanout. Errors resolve only after a successful reactivation, or a failed
 // Update would clear the banner (and its reconnect button) while the mailbox
 // stays broken. It loads the row itself because the owner-scoped Update needs
-// user_id, which not every caller's read path selects.
-func (s *emailService) reconnectAccount(ctx context.Context, accountID uuid.UUID) (*models.Email, *errx.Error) {
+// user_id, which not every caller's read path selects. name, when set, is
+// the provider's real name for the account, written in the same update.
+func (s *emailService) reconnectAccount(ctx context.Context, accountID uuid.UUID, name *string) (*models.Email, *errx.Error) {
 	account, xerr := s.emailRepository.GetByID(ctx, accountID)
 	if xerr != nil {
 		return nil, xerr
@@ -195,7 +204,7 @@ func (s *emailService) reconnectAccount(ctx context.Context, accountID uuid.UUID
 		return nil, errx.ErrNotFound
 	}
 	status := "active"
-	updated, xerr := s.Update(ctx, account.UserID, account.ID.String(), &models.UpdateEmail{Status: &status})
+	updated, xerr := s.Update(ctx, account.UserID, account.ID.String(), &models.UpdateEmail{Status: &status, Name: name})
 	if xerr != nil {
 		return nil, xerr
 	}

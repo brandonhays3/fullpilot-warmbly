@@ -210,6 +210,31 @@ type AddWorkerEmailGraphData struct {
 	DeltaLinks map[string]string `json:"delta_links" avro:"delta_links"`
 }
 
+// MailTransport is how the worker reaches an OAuth mailbox's provider.
+// SMTP/IMAP mailboxes have only one transport and ignore it.
+type MailTransport string
+
+const (
+	// MailTransportAPI is the provider's native API: Gmail API (history sync,
+	// users.messages.send) and Microsoft Graph (delta sync, sendMail).
+	MailTransportAPI MailTransport = "api"
+	// MailTransportSMTP is the provider's IMAP and SMTP submission endpoints
+	// authenticated with the same OAuth token over XOAUTH2. It is the path
+	// that exercises the provider's real SMTP, which is what the recipient's
+	// filters see.
+	MailTransportSMTP MailTransport = "smtp"
+)
+
+// ParseMailTransport maps a configured or shipped value to a transport.
+// Anything unrecognized, including the empty value an older publisher
+// sends, is the API: that was the only transport before the switch existed.
+func ParseMailTransport(v string) MailTransport {
+	if MailTransport(v) == MailTransportSMTP {
+		return MailTransportSMTP
+	}
+	return MailTransportAPI
+}
+
 type AddWorkerEmail struct {
 	ID     uuid.UUID `json:"id" avro:"id"`
 	UserID uuid.UUID `json:"user_id" avro:"user_id"`
@@ -236,6 +261,11 @@ type AddWorkerEmail struct {
 	// OAuthClient names the client that issued the provider tokens
 	// (OAuthClient*), so the worker refreshes with the same one. Empty means default.
 	OAuthClient string `json:"oauth_client,omitempty" avro:"oauth_client"`
+	// Transport is how the worker drives a Gmail or Outlook mailbox
+	// (MailTransport*). Shipped per mailbox so the control plane can switch
+	// one mailbox at a time; empty means the API, which is what a publisher
+	// older than the field always meant. Ignored for smtp_imap.
+	Transport string `json:"transport,omitempty" avro:"transport"`
 
 	Cfg oauth2.Config `json:"-" avro:"-"`
 	// TokenSource is set by the worker for brokered mailboxes.
@@ -247,6 +277,22 @@ type AddWorkerEmail struct {
 // its own, so the copy is the useful default.
 func (a *AddWorkerEmail) SavesSentCopy() bool {
 	return a.SaveToSent == nil || *a.SaveToSent
+}
+
+// MailTransport is the transport this payload asks for. An smtp_imap mailbox
+// has only one and reports it as SMTP.
+func (a *AddWorkerEmail) MailTransport() MailTransport {
+	if a.Type == InboxProviderSMTPIMAP {
+		return MailTransportSMTP
+	}
+	return ParseMailTransport(a.Transport)
+}
+
+// UsesSmtpImap reports whether the worker drives this mailbox over IMAP and
+// SMTP, either because it is an smtp_imap mailbox or because an OAuth
+// mailbox was shipped with the SMTP transport.
+func (a *AddWorkerEmail) UsesSmtpImap() bool {
+	return a.MailTransport() == MailTransportSMTP
 }
 
 type RemoveWorkerEmail struct {

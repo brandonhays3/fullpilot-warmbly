@@ -5,15 +5,18 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 	"github.com/warmbly/warmbly/internal/app/cipher"
 	"github.com/warmbly/warmbly/internal/client/goog"
 	"github.com/warmbly/warmbly/internal/client/msgraph"
 	"github.com/warmbly/warmbly/internal/client/smtpimap/imap"
 	"github.com/warmbly/warmbly/internal/client/smtpimap/smtp"
+	"github.com/warmbly/warmbly/internal/config"
 	"github.com/warmbly/warmbly/internal/errx"
 	"github.com/warmbly/warmbly/internal/infrastructure/cache"
 	"github.com/warmbly/warmbly/internal/infrastructure/storage"
 	"github.com/warmbly/warmbly/internal/models"
+	"github.com/warmbly/warmbly/internal/pkg/stoken"
 	"github.com/warmbly/warmbly/internal/repository"
 	"golang.org/x/oauth2"
 )
@@ -76,6 +79,10 @@ type WMail struct {
 	SaveToSent bool
 
 	EmailType models.InboxProvider
+	// Transport is how an OAuth mailbox is driven: the provider API
+	// (GoogleData / GraphData) or the provider's IMAP and SMTP endpoints
+	// with the same token (SmtpImapData). Always SMTP for smtp_imap.
+	Transport models.MailTransport
 
 	GoogleData   *GoogleData
 	GraphData    *GraphData
@@ -130,7 +137,11 @@ func NewWMail(
 		FirstName: data.FirstName,
 		LastName:  data.LastName,
 		EmailType: data.Type,
+		Transport: data.MailTransport(),
 		// Unset in the payload means yes; see AddWorkerEmail.SavesSentCopy.
+		// Only a plain smtp_imap mailbox needs the copy: Gmail and Exchange
+		// Online file their own for SMTP submissions too, so an OAuth mailbox
+		// on the smtp transport must not APPEND a second one.
 		SaveToSent: data.Type == models.InboxProviderSMTPIMAP && data.SavesSentCopy(),
 		onEvent: func(jobType models.JobEventType, body any) error {
 			return OnEvent(jobType, data.ID.String(), body)
@@ -168,6 +179,22 @@ func NewWMail(
 			State:   st,
 		})
 	})
+
+	// An OAuth mailbox on the smtp transport is driven like an smtp_imap one,
+	// with the provider's endpoints and the OAuth token in place of a
+	// password. A brokered (cloud-managed) token is minted for the provider
+	// API and cannot authenticate IMAP, so those stay on the API.
+	if data.Type != models.InboxProviderSMTPIMAP && data.UsesSmtpImap() {
+		if data.TokenSource != nil {
+			log.Warn().Str("email_id", data.ID.String()).Msg("brokered mailbox cannot use the smtp transport; using the provider API")
+			mail.Transport = models.MailTransportAPI
+		} else {
+			if err := mail.initOAuthSmtpImap(mailCtx, data); err != nil {
+				return nil, err
+			}
+			return mail, nil
+		}
+	}
 
 	switch data.Type {
 	case models.InboxProviderGoogle:
@@ -301,6 +328,84 @@ func NewWMail(
 	}
 
 	return mail, nil
+}
+
+// UsesSmtpImap reports whether sends and syncs go through SmtpImapData.
+func (w *WMail) UsesSmtpImap() bool {
+	return w.EmailType == models.InboxProviderSMTPIMAP || w.Transport == models.MailTransportSMTP
+}
+
+// providerSmtpImap is the IMAP and SMTP submission endpoint pair for an OAuth
+// provider.
+func providerSmtpImap(t models.InboxProvider) (smtpHost string, smtpPort int, imapHost string, imapPort int, ok bool) {
+	switch t {
+	case models.InboxProviderGoogle:
+		return config.GmailSMTPHost, config.GmailSMTPPort, config.GmailIMAPHost, config.GmailIMAPPort, true
+	case models.InboxProviderOutlook:
+		return config.OutlookSMTPHost, config.OutlookSMTPPort, config.OutlookIMAPHost, config.OutlookIMAPPort, true
+	}
+	return "", 0, "", 0, false
+}
+
+// initOAuthSmtpImap builds the IMAP and SMTP clients for an OAuth mailbox on
+// the smtp transport. One refreshing token source serves both, and every
+// refresh is relayed to the control plane exactly as the API clients do, so
+// the stored credential stays current whichever transport the mailbox is on.
+func (w *WMail) initOAuthSmtpImap(ctx context.Context, data *models.AddWorkerEmail) *errx.MailError {
+	var token *oauth2.Token
+	switch data.Type {
+	case models.InboxProviderGoogle:
+		if data.Google != nil {
+			token = data.Google.Token
+		}
+	case models.InboxProviderOutlook:
+		if data.Graph != nil {
+			token = data.Graph.Token
+		}
+	}
+	smtpHost, smtpPort, imapHost, imapPort, ok := providerSmtpImap(data.Type)
+	if token == nil || !ok {
+		return errx.MError(
+			errx.MailErrorCritical,
+			errx.MailErrorCodeAuthenticationFailed,
+			"missing OAuth credentials in add-email payload",
+			errx.MailErrorResolveMethodReload,
+		)
+	}
+
+	var ts oauth2.TokenSource = oauth2.ReuseTokenSource(token, data.Cfg.TokenSource(ctx, token))
+	ts = stoken.New(ts, func(t *oauth2.Token) error {
+		return w.onTokenUpdate(t)
+	})
+
+	w.SmtpImapData = &SmtpImapData{}
+	conn := &imap.Client{
+		Email:    data.Email,
+		AuthType: models.AuthOAuth2,
+		Oauth2:   &models.Oauth2Service{Host: imapHost, Port: imapPort, Token: ts},
+	}
+	if err := conn.Connect(); err != nil {
+		return err
+	}
+	w.SmtpImapData.ImapClient = conn
+	// Saved folder cursors, same as an smtp_imap mailbox: live sync resumes
+	// from each folder's stored HIGHESTMODSEQ (or UIDNEXT) instead of
+	// re-baselining on every worker restart.
+	if data.SmtpImap != nil {
+		for i := range data.SmtpImap.Mailboxes {
+			box := data.SmtpImap.Mailboxes[i]
+			w.SmtpImapData.Mailboxes = append(w.SmtpImapData.Mailboxes, &box)
+		}
+	}
+
+	w.SmtpImapData.SmtpClient = &smtp.Client{
+		FirstName: data.FirstName,
+		LastName:  data.LastName,
+		Email:     data.Email,
+		AuthType:  models.AuthOAuth2,
+		Oauth2:    &models.Oauth2Service{Host: smtpHost, Port: smtpPort, Token: ts},
+	}
+	return nil
 }
 
 // ApplySyncPolicy takes the budget from a republished ADD_EMAIL for a mailbox

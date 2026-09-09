@@ -266,18 +266,35 @@ func (c *Client) oauth2Auth() *errx.MailError {
 		return errx.ErrMailAuthenticationFailed
 	}
 
-	saslc := sasl.NewOAuthBearerClient(&sasl.OAuthBearerOptions{
-		Username: c.Email,
-		Token:    tk.AccessToken,
-		Port:     c.Oauth2.Port,
-		Host:     c.Oauth2.Host,
-	})
+	// OAUTHBEARER (RFC 7628) where the server offers it, XOAUTH2 otherwise:
+	// Gmail advertises both, Microsoft 365 only XOAUTH2.
+	var saslc sasl.Client
+	if c.advertisesAuth(sasl.OAuthBearer) {
+		saslc = sasl.NewOAuthBearerClient(&sasl.OAuthBearerOptions{
+			Username: c.Email,
+			Token:    tk.AccessToken,
+			Port:     c.Oauth2.Port,
+			Host:     c.Oauth2.Host,
+		})
+	} else {
+		saslc = newXOAuth2Client(c.Email, tk.AccessToken)
+	}
 
 	if err := c.client.Authenticate(saslc); err != nil {
 		return c.handleError(err)
 	}
 
 	return nil
+}
+
+// advertisesAuth reports whether the pre-auth CAPABILITY lists the SASL mechanism.
+func (c *Client) advertisesAuth(mech string) bool {
+	for _, m := range c.client.Caps().AuthMechanisms() {
+		if strings.EqualFold(m, mech) {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *Client) Mailbox(mailbox string, uidvali, opts *imap.SelectOptions) error {

@@ -135,13 +135,15 @@ func (w *WMail) Send(ctx context.Context, req *SendRequest) *SendResult {
 	for attempt := 0; attempt <= maxSendRetries; attempt++ {
 		result = &SendResult{Success: false, SentAt: time.Now()}
 
-		switch w.EmailType {
-		case models.InboxProviderGoogle:
-			result = w.sendViaGmail(ctx, req, bodyHTML)
-		case models.InboxProviderOutlook:
-			result = w.sendViaGraph(ctx, req, bodyHTML)
-		case models.InboxProviderSMTPIMAP:
+		// The transport, not the provider, picks the path: an OAuth mailbox
+		// on the smtp transport submits through the provider's SMTP.
+		switch {
+		case w.UsesSmtpImap():
 			result = w.sendViaSMTP(ctx, req, bodyHTML)
+		case w.EmailType == models.InboxProviderGoogle:
+			result = w.sendViaGmail(ctx, req, bodyHTML)
+		case w.EmailType == models.InboxProviderOutlook:
+			result = w.sendViaGraph(ctx, req, bodyHTML)
 		default:
 			result.Error = errx.MError(
 				errx.MailErrorCritical,

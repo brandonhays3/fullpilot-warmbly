@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/warmbly/warmbly/internal/pkg/maildomain"
 	"golang.org/x/net/publicsuffix"
 )
 
@@ -35,8 +36,14 @@ type Result struct {
 	// Reserved marks a special-use domain that is defined never to resolve
 	// (.test, .invalid, .localhost, .example, .local). It cannot be evaluated
 	// rather than failing evaluation, so it classifies as "unknown".
-	Reserved   bool `json:"reserved"`
-	AllAligned bool `json:"all_aligned"`
+	Reserved bool `json:"reserved"`
+	// NotApplicable marks a public consumer mail domain (gmail.com,
+	// outlook.com, yahoo.com, ...). Its authentication records belong to the
+	// provider, not to the mailbox owner, so there is nothing to evaluate
+	// and nothing the owner could fix. Classifies as "unknown" and never
+	// gates.
+	NotApplicable bool `json:"not_applicable"`
+	AllAligned    bool `json:"all_aligned"`
 	// LookupError is true when an authoritative lookup (SPF root or DMARC)
 	// failed for a reason other than the record simply not existing (timeout,
 	// SERVFAIL, network). Callers persisting state must treat this as "unknown"
@@ -48,7 +55,8 @@ type Result struct {
 
 // State classifies the result for persistence:
 //   - "unknown" when the domain is empty, is a special-use domain that cannot
-//     resolve by definition, or an authoritative lookup errored transiently
+//     resolve by definition, is a public mail provider whose records are not
+//     the owner's to fix, or an authoritative lookup errored transiently
 //     (never treat any of those as misconfigured),
 //   - "passing" when the two discoverable authoritative records (SPF + DMARC)
 //     are present,
@@ -59,7 +67,7 @@ type Result struct {
 // advisory too: Google's bulk-sender rules require a record with at least
 // p=none, so p=none is compliant and must not read as failing.
 func (r Result) State() string {
-	if r.Domain == "" || r.LookupError || r.Reserved {
+	if r.Domain == "" || r.LookupError || r.Reserved || r.NotApplicable {
 		return "unknown"
 	}
 	if r.SPFFound && r.DMARCFound {
@@ -67,6 +75,10 @@ func (r Result) State() string {
 	}
 	return "failing"
 }
+
+// NotApplicableSummary is the stored auth_reason for a mailbox on a public
+// mail provider; the dashboard and the CLI show it in place of a verdict.
+const NotApplicableSummary = "public mail provider, not applicable"
 
 // defaultSelectors are common DKIM selectors to probe when the caller doesn't
 // know the domain's selector. DKIM selectors aren't discoverable from DNS, so a
@@ -120,6 +132,17 @@ func checkWith(domain string, dkimSelectors []string, lookup lookupFunc) Result 
 	if reservedDomain(domain) {
 		res.Reserved = true
 		res.Summary = "special-use domain, cannot be checked"
+		return res
+	}
+
+	// A consumer provider's domain is authenticated by the provider. The
+	// lookups would mostly pass (Google publishes SPF and DMARC for
+	// gmail.com), but a verdict either way would be about Google's DNS, not
+	// the customer's, and a miss (no DKIM selector we can guess) would tell
+	// them to fix records they cannot touch. Skip the lookups entirely.
+	if maildomain.PublicMailDomain(domain) {
+		res.NotApplicable = true
+		res.Summary = NotApplicableSummary
 		return res
 	}
 
