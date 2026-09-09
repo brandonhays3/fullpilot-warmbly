@@ -1,13 +1,13 @@
 #!/bin/bash
-# Run the Go services locally (backend + consumer + worker, hot reload) with
-# Fullpilot's extra settings layered on top of upstream's `make run`.
+# Run an upstream Makefile dev target with Fullpilot's extra settings layered
+# on top (Gmail client, redirect mode, ...).
 #
-#   npm run dev        # once: postgres/redis/nats/mailpit in Docker + migrations
-#   npm run dev:run    # this script, in one terminal
-#   npm run dev:web    # dashboard on http://localhost:5173, in another
+#   npm run dev        # make dev: infra in Docker, migrations, seed, then every
+#                      # service natively in this terminal (Ctrl-C stops the app)
+#   npm run dev:run    # make run: backend + consumer + worker only
+#   npm run dev:web    # make web: dashboard on http://localhost:5173
 #
-# Put anything Fullpilot-specific (Gmail client, redirect mode, ...) in
-# .env.fullpilot.local at the repo root; it is gitignored. See
+# Settings come from .env.fullpilot.local at the repo root (gitignored); see
 # deploy/fullpilot/dev.env.example for the keys.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
@@ -20,4 +20,4 @@ if [ -f .env.fullpilot.local ]; then
 else
   echo "no .env.fullpilot.local (copy deploy/fullpilot/dev.env.example to create one)"
 fi
-exec make run
+exec make "${1:-dev}" "${@:2}"
