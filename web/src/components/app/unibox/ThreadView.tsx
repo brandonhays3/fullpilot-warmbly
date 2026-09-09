@@ -29,7 +29,6 @@ import {
 
 import { MessageBubble } from "./MessageBubble";
 import { ReplyComposer, type ReplyMode, type ReplySeed } from "./ReplyComposer";
-import { useOutboxStore } from "@/hooks/useOutboxStore";
 import AgentDraftCard from "./AgentDraftCard";
 import ResourceViewers from "@/components/app/presence/ResourceViewers";
 import { DateTimePicker } from "@/components/ui/DateTimePicker";
@@ -214,18 +213,6 @@ export function ThreadView({ threadId, emailId }: ThreadViewProps) {
 
   // A cancelled undo-send reply for this thread reopens the composer with
   // the exact content that was about to go out.
-  const pendingRestore = useOutboxStore((s) => s.pendingReplyRestore);
-  React.useEffect(() => {
-    if (!pendingRestore || pendingRestore.threadId !== threadId) return;
-    useOutboxStore.getState().setReplyRestore(null);
-    openReply(pendingRestore.messageId, pendingRestore.mode, {
-      to: pendingRestore.to,
-      cc: pendingRestore.cc,
-      bcc: pendingRestore.bcc,
-      subject: pendingRestore.subject,
-      body: pendingRestore.body,
-    });
-  }, [pendingRestore, threadId, openReply]);
 
   // Collaboration: claim this thread while it's open so teammates see
   // "X is viewing" (and "replying" once a composer is mounted) instead of
