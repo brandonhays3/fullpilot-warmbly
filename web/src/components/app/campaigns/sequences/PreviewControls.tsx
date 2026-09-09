@@ -123,7 +123,7 @@ export function PreviewMailboxPicker({
                 <PopoverMenuLabel>Sending mailboxes</PopoverMenuLabel>
                 {inboxes.length === 0 ? (
                     <div className="px-3 py-2 text-[11.5px] text-slate-400">
-                        Add a mailbox under Senders to preview its signature.
+                        No mailbox matches this campaign yet. Tag one with the campaign&apos;s tags, or add it under Senders.
                     </div>
                 ) : (
                     inboxes.map((i) => (
@@ -138,8 +138,10 @@ export function PreviewMailboxPicker({
     );
 }
 
-// Mails the saved step to an address. Disabled with the reason shown when it
-// could not succeed (no mailbox in the pool, unsaved copy).
+// Mails the saved step to an address. The recipient defaults to the signed-in
+// user and is editable, so a teammate or a seed inbox can receive it. Disabled
+// with the reason shown when it could not succeed (no mailbox can send the
+// campaign, unsaved copy).
 export function SendTestButton({
     campaignId,
     stepId,
@@ -159,7 +161,11 @@ export function SendTestButton({
     const send = useSendTestEmail(campaignId);
 
     const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient.trim());
-    const blocked = !mailbox ? "Add a sending mailbox to the campaign first." : dirty ? "Save the step first so the test carries the latest copy." : null;
+    const blocked = !mailbox
+        ? "No mailbox can send this campaign yet. Tag one with the campaign's tags, or add it under Senders."
+        : dirty
+          ? "Save the step first so the test carries the latest copy."
+          : null;
 
     async function submit() {
         if (!mailbox || blocked || !valid) return;
@@ -193,7 +199,7 @@ export function SendTestButton({
             </PopoverMenuTrigger>
             <PopoverMenuContent minWidth={300} className="p-2.5">
                 <Label>Send to</Label>
-                <TextInput value={recipient} onChange={setRecipient} placeholder="you@company.com" />
+                <TextInput type="email" value={recipient} onChange={setRecipient} placeholder="you@company.com" autoFocus />
                 <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
                     Rendered for <span className="text-slate-700">{contact ? contactLabel(contact) : SAMPLE_CONTACT_LABEL}</span>
                     {mailbox && (

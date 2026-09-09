@@ -114,6 +114,10 @@ const IF_PREFIX = "if-";
 const NODE_W = 248;
 const NODE_H = 92;
 const MAX_STEPS = 50;
+// How the canvas frames the flow on open and after the editor pane resizes it:
+// the whole flow in view with a margin, and never zoomed past 1:1, so a short
+// two-step sequence does not open as two giant cards on a laptop screen.
+const FIT_VIEW = { padding: 0.2, maxZoom: 1 };
 const SEQ_KEY = (id: string) => ["campaigns", id, "sequences"] as const;
 
 const ifNodeId = (branchId: string) => `${IF_PREFIX}${branchId}`;
@@ -1735,11 +1739,25 @@ export default function CampaignFlow({ campaignId }: { campaignId: string }) {
     const editIndex = editStep ? sequences.findIndex((s) => s.id === editStep.id) : -1;
     const atMax = sequences.length >= MAX_STEPS;
 
+    // The editor is a pane beside the canvas, so opening or closing it changes
+    // the canvas width. Re-fit after the layout settles so the flow is not left
+    // half hidden past the new edge (or shrunk into the left half on close).
+    const editorOpen = !!editStep;
+    React.useEffect(() => {
+        const raf = window.requestAnimationFrame(() => {
+            rfRef.current?.fitView({ ...FIT_VIEW, duration: 200 });
+        });
+        return () => window.cancelAnimationFrame(raf);
+    }, [editorOpen]);
+
     return (
         <div
-            className={`campaign-flow relative h-[70dvh] w-full overflow-hidden rounded-md border border-slate-200 bg-slate-50/40 sm:h-[78vh] ${
+            className={`campaign-flow flex h-[70dvh] w-full overflow-hidden rounded-md border border-slate-200 bg-slate-50/40 sm:h-[78vh] ${
                 dragging ? "rf-dragging" : ""
             }`}
+        >
+        <div
+            className="relative h-full min-w-0 flex-1"
             onPointerMove={(e) => {
                 if (!live.active) return;
                 const inst = rfRef.current;
@@ -1893,6 +1911,7 @@ export default function CampaignFlow({ campaignId }: { campaignId: string }) {
                     }
                 }}
                 fitView
+                fitViewOptions={FIT_VIEW}
                 proOptions={{ hideAttribution: true }}
             >
                 <Background color="#e9eef5" gap={24} size={1} />
@@ -2047,9 +2066,14 @@ export default function CampaignFlow({ campaignId }: { campaignId: string }) {
                 />
             )}
 
+        </div>
+
+            {/* Step editor: a pane beside the canvas on >=md (the canvas gives
+                up the width, nothing floats over it), full-screen below. It
+                scrolls on its own; the header stays put. */}
             {editStep && (
-                <div className="fixed inset-0 z-30 w-full overflow-y-auto overflow-x-hidden bg-white md:absolute md:left-auto md:z-10 md:max-w-[760px] md:border-l md:border-slate-200 md:shadow-[0_0_40px_-12px_rgba(15,23,42,0.25)] xl:max-w-[880px]">
-                    <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-3 py-2">
+                <aside className="fixed inset-0 z-30 flex w-full flex-col bg-white md:static md:z-auto md:h-full md:w-[400px] md:shrink-0 md:border-l md:border-slate-200 xl:w-[420px]">
+                    <div className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-3 py-2">
                         <span className="truncate text-[12.5px] font-medium text-slate-700">Edit “{stepName(editStep)}”</span>
                         <div className="flex items-center gap-1">
                             <button
@@ -2068,7 +2092,7 @@ export default function CampaignFlow({ campaignId }: { campaignId: string }) {
                             </button>
                         </div>
                     </div>
-                    <div className="p-3">
+                    <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-3">
                         <NodeTypeSwitcher campaignId={campaignId} sequence={editStep} onChanged={invalidate} />
                         {editStep.kind !== "email" ? (
                             <ActionEditor campaignId={campaignId} sequence={editStep} onSaved={invalidate} />
@@ -2076,7 +2100,7 @@ export default function CampaignFlow({ campaignId }: { campaignId: string }) {
                             <StepEmailArms campaignId={campaignId} sequence={editStep} index={editIndex} />
                         )}
                     </div>
-                </div>
+                </aside>
             )}
         </div>
     );

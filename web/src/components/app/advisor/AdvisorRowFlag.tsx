@@ -73,12 +73,16 @@ export default function AdvisorRowFlag({ findings, subject, className = "" }: Pr
                                 />
                             </span>
                         )}
-                        <span className="hidden sm:inline">
-                            {settled ? "Applied" : SEVERITY_SHORT[severity]}
+                        {/* One finding gets its verdict ("Urgent", "Tip"); several
+                            read as a count, since "Suggestion 3" says nothing. The
+                            dot colour carries the worst severity either way. */}
+                        <span className="hidden sm:inline tabular-nums">
+                            {settled
+                                ? "Applied"
+                                : outstanding.length > 1
+                                  ? `${outstanding.length} suggestions`
+                                  : SEVERITY_SHORT[severity]}
                         </span>
-                        {outstanding.length > 1 ? (
-                            <span className="tabular-nums">{outstanding.length}</span>
-                        ) : null}
                     </motion.button>
                 </PopoverMenuTrigger>
 

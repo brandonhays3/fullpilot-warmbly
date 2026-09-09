@@ -99,10 +99,10 @@ export default function DetailsTab({
                 </div>
             </Section>
 
-            <Section title="Subscription">
+            <Section title="Status">
                 <ToggleRow
-                    label="Subscribed"
-                    description="Unsubscribed contacts are skipped by every campaign."
+                    label="Active"
+                    description="Inactive (unsubscribed) contacts are skipped by every campaign."
                     on={subscribed}
                     onChange={setSubscribed}
                 />

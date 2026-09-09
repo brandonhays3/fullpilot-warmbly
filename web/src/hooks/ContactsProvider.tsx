@@ -541,7 +541,7 @@ export const ContactsProvider = ({ children }: { children: React.ReactNode }) =>
                                                 setSearch(bef => ({...bef, subscribed: null}))
                                             }
                                         }}
-                                        label="Subscribed"
+                                        label="Active"
                                     >
                                         {search.subscribed !== null && (
                                             <Switch
@@ -839,7 +839,7 @@ export const ContactsProvider = ({ children }: { children: React.ReactNode }) =>
                                                     ...bef, subscribed: !bef.subscribed,
                                                 }):null);
                                              }}>
-                                                <BoolFieldTitle>Subscribed</BoolFieldTitle>
+                                                <BoolFieldTitle>Active</BoolFieldTitle>
                                             </BoolField>
                                         </div>
                                     </div>

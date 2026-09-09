@@ -28,7 +28,7 @@ import useLogout from "@/lib/api/hooks/auth/useLogout";
 import useUser from "@/lib/api/hooks/auth/useUser";
 import useAuthConfig from "@/lib/api/hooks/auth/useAuthConfig";
 import { useAppStore } from "@/stores";
-import { Logo } from "@/components/svg";
+import { Wordmark } from "@/components/svg";
 import { NewWorkspaceDialog } from "@/components/app/organizations/NewWorkspaceDialog";
 import type { AppError } from "@/lib/api/client/normalizeError";
 import buildError from "@/lib/helper/buildError";
@@ -138,13 +138,7 @@ function SelectOrgPageInner() {
         <div className="min-h-dvh bg-[#f5f6f8] flex items-center justify-center px-4 py-12">
             <div className="w-full max-w-[480px] rounded-lg bg-white border border-slate-200 shadow-[0_24px_48px_-12px_rgba(15,23,42,0.08)] overflow-hidden">
                 <div className="h-12 px-4 border-b border-slate-200 flex items-center gap-2.5">
-                    <Logo className="w-4 text-slate-900 shrink-0" />
-                    <span
-                        style={{ fontFamily: "var(--font-display)" }}
-                        className="font-bold text-[13px] tracking-tight text-slate-900 shrink-0"
-                    >
-                        Fullpilot
-                    </span>
+                    <Wordmark size={13} className="shrink-0" />
                     <div className="h-4 w-px bg-slate-200 shrink-0" />
                     <span className="text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium min-w-0 truncate">
                         Workspaces

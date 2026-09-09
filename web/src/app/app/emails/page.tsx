@@ -647,11 +647,14 @@ function MailboxRow({
                     warmupLabel
                 )}
             </td>
-            <td className="px-3">
+            <td className="px-3 align-middle">
+                {/* Block-level flex, not inline-flex: an inline box sits on the
+                    cell's text baseline and its small uppercase label lands a
+                    pixel or two under the row's centreline. */}
                 <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); onOpen(box.id, "overview"); }}
-                    className={`inline-flex items-center gap-1.5 text-[11px] font-medium ${tone.text}`}
+                    className={`flex items-center gap-1.5 text-[11px] leading-none font-medium ${tone.text}`}
                     title="View mailbox health"
                 >
                     <span className="relative flex w-1.5 h-1.5">

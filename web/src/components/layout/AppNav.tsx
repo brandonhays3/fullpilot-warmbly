@@ -57,7 +57,7 @@ import AnimatedNumber from "@/components/ui/AnimatedNumber";
 import AdvisorNavBadge from "@/components/app/advisor/AdvisorNavBadge";
 import type { AdvisorSurface } from "@/lib/api/models/app/advisor/Advisor";
 import { UserNav } from "./UserNav";
-import { Logo } from "@/components/svg";
+import { Wordmark } from "@/components/svg";
 import { cn } from "@/lib/utils";
 
 // Stable (module-level) empty contacts search so the sidebar's contact-count
@@ -940,14 +940,8 @@ export function AppNav({ open = false, onClose }: { open?: boolean; onClose?: ()
                 {/* Mobile drawer header: brand + close. (The desktop sidebar
                     has no chrome of its own — the brand lives in AppHeader.) */}
                 <div className="md:hidden flex items-center justify-between px-3 h-14 border-b border-slate-200/70">
-                    <Link to="/app/emails" onClick={onClose} className="flex items-center gap-2.5">
-                        <Logo className="w-6 text-sky-600" />
-                        <span
-                            style={{ fontFamily: "var(--font-display)" }}
-                            className="font-extrabold text-[15px] tracking-tight text-slate-900"
-                        >
-                            Fullpilot
-                        </span>
+                    <Link to="/app/emails" onClick={onClose} className="flex items-center">
+                        <Wordmark size={15} />
                     </Link>
                     <button
                         type="button"

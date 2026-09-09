@@ -21,7 +21,7 @@ import {
     TerminalIcon,
     XIcon,
 } from "lucide-react";
-import { Logo } from "@/components/svg";
+import { Wordmark } from "@/components/svg";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { WEBSITE_URL } from "@/lib/information";
 import getToken from "@/lib/helper/getToken";
@@ -113,9 +113,8 @@ function CLIAuthInner() {
             </div>
 
             <div className="relative z-10 w-full max-w-[560px]">
-                <a href={WEBSITE_URL} className="mb-5 flex w-fit items-center gap-2.5 mx-auto">
-                    <Logo className="w-7 text-white" />
-                    <span className="font-extrabold text-[18px] tracking-tight text-white">Fullpilot</span>
+                <a href={WEBSITE_URL} className="mb-5 flex w-fit items-center mx-auto">
+                    <Wordmark size={18} tone="light" />
                 </a>
 
                 <motion.div

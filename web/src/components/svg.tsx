@@ -41,9 +41,16 @@ export const Outlook = ({ className }: { className: string }) => {
     </>
 }
 
-export const Logo = ({ className }: { className: string }) => {
+export const Logo = ({ className, decorative = false }: { className: string; decorative?: boolean }) => {
     return (
-        <svg className={className} viewBox="190 260 1120 1120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Fullpilot">
+        <svg
+            className={className}
+            viewBox="190 260 1120 1120"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-label={decorative ? undefined : "Fullpilot"}
+            aria-hidden={decorative || undefined}
+        >
             <g fill="currentColor">
                 <path d="M276.6,911.33q5.22,15.3,11.38,30.14h924q6.15-14.84,11.38-30.14Z" />
                 <path d="M378.57,415.28a503,503,0,0,0-48.51,63.23h839.88a503,503,0,0,0-48.51-63.23Z" />
@@ -62,3 +69,34 @@ export const Logo = ({ className }: { className: string }) => {
         </svg>
     )
 }
+
+// The brand lockup: mark + "Fullpilot" as one unit, matching the homepage
+// export (8px gap at 16px, weight 600, one colour for both halves). Everything
+// is sized from the word's font size, so the mark box is 0.9em, which puts the
+// visible globe at roughly 1.1x the cap height of Rethink Sans, and the gap is
+// 0.5em. Both halves take currentColor: brand blue on light chrome, white on a
+// dark backdrop. Use <Logo> on its own only where there is no room for the word.
+export const Wordmark = ({
+    className = "",
+    size = 16,
+    tone = "brand",
+}: {
+    className?: string;
+    // Font size of the word in px; the mark and gap scale with it.
+    size?: number;
+    tone?: "brand" | "light";
+}) => {
+    return (
+        <span
+            role="img"
+            aria-label="Fullpilot"
+            className={`inline-flex items-center leading-none whitespace-nowrap ${tone === "light" ? "text-white" : "text-sky-600"} ${className}`}
+            style={{ fontFamily: "var(--font-display)", fontSize: size, gap: "0.5em" }}
+        >
+            <Logo className="h-[0.9em] w-[0.9em] shrink-0" decorative />
+            <span className="font-semibold tracking-tight" aria-hidden>
+                Fullpilot
+            </span>
+        </span>
+    );
+};

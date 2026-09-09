@@ -158,7 +158,6 @@ export default function CampaignLayout() {
                             )}
                             <ResourceViewers resource={`campaign:${campaign.id}`} className="shrink-0" />
                         </div>
-                        <p className="text-[11px] text-slate-400 font-mono mt-1 truncate">{campaign.id}</p>
                     </div>
 
                     <div className="ml-auto shrink-0 flex items-center gap-1.5">

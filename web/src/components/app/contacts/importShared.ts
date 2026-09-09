@@ -18,7 +18,7 @@ export const STANDARD_TARGETS: { id: string; label: string }[] = [
     { id: "last_name", label: "Last name" },
     { id: "company", label: "Company" },
     { id: "phone", label: "Phone" },
-    { id: "subscribed", label: "Subscribed" },
+    { id: "subscribed", label: "Active" },
     { id: "categories", label: "Categories" },
     { id: "verification_status", label: "Verification status" },
 ];

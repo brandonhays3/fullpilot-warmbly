@@ -159,7 +159,7 @@ export default function ContactContextPanel({
                             </div>
                             <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
                                 {contact.subscribed ? (
-                                    <Badge tone="emerald" icon={<CheckIcon className="w-2.5 h-2.5" />}>Subscribed</Badge>
+                                    <Badge tone="emerald" icon={<CheckIcon className="w-2.5 h-2.5" />}>Active</Badge>
                                 ) : (
                                     <Badge tone="slate" icon={<UserXIcon className="w-2.5 h-2.5" />}>Unsubscribed</Badge>
                                 )}

@@ -68,7 +68,7 @@ const STANDARD_FIELDS: { id: string; label: string; preset: "basic" | "full" | "
     { id: "last_name",    label: "Last name",     preset: "basic" },
     { id: "company",      label: "Company",       preset: "basic" },
     { id: "phone",        label: "Phone",         preset: "basic" },
-    { id: "subscribed",   label: "Subscribed",    preset: "basic" },
+    { id: "subscribed",   label: "Active",        preset: "basic" },
     { id: "categories",   label: "Categories",    preset: "full" },
     { id: "campaigns",    label: "Campaigns",     preset: "full" },
     { id: "created_at",   label: "Created at",    preset: "full" },

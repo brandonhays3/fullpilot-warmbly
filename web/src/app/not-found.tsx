@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { MailX, LayoutDashboard, LogIn } from "lucide-react";
-import { Logo } from "@/components/svg";
+import { Wordmark } from "@/components/svg";
 
 export default function NotFound() {
   return (
@@ -13,15 +13,7 @@ export default function NotFound() {
         className="w-full max-w-[440px] flex flex-col items-center text-center"
       >
         {/* Brand wordmark */}
-        <div className="flex items-center gap-2">
-          <Logo className="w-7 text-slate-900" />
-          <span
-            className="text-[15px] font-medium text-slate-900"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Fullpilot
-          </span>
-        </div>
+        <Wordmark size={16} />
 
         {/* Glyph: MailX in a slate ring + one sky stamp dot */}
         <div className="relative mt-10 mb-6">

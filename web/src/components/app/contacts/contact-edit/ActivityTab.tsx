@@ -1131,7 +1131,6 @@ function detailsFor(e: ContactTimelineEvent): [string, React.ReactNode][] {
     }
     add("Reason", e.reason);
     add("Content", e.content);
-    if (e.task_id) add("Task", <span className="font-mono">{e.task_id}</span>);
     return out;
 }
 

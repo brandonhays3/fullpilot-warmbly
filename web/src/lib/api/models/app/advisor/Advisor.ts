@@ -198,12 +198,13 @@ export const SEVERITY_ROW: Record<AdvisorSeverity, string> = {
     low: "bg-sky-500/10 text-sky-700 hover:bg-sky-500/20",
 };
 
-// The one-word verdict the row indicator shows. Deliberately shorter than
-// SEVERITY_LABEL: a table cell has room for a word, not a phrase.
+// The short verdict the row indicator shows for a single finding. Deliberately
+// shorter than SEVERITY_LABEL: a table cell has room for a word or two, not a
+// phrase, but each one still has to say what the badge is on its own.
 export const SEVERITY_SHORT: Record<AdvisorSeverity, string> = {
     critical: "Urgent",
-    high: "Fix",
-    medium: "Tune",
+    high: "Fix now",
+    medium: "Suggestion",
     low: "Tip",
 };
 

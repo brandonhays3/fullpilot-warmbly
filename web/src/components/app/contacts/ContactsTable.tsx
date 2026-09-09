@@ -787,7 +787,7 @@ export default function ContactsTable({
                     onClick={() => setSubFilter("all")}
                 />
                 <Stat
-                    label="Subscribed"
+                    label="Active"
                     value={counts.subscribed}
                     sub="receiving mail"
                     accent={counts.subscribed > 0}
@@ -1337,7 +1337,7 @@ function StatusPill({ subscribed }: { subscribed: boolean }) {
         return (
             <span className="inline-flex items-center gap-1 text-[10.5px] font-medium text-emerald-700 uppercase tracking-[0.08em]">
                 <span className="size-1.5 rounded-full bg-emerald-500" />
-                <span className="hidden sm:inline">subscribed</span>
+                <span className="hidden sm:inline">active</span>
             </span>
         );
     }

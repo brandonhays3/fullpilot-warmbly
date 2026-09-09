@@ -232,7 +232,7 @@ export default function FilterBar({
                 value={filters.subscribed}
                 onChange={(v) => setFilters((s) => ({ ...s, subscribed: v }))}
                 options={[
-                    { id: true, label: "Subscribed" },
+                    { id: true, label: "Active" },
                     { id: false, label: "Unsubscribed" },
                 ]}
             />

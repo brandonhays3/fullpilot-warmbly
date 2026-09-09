@@ -3,7 +3,7 @@ import { Navigate, useLocation, useNavigate, useOutlet } from "react-router-dom"
 import { AnimatePresence, motion } from "motion/react";
 import { APP_URL, WEBSITE_URL } from "@/lib/information";
 import getToken from "@/lib/helper/getToken";
-import { Logo } from "@/components/svg";
+import { Wordmark } from "@/components/svg";
 
 // Auth layout: one centered card on a quiet page. Logo above, form inside,
 // legal links below. Same on every viewport.
@@ -30,9 +30,8 @@ export default function AuthLayout({
     return (
         <div className="flex min-h-dvh w-full items-center justify-center bg-slate-50 px-4 py-10 text-slate-900">
             <div className="w-full max-w-[420px]">
-                <a href={WEBSITE_URL} className="mb-6 flex w-fit items-center gap-2.5 mx-auto">
-                    <Logo className="w-8 text-sky-600" />
-                    <span className="font-extrabold text-[19px] tracking-tight text-slate-900">Fullpilot</span>
+                <a href={WEBSITE_URL} className="mb-6 flex w-fit items-center mx-auto">
+                    <Wordmark size={20} />
                 </a>
 
                 <div className="rounded-2xl border border-slate-200 bg-white px-6 py-8 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_24px_48px_-24px_rgba(15,23,42,0.18)] sm:px-9">

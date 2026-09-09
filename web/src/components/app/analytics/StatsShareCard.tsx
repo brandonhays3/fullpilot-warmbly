@@ -1,5 +1,5 @@
 import React from "react";
-import { Logo } from "@/components/svg";
+import { Wordmark } from "@/components/svg";
 import { type ChartPoint } from "@/components/ui/charts";
 
 // A branded analytics card rasterized to a shareable PNG (see useExportCard).
@@ -158,7 +158,6 @@ const StatsShareCard = React.forwardRef<HTMLDivElement, { data: ShareCardData; a
         const landscape = aspect !== "1:1";
 
         const pad = aspect === "16:9" ? 64 : aspect === "3:2" ? 56 : 48;
-        const logoClass = landscape ? "w-[60px] h-[60px]" : "w-[54px] h-[54px]";
         const wordmarkSize = landscape ? 40 : 36;
         const titleSize = aspect === "16:9" ? 50 : aspect === "3:2" ? 46 : 40;
         const valueSize = landscape ? 50 : 46;
@@ -173,15 +172,7 @@ const StatsShareCard = React.forwardRef<HTMLDivElement, { data: ShareCardData; a
                 <div className="relative z-10 flex flex-col h-full" style={{ padding: pad }}>
                     {/* logo on the sky */}
                     <div className="flex items-center justify-between">
-                        <div className="inline-flex items-center gap-3.5">
-                            <Logo className={`${logoClass} text-white`} />
-                            <span
-                                className="text-white font-extrabold tracking-tight"
-                                style={{ fontFamily: "var(--font-display)", fontSize: wordmarkSize }}
-                            >
-                                Fullpilot
-                            </span>
-                        </div>
+                        <Wordmark tone="light" size={wordmarkSize} />
                         <span className="font-mono text-[15px] tabular-nums text-white/85">
                             {todayLabel()}
                         </span>

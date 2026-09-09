@@ -200,7 +200,7 @@ export const BulkEditContactsProvider = ({ children }: { children: React.ReactNo
                                         setSubscribe(null)
                                     }
                                 }}
-                                label="Subscribed"
+                                label="Active"
                             >
                                 {subscribe !== null && (
                                     <Switch

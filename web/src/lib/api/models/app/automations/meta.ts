@@ -245,7 +245,7 @@ export const TRIGGER_FIELDS: Record<string, TriggerFieldDef[]> = {
         { key: "contact_email", label: "Contact email", type: "string", defaultOperator: "contains" },
         { key: "company", label: "Company", type: "string", defaultOperator: "contains" },
         { key: "phone", label: "Phone", type: "string", defaultOperator: "exists" },
-        { key: "subscribed", label: "Subscribed", type: "bool", defaultOperator: "is_true" },
+        { key: "subscribed", label: "Active", type: "bool", defaultOperator: "is_true" },
     ],
     "form.submitted": [
         { key: "form_name", label: "Form", type: "string", defaultOperator: "equals" },
