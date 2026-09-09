@@ -29,7 +29,7 @@ import {
     LockIcon,
     XIcon,
     ZapIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { type ReactNode, useMemo, useState } from "react";
 import { useAppStore } from "@/stores";
 import useFeatureAccess from "@/hooks/useFeatureAccess";
@@ -597,12 +597,12 @@ function Section({ section, first = false }: { section: NavSection; first?: bool
 }
 
 /**
- * LivePanel — replaces the old "+ New Campaign" pill.
+ * LivePanel — the sidebar's footer stat, beneath the navigation tabs.
  *
  * Anatomy:
  *
  *   ┌──────────────────────────────────┐
- *   │  128  of 400 sent today          │   ← hero number (scrubs on hover)
+ *   │  128 of 400 sent today           │   ← small number (scrubs on hover)
  *   │  ━━━━━━━─────────                │   ← capacity meter (today vs cap)
  *   │      ∿∿∿∿∿∿                     │   ← 14-day area sparkline
  *   │  ✉ 8   ● 5              ⬇ 3     │   ← mailboxes · active · unread
@@ -610,7 +610,7 @@ function Section({ section, first = false }: { section: NavSection; first?: bool
  *
  * Reads as ambient telemetry: even when idle, it tells you "n mailboxes,
  * n sent today." Clicking jumps to analytics; hovering a day on the
- * sparkline swaps the hero number to that day. There is deliberately no
+ * sparkline swaps the number to that day. There is deliberately no
  * LIVE/OFFLINE status row: the numbers ticking realtime already say the
  * system is up, so the panel spends its pixels on the data instead.
  *
@@ -667,14 +667,15 @@ function LivePanel() {
     return (
         <Link
             to="/app/analytics"
-            className="group block mx-2 mt-2 mb-3 rounded-md bg-white/80 hover:bg-white border border-slate-200/70 hover:border-slate-300 pt-2 overflow-hidden transition-colors"
+            className="group block mx-2 mt-1 mb-2 shrink-0 rounded-md bg-white/80 hover:bg-white border border-slate-200/70 hover:border-slate-300 pt-2 overflow-hidden transition-colors"
         >
-            {/* Hero: today's sends against the derived daily cap. While the
-                sparkline is being scrubbed it shows the hovered day instead. */}
+            {/* Today's sends against the derived daily cap, kept small so it
+                reads as a footer stat. While the sparkline is being scrubbed
+                it shows the hovered day instead. */}
             <div className="px-2.5 flex items-baseline gap-1.5 whitespace-nowrap">
                 {scrub ? (
                     <>
-                        <span className="text-[19px] font-semibold text-slate-900 leading-none">
+                        <span className="text-[13px] font-semibold text-slate-800 leading-none tabular-nums">
                             {scrub.sent.toLocaleString()}
                         </span>
                         <span className="text-[10.5px] text-slate-500">
@@ -685,7 +686,7 @@ function LivePanel() {
                     <>
                         <AnimatedNumber
                             value={sentToday}
-                            className="text-[19px] font-semibold text-slate-900 leading-none"
+                            className="text-[13px] font-semibold text-slate-800 leading-none tabular-nums"
                         />
                         <span className="text-[10.5px] text-slate-500">
                             {capacity > 0
@@ -941,7 +942,7 @@ export function AppNav({ open = false, onClose }: { open?: boolean; onClose?: ()
                     has no chrome of its own — the brand lives in AppHeader.) */}
                 <div className="md:hidden flex items-center justify-between px-3 h-14 border-b border-slate-200/70">
                     <Link to="/app/emails" onClick={onClose} className="flex items-center">
-                        <Wordmark size={15} />
+                        <Wordmark size={24} />
                     </Link>
                     <button
                         type="button"
@@ -953,9 +954,7 @@ export function AppNav({ open = false, onClose }: { open?: boolean; onClose?: ()
                     </button>
                 </div>
 
-            <LivePanel />
-
-            <nav className="flex-1 overflow-y-auto pb-3">
+            <nav className="flex-1 overflow-y-auto pt-2 pb-3">
                 <div className="space-y-px">
                     {topItems.map((it) => (
                         <NavRow key={it.url + it.title} item={it} />
@@ -965,6 +964,10 @@ export function AppNav({ open = false, onClose }: { open?: boolean; onClose?: ()
                     <Section key={s.label} section={s} first={i === 0 && topItems.length === 0} />
                 ))}
             </nav>
+
+            {/* Footer stat: today's sends, beneath the tabs so it reads as
+                telemetry rather than the headline. */}
+            <LivePanel />
 
             <div className="border-t border-slate-200/60 py-1 shrink-0">
                 <NavRow

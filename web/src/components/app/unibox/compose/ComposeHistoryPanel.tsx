@@ -11,7 +11,7 @@ import {
     HistoryIcon,
     Loader2Icon,
     SendIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import useUniboxSearch from "@/lib/api/hooks/app/unibox/useUniboxSearch";
 import type { UniboxListRow } from "@/lib/api/client/app/unibox/searchIncoming";
 import { SearchInput } from "@/components/ui/field";

@@ -9,7 +9,7 @@
 // `w-3.5 h-3.5` etc.) unless an explicit `size` is given. Stroke width
 // defaults to 1.75.
 //
-// Generated mapping: 231 icons render HugeIcons, 3 fall back
+// Generated mapping: 233 icons render HugeIcons, 3 fall back
 // to lucide because HugeIcons has no free equivalent (HistoryIcon, ShieldAlertIcon, ShieldQuestionIcon).
 
 import { forwardRef } from "react";
@@ -128,12 +128,14 @@ import {
     Logout03Icon as H_Logout03Icon,
     MagicWand01Icon as H_MagicWand01Icon,
     Mail01Icon as H_Mail01Icon,
+    MailAdd01Icon as H_MailAdd01Icon,
     MailBlock01Icon as H_MailBlock01Icon,
     MailOpen01Icon as H_MailOpen01Icon,
     MailRemove01Icon as H_MailRemove01Icon,
     MailSearch01Icon as H_MailSearch01Icon,
     MailValidation01Icon as H_MailValidation01Icon,
     Mailbox01Icon as H_Mailbox01Icon,
+    Menu01Icon as H_Menu01Icon,
     Megaphone01Icon as H_Megaphone01Icon,
     MessageMultiple01Icon as H_MessageMultiple01Icon,
     MinusSignIcon as H_MinusSignIcon,
@@ -380,10 +382,12 @@ export const Mail = createIcon("Mail", H_Mail01Icon);
 export const MailCheckIcon = createIcon("MailCheckIcon", H_MailValidation01Icon);
 export const MailIcon = createIcon("MailIcon", H_Mail01Icon);
 export const MailOpenIcon = createIcon("MailOpenIcon", H_MailOpen01Icon);
+export const MailPlusIcon = createIcon("MailPlusIcon", H_MailAdd01Icon);
 export const MailQuestionIcon = createIcon("MailQuestionIcon", H_MailSearch01Icon);
 export const MailWarningIcon = createIcon("MailWarningIcon", H_MailBlock01Icon);
 export const MailX = createIcon("MailX", H_MailRemove01Icon);
 export const MailboxIcon = createIcon("MailboxIcon", H_Mailbox01Icon);
+export const MenuIcon = createIcon("MenuIcon", H_Menu01Icon);
 export const Maximize2Icon = createIcon("Maximize2Icon", H_ArrowExpand01Icon);
 export const MegaphoneIcon = createIcon("MegaphoneIcon", H_Megaphone01Icon);
 export const MessageCircleQuestionIcon = createIcon("MessageCircleQuestionIcon", H_BubbleChatQuestionIcon);

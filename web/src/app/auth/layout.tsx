@@ -31,7 +31,7 @@ export default function AuthLayout({
         <div className="flex min-h-dvh w-full items-center justify-center bg-slate-50 px-4 py-10 text-slate-900">
             <div className="w-full max-w-[420px]">
                 <a href={WEBSITE_URL} className="mb-6 flex w-fit items-center mx-auto">
-                    <Wordmark size={20} />
+                    <Wordmark size={28} />
                 </a>
 
                 <div className="rounded-2xl border border-slate-200 bg-white px-6 py-8 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_24px_48px_-24px_rgba(15,23,42,0.18)] sm:px-9">

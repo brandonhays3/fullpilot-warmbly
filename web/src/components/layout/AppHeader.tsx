@@ -12,18 +12,16 @@
 // AppShell, not here.
 
 import { Link, useLocation } from "react-router-dom";
-import { ChevronRight, Menu, Search } from "lucide-react";
+import { ChevronRight, MenuIcon, Search } from "@/components/icons";
 import { Logo, Wordmark } from "@/components/svg";
 import AgentMark from "@/components/app/agent/AgentMark";
 import { useAppStore } from "@/stores";
 import { usePermission } from "@/hooks/usePermission";
 import ShortcutTooltip from "@/components/ui/shortcut-tooltip";
 import PresenceAvatars from "@/components/app/presence/PresenceAvatars";
-import OutboxIndicator from "@/components/app/unibox/compose/OutboxIndicator";
 import { NotificationBell } from "./NotificationBell";
 import { OrgSwitcher } from "./OrgSwitcher";
 import { PlanPill } from "./PlanPill";
-import { VersionPill } from "./VersionPill";
 import { CreditsMeter } from "./CreditsMeter";
 
 // Pretty labels for path segments. Anything missing falls back to the
@@ -91,7 +89,7 @@ export function AppHeader({ onMenu }: { onMenu?: () => void }) {
                 aria-label="Open menu"
                 className="md:hidden ml-1.5 w-9 h-9 rounded-md flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-colors shrink-0"
             >
-                <Menu className="w-5 h-5" />
+                <MenuIcon className="w-5 h-5" />
             </button>
             <Link
                 to="/app/emails"
@@ -99,8 +97,8 @@ export function AppHeader({ onMenu }: { onMenu?: () => void }) {
             >
                 {/* The word hides on mobile: the mark + the drawer's own brand
                     header carry it there, leaving room for the workspace pill. */}
-                <Logo className="w-6 text-sky-600 group-hover:text-sky-700 transition-colors duration-150 md:hidden" />
-                <Wordmark size={16} className="hidden md:inline-flex group-hover:text-sky-700 transition-colors duration-150" />
+                <Logo className="w-6 text-[#0c58c6] group-hover:text-sky-700 transition-colors duration-150 md:hidden" />
+                <Wordmark size={26} className="hidden md:inline-flex group-hover:opacity-80 transition-opacity duration-150" />
             </Link>
 
             {/* Breadcrumb: org switcher (always) > section > subpages. The
@@ -132,11 +130,9 @@ export function AppHeader({ onMenu }: { onMenu?: () => void }) {
             <div className="flex items-center gap-2 px-2 sm:px-4 shrink-0">
                 <div className="hidden sm:flex items-center gap-2">
                     <PlanPill />
-                    <VersionPill />
                     <CreditsMeter />
                     <div className="h-4 w-px bg-slate-200/80" />
                 </div>
-                <OutboxIndicator />
                 <PresenceAvatars />
                 <NotificationBell />
                 <AssistantButton />

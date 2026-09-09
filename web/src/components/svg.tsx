@@ -70,33 +70,28 @@ export const Logo = ({ className, decorative = false }: { className: string; dec
     )
 }
 
-// The brand lockup: mark + "Fullpilot" as one unit, matching the homepage
-// export (8px gap at 16px, weight 600, one colour for both halves). Everything
-// is sized from the word's font size, so the mark box is 0.9em, which puts the
-// visible globe at roughly 1.1x the cap height of Rethink Sans, and the gap is
-// 0.5em. Both halves take currentColor: brand blue on light chrome, white on a
-// dark backdrop. Use <Logo> on its own only where there is no room for the word.
+// The brand lockup, rendered from the homepage's PNG export (234x72) rather
+// than as text, so it matches the marketing site exactly. `size` is the
+// rendered height in px (24 to 28 reads right in chrome); width follows the
+// image's aspect ratio. The white variant is for dark backdrops. Use <Logo>
+// on its own only where there is no room for the word.
 export const Wordmark = ({
     className = "",
-    size = 16,
+    size = 26,
     tone = "brand",
 }: {
     className?: string;
-    // Font size of the word in px; the mark and gap scale with it.
+    // Rendered height of the wordmark in px.
     size?: number;
     tone?: "brand" | "light";
 }) => {
     return (
-        <span
-            role="img"
-            aria-label="Fullpilot"
-            className={`inline-flex items-center leading-none whitespace-nowrap ${tone === "light" ? "text-white" : "text-sky-600"} ${className}`}
-            style={{ fontFamily: "var(--font-display)", fontSize: size, gap: "0.5em" }}
-        >
-            <Logo className="h-[0.9em] w-[0.9em] shrink-0" decorative />
-            <span className="font-semibold tracking-tight" aria-hidden>
-                Fullpilot
-            </span>
-        </span>
+        <img
+            src={tone === "light" ? "/fullpilot-logo-wordmark-white.png" : "/fullpilot-logo-wordmark.png"}
+            alt="Fullpilot"
+            draggable={false}
+            className={`inline-block select-none shrink-0 ${className}`}
+            style={{ height: size, width: "auto" }}
+        />
     );
 };

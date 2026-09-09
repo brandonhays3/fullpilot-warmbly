@@ -5,7 +5,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { FileTextIcon, Trash2Icon } from "lucide-react";
+import { FileTextIcon, Trash2Icon } from "@/components/icons";
 import useComposeDrafts, { useDeleteComposeDraft } from "@/lib/api/hooks/app/unibox/useComposeDrafts";
 import type { ComposeDraft } from "@/lib/api/client/app/unibox/composeDrafts";
 import { useComposeStore } from "@/hooks/useComposeStore";

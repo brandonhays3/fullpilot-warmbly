@@ -23,7 +23,7 @@ type User struct {
 
 	// Seconds an instant send is held before it actually leaves, so
 	// the user can still cancel it. Bounds live in config
-	// (UndoSendSecondsMin/Max); default 30.
+	// (UndoSendSecondsMin/Max); default 0, which sends immediately.
 	UndoSendSeconds int `json:"undo_send_seconds"`
 
 	// Platform admin access, populated on the /auth/me load. AdminPermissions

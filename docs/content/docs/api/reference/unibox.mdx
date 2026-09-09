@@ -334,7 +334,7 @@ Sends or schedules a reply from one of your mailboxes. The send is routed throug
 }
 ```
 
-Instant sends are held for the sender's undo window (5 to 120 seconds, default 30) before they actually leave, so `scheduled_at` is that far in the future. Within the window the send can still be cancelled with `DELETE /unibox/scheduled/:task_id`.
+Instant sends leave immediately by default (`scheduled_at` is now). If the sender has set an undo window through `PUT /me/send-preferences` (`undo_send_seconds`, 0 to 120, default 0), the send is held that long instead, and within the window it can still be cancelled with `DELETE /unibox/scheduled/:task_id`.
 
 ## List active snoozes
 

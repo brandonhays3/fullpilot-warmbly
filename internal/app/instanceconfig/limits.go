@@ -82,7 +82,7 @@ func Limits() []LimitGroup {
 			Entries: []LimitEntry{
 				{"New scheduled sends", n(config.DailyThrottleNewScheduledSends), "per user/day", "Rolling 24 hour window."},
 				{"Pending scheduled sends", n(config.MaxPendingScheduledSendsPerUser), "per user", "Queued at once. Bounds queue storage rather than cost."},
-				{"Undo send window", n(config.UndoSendSecondsDefault), "seconds", "Default hold before an instant send leaves. Range " + n(config.UndoSendSecondsMin) + " to " + n(config.UndoSendSecondsMax) + "."},
+				{"Undo send window", n(config.UndoSendSecondsDefault), "seconds", "Default hold before an instant send leaves; 0 sends immediately. Range " + n(config.UndoSendSecondsMin) + " to " + n(config.UndoSendSecondsMax) + ", set per user through the API."},
 			},
 		},
 		{

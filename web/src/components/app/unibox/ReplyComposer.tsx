@@ -26,7 +26,7 @@ import {
     PenLineIcon,
     SendIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 import sendReply from "@/lib/api/client/app/unibox/sendReply";
 import { DateTimePicker } from "@/components/ui/DateTimePicker";
@@ -35,8 +35,6 @@ import TemplatePickerContent from "./TemplatePicker";
 import InsertBookingLink from "./InsertBookingLink";
 import ContactRecipientField from "./compose/ContactRecipientField";
 import useUniboxOverview from "@/lib/api/hooks/app/unibox/useUniboxOverview";
-import { resolveSendAt, useOutboxStore } from "@/hooks/useOutboxStore";
-import { useUserProfile } from "@/hooks/context/user";
 import { useAppStore } from "@/stores";
 import useDraftReply from "@/lib/api/hooks/app/unibox/useDraftReply";
 import AIDraftBar, { useAIDraft } from "@/components/app/ai/AIDraftBar";
@@ -56,8 +54,8 @@ import { plainToHtml } from "@/lib/email/body";
 
 export type ReplyMode = "reply" | "forward";
 
-// Restored content for a cancelled undo-send reply: the composer reopens
-// with exactly what was about to go out.
+// Optional starting content handed in by ThreadView, so a caller can reopen
+// the composer with a specific draft instead of the derived defaults.
 export interface ReplySeed {
     to: string[];
     cc: string[];
@@ -169,8 +167,6 @@ function deriveDefaults(replyTo: UniboxEmail, mode: ReplyMode) {
 
 export function ReplyComposer({ threadId, replyTo, mode, seed, onClose }: ReplyComposerProps) {
     const accounts = useAppStore((s) => s.emails);
-    const { user } = useUserProfile();
-    const addOutbox = useOutboxStore((s) => s.add);
 
     const initial = React.useMemo(() => deriveDefaults(replyTo, mode), [replyTo, mode]);
 
@@ -211,7 +207,7 @@ export function ReplyComposer({ threadId, replyTo, mode, seed, onClose }: ReplyC
     // Reset whenever the user picks a different target message or
     // switches between reply and forward. Without this the body, chips,
     // and subject would persist across separate compose sessions. A
-    // restore seed (cancelled undo send) wins over the derived defaults.
+    // seed from the caller wins over the derived defaults.
     React.useEffect(() => {
         setSubject(seed?.subject ?? initial.subject);
         setTo(seed?.to ?? initial.to);
@@ -280,37 +276,13 @@ export function ReplyComposer({ threadId, replyTo, mode, seed, onClose }: ReplyC
                       }
                     : { send_mode: "instant" as const }),
             });
-            if (!scheduledAt && res.send_mode === "instant") {
-                // Undo window: no "queued" toast; the header pill counts
-                // down and can cancel, reopening this composer via the
-                // reply payload.
-                addOutbox({
-                    taskId: res.task_id,
-                    scheduledAt: resolveSendAt(res.scheduled_at, user.undo_send_seconds || 30),
-                    kind: "reply",
-                    to,
-                    subject: sentSubject,
-                    threadId,
-                    reply: {
-                        threadId,
-                        messageId: replyTo.id,
-                        mode,
-                        to,
-                        cc,
-                        bcc,
-                        subject: sentSubject,
-                        body: trimmedBody,
-                    },
-                });
-            } else {
-                toast.success(
-                    scheduledAt
-                        ? `Scheduled for ${formatFriendly(scheduledAt)}`
-                        : mode === "forward"
-                          ? "Forward queued"
-                          : "Reply queued",
-                );
-            }
+            toast.success(
+                scheduledAt
+                    ? `Scheduled for ${formatFriendly(scheduledAt)}`
+                    : mode === "forward"
+                      ? "Forward sent"
+                      : "Reply sent",
+            );
             setScheduleOpen(false);
             setCustomMode(false);
             onClose();

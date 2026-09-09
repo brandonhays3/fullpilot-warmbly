@@ -114,7 +114,7 @@ function CLIAuthInner() {
 
             <div className="relative z-10 w-full max-w-[560px]">
                 <a href={WEBSITE_URL} className="mb-5 flex w-fit items-center mx-auto">
-                    <Wordmark size={18} tone="light" />
+                    <Wordmark size={26} tone="light" />
                 </a>
 
                 <motion.div

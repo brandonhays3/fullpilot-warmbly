@@ -118,11 +118,11 @@ With a recipient set, **History** slides out every conversation you have had wit
 
 | Control | Behavior |
 |---------|----------|
-| **Undo send** | Instant sends wait 30s by default (adjustable 5 to 120s under Settings, Profile). A header countdown offers **Cancel**, which returns the email to the composer intact. Applies to API sends with `send_mode: instant` too. |
+| **Send** | Instant sends leave right away. There is no hold or undo window by default; a per-user window of up to 120 seconds can still be set through the API (`PUT /me/send-preferences`, `undo_send_seconds`), in which case the send sits in the **Scheduled** view until it fires. |
 | **Schedule** | Queue a send for later. It appears inline in the thread as a dashed card and in the **Scheduled** view, cancellable any time. A usage meter warns as you approach the queued-send cap. |
 | **Snooze** | Clears a conversation until a time you pick, up to 90 days out, with presets or a custom time. **Un-snooze now** brings it back immediately. |
 
-Scheduled and smart-queued sends skip the undo window, since they already wait. Cancel them from the **Scheduled** view, or via `DELETE /unibox/scheduled/:task_id`.
+Cancel scheduled and smart-queued sends from the **Scheduled** view, or via `DELETE /unibox/scheduled/:task_id`.
 
 ## Realtime
 

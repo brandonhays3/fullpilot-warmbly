@@ -13,7 +13,7 @@ export default function NotFound() {
         className="w-full max-w-[440px] flex flex-col items-center text-center"
       >
         {/* Brand wordmark */}
-        <Wordmark size={16} />
+        <Wordmark size={24} />
 
         {/* Glyph: MailX in a slate ring + one sky stamp dot */}
         <div className="relative mt-10 mb-6">

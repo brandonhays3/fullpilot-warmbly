@@ -760,7 +760,7 @@ To move a worker fleet onto a new release, update `WORKER_IMAGE` and use "Pull l
 
 ## Upgrading and backups
 
-The admin panel tells you when a newer version exists: the version pill in its top bar turns amber, and **Update and restart** in it pulls the checkout, rebuilds, restarts what changed and reconnects once the backend is back. `make up` starts the updater that makes the button work. The whole flow, what it does and how to run it without Docker, is on [Updates](/development/updates/).
+The backend tells you when a newer version exists: `GET /admin/instance/update` reports it and it shows as a finding on Setup and health, and `POST /admin/instance/update/apply` pulls the checkout, rebuilds, restarts what changed and comes back once the backend answers. `make up` starts the updater that makes that endpoint work. The whole flow, what it does and how to run it without Docker, is on [Updates](/development/updates/).
 
 By hand it is the same two steps:
 

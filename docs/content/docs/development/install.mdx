@@ -282,7 +282,7 @@ Put your own compose changes in a `docker-compose.override.yml`, which compose m
 
 ## Updating
 
-The version pill in the admin panel, then **Update and restart**. On an install created this way the updater runs in image mode: it writes the new tag into `.env`, pulls, and recreates the containers whose image changed. Nothing is built. See [updates](/development/updates/).
+`POST /admin/instance/update/apply` as a platform admin. On an install created this way the updater runs in image mode: it writes the new tag into `.env`, pulls, and recreates the containers whose image changed. Nothing is built. See [updates](/development/updates/).
 
 By hand, from the install directory:
 
