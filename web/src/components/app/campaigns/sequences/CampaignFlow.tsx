@@ -2951,7 +2951,7 @@ function ActionConfigFields({
                         placeholder="Pick one or more labels…"
                     />
                     <p className="mt-1.5 rounded-md border border-fuchsia-200 bg-fuchsia-50/60 px-2.5 py-2 text-[11px] leading-relaxed text-fuchsia-700">
-                        Labels the conversation in your inbox (the same labels you set by hand in the unified inbox). Place this
+                        Labels the conversation in your inbox (the same labels you set by hand in the unibox). Place this
                         on a reply branch — it runs once the contact has replied, so there is a thread to label, and is a
                         no-op otherwise.
                     </p>

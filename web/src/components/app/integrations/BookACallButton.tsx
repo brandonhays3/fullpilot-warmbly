@@ -3,7 +3,7 @@
 // saved booking link, and opens that link prefilled with the contact's email +
 // name. With several scheduling links it offers a picker. This is the contextual
 // counterpart to the Integrations settings: configure the link once, book from
-// anywhere a contact is in view (Unified Inbox threads, contact detail).
+// anywhere a contact is in view (Unibox threads, contact detail).
 
 "use client";
 

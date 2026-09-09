@@ -16,7 +16,7 @@ import (
 // pool, so we record a tampering strike against the mailbox and ban it from
 // warmup once the threshold is crossed. The owner can appeal.
 //
-// It also drops the local unified inbox entry for the removed message (best-effort).
+// It also drops the local unibox entry for the removed message (best-effort).
 func (s *JobsService) HandleRemoveEmail(ctx context.Context, e *models.JobEventRemoveEmail) error {
 	if s.WarmupRepo != nil {
 		if rec, _ := s.WarmupRepo.GetWarmupReceived(ctx, e.EmailID, e.ID); rec != nil {

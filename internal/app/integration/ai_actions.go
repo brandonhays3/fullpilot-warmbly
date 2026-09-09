@@ -206,7 +206,7 @@ type aiActionConfig struct {
 	// AddTags / RemoveTags / Labels are OPTIONAL pools an agent-mode step's
 	// tag/label tools pick from by name. An empty pool means unrestricted: the
 	// executor lists the org owner's tags/labels live at run time and the agent
-	// may use any (tags and unified inbox labels are the same category registry).
+	// may use any (tags and unibox labels are the same category registry).
 	// AllowCreateTags additionally lets an empty-pool pick mint a new tag/label.
 	AddTags         []models.AITagRef `json:"ai_add_tags"`
 	RemoveTags      []models.AITagRef `json:"ai_remove_tags"`

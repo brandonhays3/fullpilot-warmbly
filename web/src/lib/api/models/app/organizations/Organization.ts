@@ -19,7 +19,7 @@ export default interface Organization {
     icp_notes?: string
     voice_profile?: string
     // Inbox agent opt-in (manage_settings, paid). When on, an inbound human
-    // reply gets an AI-drafted suggested reply awaiting review in the unified inbox.
+    // reply gets an AI-drafted suggested reply awaiting review in the unibox.
     inbox_agent_enabled?: boolean
     // Workspace-shared assistant history (manage_settings). When on, every
     // member with the Use AI permission sees and can continue every

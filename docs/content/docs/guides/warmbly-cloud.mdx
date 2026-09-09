@@ -5,7 +5,7 @@ description: "Warm the mailboxes on your own Warmbly instance in the hosted warm
 
 A self-hosted Warmbly instance warms mailboxes only against the other mailboxes on that same instance, which for most installs is a handful. Linking the instance to Warmbly Cloud lets those mailboxes warm in the hosted pool instead: thousands of real, monitored mailboxes exchanging natural-looking mail, with replies and inbox engagement handled for you.
 
-Only warmup moves to the cloud. Campaigns, contacts, the unified inbox, tracking and every stored message stay on your server exactly as before. Linked instances also get Google and Microsoft sign-in through Warmbly's own OAuth apps, so there is no client to register: see [Google and Microsoft mailboxes](#google-and-microsoft-mailboxes-sign-in-through-warmbly-cloud).
+Only warmup moves to the cloud. Campaigns, contacts, the unibox, tracking and every stored message stay on your server exactly as before. Linked instances also get Google and Microsoft sign-in through Warmbly's own OAuth apps, so there is no client to register: see [Google and Microsoft mailboxes](#google-and-microsoft-mailboxes-sign-in-through-warmbly-cloud).
 
 <Callout type="info" title="Pricing">
   A free Warmbly Cloud workspace holds up to 10 mailboxes, connected directly or through a linked instance, and warms them at no cost. Unlimited mailboxes cost $15 a month per workspace. Nothing else about self-hosting changes.
@@ -37,7 +37,7 @@ The whole flow takes about a minute. A code expires after 15 minutes if nobody a
 On a linked instance, **Add account > Gmail / Google Workspace** and **Outlook / Microsoft 365** no longer need an OAuth client of your own. The sign-in window opens on Warmbly's verified Google and Microsoft apps, and when you approve:
 
 - the mailbox is created in your Warmbly Cloud workspace, where its sign-in lives, and starts warming in the pool right away
-- your instance gets a mirror of the mailbox with no credential on it. Campaigns, replies and the unified inbox work from your server as before; to send and sync, the instance asks the cloud for a short-lived access token (about an hour, cached) using its link token
+- your instance gets a mirror of the mailbox with no credential on it. Campaigns, replies and the unibox work from your server as before; to send and sync, the instance asks the cloud for a short-lived access token (about an hour, cached) using its link token
 - the refresh grant never leaves the cloud. Removing the mailbox from either side, unlinking the instance, or the cloud blocking the mailbox stops the instance sending from it within the hour
 
 These mailboxes show the blue **Cloud** badge with "Signed in through Warmbly Cloud". The `BOX_GOOGLE_*` and `BOX_OUTLOOK_*` variables are still honoured when set, but an instance without them can now connect Google and Microsoft mailboxes as long as it is linked.

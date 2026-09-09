@@ -29,8 +29,8 @@ type UniboxRepository interface {
 	UpdateEntry(ctx context.Context, userID, emailID, id uuid.UUID, e *UpdateUniboxEntry) error
 	GetIncoming(ctx context.Context, userID uuid.UUID, limit int, cursor string) (*models.MailSearchResult, error)
 	GetByID(ctx context.Context, userID, id uuid.UUID) (*models.EmailMessageStoreData, error)
-	// GetByIDForOrg is the org-scoped read for the unified inbox detail view: any
-	// member with unified inbox access can open a message in the org-wide list. It
+	// GetByIDForOrg is the org-scoped read for the unibox detail view: any
+	// member with unibox access can open a message in the org-wide list. It
 	// returns the row plus the mailbox OWNER's user_id, which the S3 body key
 	// is built from (emails/<ownerID>/<id>), so the body still resolves under
 	// the owner even when a different teammate opens it.
@@ -320,7 +320,7 @@ func (r *uniboxRepository) GetByIDForOrg(ctx context.Context, orgID, id uuid.UUI
 // GetByThread returns the messages in a thread. emailID is optional —
 // pass uuid.Nil to span every mailbox in the organization (the typical
 // unified-inbox case where the caller only knows the thread). Scoped by org,
-// not user_id, so any member with unified inbox access sees the whole conversation,
+// not user_id, so any member with unibox access sees the whole conversation,
 // matching the org-scoped inbox list.
 func (r *uniboxRepository) GetByThread(ctx context.Context, orgID, emailID uuid.UUID, threadID string, limit int, cursor string) (*models.MailSearchResult, error) {
 	query := fmt.Sprintf(`
@@ -659,7 +659,7 @@ func (r *uniboxRepository) MarkSeenBulk(ctx context.Context, orgID uuid.UUID, id
 	if len(ids) == 0 {
 		return nil
 	}
-	// Org-scoped so any member with unified inbox access can clear the shared inbox's
+	// Org-scoped so any member with unibox access can clear the shared inbox's
 	// unread state, not only the mailbox owner. The unread count is org-wide, so
 	// a user_id filter would leave the badge stuck for non-owner members. ANY($3)
 	// also covers the single-id case.
@@ -877,7 +877,7 @@ func (r *uniboxRepository) AddThreadLabels(ctx context.Context, userID uuid.UUID
 }
 
 // LatestThreadIDForContact returns the thread id of the most recent conversation
-// where the address SENT a message into the user's unified inbox (an inbound reply), or
+// where the address SENT a message into the user's unibox (an inbound reply), or
 // "" when there is none. Matching on from_addr (not to_addr) is deliberate: the
 // "label email" action only makes sense once the contact has replied, so a
 // contact that never responded resolves to "" and the action is a clean no-op.
@@ -917,7 +917,7 @@ func (r *uniboxRepository) LatestThreadIDForContact(ctx context.Context, userID 
 
 // LatestMessageIDInThread returns the newest non-empty RFC Message-ID in the
 // thread. Scoped through email_accounts so one organization cannot read another
-// organization's conversation, matching every other org-scoped unified inbox read.
+// organization's conversation, matching every other org-scoped unibox read.
 func (r *uniboxRepository) LatestMessageIDInThread(ctx context.Context, orgID uuid.UUID, threadID string) (string, error) {
 	threadID = strings.TrimSpace(threadID)
 	if threadID == "" {

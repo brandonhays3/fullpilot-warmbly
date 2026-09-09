@@ -1,4 +1,4 @@
-// Advanced filter sheet for the unified inbox.
+// Advanced filter sheet for the unibox.
 //
 // Mirrors the params that GET /unibox actually supports today:
 //   - free text (subject ILIKE)

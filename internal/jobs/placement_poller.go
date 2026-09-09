@@ -10,12 +10,12 @@ import (
 )
 
 // PlacementPoller reconciles pending seed inbox-placement results: each tick it
-// looks up each in-flight test's token in the receiving seed's unified inbox entries
+// looks up each in-flight test's token in the receiving seed's unibox entries
 // and classifies where the probe landed (Inbox / Spam / Promotions / other),
 // completing the test once every result resolves or the classify timeout
 // passes. It is a thin scheduler around placement.Service.ClassifyPending; all
 // policy lives in the service. A ~2-minute tick balances responsiveness against
-// the latency of mailbox sync delivering the probe into the unified inbox.
+// the latency of mailbox sync delivering the probe into the unibox.
 type PlacementPoller struct {
 	svc      placement.Service
 	interval time.Duration

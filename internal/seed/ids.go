@@ -93,7 +93,7 @@ var (
 	// Discount codes (00000000-0000-0000-0000-000000000Fxx).
 	DiscountWelcome10ID = uuid.MustParse("00000000-0000-0000-0000-000000000f01")
 
-	// Unified Inbox emails (00000000-0000-0000-0000-0000000010xx).
+	// Unibox emails (00000000-0000-0000-0000-0000000010xx).
 	UniboxAcmeReplyID      = uuid.MustParse("00000000-0000-0000-0000-000000001001")
 	UniboxAcmeFollowupID   = uuid.MustParse("00000000-0000-0000-0000-000000001002")
 	UniboxAcmeBounceID     = uuid.MustParse("00000000-0000-0000-0000-000000001003")

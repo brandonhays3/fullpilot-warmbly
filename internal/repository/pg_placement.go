@@ -53,7 +53,7 @@ type PlacementResult struct {
 }
 
 // SeedAccount is a connected mailbox flagged is_seed, used as a placement
-// recipient. UserID is needed to query that seed's unified inbox entries (unibox is
+// recipient. UserID is needed to query that seed's unibox entries (unibox is
 // keyed by the owning user, not the org).
 type SeedAccount struct {
 	ID       uuid.UUID
@@ -67,7 +67,7 @@ type SeedAccount struct {
 }
 
 // PendingResultJob is the minimal view the poller needs to classify one
-// pending result: which seed, which user owns its unified inbox, and the test token.
+// pending result: which seed, which user owns its unibox, and the test token.
 type PendingResultJob struct {
 	ResultID      uuid.UUID
 	TestID        uuid.UUID
@@ -78,7 +78,7 @@ type PendingResultJob struct {
 	TestCreatedAt time.Time
 }
 
-// UniboxTokenMatch is a unified inbox entry whose subject (or stored token) matched a
+// UniboxTokenMatch is a unibox entry whose subject (or stored token) matched a
 // placement token, with the flags/labels needed to classify the folder.
 type UniboxTokenMatch struct {
 	InternalID uuid.UUID
@@ -114,12 +114,12 @@ type PlacementRepository interface {
 	// substring) so an admin can pick which to flag as seeds.
 	ListSeedCandidates(ctx context.Context, search string, limit int) ([]SeedAccount, error)
 
-	// FindTokenInUnified Inbox looks for a placement token inside a seed's received
-	// mail. Reuses the unified inbox store (unibox_emails) the worker syncs into. We
+	// FindTokenInUnibox looks for a placement token inside a seed's received
+	// mail. Reuses the unibox store (unibox_emails) the worker syncs into. We
 	// match the token embedded in the subject (the only token carrier that
 	// survives sync without a worker change — see service.go) and return the
 	// matching entry's flags/labels for classification.
-	FindTokenInUnified Inbox(ctx context.Context, userID, seedAccountID uuid.UUID, token string, since time.Time) (*UniboxTokenMatch, error)
+	FindTokenInUnibox(ctx context.Context, userID, seedAccountID uuid.UUID, token string, since time.Time) (*UniboxTokenMatch, error)
 }
 
 type placementRepository struct {
@@ -395,11 +395,11 @@ func (r *placementRepository) ListSeedCandidates(ctx context.Context, search str
 	return out, rows.Err()
 }
 
-func (r *placementRepository) FindTokenInUnified Inbox(ctx context.Context, userID, seedAccountID uuid.UUID, token string, since time.Time) (*UniboxTokenMatch, error) {
+func (r *placementRepository) FindTokenInUnibox(ctx context.Context, userID, seedAccountID uuid.UUID, token string, since time.Time) (*UniboxTokenMatch, error) {
 	// The placement token is embedded in the message subject (see
 	// placement.Service — the worker injects only the warmup verify header,
 	// which we don't control here, so the subject is the carrier that survives
-	// sync into the unified inbox without a worker change). We match the most recent
+	// sync into the unibox without a worker change). We match the most recent
 	// entry for this seed whose subject contains the token. `since` bounds the
 	// scan to mail that arrived after the test was created.
 	query := `

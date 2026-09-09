@@ -1,4 +1,4 @@
-// Thread reader : right pane of the unified inbox.
+// Thread reader : right pane of the unibox.
 //
 // Fetches the thread via /unibox/thread. Header actions are wrapped
 // in radix tooltips so hover reveals the intent + (where it exists) a

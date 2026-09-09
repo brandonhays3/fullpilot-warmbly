@@ -58,7 +58,7 @@ type ContactService interface {
 	// GetByEmail resolves a sender address to a contact within the
 	// organization (newest match wins). Returns (nil, nil) when the org has
 	// no contact for that address — a "not a known contact" is a normal,
-	// non-error outcome used by the unified inbox CRM panel.
+	// non-error outcome used by the unibox CRM panel.
 	GetByEmail(ctx context.Context, orgID *uuid.UUID, email string) (*models.Contact, *errx.Error)
 
 	// ListSentEmails enumerates every send (or attempted send) we made

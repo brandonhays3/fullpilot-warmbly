@@ -1,5 +1,5 @@
 // DealStagePicker — a paired pipeline + stage selector for CRM deal automation.
-// Mirrors the inline StagePicker pattern used in the unified inbox ContactContextPanel
+// Mirrors the inline StagePicker pattern used in the unibox ContactContextPanel
 // (PopoverMenu trigger + coloured stage dots), but adds a pipeline selector and
 // loads the org's pipelines itself. Used by the campaign "Create deal" /
 // "Move deal stage" action editors.

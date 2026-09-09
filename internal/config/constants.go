@@ -219,7 +219,7 @@ const (
 	WebhookDispatchPerMailboxPerMinute = 30   // added per mailbox the plan allows
 	WebhookDispatchMaxPerMinute        = 6000 // hard ceiling (100/s) for any plan
 
-	// Unified Inbox
+	// Unibox
 	UniboxLimitMin     = 1
 	UniboxLimitMax     = 100
 	UniboxLimitDefault = 50

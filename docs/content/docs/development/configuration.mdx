@@ -536,7 +536,7 @@ WARMBLY_SETTINGS_BOOTSTRAP={"sync":{"backfill_days":30},"retention":{"audit_log_
 
 It is applied only while the settings row has never been written, so from the first save in the panel onwards the panel is authoritative and the variable is a no-op. That is what [`install.sh --wizard`](/development/install/) writes when you answer its retention questions.
 
-The two `deliverability.*` values are read on every scheduling pass and every warmup send, so turning the gate off releases blocked mailboxes within the 30 second cache window. Turning it back on does not stop anything retroactively: a domain still has to spend its whole grace window failing first. Only a sustained failure gates, so a domain reading `unknown` (never checked, DNS could not answer, or a special-use domain that cannot resolve) always sends. Manual sends and unified inbox replies are never gated; see [domain authentication](/guides/deliverability/#domain-authentication).
+The two `deliverability.*` values are read on every scheduling pass and every warmup send, so turning the gate off releases blocked mailboxes within the 30 second cache window. Turning it back on does not stop anything retroactively: a domain still has to spend its whole grace window failing first. Only a sustained failure gates, so a domain reading `unknown` (never checked, DNS could not answer, or a special-use domain that cannot resolve) always sends. Manual sends and unibox replies are never gated; see [domain authentication](/guides/deliverability/#domain-authentication).
 
 Changing them is audited, and every value is validated and clamped server side on write as well as on read, so a row written by an older version still resolves.
 

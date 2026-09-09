@@ -107,12 +107,12 @@ type Service interface {
 	// just because a deal hasn't been created yet.
 	MoveContactDealStage(ctx context.Context, orgID, contactID, pipelineID, stageID uuid.UUID) (*models.Deal, *errx.Error)
 
-	// LabelThread additively applies unified inbox conversation labels (categories owned
+	// LabelThread additively applies unibox conversation labels (categories owned
 	// by userID) to a thread, for the "label_email" automation action. No-op on
 	// empty input; categories not owned by userID are silently ignored.
 	LabelThread(ctx context.Context, userID uuid.UUID, threadID string, categoryIDs []uuid.UUID) error
 	// LabelLatestThreadForContact finds the contact's most recent conversation in
-	// userID's unified inbox and labels it, for the "label_email" campaign step action
+	// userID's unibox and labels it, for the "label_email" campaign step action
 	// (which knows the contact but not the thread id). Returns the labeled thread
 	// id, or "" when the contact has no conversation yet.
 	LabelLatestThreadForContact(ctx context.Context, userID uuid.UUID, contactEmail string, categoryIDs []uuid.UUID) (string, error)

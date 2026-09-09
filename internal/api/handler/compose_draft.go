@@ -46,7 +46,7 @@ func (h *Handler) DraftCompose(c *gin.Context) {
 		errx.JSON(c, errx.New(errx.ServiceUnavailable, "the AI assistant is not configured"))
 		return
 	}
-	if allowed, xerr := h.FeatureGateService.CanUseUnified Inbox(c.Request.Context(), *orgID); xerr != nil {
+	if allowed, xerr := h.FeatureGateService.CanUseUnibox(c.Request.Context(), *orgID); xerr != nil {
 		errx.JSON(c, xerr)
 		return
 	} else if !allowed {
@@ -179,7 +179,7 @@ func (h *Handler) composeHistoryContext(c *gin.Context, address string) (string,
 	// The query returns newest first; the renderer reads a conversation
 	// oldest first, so flip it before rendering.
 	slices.Reverse(msgs)
-	return unified inbox.RenderGrounding(msgs), len(msgs)
+	return unibox.RenderGrounding(msgs), len(msgs)
 }
 
 func buildComposePrompt(address, contactCtx, history, subject, instruction string) string {

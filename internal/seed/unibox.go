@@ -26,7 +26,7 @@ type seededUniboxEmail struct {
 	internalDate string
 }
 
-func seedUnified Inbox(ctx context.Context, pool *pgxpool.Pool, _ *Result) error {
+func seedUnibox(ctx context.Context, pool *pgxpool.Pool, _ *Result) error {
 	if err := seedUniboxMailboxes(ctx, pool); err != nil {
 		return err
 	}

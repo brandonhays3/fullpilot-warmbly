@@ -94,7 +94,7 @@ export function NotificationBell() {
     const visible = filter === "unread" ? items.filter((n) => !n.read_at) : items;
 
     // Group by day bucket; the feed is newest → oldest, so one pass keeps
-    // both global order and group adjacency (same shape as the unified inbox list).
+    // both global order and group adjacency (same shape as the unibox list).
     const grouped = React.useMemo(() => {
         const groups: { bucket: Bucket; rows: AppNotification[] }[] = [];
         for (const n of visible) {

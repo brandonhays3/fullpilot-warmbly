@@ -246,7 +246,7 @@ func BackfillEligible(box models.Mailbox) bool {
 	return true
 }
 
-// CanonicalFolder maps an IMAP folder to the canonical unified inbox folder.
+// CanonicalFolder maps an IMAP folder to the canonical unibox folder.
 // Special-use attributes are authoritative, with a name fallback for servers
 // that do not advertise them; unrecognized user folders file as inbox so
 // their mail stays visible.

@@ -18,7 +18,7 @@ func (s *service) LabelThread(ctx context.Context, userID uuid.UUID, threadID st
 }
 
 // LabelLatestThreadForContact resolves the contact's most recent conversation in
-// userID's unified inbox and labels it. Backs the "label_email" campaign step action,
+// userID's unibox and labels it. Backs the "label_email" campaign step action,
 // which knows the contact but not the thread id (off a reply branch the most
 // recent thread IS the reply). Returns the labeled thread id, or "" when the
 // contact has no conversation yet (a logged no-op for the caller).
@@ -37,7 +37,7 @@ func (s *service) LabelLatestThreadForContact(ctx context.Context, userID uuid.U
 }
 
 // LatestInboundFromContact returns the subject and snippet of the most recent
-// email received from contactEmail in userID's unified inbox ("" when none). Backs
+// email received from contactEmail in userID's unibox ("" when none). Backs
 // the campaign AI step's incoming-email context, which knows the contact but
 // not the thread. Read-only and best-effort.
 func (s *service) LatestInboundFromContact(ctx context.Context, userID uuid.UUID, contactEmail string) (string, string, error) {

@@ -175,7 +175,7 @@ func (s *JobsService) publishEmailUpdated(ctx context.Context, userID uuid.UUID,
 }
 
 // emailInboxEvent builds the realtime inbox payload. Org-scoped (best-effort)
-// so every teammate's unified inbox updates live, not just the mailbox owner's.
+// so every teammate's unibox updates live, not just the mailbox owner's.
 func (s *JobsService) emailInboxEvent(ctx context.Context, userID uuid.UUID, message *models.EmailMessageStoreData) *pubsub.EmailInboxEvent {
 	var orgID string
 	if account, err := s.EmailRepository.GetByID(ctx, message.EmailID); err == nil && account != nil && account.OrganizationID != nil {
@@ -307,7 +307,7 @@ func (s *JobsService) acceptWarmupEmail(ctx context.Context, e *models.JobEventN
 
 	// Record the receipt so a later deletion or spam-flag of THIS message can be
 	// attributed back to warmup and to the sender. Verified warmup mail is not
-	// stored in the unified inbox, so this is the only record that the message was a
+	// stored in the unibox, so this is the only record that the message was a
 	// warmup email.
 	if e.Message != nil {
 		_ = s.WarmupRepo.RecordWarmupReceived(ctx, e.Message.EmailID, e.Message.ID, e.Message.MessageID, token.SenderAccountID)

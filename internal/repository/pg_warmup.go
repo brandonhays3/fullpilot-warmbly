@@ -1167,7 +1167,7 @@ func (r *warmupRepository) RecordWarmupTokenDelivery(ctx context.Context, taskID
 // The pair key is deliberately narrow. Warmup partners are other Fullpilot
 // mailboxes, so without the subject and the two-day window a real email
 // between two pool members could claim a pending token and vanish from the
-// recipient's unified inbox.
+// recipient's unibox.
 func (r *warmupRepository) FindDeliveredWarmupToken(ctx context.Context, recipientAccountID uuid.UUID, senderAddress, messageID, subject string) (*models.WarmupToken, error) {
 	messageID = strings.Trim(strings.TrimSpace(messageID), "<>")
 	senderAddress = strings.TrimSpace(senderAddress)

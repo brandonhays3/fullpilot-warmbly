@@ -168,7 +168,7 @@ The range goes up to `5000` so a high-capacity mailbox (a warmed Google Workspac
 
 ### Keeping a copy of sent mail
 
-SMTP mailboxes get a **Keep a copy of sent mail** toggle, on by default. SMTP submission puts nothing in your own account, so without it a message Warmbly sends exists only in the recipient's inbox: it shows up in neither your mail client nor the unified inbox thread. With it on, Warmbly files each message in the mailbox's Sent folder as it goes out, flagged read and dated when it was sent.
+SMTP mailboxes get a **Keep a copy of sent mail** toggle, on by default. SMTP submission puts nothing in your own account, so without it a message Warmbly sends exists only in the recipient's inbox: it shows up in neither your mail client nor the unibox thread. With it on, Warmbly files each message in the mailbox's Sent folder as it goes out, flagged read and dated when it was sent.
 
 Turn it off when your provider already saves its own copy of anything submitted over SMTP, which Gmail, Fastmail and Zoho do, or the folder ends up with two of every message. Gmail and Outlook mailboxes connected with OAuth never show the toggle: their APIs file the copy themselves. Warmup mail is never filed, since it would bury your real sent mail.
 
@@ -219,7 +219,7 @@ It keeps its worker assignment while off, so switching it back on puts it back o
 
 **Disconnecting** removes the mailbox for good, from the Accounts selection bar. The machine syncing it is told to drop it before the record is removed, because afterwards there is nothing left to tell. If that instruction cannot be delivered, the disconnect fails with a `503` and nothing is removed, so retry it in a moment rather than assuming it worked.
 
-Everything belonging to that mailbox goes with it: its imported mail in the unified inbox, its warmup history and pool membership, its credentials, its sender links, and any send still scheduled for it. A campaign that was using it keeps running on its remaining senders. Export the workspace first if you want a copy. Disable the mailbox instead when you only want it to stop.
+Everything belonging to that mailbox goes with it: its imported mail in the unibox, its warmup history and pool membership, its credentials, its sender links, and any send still scheduled for it. A campaign that was using it keeps running on its remaining senders. Export the workspace first if you want a copy. Disable the mailbox instead when you only want it to stop.
 
 ## Worker assignment
 

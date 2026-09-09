@@ -381,7 +381,7 @@ func (w *WMail) sendViaSMTP(ctx context.Context, req *SendRequest, bodyHTML stri
 
 // saveSentCopy files the message in the mailbox's Sent folder. SMTP submission
 // leaves nothing behind in the sender's account, so without this the message
-// is invisible to both the customer's own mail client and the unified inbox, whose
+// is invisible to both the customer's own mail client and the unibox, whose
 // thread reader can only show what the sync found in a folder.
 //
 // Best effort by design: the mail is already delivered, so a failure here is

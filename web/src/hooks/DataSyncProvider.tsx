@@ -7,7 +7,7 @@ import getEmails from '@/lib/api/client/app/emails/getEmails'
 import type Inbox from '@/lib/api/models/app/emails/Inbox'
 
 // Full mailbox directory for the store's emails slice. Several surfaces
-// resolve mailbox→tag membership from it (the unified inbox tag scope, the
+// resolve mailbox→tag membership from it (the unibox tag scope, the
 // filter sheet, the compose From picker), so it has to hold every
 // mailbox, not one page. The key sits under ["emails", "list"] so the
 // audit spine's account invalidations keep it fresh in realtime.

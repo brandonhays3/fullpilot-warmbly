@@ -170,7 +170,7 @@ type NativeActions interface {
 	CreateDeal(ctx context.Context, orgID, createdBy uuid.UUID, data *models.CreateDeal) error
 	MoveDealStage(ctx context.Context, orgID, contactID, pipelineID, stageID uuid.UUID) error
 	Unsubscribe(ctx context.Context, campaignID, contactID uuid.UUID) error
-	// LabelThread additively applies unified inbox conversation labels to a thread, on
+	// LabelThread additively applies unibox conversation labels to a thread, on
 	// behalf of the mailbox-owner userID (categories are per user). Backs the
 	// "label_email" action; userID + threadID come from the reply event data.
 	LabelThread(ctx context.Context, userID uuid.UUID, threadID string, categoryIDs []uuid.UUID) error
@@ -211,7 +211,7 @@ type nativeActionConfig struct {
 	TaskAssignedTeamID string   `json:"task_assigned_team_id"`
 	// run_automation: the automation to launch.
 	AutomationID string `json:"automation_id"`
-	// label_email: the unified inbox conversation labels to apply (category-registry ids).
+	// label_email: the unibox conversation labels to apply (category-registry ids).
 	LabelIDs []string `json:"label_ids"`
 	// set_variables: named values computed from templates and written back into
 	// the event data for later nodes to reuse.

@@ -38,7 +38,7 @@ const FIELDS: { key: FieldKey; label: string; hint: string }[] = [
     { key: "limit_read_pm", label: "Reads / min", hint: "GET-style API calls per minute" },
     { key: "limit_write_pm", label: "Writes / min", hint: "Mutating API calls per minute" },
     { key: "limit_bulk_pm", label: "Bulk / min", hint: "Bulk import and export calls per minute" },
-    { key: "limit_unibox_pm", label: "Unified Inbox / min", hint: "Unified inbox calls per minute" },
+    { key: "limit_unibox_pm", label: "Unibox / min", hint: "Unified inbox calls per minute" },
     { key: "limit_analytics_pm", label: "Analytics / min", hint: "Analytics calls per minute" },
     { key: "limit_api_calls_daily", label: "API calls / day", hint: "Total API calls per day" },
     { key: "limit_bulk_ops_daily", label: "Bulk ops / day", hint: "Bulk operations per day" },

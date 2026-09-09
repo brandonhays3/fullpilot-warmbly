@@ -16,7 +16,7 @@ export default function useDeleteCategory(id: string) {
           categories: oldData.categories.filter((t) => t.id !== id),
         };
       });
-      // The category is also a Unified Inbox conversation label. The DB
+      // The category is also a Unibox conversation label. The DB
       // cascades the unibox_thread_labels rows away, but the cached
       // list rows + scope-rail counts still reference it — refresh
       // them so deleted-label chips/counts don't linger.

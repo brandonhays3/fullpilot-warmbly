@@ -1,5 +1,5 @@
 // ComposeWindow — the global "new email" surface. A Gmail-style docked window
-// (bottom-right on desktop, near-fullscreen on phones) opened from the unified inbox
+// (bottom-right on desktop, near-fullscreen on phones) opened from the unibox
 // header, the n shortcut, or any surface that calls useComposeStore.
 //
 // What makes it more than a form:

@@ -11,7 +11,7 @@ import (
 	"github.com/warmbly/warmbly/internal/pkg/generation"
 )
 
-// Unified-inbox action tools (no outbound send). Each reuses requireUnified Inbox so a
+// Unified-inbox action tools (no outbound send). Each reuses requireUnibox so a
 // tool can never touch inbox data an org without an active trial/paid plan would
 // be refused, and runs under the caller's user/org.
 func (d Deps) registerInboxActionTools(r *Registry) {
@@ -23,8 +23,8 @@ func (d Deps) registerInboxActionTools(r *Registry) {
 			"seen":      boolProp("true to mark seen (default), false to mark unseen."),
 		}, "thread_id"),
 		Risk:            generation.RiskWrite,
-		RequiredOrgPerm: models.PermAccessUnified Inbox,
-		RequiredAPIPerm: models.APIPermWriteUnified Inbox,
+		RequiredOrgPerm: models.PermAccessUnibox,
+		RequiredAPIPerm: models.APIPermWriteUnibox,
 		Handler:         d.markThreadSeen,
 	})
 
@@ -36,8 +36,8 @@ func (d Deps) registerInboxActionTools(r *Registry) {
 			"category_ids": arrProp("Category (label) UUIDs to apply.", strProp("Category UUID.")),
 		}, "thread_id"),
 		Risk:            generation.RiskWrite,
-		RequiredOrgPerm: models.PermAccessUnified Inbox,
-		RequiredAPIPerm: models.APIPermWriteUnified Inbox,
+		RequiredOrgPerm: models.PermAccessUnibox,
+		RequiredAPIPerm: models.APIPermWriteUnibox,
 		Handler:         d.setThreadLabels,
 	})
 
@@ -49,8 +49,8 @@ func (d Deps) registerInboxActionTools(r *Registry) {
 			"snoozed_until": strProp("When the thread should reappear, RFC3339 (e.g. 2026-07-25T09:00:00Z)."),
 		}, "thread_id", "snoozed_until"),
 		Risk:            generation.RiskWrite,
-		RequiredOrgPerm: models.PermAccessUnified Inbox,
-		RequiredAPIPerm: models.APIPermWriteUnified Inbox,
+		RequiredOrgPerm: models.PermAccessUnibox,
+		RequiredAPIPerm: models.APIPermWriteUnibox,
 		Handler:         d.snoozeThread,
 	})
 
@@ -61,8 +61,8 @@ func (d Deps) registerInboxActionTools(r *Registry) {
 			"thread_id": strProp("The thread id."),
 		}, "thread_id"),
 		Risk:            generation.RiskWrite,
-		RequiredOrgPerm: models.PermAccessUnified Inbox,
-		RequiredAPIPerm: models.APIPermWriteUnified Inbox,
+		RequiredOrgPerm: models.PermAccessUnibox,
+		RequiredAPIPerm: models.APIPermWriteUnibox,
 		Handler:         d.unsnoozeThread,
 	})
 
@@ -71,8 +71,8 @@ func (d Deps) registerInboxActionTools(r *Registry) {
 		Description:     "List the user's queued (not-yet-sent) outbound messages, with their task ids.",
 		InputSchema:     objectSchema(map[string]any{}),
 		Risk:            generation.RiskRead,
-		RequiredOrgPerm: models.PermAccessUnified Inbox,
-		RequiredAPIPerm: models.APIPermReadUnified Inbox,
+		RequiredOrgPerm: models.PermAccessUnibox,
+		RequiredAPIPerm: models.APIPermReadUnibox,
 		Handler:         d.listScheduledSends,
 	})
 
@@ -83,14 +83,14 @@ func (d Deps) registerInboxActionTools(r *Registry) {
 			"task_id": strProp("The scheduled send's task id (from list_scheduled_sends)."),
 		}, "task_id"),
 		Risk:            generation.RiskWrite,
-		RequiredOrgPerm: models.PermAccessUnified Inbox,
-		RequiredAPIPerm: models.APIPermWriteUnified Inbox,
+		RequiredOrgPerm: models.PermAccessUnibox,
+		RequiredAPIPerm: models.APIPermWriteUnibox,
 		Handler:         d.cancelScheduledSend,
 	})
 }
 
 func (d Deps) markThreadSeen(ctx context.Context, inv Invocation, args json.RawMessage) (string, error) {
-	if err := d.requireUnified Inbox(ctx, inv); err != nil {
+	if err := d.requireUnibox(ctx, inv); err != nil {
 		return "", err
 	}
 	in, err := decodeArgs[struct {
@@ -103,7 +103,7 @@ func (d Deps) markThreadSeen(ctx context.Context, inv Invocation, args json.RawM
 	if in.ThreadID == "" {
 		return "", ErrInvalidArgs
 	}
-	res, xerr := d.Unified Inbox.GetByThread(ctx, inv.OrgID, uuid.Nil, in.ThreadID, "100", "")
+	res, xerr := d.Unibox.GetByThread(ctx, inv.OrgID, uuid.Nil, in.ThreadID, "100", "")
 	if xerr != nil {
 		return "", fromErrx(xerr)
 	}
@@ -120,14 +120,14 @@ func (d Deps) markThreadSeen(ctx context.Context, inv Invocation, args json.RawM
 	if in.Seen != nil {
 		seen = *in.Seen
 	}
-	if _, xerr := d.Unified Inbox.MarkSeenBulk(ctx, inv.OrgID, &models.MarkSeen{EmailIDs: ids, Seen: seen}); xerr != nil {
+	if _, xerr := d.Unibox.MarkSeenBulk(ctx, inv.OrgID, &models.MarkSeen{EmailIDs: ids, Seen: seen}); xerr != nil {
 		return "", fromErrx(xerr)
 	}
 	return jsonResult(map[string]any{"ok": true, "updated": len(ids), "seen": seen})
 }
 
 func (d Deps) setThreadLabels(ctx context.Context, inv Invocation, args json.RawMessage) (string, error) {
-	if err := d.requireUnified Inbox(ctx, inv); err != nil {
+	if err := d.requireUnibox(ctx, inv); err != nil {
 		return "", err
 	}
 	in, err := decodeArgs[struct {
@@ -148,16 +148,16 @@ func (d Deps) setThreadLabels(ctx context.Context, inv Invocation, args json.Raw
 		}
 		catIDs = append(catIDs, id)
 	}
-	labels, xerr := d.Unified Inbox.SetThreadLabels(ctx, inv.UserID, in.ThreadID, catIDs)
+	labels, xerr := d.Unibox.SetThreadLabels(ctx, inv.UserID, in.ThreadID, catIDs)
 	if xerr != nil {
 		return "", fromErrx(xerr)
 	}
-	d.logAudit(ctx, inv, models.AuditActionUpdate, models.AuditEntityUnified Inbox, nil, nil)
+	d.logAudit(ctx, inv, models.AuditActionUpdate, models.AuditEntityUnibox, nil, nil)
 	return jsonResult(map[string]any{"ok": true, "labels": labels})
 }
 
 func (d Deps) snoozeThread(ctx context.Context, inv Invocation, args json.RawMessage) (string, error) {
-	if err := d.requireUnified Inbox(ctx, inv); err != nil {
+	if err := d.requireUnibox(ctx, inv); err != nil {
 		return "", err
 	}
 	in, err := decodeArgs[struct {
@@ -174,16 +174,16 @@ func (d Deps) snoozeThread(ctx context.Context, inv Invocation, args json.RawMes
 	if perr != nil {
 		return "", ErrInvalidArgs
 	}
-	snooze, xerr := d.Unified Inbox.Snooze(ctx, inv.UserID, in.ThreadID, until)
+	snooze, xerr := d.Unibox.Snooze(ctx, inv.UserID, in.ThreadID, until)
 	if xerr != nil {
 		return "", fromErrx(xerr)
 	}
-	d.logAudit(ctx, inv, models.AuditActionUpdate, models.AuditEntityUnified Inbox, nil, nil)
+	d.logAudit(ctx, inv, models.AuditActionUpdate, models.AuditEntityUnibox, nil, nil)
 	return jsonResult(snooze)
 }
 
 func (d Deps) unsnoozeThread(ctx context.Context, inv Invocation, args json.RawMessage) (string, error) {
-	if err := d.requireUnified Inbox(ctx, inv); err != nil {
+	if err := d.requireUnibox(ctx, inv); err != nil {
 		return "", err
 	}
 	in, err := decodeArgs[struct {
@@ -195,18 +195,18 @@ func (d Deps) unsnoozeThread(ctx context.Context, inv Invocation, args json.RawM
 	if in.ThreadID == "" {
 		return "", ErrInvalidArgs
 	}
-	if xerr := d.Unified Inbox.Unsnooze(ctx, inv.UserID, in.ThreadID); xerr != nil {
+	if xerr := d.Unibox.Unsnooze(ctx, inv.UserID, in.ThreadID); xerr != nil {
 		return "", fromErrx(xerr)
 	}
-	d.logAudit(ctx, inv, models.AuditActionUpdate, models.AuditEntityUnified Inbox, nil, nil)
+	d.logAudit(ctx, inv, models.AuditActionUpdate, models.AuditEntityUnibox, nil, nil)
 	return jsonResult(map[string]any{"ok": true, "thread_id": in.ThreadID})
 }
 
 func (d Deps) listScheduledSends(ctx context.Context, inv Invocation, _ json.RawMessage) (string, error) {
-	if err := d.requireUnified Inbox(ctx, inv); err != nil {
+	if err := d.requireUnibox(ctx, inv); err != nil {
 		return "", err
 	}
-	items, xerr := d.Unified Inbox.ListScheduled(ctx, inv.UserID)
+	items, xerr := d.Unibox.ListScheduled(ctx, inv.UserID)
 	if xerr != nil {
 		return "", fromErrx(xerr)
 	}
@@ -214,7 +214,7 @@ func (d Deps) listScheduledSends(ctx context.Context, inv Invocation, _ json.Raw
 }
 
 func (d Deps) cancelScheduledSend(ctx context.Context, inv Invocation, args json.RawMessage) (string, error) {
-	if err := d.requireUnified Inbox(ctx, inv); err != nil {
+	if err := d.requireUnibox(ctx, inv); err != nil {
 		return "", err
 	}
 	in, err := decodeArgs[struct {
@@ -227,9 +227,9 @@ func (d Deps) cancelScheduledSend(ctx context.Context, inv Invocation, args json
 	if err != nil {
 		return "", err
 	}
-	if xerr := d.Unified Inbox.CancelScheduled(ctx, inv.UserID, tid); xerr != nil {
+	if xerr := d.Unibox.CancelScheduled(ctx, inv.UserID, tid); xerr != nil {
 		return "", fromErrx(xerr)
 	}
-	d.logAudit(ctx, inv, models.AuditActionUpdate, models.AuditEntityUnified Inbox, &tid, nil)
+	d.logAudit(ctx, inv, models.AuditActionUpdate, models.AuditEntityUnibox, &tid, nil)
 	return jsonResult(map[string]any{"ok": true, "task_id": tid.String()})
 }

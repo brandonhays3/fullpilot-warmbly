@@ -1,4 +1,4 @@
-// Top metric strip for the unified inbox.
+// Top metric strip for the unibox.
 //
 // Numbers come from /unibox/overview so the strip is server-truth,
 // not a sample of whatever happens to be loaded in the list.

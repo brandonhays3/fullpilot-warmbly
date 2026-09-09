@@ -92,7 +92,7 @@ const (
 	AuditEntityCRMNote     AuditEntityType = "crm_note"
 
 	// Inbox
-	AuditEntityUnified Inbox AuditEntityType = "unibox"
+	AuditEntityUnibox AuditEntityType = "unibox"
 
 	// Collaboration / automation surfaces
 	AuditEntityTeam           AuditEntityType = "team"

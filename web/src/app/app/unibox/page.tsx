@@ -1,4 +1,4 @@
-// Unified Inbox — three-column overview layout.
+// Unibox — three-column overview layout.
 //
 //   ┌── Top metric strip ─────────────────────────────────────────┐
 //   │ Inbox · [scope chip] · unread · awaiting · today · week · …│

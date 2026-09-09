@@ -2649,7 +2649,7 @@ function NativeActionConfig({
                     </div>
                     {triggerCarriesThread(trigger) ? (
                         <p className="text-[11px] leading-relaxed text-slate-400">
-                            Labels the conversation the contact replied on (the same labels you set by hand in the unified inbox).
+                            Labels the conversation the contact replied on (the same labels you set by hand in the unibox).
                         </p>
                     ) : (
                         <p className="inline-flex items-start gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-2 py-1.5 text-[11px] leading-relaxed text-amber-700">

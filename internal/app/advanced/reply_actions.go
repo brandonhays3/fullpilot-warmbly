@@ -282,7 +282,7 @@ func (s *service) executeInstantActionNode(ctx context.Context, campaign *models
 		}
 	case "label_email":
 		// Label the conversation the contact just replied on. The most recent
-		// thread for the contact in the campaign owner's unified inbox is that reply.
+		// thread for the contact in the campaign owner's unibox is that reply.
 		if len(cfg.LabelIDs) == 0 {
 			return
 		}

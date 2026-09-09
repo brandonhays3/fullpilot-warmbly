@@ -46,7 +46,7 @@ export function CommandPalette() {
     { icon: MailIcon, label: 'Email Accounts', shortcut: 'g e', onSelect: () => navigate('/app/emails') },
     { icon: UsersIcon, label: 'Contacts', shortcut: 'g c', onSelect: () => navigate('/app/contacts') },
     { icon: MegaphoneIcon, label: 'Campaigns', shortcut: 'g m', onSelect: () => navigate('/app/campaigns') },
-    { icon: InboxIcon, label: 'Unified Inbox', shortcut: 'g u', onSelect: () => navigate('/app/unibox') },
+    { icon: InboxIcon, label: 'Unibox', shortcut: 'g u', onSelect: () => navigate('/app/unibox') },
     { icon: BarChart3Icon, label: 'Analytics', shortcut: 'g a', onSelect: () => navigate('/app/analytics') },
     { icon: GitBranchIcon, label: 'Pipelines', shortcut: 'g p', onSelect: () => navigate('/app/crm/pipelines') },
     { icon: CircleDollarSignIcon, label: 'Deals', shortcut: 'g d', onSelect: () => navigate('/app/crm/deals') },

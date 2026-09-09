@@ -12,7 +12,7 @@ const (
 	RateLimitRead      RateLimitCategory = "read"
 	RateLimitWrite     RateLimitCategory = "write"
 	RateLimitBulk      RateLimitCategory = "bulk"
-	RateLimitUnified Inbox    RateLimitCategory = "unibox"
+	RateLimitUnibox    RateLimitCategory = "unibox"
 	RateLimitAnalytics RateLimitCategory = "analytics"
 )
 
@@ -135,7 +135,7 @@ func (r *UserRateLimits) GetLimitForCategory(category RateLimitCategory) int {
 		return r.LimitWritePM
 	case RateLimitBulk:
 		return r.LimitBulkPM
-	case RateLimitUnified Inbox:
+	case RateLimitUnibox:
 		return r.LimitUniboxPM
 	case RateLimitAnalytics:
 		return r.LimitAnalyticsPM

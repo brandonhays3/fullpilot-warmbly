@@ -25,7 +25,7 @@ type EmailSyncStateRepository interface {
 	Get(ctx context.Context, emailID uuid.UUID) (*models.SyncState, error)
 	// IsOwnConversation reports whether any of the RFC message ids or the
 	// provider thread id belongs to something this mailbox sent or already
-	// holds: a campaign task, a mapped message, or a stored unified inbox thread.
+	// holds: a campaign task, a mapped message, or a stored unibox thread.
 	IsOwnConversation(ctx context.Context, userID, emailID uuid.UUID, messageIDs []string, threadID string) (bool, error)
 }
 
@@ -136,7 +136,7 @@ func (r *pgEmailSyncStateRepository) IsOwnConversation(ctx context.Context, user
 	}
 	// Three sources, cheapest first: campaign and reply sends record their
 	// Message-ID on tasks; IMAP maps sent-folder mail by RFC id; Gmail and
-	// Graph key the map by provider id, so for them the stored unified inbox thread
+	// Graph key the map by provider id, so for them the stored unibox thread
 	// is what links a reply back to the mailbox's own message.
 	const q = `
 		SELECT EXISTS (

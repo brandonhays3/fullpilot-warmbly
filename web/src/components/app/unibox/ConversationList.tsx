@@ -1,4 +1,4 @@
-// Middle pane of the unified inbox.
+// Middle pane of the unibox.
 //
 // Three upgrades over the flat list:
 //   1. Time-bucket grouping (Today / Yesterday / This week / Earlier)

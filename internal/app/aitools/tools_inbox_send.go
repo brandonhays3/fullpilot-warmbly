@@ -28,8 +28,8 @@ func (d Deps) registerInboxSendTools(r *Registry) {
 			"account_id": strProp("Optional mailbox UUID to send from; omit to auto-pick the mailbox in the conversation."),
 		}, "thread_id", "body"),
 		Risk:            generation.RiskSend,
-		RequiredOrgPerm: models.PermAccessUnified Inbox,
-		RequiredAPIPerm: models.APIPermWriteUnified Inbox,
+		RequiredOrgPerm: models.PermAccessUnibox,
+		RequiredAPIPerm: models.APIPermWriteUnibox,
 		Handler:         d.sendReply,
 	})
 
@@ -45,14 +45,14 @@ func (d Deps) registerInboxSendTools(r *Registry) {
 			"from_tag_id": strProp("Optional mailbox-tag UUID to auto-pick a sender within that tag."),
 		}, "to", "subject", "body"),
 		Risk:            generation.RiskSend,
-		RequiredOrgPerm: models.PermAccessUnified Inbox,
-		RequiredAPIPerm: models.APIPermWriteUnified Inbox,
+		RequiredOrgPerm: models.PermAccessUnibox,
+		RequiredAPIPerm: models.APIPermWriteUnibox,
 		Handler:         d.composeEmail,
 	})
 }
 
 func (d Deps) sendReply(ctx context.Context, inv Invocation, args json.RawMessage) (string, error) {
-	if err := d.requireUnified Inbox(ctx, inv); err != nil {
+	if err := d.requireUnibox(ctx, inv); err != nil {
 		return "", err
 	}
 	in, err := decodeArgs[struct {
@@ -69,7 +69,7 @@ func (d Deps) sendReply(ctx context.Context, inv Invocation, args json.RawMessag
 	}
 
 	// Resolve the reply target from the thread's latest message.
-	res, xerr := d.Unified Inbox.GetByThread(ctx, inv.OrgID, uuid.Nil, in.ThreadID, "1", "")
+	res, xerr := d.Unibox.GetByThread(ctx, inv.OrgID, uuid.Nil, in.ThreadID, "1", "")
 	if xerr != nil {
 		return "", fromErrx(xerr)
 	}
@@ -100,19 +100,19 @@ func (d Deps) sendReply(ctx context.Context, inv Invocation, args json.RawMessag
 	}
 	// Best-effort: pull the original Message-ID so the reply threads via
 	// In-Reply-To. The thread preview does not carry it, so fetch the message.
-	if full, ferr := d.Unified Inbox.GetByID(ctx, inv.OrgID, latest.ID); ferr == nil && full != nil && full.MessageID != "" {
+	if full, ferr := d.Unibox.GetByID(ctx, inv.OrgID, latest.ID); ferr == nil && full != nil && full.MessageID != "" {
 		sendReq.InReplyTo = []string{full.MessageID}
 	}
 	resp, xerr := d.EmailSend.SendEmail(ctx, inv.UserID, inv.OrgID, accountID, sendReq)
 	if xerr != nil {
 		return "", fromErrx(xerr)
 	}
-	d.logAudit(ctx, inv, models.AuditActionSend, models.AuditEntityUnified Inbox, &accountID, map[string]string{"thread_id": in.ThreadID})
+	d.logAudit(ctx, inv, models.AuditActionSend, models.AuditEntityUnibox, &accountID, map[string]string{"thread_id": in.ThreadID})
 	return jsonResult(map[string]any{"ok": true, "task_id": resp.TaskID.String(), "to": to, "account_id": accountID.String()})
 }
 
 func (d Deps) composeEmail(ctx context.Context, inv Invocation, args json.RawMessage) (string, error) {
-	if err := d.requireUnified Inbox(ctx, inv); err != nil {
+	if err := d.requireUnibox(ctx, inv); err != nil {
 		return "", err
 	}
 	in, err := decodeArgs[struct {
@@ -149,7 +149,7 @@ func (d Deps) composeEmail(ctx context.Context, inv Invocation, args json.RawMes
 	if xerr != nil {
 		return "", fromErrx(xerr)
 	}
-	d.logAudit(ctx, inv, models.AuditActionSend, models.AuditEntityUnified Inbox, &accountID, map[string]string{"to": bareEmail(to)})
+	d.logAudit(ctx, inv, models.AuditActionSend, models.AuditEntityUnibox, &accountID, map[string]string{"to": bareEmail(to)})
 	return jsonResult(map[string]any{"ok": true, "task_id": resp.TaskID.String(), "account_id": accountID.String()})
 }
 

@@ -14,9 +14,9 @@ import (
 	"github.com/warmbly/warmbly/internal/models"
 )
 
-// gateUnified Inbox enforces feature access for any unified inbox endpoint that
+// gateUnibox enforces feature access for any unibox endpoint that
 // needs an org context. Returns true when the caller is allowed.
-func (h *Handler) gateUnified Inbox(c *gin.Context) bool {
+func (h *Handler) gateUnibox(c *gin.Context) bool {
 	if h.FeatureGateService == nil {
 		return true
 	}
@@ -24,9 +24,9 @@ func (h *Handler) gateUnified Inbox(c *gin.Context) bool {
 	if orgID == nil {
 		return true
 	}
-	canUse, _ := h.FeatureGateService.CanUseUnified Inbox(c.Request.Context(), *orgID)
+	canUse, _ := h.FeatureGateService.CanUseUnibox(c.Request.Context(), *orgID)
 	if !canUse {
-		errx.Handle(c, errx.New(errx.Forbidden, "Unified Inbox requires an active trial or paid subscription"))
+		errx.Handle(c, errx.New(errx.Forbidden, "Unibox requires an active trial or paid subscription"))
 		return false
 	}
 	return true
@@ -46,13 +46,13 @@ func (h *Handler) GetUniboxIncoming(c *gin.Context) {
 		return
 	}
 
-	// Check if organization can use unified inbox (active free trial or paid subscription)
+	// Check if organization can use unibox (active free trial or paid subscription)
 	if h.FeatureGateService != nil {
 		orgID := middleware.GetOrganizationID(c)
 		if orgID != nil {
-			canUse, _ := h.FeatureGateService.CanUseUnified Inbox(c.Request.Context(), *orgID)
+			canUse, _ := h.FeatureGateService.CanUseUnibox(c.Request.Context(), *orgID)
 			if !canUse {
-				errx.Handle(c, errx.New(errx.Forbidden, "Unified Inbox requires an active trial or paid subscription"))
+				errx.Handle(c, errx.New(errx.Forbidden, "Unibox requires an active trial or paid subscription"))
 				return
 			}
 		}
@@ -220,9 +220,9 @@ func (h *Handler) GetUniboxEmail(c *gin.Context) {
 
 	// Check if organization can use unibox
 	if h.FeatureGateService != nil {
-		canUse, _ := h.FeatureGateService.CanUseUnified Inbox(c.Request.Context(), *orgID)
+		canUse, _ := h.FeatureGateService.CanUseUnibox(c.Request.Context(), *orgID)
 		if !canUse {
-			errx.Handle(c, errx.New(errx.Forbidden, "Unified Inbox requires an active trial or paid subscription"))
+			errx.Handle(c, errx.New(errx.Forbidden, "Unibox requires an active trial or paid subscription"))
 			return
 		}
 	}
@@ -259,9 +259,9 @@ func (h *Handler) GetUniboxThread(c *gin.Context) {
 
 	// Check if organization can use unibox
 	if h.FeatureGateService != nil {
-		canUse, _ := h.FeatureGateService.CanUseUnified Inbox(c.Request.Context(), *orgID)
+		canUse, _ := h.FeatureGateService.CanUseUnibox(c.Request.Context(), *orgID)
 		if !canUse {
-			errx.Handle(c, errx.New(errx.Forbidden, "Unified Inbox requires an active trial or paid subscription"))
+			errx.Handle(c, errx.New(errx.Forbidden, "Unibox requires an active trial or paid subscription"))
 			return
 		}
 	}
@@ -310,7 +310,7 @@ func (h *Handler) GetUniboxThread(c *gin.Context) {
 // GetUniboxThreadLabels returns the conversation labels on a thread.
 // GET /unibox/thread/labels?thread_id=<id>
 func (h *Handler) GetUniboxThreadLabels(c *gin.Context) {
-	if !h.gateUnified Inbox(c) {
+	if !h.gateUnibox(c) {
 		return
 	}
 	userID := middleware.GetUserID(c)
@@ -343,7 +343,7 @@ func (h *Handler) GetUniboxThreadLabels(c *gin.Context) {
 // categories are attached.
 // PUT /unibox/thread/labels
 func (h *Handler) SetUniboxThreadLabels(c *gin.Context) {
-	if !h.gateUnified Inbox(c) {
+	if !h.gateUnibox(c) {
 		return
 	}
 	userID := middleware.GetUserID(c)
@@ -365,7 +365,7 @@ func (h *Handler) SetUniboxThreadLabels(c *gin.Context) {
 		return
 	}
 
-	h.auditOrg(c, models.AuditActionUpdate, models.AuditEntityUnified Inbox, nil, nil, map[string]string{
+	h.auditOrg(c, models.AuditActionUpdate, models.AuditEntityUnibox, nil, nil, map[string]string{
 		"action":    "set_labels",
 		"thread_id": req.ThreadID,
 		"labels":    strconv.Itoa(len(labels)),
@@ -438,7 +438,7 @@ type UniboxReplyRequest struct {
 	ScheduledAt    *time.Time `json:"scheduled_at,omitempty"`
 }
 
-// UniboxReply schedules a reply email from Unified Inbox.
+// UniboxReply schedules a reply email from Unibox.
 // POST /unibox/reply
 func (h *Handler) UniboxReply(c *gin.Context) {
 	orgID := middleware.GetOrganizationID(c)
@@ -498,7 +498,7 @@ func (h *Handler) UniboxReply(c *gin.Context) {
 		return
 	}
 
-	h.auditOrg(c, models.AuditActionSend, models.AuditEntityUnified Inbox, &accountID, nil, map[string]string{
+	h.auditOrg(c, models.AuditActionSend, models.AuditEntityUnibox, &accountID, nil, map[string]string{
 		"send_mode":  sendReq.SendMode,
 		"recipients": strconv.Itoa(len(req.To)),
 	})
@@ -511,7 +511,7 @@ func (h *Handler) UniboxReply(c *gin.Context) {
 // rail and metric strip share this response.
 // GET /unibox/overview
 func (h *Handler) GetUniboxOverview(c *gin.Context) {
-	if !h.gateUnified Inbox(c) {
+	if !h.gateUnibox(c) {
 		return
 	}
 	userID := middleware.GetUserID(c)
@@ -543,7 +543,7 @@ type UniboxSnoozeRequest struct {
 // Upsert semantics: a second call on the same thread updates the time.
 // POST /unibox/snooze
 func (h *Handler) CreateUniboxSnooze(c *gin.Context) {
-	if !h.gateUnified Inbox(c) {
+	if !h.gateUnibox(c) {
 		return
 	}
 	userID := middleware.GetUserID(c)
@@ -565,7 +565,7 @@ func (h *Handler) CreateUniboxSnooze(c *gin.Context) {
 		return
 	}
 
-	h.auditOrg(c, models.AuditActionCreate, models.AuditEntityUnified Inbox, nil, nil, map[string]string{
+	h.auditOrg(c, models.AuditActionCreate, models.AuditEntityUnibox, nil, nil, map[string]string{
 		"action":    "snooze",
 		"thread_id": req.ThreadID,
 	})
@@ -577,7 +577,7 @@ func (h *Handler) CreateUniboxSnooze(c *gin.Context) {
 // deleting a snooze that doesn't exist still returns 204.
 // DELETE /unibox/snooze
 func (h *Handler) DeleteUniboxSnooze(c *gin.Context) {
-	if !h.gateUnified Inbox(c) {
+	if !h.gateUnibox(c) {
 		return
 	}
 	userID := middleware.GetUserID(c)
@@ -598,7 +598,7 @@ func (h *Handler) DeleteUniboxSnooze(c *gin.Context) {
 		return
 	}
 
-	h.auditOrg(c, models.AuditActionDelete, models.AuditEntityUnified Inbox, nil, nil, map[string]string{
+	h.auditOrg(c, models.AuditActionDelete, models.AuditEntityUnibox, nil, nil, map[string]string{
 		"action":    "snooze",
 		"thread_id": threadID,
 	})
@@ -615,7 +615,7 @@ func (h *Handler) DeleteUniboxSnooze(c *gin.Context) {
 // GET /unibox/scheduled
 // GET /unibox/scheduled?thread_id=<id>
 func (h *Handler) ListUniboxScheduled(c *gin.Context) {
-	if !h.gateUnified Inbox(c) {
+	if !h.gateUnibox(c) {
 		return
 	}
 	userID := middleware.GetUserID(c)
@@ -648,7 +648,7 @@ func (h *Handler) ListUniboxScheduled(c *gin.Context) {
 // no-op (the task handler short-circuits on non-pending statuses).
 // DELETE /unibox/scheduled/:task_id
 func (h *Handler) CancelUniboxScheduled(c *gin.Context) {
-	if !h.gateUnified Inbox(c) {
+	if !h.gateUnibox(c) {
 		return
 	}
 	userID := middleware.GetUserID(c)
@@ -668,7 +668,7 @@ func (h *Handler) CancelUniboxScheduled(c *gin.Context) {
 		return
 	}
 
-	h.auditOrg(c, models.AuditActionDelete, models.AuditEntityUnified Inbox, &taskID, nil, map[string]string{
+	h.auditOrg(c, models.AuditActionDelete, models.AuditEntityUnibox, &taskID, nil, map[string]string{
 		"action": "cancel_scheduled",
 	})
 
@@ -678,7 +678,7 @@ func (h *Handler) CancelUniboxScheduled(c *gin.Context) {
 // ListUniboxSnoozes returns the user's active snoozes (debug + UI).
 // GET /unibox/snoozes
 func (h *Handler) ListUniboxSnoozes(c *gin.Context) {
-	if !h.gateUnified Inbox(c) {
+	if !h.gateUnibox(c) {
 		return
 	}
 	userID := middleware.GetUserID(c)

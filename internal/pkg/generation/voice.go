@@ -292,7 +292,7 @@ func BuildInlineSnippetRules(vc VoiceContext) string {
 }
 
 // BuildReplyRules composes the reply-framed humanizer with the org grounding.
-// Used by the unified inbox reply-draft endpoint (M4) and the inbox agent (M10).
+// Used by the unibox reply-draft endpoint (M4) and the inbox agent (M10).
 func BuildReplyRules(vc VoiceContext) string {
 	var b strings.Builder
 	b.WriteString(replyRules)
