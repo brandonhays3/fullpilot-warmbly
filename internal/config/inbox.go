@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strings"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -24,11 +25,21 @@ type Oauth2Inbox struct {
 // port is arbitrary; nothing listens on it.
 const GoogleDesktopRedirect = "http://localhost:17777/warmbly/oauth"
 
+// redirectOverride lets a deployment present a redirect_uri that is already
+// registered on an existing OAuth client (a host it controls that forwards to
+// the real callback), instead of API base + callback path.
+func redirectOverride(envKey, fallback string) string {
+	if v := strings.TrimSpace(os.Getenv(envKey)); v != "" {
+		return v
+	}
+	return fallback
+}
+
 func GoogleOauth2Inbox(baseURL string) *oauth2.Config {
 	return &oauth2.Config{
 		ClientID:     os.Getenv("BOX_GOOGLE_CLIENT_ID"),
 		ClientSecret: os.Getenv("BOX_GOOGLE_CLIENT_SECRET"),
-		RedirectURL:  baseURL + "/addresses/google/callback",
+		RedirectURL:  redirectOverride("BOX_GOOGLE_REDIRECT_URL", baseURL+"/addresses/google/callback"),
 		Scopes: []string{
 			gmail.GmailComposeScope,
 			gmail.GmailMetadataScope,
@@ -66,7 +77,7 @@ func OutlookOauth2Inbox(baseURL string) *oauth2.Config {
 	return &oauth2.Config{
 		ClientID:     os.Getenv("BOX_OUTLOOK_CLIENT_ID"),
 		ClientSecret: os.Getenv("BOX_OUTLOOK_CLIENT_SECRET"),
-		RedirectURL:  baseURL + "/addresses/outlook/callback",
+		RedirectURL:  redirectOverride("BOX_OUTLOOK_REDIRECT_URL", baseURL+"/addresses/outlook/callback"),
 		Scopes: []string{
 			"openid",
 			"email",
