@@ -193,7 +193,7 @@ type MailThreadResult struct {
 	Pagination CPagination             `json:"pagination"`
 }
 
-// Canonical mail folders. Every unibox message carries exactly one, derived
+// Canonical mail folders. Every unified inbox message carries exactly one, derived
 // from provider placement at sync time (IMAP special-use attributes, Gmail
 // labels, Graph well-known folders) and enforced by a CHECK on the column.
 const (
@@ -418,6 +418,6 @@ type UniboxScheduledItem struct {
 	Subject string   `json:"subject"`
 	Snippet string   `json:"snippet"`
 
-	// Thread the reply will land in (when the user queued from unibox).
+	// Thread the reply will land in (when the user queued from unified inbox).
 	ThreadID *string `json:"thread_id,omitempty"`
 }

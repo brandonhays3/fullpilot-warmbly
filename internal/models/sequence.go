@@ -63,7 +63,7 @@ type ActionConfig struct {
 	// segment as a manual override.
 	SegmentID *uuid.UUID `json:"segment_id,omitempty"`
 
-	// label_email — apply unibox conversation labels to the contact's most recent
+	// label_email — apply unified inbox conversation labels to the contact's most recent
 	// thread. Labels are the same registry as contact tags (categories), but in
 	// the inbox they're "labels", so the field is label_ids. Reply-branch only.
 	LabelIDs []uuid.UUID `json:"label_ids,omitempty"`

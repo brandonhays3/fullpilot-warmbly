@@ -1,4 +1,4 @@
-// AI reply draft for the unibox composer. Assembles the thread history, the
+// AI reply draft for the unified inbox composer. Assembles the thread history, the
 // counterpart contact (with custom fields and campaign membership), and the org
 // voice profile into a context-grounded prompt, charges 2 credits, and returns
 // a draft the human reviews and sends. It never sends anything itself.
@@ -41,8 +41,8 @@ func (h *Handler) DraftReply(c *gin.Context) {
 		return
 	}
 
-	// Unibox entitlement + AI credits gate the feature.
-	if allowed, xerr := h.FeatureGateService.CanUseUnibox(c.Request.Context(), *orgID); xerr != nil {
+	// Unified Inbox entitlement + AI credits gate the feature.
+	if allowed, xerr := h.FeatureGateService.CanUseUnified Inbox(c.Request.Context(), *orgID); xerr != nil {
 		errx.JSON(c, xerr)
 		return
 	} else if !allowed {
@@ -158,7 +158,7 @@ func buildThreadContext(msgs []models.MessageGrounding) (string, string) {
 	if last := msgs[len(msgs)-1]; len(last.FromAddr) > 0 {
 		counterpart = last.FromAddr[0]
 	}
-	return unibox.RenderGrounding(msgs), counterpart
+	return unified inbox.RenderGrounding(msgs), counterpart
 }
 
 // contactContext returns a compact grounding block for the counterpart contact,

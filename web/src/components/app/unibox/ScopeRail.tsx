@@ -1,4 +1,4 @@
-// Left-rail navigator for the unibox.
+// Left-rail navigator for the unified inbox.
 //
 // Reads /unibox/overview so every count is server-truth. Three
 // sections:

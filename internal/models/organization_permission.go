@@ -56,8 +56,8 @@ const (
 	PermViewAnalytics
 	// PermSendCampaigns allows starting campaigns
 	PermSendCampaigns
-	// PermAccessUnibox allows using unified inbox
-	PermAccessUnibox
+	// PermAccessUnified Inbox allows using unified inbox
+	PermAccessUnified Inbox
 	// PermManageSequences allows creating/editing sequences
 	PermManageSequences
 	// PermManageSettings allows changing org settings
@@ -101,7 +101,7 @@ var RolePermissions = map[Role]OrganizationPermission{
 	RoleAdmin: AllPermissions ^ PermTransferOwnership ^ 0, // Admin gets all except transfer
 	RoleManager: PermManageCampaigns | PermManageContacts | PermManageEmails |
 		PermSendCampaigns | PermManageSequences | PermViewAnalytics |
-		PermViewCampaigns | PermViewContacts | PermAccessUnibox |
+		PermViewCampaigns | PermViewContacts | PermAccessUnified Inbox |
 		PermUseIntegrations | PermUseAI,
 	RoleViewer: PermViewCampaigns | PermViewContacts | PermViewAnalytics,
 }
@@ -125,7 +125,7 @@ type SeedRole struct {
 // mirroring migration 000043 for orgs created after it ran.
 func DefaultSeedRoles() []SeedRole {
 	allDefined := PermManageTeam | PermManageBilling | PermManageCampaigns | PermManageContacts |
-		PermManageEmails | PermViewAnalytics | PermSendCampaigns | PermAccessUnibox |
+		PermManageEmails | PermViewAnalytics | PermSendCampaigns | PermAccessUnified Inbox |
 		PermManageSequences | PermManageSettings | PermViewCampaigns | PermViewContacts |
 		PermManageAPIKeys | PermUseIntegrations | PermUseAI
 	return []SeedRole{

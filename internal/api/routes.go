@@ -710,58 +710,58 @@ func Run(
 			unibox := protected.Group("/unibox")
 			unibox.Use(m.RateLimitMiddleware(models.RateLimitRead))
 			{
-				unibox.GET("", m.RequireAccess(models.PermAccessUnibox, models.APIPermReadUnibox), h.GetUniboxIncoming)
-				unibox.GET("/count", m.RequireAccess(models.PermAccessUnibox, models.APIPermReadUnibox), h.GetUnseenCount)
-				unibox.GET("/overview", m.RequireAccess(models.PermAccessUnibox, models.APIPermReadUnibox), h.GetUniboxOverview)
-				unibox.GET("/thread", m.RequireAccess(models.PermAccessUnibox, models.APIPermReadUnibox), h.GetUniboxThread)
+				unibox.GET("", m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermReadUnified Inbox), h.GetUniboxIncoming)
+				unibox.GET("/count", m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermReadUnified Inbox), h.GetUnseenCount)
+				unibox.GET("/overview", m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermReadUnified Inbox), h.GetUniboxOverview)
+				unibox.GET("/thread", m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermReadUnified Inbox), h.GetUniboxThread)
 
 				// Conversation labels — read the set on a thread, or replace
 				// it wholesale (idempotent PUT). Registered before /:id so the
 				// fixed path wins over the catch-all.
-				unibox.GET("/thread/labels", m.RequireAccess(models.PermAccessUnibox, models.APIPermReadUnibox), h.GetUniboxThreadLabels)
-				unibox.PUT("/thread/labels", m.RequireAccess(models.PermAccessUnibox, models.APIPermWriteUnibox), h.SetUniboxThreadLabels)
+				unibox.GET("/thread/labels", m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermReadUnified Inbox), h.GetUniboxThreadLabels)
+				unibox.PUT("/thread/labels", m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermWriteUnified Inbox), h.SetUniboxThreadLabels)
 
-				unibox.PATCH("/seen", m.RequireAccess(models.PermAccessUnibox, models.APIPermWriteUnibox), h.UniboxMarkSeen)
-				unibox.POST("/reply", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnibox, models.APIPermWriteUnibox), h.UniboxReply)
+				unibox.PATCH("/seen", m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermWriteUnified Inbox), h.UniboxMarkSeen)
+				unibox.POST("/reply", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermWriteUnified Inbox), h.UniboxReply)
 				// Compose: send a brand-new outbound email. The candidates
 				// endpoint scores mailboxes for a recipient (affinity, budget,
 				// auth) so the picker and Auto mode can explain their choice.
-				unibox.GET("/compose/candidates", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnibox, models.APIPermReadUnibox), h.GetComposeCandidates)
-				unibox.POST("/compose", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnibox, models.APIPermWriteUnibox), h.UniboxCompose)
+				unibox.GET("/compose/candidates", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermReadUnified Inbox), h.GetComposeCandidates)
+				unibox.POST("/compose", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermWriteUnified Inbox), h.UniboxCompose)
 				// Grounded AI draft for compose: contact + history + voice
 				// profile context; may return a clarifying question instead
 				// of a draft. Charges credits, never sends.
-				unibox.POST("/compose/draft", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnibox, models.APIPermReadUnibox), m.RequireAccess(models.PermUseAI, models.APIPermReadUnibox), h.DraftCompose)
+				unibox.POST("/compose/draft", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermReadUnified Inbox), m.RequireAccess(models.PermUseAI, models.APIPermReadUnified Inbox), h.DraftCompose)
 				// Autosaved compose drafts (per-user; client-generated ids
 				// make the PUT idempotent for debounced autosave).
-				unibox.GET("/drafts", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnibox, models.APIPermReadUnibox), h.ListComposeDrafts)
-				unibox.PUT("/drafts/:id", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnibox, models.APIPermWriteUnibox), h.UpsertComposeDraft)
-				unibox.DELETE("/drafts/:id", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnibox, models.APIPermWriteUnibox), h.DeleteComposeDraft)
+				unibox.GET("/drafts", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermReadUnified Inbox), h.ListComposeDrafts)
+				unibox.PUT("/drafts/:id", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermWriteUnified Inbox), h.UpsertComposeDraft)
+				unibox.DELETE("/drafts/:id", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermWriteUnified Inbox), h.DeleteComposeDraft)
 				// AI reply draft: context-grounded, charges credits, never sends.
-				unibox.POST("/reply/draft", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnibox, models.APIPermReadUnibox), m.RequireAccess(models.PermUseAI, models.APIPermReadUnibox), h.DraftReply)
+				unibox.POST("/reply/draft", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermReadUnified Inbox), m.RequireAccess(models.PermUseAI, models.APIPermReadUnified Inbox), h.DraftReply)
 
 				// Inbox agent drafts (M10): review the pending drafts the agent
 				// suggested on inbound human replies, then approve-and-send or
 				// discard. Approve reuses the normal reply send path. Registered
 				// before /:id so the fixed path wins over the catch-all.
-				unibox.GET("/agent-drafts", m.RequireAccess(models.PermAccessUnibox, models.APIPermReadUnibox), h.ListAgentDrafts)
-				unibox.POST("/agent-drafts/:id/approve", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnibox, models.APIPermWriteUnibox), h.ApproveAgentDraft)
-				unibox.POST("/agent-drafts/:id/discard", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnibox, models.APIPermWriteUnibox), h.DiscardAgentDraft)
+				unibox.GET("/agent-drafts", m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermReadUnified Inbox), h.ListAgentDrafts)
+				unibox.POST("/agent-drafts/:id/approve", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermWriteUnified Inbox), h.ApproveAgentDraft)
+				unibox.POST("/agent-drafts/:id/discard", m.RequireOrganization(), m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermWriteUnified Inbox), h.DiscardAgentDraft)
 
 				// Snoozes — POST/DELETE on a thread, GET lists active ones.
-				unibox.GET("/snoozes", m.RequireAccess(models.PermAccessUnibox, models.APIPermReadUnibox), h.ListUniboxSnoozes)
-				unibox.POST("/snooze", m.RequireAccess(models.PermAccessUnibox, models.APIPermWriteUnibox), h.CreateUniboxSnooze)
-				unibox.DELETE("/snooze", m.RequireAccess(models.PermAccessUnibox, models.APIPermWriteUnibox), h.DeleteUniboxSnooze)
+				unibox.GET("/snoozes", m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermReadUnified Inbox), h.ListUniboxSnoozes)
+				unibox.POST("/snooze", m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermWriteUnified Inbox), h.CreateUniboxSnooze)
+				unibox.DELETE("/snooze", m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermWriteUnified Inbox), h.DeleteUniboxSnooze)
 
 				// Scheduled-sends review + cancel. DELETE is DB-only —
 				// we don't pay Cloud Tasks to delete the queued task; the
 				// handler short-circuits on cancelled status when it fires.
-				unibox.GET("/scheduled", m.RequireAccess(models.PermAccessUnibox, models.APIPermReadUnibox), h.ListUniboxScheduled)
-				unibox.DELETE("/scheduled/:task_id", m.RequireAccess(models.PermAccessUnibox, models.APIPermWriteUnibox), h.CancelUniboxScheduled)
+				unibox.GET("/scheduled", m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermReadUnified Inbox), h.ListUniboxScheduled)
+				unibox.DELETE("/scheduled/:task_id", m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermWriteUnified Inbox), h.CancelUniboxScheduled)
 
 				// Keep /:id last — gin treats it as a catch-all so any
 				// fixed-name routes (above) must register first.
-				unibox.GET("/:id", m.RequireAccess(models.PermAccessUnibox, models.APIPermReadUnibox), h.GetUniboxEmail)
+				unibox.GET("/:id", m.RequireAccess(models.PermAccessUnified Inbox, models.APIPermReadUnified Inbox), h.GetUniboxEmail)
 			}
 
 			// API key management. JWT users need PermManageAPIKeys; API keys

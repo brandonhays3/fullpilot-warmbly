@@ -7,8 +7,8 @@
 // /spam-flag logic in the consumer) and reads it out of the UNIBOX — the
 // received-mail store the worker syncs every mailbox into. A seed is an
 // ordinary connected + synced email_account flagged is_seed, so its received
-// mail lands in the unibox like any other mailbox; the poller (ClassifyPending)
-// looks up the test token in the seed's unibox entries and reads the folder
+// mail lands in the unified inbox like any other mailbox; the poller (ClassifyPending)
+// looks up the test token in the seed's unified inbox entries and reads the folder
 // flags. No consumer hot-path hook is added.
 package placement
 
@@ -29,7 +29,7 @@ import (
 
 // classifyTimeout bounds how long a result stays pending before the poller
 // gives up and records it as "other" (the message never showed up in the
-// seed's unibox — dropped, blocked at the gateway, or sync lag past the
+// seed's unified inbox — dropped, blocked at the gateway, or sync lag past the
 // window). Tests are marked completed once every result resolves or this
 // elapses.
 const classifyTimeout = 2 * time.Hour
@@ -37,11 +37,11 @@ const classifyTimeout = 2 * time.Hour
 // subjectTokenMarker prefixes the token embedded in the test subject. The
 // worker injects only the warmup verify header (config.WarmupVerifyHeader),
 // which this control-plane package can't change, so the subject is the token
-// carrier that reliably survives sync into the unibox. Format:
+// carrier that reliably survives sync into the unified inbox. Format:
 //
 //	<subject>  [wmpl:<token>]
 //
-// The marker is matched verbatim by the repo's FindTokenInUnibox subject LIKE.
+// The marker is matched verbatim by the repo's FindTokenInUnified Inbox subject LIKE.
 const subjectTokenMarker = "wmpl:"
 
 // Service is the seed inbox-placement testing service.
@@ -51,7 +51,7 @@ type Service interface {
 	// the sender to every active seed address.
 	CreateTest(ctx context.Context, orgID *uuid.UUID, senderAccountID uuid.UUID, subject, bodyPlain, bodyHTML string) (*repository.PlacementTest, error)
 	// ClassifyPending resolves pending results by looking up each test's token
-	// in the seed's unibox entries and classifying the folder from flags. It
+	// in the seed's unified inbox entries and classifying the folder from flags. It
 	// marks a test completed once all its results resolve or the timeout passes.
 	ClassifyPending(ctx context.Context) error
 }
@@ -110,7 +110,7 @@ func (s *service) CreateTest(ctx context.Context, orgID *uuid.UUID, senderAccoun
 		return nil, fmt.Errorf("create test: %w", err)
 	}
 
-	// Tokenized subject: the token lives in a marker the unibox subject search
+	// Tokenized subject: the token lives in a marker the unified inbox subject search
 	// can match. Keeping the original subject first means the seed inbox shows
 	// the real template subject for classification fidelity.
 	taggedSubject := fmt.Sprintf("%s [%s%s]", subject, subjectTokenMarker, token)
@@ -134,7 +134,7 @@ func (s *service) CreateTest(ctx context.Context, orgID *uuid.UUID, senderAccoun
 			MessageID: fmt.Sprintf("<%s@%s>", uuid.NewString(), domainOf(sender.Email)),
 			// We also pass the token through the warmup verify header lane via
 			// WarmupToken so that, IF a future worker change starts persisting
-			// that header into unibox flags, the same token is already present.
+			// that header into unified inbox flags, the same token is already present.
 			// Today the header is consumed by the warmup detector and not stored,
 			// so the subject marker remains the authoritative carrier.
 			WarmupToken: token,
@@ -172,7 +172,7 @@ func (s *service) ClassifyPending(ctx context.Context) error {
 	for _, j := range jobs {
 		touchedTests[j.TestID] = struct{}{}
 
-		match, err := s.repo.FindTokenInUnibox(ctx, j.SeedUserID, j.SeedAccountID, j.Token, j.TestCreatedAt)
+		match, err := s.repo.FindTokenInUnified Inbox(ctx, j.SeedUserID, j.SeedAccountID, j.Token, j.TestCreatedAt)
 		if err != nil {
 			log.Warn().Err(err).Str("result_id", j.ResultID.String()).Msg("placement: unibox lookup failed")
 			continue

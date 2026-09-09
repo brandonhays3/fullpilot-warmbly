@@ -123,11 +123,11 @@ func (s *emailSendService) SendEmail(ctx context.Context, userID, orgID, account
 		return nil, xerr
 	}
 
-	// Check CanUseUnibox feature gate
+	// Check CanUseUnified Inbox feature gate
 	if s.featureGate != nil {
-		canUse, _ := s.featureGate.CanUseUnibox(ctx, orgID)
+		canUse, _ := s.featureGate.CanUseUnified Inbox(ctx, orgID)
 		if !canUse {
-			return nil, errx.New(errx.Forbidden, "Unibox requires an active trial or paid subscription")
+			return nil, errx.New(errx.Forbidden, "Unified Inbox requires an active trial or paid subscription")
 		}
 	}
 

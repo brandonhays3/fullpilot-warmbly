@@ -268,7 +268,7 @@ const (
 	IntegrationActionCreateDeal    IntegrationAction = "warmbly.create_deal"
 	IntegrationActionMoveDealStage IntegrationAction = "warmbly.move_deal_stage"
 	IntegrationActionUnsubscribe   IntegrationAction = "warmbly.unsubscribe"
-	// IntegrationActionLabelEmail applies unibox conversation labels (categories)
+	// IntegrationActionLabelEmail applies unified inbox conversation labels (categories)
 	// to the thread the event belongs to. Reply triggers carry the thread_id +
 	// mailbox owner; on other triggers (no thread) it is a logged no-op.
 	IntegrationActionLabelEmail IntegrationAction = "warmbly.label_email"

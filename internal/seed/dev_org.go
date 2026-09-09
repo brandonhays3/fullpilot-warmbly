@@ -105,7 +105,7 @@ func SeedDevOrg(ctx context.Context, pool *pgxpool.Pool) error {
 		{"notifications", seedDevNotifications},
 		{"progress", seedDevProgress},
 		{"stats", seedDevStats},
-		{"unibox", seedDevUnibox},
+		{"unibox", seedDevUnified Inbox},
 		{"campaign-logs", seedDevCampaignLogs},
 	}
 	for _, s := range steps {

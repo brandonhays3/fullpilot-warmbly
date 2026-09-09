@@ -254,13 +254,13 @@ func (h *Handler) GetFeatureStatus(c *gin.Context) {
 	// Add additional feature flags
 	canSend, _ := h.FeatureGateService.CanSendCampaignEmail(c.Request.Context(), *orgID)
 	canWarmup, _ := h.FeatureGateService.CanUseWarmup(c.Request.Context(), *orgID)
-	canUnibox, _ := h.FeatureGateService.CanUseUnibox(c.Request.Context(), *orgID)
+	canUnified Inbox, _ := h.FeatureGateService.CanUseUnified Inbox(c.Request.Context(), *orgID)
 
 	c.JSON(http.StatusOK, gin.H{
 		"subscription":       status,
 		"can_send_campaigns": canSend,
 		"can_use_warmup":     canWarmup,
-		"can_use_unibox":     canUnibox,
+		"can_use_unibox":     canUnified Inbox,
 	})
 }
 

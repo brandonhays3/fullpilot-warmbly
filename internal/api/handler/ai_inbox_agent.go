@@ -27,7 +27,7 @@ func (h *Handler) ListAgentDrafts(c *gin.Context) {
 		errx.Handle(c, errx.New(errx.BadRequest, "no organization selected"))
 		return
 	}
-	if !h.gateUnibox(c) {
+	if !h.gateUnified Inbox(c) {
 		return
 	}
 	if h.AIDraftRepo == nil {
@@ -57,7 +57,7 @@ func (h *Handler) ApproveAgentDraft(c *gin.Context) {
 		errx.Handle(c, errx.ErrUser)
 		return
 	}
-	if !h.gateUnibox(c) {
+	if !h.gateUnified Inbox(c) {
 		return
 	}
 	draftID, perr := uuid.Parse(c.Param("id"))
@@ -131,7 +131,7 @@ func (h *Handler) ApproveAgentDraft(c *gin.Context) {
 		return
 	}
 
-	h.auditOrg(c, models.AuditActionSend, models.AuditEntityUnibox, &draft.EmailAccountID, nil, map[string]string{
+	h.auditOrg(c, models.AuditActionSend, models.AuditEntityUnified Inbox, &draft.EmailAccountID, nil, map[string]string{
 		"source":    "inbox_agent",
 		"thread_id": draft.ThreadID,
 	})
@@ -147,7 +147,7 @@ func (h *Handler) DiscardAgentDraft(c *gin.Context) {
 		errx.Handle(c, errx.New(errx.BadRequest, "no organization selected"))
 		return
 	}
-	if !h.gateUnibox(c) {
+	if !h.gateUnified Inbox(c) {
 		return
 	}
 	draftID, perr := uuid.Parse(c.Param("id"))
@@ -168,7 +168,7 @@ func (h *Handler) DiscardAgentDraft(c *gin.Context) {
 		errx.Handle(c, errx.New(errx.NotFound, "draft not found or already handled"))
 		return
 	}
-	h.auditOrg(c, models.AuditActionUpdate, models.AuditEntityUnibox, nil, nil, map[string]string{
+	h.auditOrg(c, models.AuditActionUpdate, models.AuditEntityUnified Inbox, nil, nil, map[string]string{
 		"source": "inbox_agent",
 		"action": "discard_draft",
 	})

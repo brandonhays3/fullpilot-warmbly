@@ -72,7 +72,7 @@ func toComposeCandidateResponse(c *compose.Candidate) composeCandidateResponse {
 // reason, plus the resolved contact and suppression state for the address.
 // GET /unibox/compose/candidates?to=<address>
 func (h *Handler) GetComposeCandidates(c *gin.Context) {
-	if !h.gateUnibox(c) {
+	if !h.gateUnified Inbox(c) {
 		return
 	}
 	userID, err := middleware.GetUserUUID(c)
@@ -244,7 +244,7 @@ func (h *Handler) UniboxCompose(c *gin.Context) {
 	}
 
 	chosenID := candidate.Account.ID
-	h.auditOrg(c, models.AuditActionSend, models.AuditEntityUnibox, &chosenID, nil, map[string]string{
+	h.auditOrg(c, models.AuditActionSend, models.AuditEntityUnified Inbox, &chosenID, nil, map[string]string{
 		"compose":    "true",
 		"auto":       strconv.FormatBool(auto),
 		"send_mode":  sendReq.SendMode,

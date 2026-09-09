@@ -1,5 +1,5 @@
 // DueInDays — a relative "due in N days" control used wherever a task due date
-// is set (the unibox thread panel + the tasks-tab dialog). People think in
+// is set (the unified inbox thread panel + the tasks-tab dialog). People think in
 // "follow up in 3 days", not absolute calendar dates, so we capture a day
 // offset and convert to an ISO timestamp at the boundary. `null` = no due date.
 

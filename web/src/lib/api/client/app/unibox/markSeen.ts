@@ -1,6 +1,6 @@
 import Request from "../../Request";
 
-// PATCH /unibox/seen marks unibox emails seen/unseen. The backend body is
+// PATCH /unibox/seen marks unified inbox emails seen/unseen. The backend body is
 // { email_ids, folder, seen } (models.MarkSeen); callers pass { ids } for an
 // explicit list or { folder } to sweep a whole folder, and seen defaults to
 // true (mark as read). Sending the wrong field names makes the server bind an

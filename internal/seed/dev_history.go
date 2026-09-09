@@ -177,10 +177,10 @@ type devUniboxMsg struct {
 	daysAgo   float64
 }
 
-// seedDevUnibox seeds 13 messages across 8 threads (reply chains, an
+// seedDevUnified Inbox seeds 13 messages across 8 threads (reply chains, an
 // objection, OOO, a bounce, a warmup-style exchange) plus thread labels.
 // The two seedBaseline messages remain as older history.
-func seedDevUnibox(ctx context.Context, pool *pgxpool.Pool) error {
+func seedDevUnified Inbox(ctx context.Context, pool *pgxpool.Pool) error {
 	// Reuse the baseline uid_validity values (101/201) for the first two
 	// mailboxes so no duplicate INBOX folder rows appear.
 	mailboxes := []struct {

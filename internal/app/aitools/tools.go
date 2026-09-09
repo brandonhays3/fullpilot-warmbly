@@ -41,7 +41,7 @@ type Deps struct {
 	CRM         crm.CRMService
 	Campaigns   campaign.CampaignService
 	Analytics   analytics.AnalyticsService
-	Unibox      unibox.UniboxService
+	Unified Inbox      unibox.UniboxService
 	Automations integration.Service
 	Audit       audit.AuditService
 	Search      generation.SearchClient

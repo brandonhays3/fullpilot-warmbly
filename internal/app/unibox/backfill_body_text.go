@@ -19,7 +19,7 @@ const (
 )
 
 // StartBodyTextBackfill fills in the searchable text of messages synced before
-// bodies were indexed, so unibox search covers the whole archive rather than
+// bodies were indexed, so unified inbox search covers the whole archive rather than
 // only mail that arrives from now on.
 //
 // The sweep walks the table once per process: it pages by id, and stops for

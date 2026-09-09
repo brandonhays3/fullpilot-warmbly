@@ -20,7 +20,7 @@ var ErrNoSentMailbox = errors.New("no sent mailbox")
 //
 // SMTP submission does not put anything in the sender's mailbox, so without
 // this a message sent through Fullpilot exists only in the recipient's inbox: it
-// shows in neither the customer's own mail client nor the unibox, which can
+// shows in neither the customer's own mail client nor the unified inbox, which can
 // only display what the sync found in a folder.
 //
 // APPEND addresses its mailbox by argument and does not touch the selected

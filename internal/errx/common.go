@@ -185,7 +185,7 @@ var (
 	ErrContactSerialize = New(BadRequest, "Failed to serialize contact.")
 	ErrContactSize      = New(BadRequest, "Contact size cannot be bigger than 10KB.")
 
-	// Unibox
+	// Unified Inbox
 	ErrUniboxLimit = New(BadRequest, fmt.Sprintf("Limit must be between %d and %d.", config.UniboxLimitMin, config.UniboxLimitMax))
 	ErrSeenMax     = New(BadRequest, "Cannot update more than 500 messages.")
 	// Folder scoping (unibox sidebar).

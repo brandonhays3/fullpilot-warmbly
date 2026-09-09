@@ -51,7 +51,7 @@ type ReorderReplyTemplates struct {
 }
 
 // RenderReplyTemplateRequest expands template variables (e.g. {{.FirstName}})
-// against an arbitrary key/value map. Used by Unibox to preview a reply.
+// against an arbitrary key/value map. Used by Unified Inbox to preview a reply.
 type RenderReplyTemplateRequest struct {
 	Variables map[string]string `json:"variables"`
 }

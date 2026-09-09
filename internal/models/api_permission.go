@@ -9,14 +9,14 @@ const (
 	APIPermReadEmails    uint64 = 1 << iota // Read email accounts
 	APIPermReadCampaigns                    // Read campaigns + sequences
 	APIPermReadContacts                     // Read contacts, segments, notes, activities
-	APIPermReadUnibox                       // Read unified inbox
+	APIPermReadUnified Inbox                       // Read unified inbox
 	APIPermReadAnalytics                    // Read analytics + statistics
 
 	// Write permissions
 	APIPermWriteEmails    // Modify email accounts
 	APIPermWriteCampaigns // Create/modify campaigns + sequences
 	APIPermWriteContacts  // Create/modify contacts, segments, notes, activities
-	APIPermWriteUnibox    // Mark as seen, reply, etc.
+	APIPermWriteUnified Inbox    // Mark as seen, reply, etc.
 
 	// Bulk operations (separate so a key can read+write without bulk power)
 	APIPermBulkContacts  // Bulk contact import/export/delete
@@ -57,9 +57,9 @@ const (
 // Used to reject CreateAPIKey requests that include unknown bits, so
 // a future bit can't be granted accidentally by a stale client.
 const AllAPIPermissionsMask uint64 = APIPermReadEmails | APIPermReadCampaigns |
-	APIPermReadContacts | APIPermReadUnibox | APIPermReadAnalytics |
+	APIPermReadContacts | APIPermReadUnified Inbox | APIPermReadAnalytics |
 	APIPermWriteEmails | APIPermWriteCampaigns | APIPermWriteContacts |
-	APIPermWriteUnibox |
+	APIPermWriteUnified Inbox |
 	APIPermBulkContacts | APIPermBulkCampaigns |
 	APIPermRealtimeSubscribe | APIPermWebhooks |
 	APIPermAPIKeys |
@@ -74,12 +74,12 @@ const AllAPIPermissionsMask uint64 = APIPermReadEmails | APIPermReadCampaigns |
 // caller can grant a sane default without picking bits by hand.
 var (
 	APIPermReadOnly uint64 = APIPermReadEmails | APIPermReadCampaigns |
-		APIPermReadContacts | APIPermReadUnibox | APIPermReadAnalytics |
+		APIPermReadContacts | APIPermReadUnified Inbox | APIPermReadAnalytics |
 		APIPermReadTemplates | APIPermReadCRM | APIPermReadAuditLogs
 
 	APIPermFullAccess uint64 = APIPermReadOnly |
 		APIPermWriteEmails | APIPermWriteCampaigns | APIPermWriteContacts |
-		APIPermWriteUnibox |
+		APIPermWriteUnified Inbox |
 		APIPermBulkContacts | APIPermBulkCampaigns |
 		APIPermSendCampaigns |
 		APIPermWriteTemplates | APIPermWriteCRM |
@@ -99,7 +99,7 @@ var AllAPIPermissions = []APIPermission{
 	{"READ_EMAILS", APIPermReadEmails, "View email accounts and settings", "read"},
 	{"READ_CAMPAIGNS", APIPermReadCampaigns, "View campaigns and sequences", "read"},
 	{"READ_CONTACTS", APIPermReadContacts, "View contact lists, segments, notes, and activities", "read"},
-	{"READ_UNIBOX", APIPermReadUnibox, "Access unified inbox", "read"},
+	{"READ_UNIBOX", APIPermReadUnified Inbox, "Access unified inbox", "read"},
 	{"READ_ANALYTICS", APIPermReadAnalytics, "View analytics and statistics", "read"},
 	{"READ_TEMPLATES", APIPermReadTemplates, "View reply templates", "read"},
 	{"READ_CRM", APIPermReadCRM, "View pipelines, deals, and CRM tasks", "read"},
@@ -107,7 +107,7 @@ var AllAPIPermissions = []APIPermission{
 	{"WRITE_EMAILS", APIPermWriteEmails, "Modify email account settings", "write"},
 	{"WRITE_CAMPAIGNS", APIPermWriteCampaigns, "Create and modify campaigns and sequences", "write"},
 	{"WRITE_CONTACTS", APIPermWriteContacts, "Create and modify contacts, segments, notes, and activities", "write"},
-	{"WRITE_UNIBOX", APIPermWriteUnibox, "Mark emails as read/unread and send replies", "write"},
+	{"WRITE_UNIBOX", APIPermWriteUnified Inbox, "Mark emails as read/unread and send replies", "write"},
 	{"WRITE_TEMPLATES", APIPermWriteTemplates, "Create and modify reply templates", "write"},
 	{"WRITE_CRM", APIPermWriteCRM, "Create and modify pipelines, deals, and CRM tasks", "write"},
 	{"SEND_CAMPAIGNS", APIPermSendCampaigns, "Start and stop campaigns (sends real mail)", "write"},

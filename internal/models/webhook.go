@@ -354,7 +354,7 @@ func WebhookEventRequiredScope(t WebhookEventType) uint64 {
 	s := string(t)
 	switch {
 	case strings.HasPrefix(s, "inbox."):
-		return APIPermReadUnibox
+		return APIPermReadUnified Inbox
 	case strings.HasPrefix(s, "campaign."), strings.HasPrefix(s, "deliverability."), strings.HasPrefix(s, "meeting."):
 		return APIPermReadCampaigns
 	case strings.HasPrefix(s, "email_account."), strings.HasPrefix(s, "warmup."):

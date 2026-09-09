@@ -24,8 +24,8 @@ func (d Deps) registerUniboxTools(r *Registry) {
 			"limit":          intProp("Max threads (1-50, default 20)."),
 		}),
 		Risk:            generation.RiskRead,
-		RequiredOrgPerm: models.PermAccessUnibox,
-		RequiredAPIPerm: models.APIPermReadUnibox,
+		RequiredOrgPerm: models.PermAccessUnified Inbox,
+		RequiredAPIPerm: models.APIPermReadUnified Inbox,
 		Handler:         d.listThreads,
 	})
 
@@ -37,8 +37,8 @@ func (d Deps) registerUniboxTools(r *Registry) {
 			"limit":     intProp("Max messages (default 20)."),
 		}, "thread_id"),
 		Risk:            generation.RiskRead,
-		RequiredOrgPerm: models.PermAccessUnibox,
-		RequiredAPIPerm: models.APIPermReadUnibox,
+		RequiredOrgPerm: models.PermAccessUnified Inbox,
+		RequiredAPIPerm: models.APIPermReadUnified Inbox,
 		Handler:         d.getThread,
 	})
 
@@ -50,20 +50,20 @@ func (d Deps) registerUniboxTools(r *Registry) {
 			"body":      strProp("The drafted reply body text."),
 		}, "thread_id", "body"),
 		Risk:            generation.RiskRead,
-		RequiredOrgPerm: models.PermAccessUnibox,
-		RequiredAPIPerm: models.APIPermReadUnibox,
+		RequiredOrgPerm: models.PermAccessUnified Inbox,
+		RequiredAPIPerm: models.APIPermReadUnified Inbox,
 		Handler:         d.draftReply,
 	})
 }
 
-// requireUnibox applies the same subscription entitlement gate the HTTP unibox
+// requireUnified Inbox applies the same subscription entitlement gate the HTTP unibox
 // handlers enforce, so a tool cannot read inbox data an org without an active
 // trial/paid plan would be 403'd from.
-func (d Deps) requireUnibox(ctx context.Context, inv Invocation) error {
+func (d Deps) requireUnified Inbox(ctx context.Context, inv Invocation) error {
 	if d.FeatureGate == nil {
 		return nil
 	}
-	ok, xerr := d.FeatureGate.CanUseUnibox(ctx, inv.OrgID)
+	ok, xerr := d.FeatureGate.CanUseUnified Inbox(ctx, inv.OrgID)
 	if xerr != nil {
 		return fromErrx(xerr)
 	}
@@ -74,7 +74,7 @@ func (d Deps) requireUnibox(ctx context.Context, inv Invocation) error {
 }
 
 func (d Deps) listThreads(ctx context.Context, inv Invocation, args json.RawMessage) (string, error) {
-	if err := d.requireUnibox(ctx, inv); err != nil {
+	if err := d.requireUnified Inbox(ctx, inv); err != nil {
 		return "", err
 	}
 	in, err := decodeArgs[struct {
@@ -114,7 +114,7 @@ func (d Deps) listThreads(ctx context.Context, inv Invocation, args json.RawMess
 		params.AwaitingReply = &t
 	}
 
-	res, xerr := d.Unibox.Search(ctx, inv.OrgID, inv.UserID, params)
+	res, xerr := d.Unified Inbox.Search(ctx, inv.OrgID, inv.UserID, params)
 	if xerr != nil {
 		return "", fromErrx(xerr)
 	}
@@ -134,7 +134,7 @@ func (d Deps) listThreads(ctx context.Context, inv Invocation, args json.RawMess
 }
 
 func (d Deps) getThread(ctx context.Context, inv Invocation, args json.RawMessage) (string, error) {
-	if err := d.requireUnibox(ctx, inv); err != nil {
+	if err := d.requireUnified Inbox(ctx, inv); err != nil {
 		return "", err
 	}
 	in, err := decodeArgs[struct {
@@ -155,7 +155,7 @@ func (d Deps) getThread(ctx context.Context, inv Invocation, args json.RawMessag
 	// Reading a thread returns what the messages say, bounded per message.
 	// Handing the assistant preview lines meant it answered on the strength of
 	// the first sentence of each email.
-	msgs, xerr := d.Unibox.ThreadGrounding(ctx, inv.OrgID, in.ThreadID, limit)
+	msgs, xerr := d.Unified Inbox.ThreadGrounding(ctx, inv.OrgID, in.ThreadID, limit)
 	if xerr != nil {
 		return "", fromErrx(xerr)
 	}
@@ -180,7 +180,7 @@ func (d Deps) getThread(ctx context.Context, inv Invocation, args json.RawMessag
 }
 
 func (d Deps) draftReply(ctx context.Context, inv Invocation, args json.RawMessage) (string, error) {
-	if err := d.requireUnibox(ctx, inv); err != nil {
+	if err := d.requireUnified Inbox(ctx, inv); err != nil {
 		return "", err
 	}
 	in, err := decodeArgs[struct {
@@ -196,7 +196,7 @@ func (d Deps) draftReply(ctx context.Context, inv Invocation, args json.RawMessa
 
 	// Resolve the reply target (recipient + subject) from the thread's latest
 	// message. This never sends: the result is a draft the human sends.
-	res, xerr := d.Unibox.GetByThread(ctx, inv.OrgID, uuid.Nil, in.ThreadID, "1", "")
+	res, xerr := d.Unified Inbox.GetByThread(ctx, inv.OrgID, uuid.Nil, in.ThreadID, "1", "")
 	if xerr != nil {
 		return "", fromErrx(xerr)
 	}

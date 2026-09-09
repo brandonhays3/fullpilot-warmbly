@@ -71,7 +71,7 @@ export default function WorkspaceSettingsPage() {
     };
 
     // Inbox agent opt-in (paid). When on, an inbound human reply gets an
-    // AI-drafted suggested reply awaiting review in the unibox.
+    // AI-drafted suggested reply awaiting review in the unified inbox.
     const [inboxAgent, setInboxAgent] = React.useState(false);
     const [sharedHistory, setSharedHistory] = React.useState(false);
     React.useEffect(() => {
@@ -260,7 +260,7 @@ export default function WorkspaceSettingsPage() {
 
             <Section
                 eyebrow="Inbox agent"
-                description={`On an inbound human reply, draft a suggested reply in your voice and hold it in the unibox for review. It never sends on its own.${metered ? " Paid feature; each handled reply costs 5 AI credits." : ""}`}
+                description={`On an inbound human reply, draft a suggested reply in your voice and hold it in the unified inbox for review. It never sends on its own.${metered ? " Paid feature; each handled reply costs 5 AI credits." : ""}`}
             >
                 <ToggleRow
                     label="Draft replies for me"

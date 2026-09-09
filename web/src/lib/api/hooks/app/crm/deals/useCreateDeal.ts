@@ -13,7 +13,7 @@ export default function useCreateDeal() {
             queryClient.invalidateQueries({
                 queryKey: ["crm", "deals"],
             })
-            // A deal created against a contact (e.g. from the unibox CRM panel)
+            // A deal created against a contact (e.g. from the unified inbox CRM panel)
             // also lives under that contact's deal list + 360 timeline.
             if (variables.contact_id) {
                 queryClient.invalidateQueries({

@@ -43,12 +43,12 @@ func (h *Handler) GetContact(c *gin.Context) {
 }
 
 // LookupContactByEmail resolves a sender address to a contact in the caller's
-// organization, for the unibox CRM panel. Returns {"contact": null} with 200
+// organization, for the unified inbox CRM panel. Returns {"contact": null} with 200
 // when no contact matches, so an unknown sender renders a clean empty state
 // rather than a 404.
 func (h *Handler) LookupContactByEmail(c *gin.Context) {
 	email := strings.TrimSpace(c.Query("email"))
-	// Senders often arrive as "Display Name <addr@example.com>" (the unibox
+	// Senders often arrive as "Display Name <addr@example.com>" (the unified inbox
 	// stores from_addr that way). Extract the bare address so it matches the
 	// contact's email, otherwise every named sender resolves to "not found".
 	if i := strings.LastIndex(email, "<"); i != -1 {

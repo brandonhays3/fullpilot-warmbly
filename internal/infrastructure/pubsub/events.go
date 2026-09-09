@@ -95,8 +95,8 @@ const (
 	// teammates see a batch advance and the contact's research refreshes live.
 	EventAIResearchProgress EventType = "AI_RESEARCH_PROGRESS"
 
-	// An AI-drafted unibox reply is ready for human review (org-scoped, gated on
-	// access_unibox). The web client invalidates the unibox + drafts queries.
+	// An AI-drafted unified inbox reply is ready for human review (org-scoped, gated on
+	// access_unibox). The web client invalidates the unified inbox + drafts queries.
 	EventAIDraftReady EventType = "AI_DRAFT_READY"
 
 	// AI credit balance dipped below the org's alert threshold (org-scoped;

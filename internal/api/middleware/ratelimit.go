@@ -76,9 +76,9 @@ func (h *Handler) RateLimitBulk() gin.HandlerFunc {
 	return h.RateLimitMiddleware(models.RateLimitBulk)
 }
 
-// RateLimitUnibox is a convenience wrapper for unibox operations
-func (h *Handler) RateLimitUnibox() gin.HandlerFunc {
-	return h.RateLimitMiddleware(models.RateLimitUnibox)
+// RateLimitUnified Inbox is a convenience wrapper for unified inbox operations
+func (h *Handler) RateLimitUnified Inbox() gin.HandlerFunc {
+	return h.RateLimitMiddleware(models.RateLimitUnified Inbox)
 }
 
 // RateLimitAnalytics is a convenience wrapper for analytics operations

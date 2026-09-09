@@ -8,7 +8,7 @@ import (
 
 // Inbox-agent draft statuses. A draft is inert until a human acts on it.
 const (
-	// AIDraftPending is a fresh draft awaiting human review in the unibox.
+	// AIDraftPending is a fresh draft awaiting human review in the unified inbox.
 	AIDraftPending = "pending"
 	// AIDraftApproved was approved and sent through the normal reply path.
 	AIDraftApproved = "approved"
@@ -19,7 +19,7 @@ const (
 // AIThreadDraft is a suggested reply the inbox agent drafted for an inbound
 // human reply, persisted awaiting a human Approve-and-send / Edit / Discard.
 // The agent never sends: approving is the only path that transmits, and it
-// reuses the normal unibox send.
+// reuses the normal unified inbox send.
 type AIThreadDraft struct {
 	ID             uuid.UUID `json:"id"`
 	OrganizationID uuid.UUID `json:"organization_id"`

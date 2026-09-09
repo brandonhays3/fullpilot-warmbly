@@ -112,7 +112,7 @@ func (s *tasksService) HandleUserEmailTask(task *proto.ProcessTask) *errx.Error 
 	// Tenancy gate: the entitlement check below is org-scoped, so a mailbox with
 	// no workspace would send without it. Fail closed.
 	if account.OrganizationID == nil {
-		errs.CaptureException(fmt.Errorf("email account %s reached a unibox send with no organization", account.ID))
+		errs.CaptureException(fmt.Errorf("email account %s reached a unified inbox send with no organization", account.ID))
 		_ = s.taskRepo.RecordTaskFailure(ctx, taskID,
 			"Mailbox has no workspace",
 			"email account organization_id is NULL at execution time")
@@ -122,11 +122,11 @@ func (s *tasksService) HandleUserEmailTask(task *proto.ProcessTask) *errx.Error 
 		return nil
 	}
 	if s.featureGate != nil {
-		canUse, _ := s.featureGate.CanUseUnibox(ctx, *account.OrganizationID)
+		canUse, _ := s.featureGate.CanUseUnified Inbox(ctx, *account.OrganizationID)
 		if !canUse {
 			_ = s.taskRepo.RecordTaskFailure(ctx, taskID,
 				"Subscription does not allow sending",
-				"feature gate CanUseUnibox=false at execution time")
+				"feature gate CanUseUnified Inbox=false at execution time")
 			_ = s.taskRepo.UpdateTaskStatus(ctx, taskID, "cancelled")
 			log.Info().Str("task_id", taskID.String()).
 				Msg("user_email cancelled: feature gate denied at execution time")

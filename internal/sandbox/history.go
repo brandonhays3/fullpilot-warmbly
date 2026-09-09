@@ -11,7 +11,7 @@ import (
 // Extra sandbox-history UUIDs (all carry the "aaaa" sandbox marker). Kept
 // disjoint from the identity/campaign IDs declared in seed.go.
 var (
-	// Unibox inbound messages (77777777-aaaa-...).
+	// Unified Inbox inbound messages (77777777-aaaa-...).
 	uniboxReplyPositive1 = uuid.MustParse("77777777-aaaa-0000-0000-000000000001")
 	uniboxReplyPositive2 = uuid.MustParse("77777777-aaaa-0000-0000-000000000002")
 	uniboxReplyPositive3 = uuid.MustParse("77777777-aaaa-0000-0000-000000000003")
@@ -384,14 +384,14 @@ func seedUniboxHistory(ctx context.Context, pool *pgxpool.Pool) error {
 	}
 
 	for _, r := range rows {
-		if err := insertUnibox(ctx, pool, r); err != nil {
+		if err := insertUnified Inbox(ctx, pool, r); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func insertUnibox(ctx context.Context, pool *pgxpool.Pool, r uniboxRow) error {
+func insertUnified Inbox(ctx context.Context, pool *pgxpool.Pool, r uniboxRow) error {
 	sql := fmt.Sprintf(`
 		INSERT INTO unibox_emails (
 			id, user_id, email_id, mailbox, thread_id, message_id,

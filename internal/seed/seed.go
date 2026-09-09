@@ -39,7 +39,7 @@ func Run(ctx context.Context, pool *pgxpool.Pool) (*Result, error) {
 		{"folders-tags-categories", seedGroups},
 		{"email-accounts", seedEmailAccounts},
 		{"email-tag-bindings", seedEmailTagBindings},
-		{"unibox", seedUnibox},
+		{"unibox", seedUnified Inbox},
 		{"warmup-participants", seedWarmupParticipants},
 		{"reply-templates", seedReplyTemplates},
 		{"campaigns", seedCampaigns},
