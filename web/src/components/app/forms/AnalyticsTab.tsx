@@ -5,7 +5,7 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon } from "@/components/icons";
 
 import { EmptyBlock } from "@/components/layout/Page";
 import { MultiTrend, type TrendSeries } from "@/components/ui/charts";

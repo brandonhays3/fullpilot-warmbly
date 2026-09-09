@@ -4,7 +4,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2Icon, PlusIcon, Trash2Icon, XIcon } from "lucide-react";
+import { Loader2Icon, PlusIcon, Trash2Icon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { Label, NumberInput, TextInput } from "@/components/ui/field";

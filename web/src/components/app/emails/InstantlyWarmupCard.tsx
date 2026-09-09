@@ -3,7 +3,7 @@
 // settings applied); when the integration is on but the mailbox is not warmed
 // there yet, it says what a start will do.
 
-import { ExternalLinkIcon, ZapIcon } from "lucide-react";
+import { ExternalLinkIcon, ZapIcon } from "@/components/icons";
 import type Inbox from "@/lib/api/models/app/emails/Inbox";
 import useInstantlyWarmup from "@/lib/api/hooks/app/emails/useInstantlyWarmup";
 import { Loading } from "@/components/loader";

@@ -6,7 +6,7 @@
 // declares how much room it needs with a col-span.
 
 import React from "react";
-import { PlusIcon, XIcon } from "lucide-react";
+import { PlusIcon, XIcon } from "@/components/icons";
 
 import { Label, TextInput } from "@/components/ui/field";
 import { SelectMenu } from "@/components/ui/select-menu";

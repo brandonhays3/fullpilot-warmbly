@@ -3,7 +3,7 @@
 // Groups come from the server's own catalog rather than a copy here, so a new
 // group appears in the dashboard the moment the backend knows about it.
 
-import { CheckIcon } from "lucide-react";
+import { CheckIcon } from "@/components/icons";
 import type { OrgDataGroup, OrgDataGroupInfo } from "@/lib/api/models/app/orgtransfer/OrgTransfer";
 import { dependentsOf } from "@/lib/api/models/app/orgtransfer/OrgTransfer";
 

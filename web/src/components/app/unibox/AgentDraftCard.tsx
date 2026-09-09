@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { SparklesIcon, SendIcon, Trash2Icon, Loader2Icon } from "lucide-react";
+import { SparklesIcon, SendIcon, Trash2Icon, Loader2Icon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import useAgentDrafts from "@/lib/api/hooks/app/unibox/useAgentDrafts";

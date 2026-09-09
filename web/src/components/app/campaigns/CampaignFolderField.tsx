@@ -4,7 +4,7 @@
 // slate/sky language: each folder is a pill tinted with its own color, a solid
 // color dot, and a check when selected. Clicking toggles membership.
 
-import { CheckIcon, PlusIcon, Settings2Icon } from "lucide-react";
+import { CheckIcon, PlusIcon, Settings2Icon } from "@/components/icons";
 import { useUserProfile } from "@/hooks/context/user";
 import { cn, hexToRgba } from "@/lib/utils";
 

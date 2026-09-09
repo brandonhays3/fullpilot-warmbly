@@ -13,7 +13,7 @@ import {
     ReplyIcon,
     SendIcon,
     TriangleAlertIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import {
     EmptyBlock,
     Page,

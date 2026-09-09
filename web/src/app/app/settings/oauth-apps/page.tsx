@@ -23,7 +23,7 @@ import {
     Trash2Icon,
     WebhookIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 
 import { NoAccess } from "@/components/layout/NoAccess";
 import { usePermission } from "@/hooks/usePermission";

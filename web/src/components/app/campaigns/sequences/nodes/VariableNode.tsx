@@ -14,7 +14,7 @@ import { createPortal } from "react-dom";
 import { Node as TiptapNode, mergeAttributes, nodeInputRule } from "@tiptap/core";
 import { ReactNodeViewRenderer, NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BracesIcon, XIcon, CheckIcon } from "lucide-react";
+import { BracesIcon, XIcon, CheckIcon } from "@/components/icons";
 import useCustomFieldKeys from "@/lib/api/hooks/app/contacts/useCustomFieldKeys";
 import { useAnchoredFloating } from "@/hooks/useAnchoredFloating";
 import {

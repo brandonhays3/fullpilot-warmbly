@@ -31,7 +31,7 @@ import {
   SparkleIcon,
   SparklesIcon,
   Trash2Icon,
-} from "lucide-react";
+} from "@/components/icons";
 import useUniboxOverview from "@/lib/api/hooks/app/unibox/useUniboxOverview";
 import useMarkSeen from "@/lib/api/hooks/app/unibox/useMarkSeen";
 import ShortcutTooltip from "@/components/ui/shortcut-tooltip";

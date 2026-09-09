@@ -16,7 +16,7 @@ import {
     ShieldCheckIcon,
     TrashIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 import { Label } from "@/components/ui/field";
 import { useConfirm } from "@/hooks/context/confirm";

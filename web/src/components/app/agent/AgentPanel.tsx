@@ -35,7 +35,7 @@ import {
     PictureInPicture2Icon,
     SearchIcon,
     Trash2Icon,
-} from "lucide-react";
+} from "@/components/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useConfirm } from "@/hooks/context/confirm";
 import { usePermission } from "@/hooks/usePermission";

@@ -25,7 +25,7 @@ import {
     RotateCcwIcon,
     UploadIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { DitherMeter } from "@/components/ui/dither";
 import addEmailsBulk, { BULK_CONNECT_BATCH } from "@/lib/api/client/app/emails/addEmailsBulk";
 import useMailboxAllowance from "@/lib/api/hooks/app/emails/useMailboxAllowance";

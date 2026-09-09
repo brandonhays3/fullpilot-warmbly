@@ -8,7 +8,7 @@
 // (see internal/app/advanced SelectVariant).
 
 import React from "react";
-import { PlusIcon, Loader2Icon, PauseIcon } from "lucide-react";
+import { PlusIcon, Loader2Icon, PauseIcon } from "@/components/icons";
 
 export interface SplitArm {
     key: string; // "original" or the variant id

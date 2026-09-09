@@ -17,7 +17,7 @@ import InboxDetails from "@/components/app/emails/InboxDetails";
 import useCloudPool from "@/hooks/useCloudPool";
 import useAuthConfig from "@/lib/api/hooks/auth/useAuthConfig";
 import { useEnrollCloudLinkMailbox, useUnenrollCloudLinkMailbox, useCloudLinkMailboxLifecycle } from "@/lib/api/hooks/app/cloudlink/useCloudLink";
-import { CloudIcon } from "lucide-react";
+import { CloudIcon } from "@/components/icons";
 import type { CloudLinkMailboxRow } from "@/lib/api/models/app/cloudlink/CloudLink";
 import buildError from "@/lib/helper/buildError";
 import type { AppError } from "@/lib/api/client/normalizeError";
@@ -41,7 +41,7 @@ import {
     Trash2Icon,
     XIcon,
     ZapIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { SearchInput } from "@/components/ui/field";
 import AnimatedNumber from "@/components/ui/AnimatedNumber";
 import {

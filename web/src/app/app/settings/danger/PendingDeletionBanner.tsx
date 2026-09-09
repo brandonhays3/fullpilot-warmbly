@@ -5,7 +5,7 @@
 // minute so a long-open tab still shows fresh numbers.
 
 import React from "react";
-import { AlertOctagonIcon, Loader2Icon, UndoIcon } from "lucide-react";
+import { AlertOctagonIcon, Loader2Icon, UndoIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import buildError from "@/lib/helper/buildError";
 import type { AppError } from "@/lib/api/client/normalizeError";

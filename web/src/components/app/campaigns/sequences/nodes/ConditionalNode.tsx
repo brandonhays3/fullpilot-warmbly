@@ -10,7 +10,7 @@ import { createPortal } from "react-dom";
 import { Node as TiptapNode, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer, NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { GitBranchIcon, XIcon, ChevronDownIcon, PlusIcon } from "lucide-react";
+import { GitBranchIcon, XIcon, ChevronDownIcon, PlusIcon } from "@/components/icons";
 import useCustomFieldKeys from "@/lib/api/hooks/app/contacts/useCustomFieldKeys";
 import { useAnchoredFloating } from "@/hooks/useAnchoredFloating";
 import { STANDARD_VARS, buildToken, cleanFieldName, isStandardKey } from "@/lib/templateVars";

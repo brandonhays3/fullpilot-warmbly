@@ -9,7 +9,7 @@
 // first stage so the pair always stays consistent.
 
 import React from "react";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon } from "@/components/icons";
 
 import {
     PopoverMenu,

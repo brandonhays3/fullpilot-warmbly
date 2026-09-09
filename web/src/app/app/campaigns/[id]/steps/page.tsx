@@ -1,5 +1,5 @@
 import React from "react";
-import { LayersIcon, Loader2Icon, PlusIcon } from "lucide-react";
+import { LayersIcon, Loader2Icon, PlusIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import { useCampaign } from "@/hooks/context/campaign";
 import CampaignFlow from "@/components/app/campaigns/sequences/CampaignFlow";

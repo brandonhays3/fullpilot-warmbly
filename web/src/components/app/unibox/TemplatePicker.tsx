@@ -5,7 +5,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { FileTextIcon, SearchIcon, SettingsIcon, XIcon } from "lucide-react";
+import { FileTextIcon, SearchIcon, SettingsIcon, XIcon } from "@/components/icons";
 import type useTemplates from "@/lib/api/hooks/app/templates/useTemplates";
 import type Template from "@/lib/api/models/app/templates/Template";
 

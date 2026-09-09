@@ -4,7 +4,7 @@
 // never send, with nothing anywhere saying why. Not dismissible: it describes
 // an active limit on the account, not a notice.
 
-import { AlertTriangleIcon, OctagonXIcon } from "lucide-react";
+import { AlertTriangleIcon, OctagonXIcon } from "@/components/icons";
 import useOrganizationRisk from "@/lib/api/hooks/app/organizations/useOrganizationRisk";
 
 export default function SendingRestrictedBar() {

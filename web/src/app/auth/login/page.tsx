@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
-import { ArrowLeft, Pencil, LockIcon, Loader2Icon } from "lucide-react";
+import { ArrowLeft, Pencil, LockIcon, Loader2Icon } from "@/components/icons";
 import { usePasswordStrength } from "@/hooks/usePasswordStrength";
 
 import Turnstile, { type BoundTurnstileObject } from "react-turnstile";

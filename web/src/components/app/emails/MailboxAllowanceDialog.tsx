@@ -28,7 +28,7 @@ import {
     MailboxIcon,
     SparklesIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { useUpgradeDialog } from "@/hooks/context/upgrade";
 import { useConfirm } from "@/hooks/context/confirm";
 import { useCurrentOrg } from "@/stores/useAppStore";

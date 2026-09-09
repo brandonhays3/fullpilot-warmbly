@@ -1,7 +1,7 @@
 // The builder's palette: every block a form can hold, with a factory that
 // mints a fresh field with a unique, stable id.
 
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "@/components/icons";
 import {
     AlignLeftIcon,
     AtSignIcon,
@@ -18,7 +18,7 @@ import {
     SeparatorHorizontalIcon,
     TextIcon,
     TypeIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import type { FormField, FormFieldType } from "@/lib/api/models/app/forms/Form";
 
 export interface PaletteItem {

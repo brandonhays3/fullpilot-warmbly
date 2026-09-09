@@ -4,7 +4,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { LayersIcon, Loader2Icon, XIcon, CheckIcon } from "lucide-react";
+import { LayersIcon, Loader2Icon, XIcon, CheckIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { SearchInput } from "@/components/ui/field";

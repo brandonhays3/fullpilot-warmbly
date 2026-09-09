@@ -12,7 +12,7 @@ import {
   KeyIcon,
   SettingsIcon,
   CreditCardIcon,
-} from 'lucide-react'
+} from "@/components/icons"
 import {
   CommandDialog,
   CommandEmpty,

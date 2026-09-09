@@ -15,7 +15,7 @@ import {
     UserPlusIcon,
     UsersIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 import { Label, SearchInput, TextInput } from "@/components/ui/field";
 import {

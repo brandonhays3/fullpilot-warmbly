@@ -22,7 +22,7 @@ import {
     VideoIcon,
     XCircleIcon,
     RotateCcwIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 import {
     Page,

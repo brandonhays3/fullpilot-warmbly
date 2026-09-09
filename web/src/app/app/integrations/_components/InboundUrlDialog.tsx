@@ -6,7 +6,7 @@
 "use client";
 
 import React from "react";
-import { CheckIcon, CopyIcon, XIcon } from "lucide-react";
+import { CheckIcon, CopyIcon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import type { IntegrationProvider } from "@/lib/api/models/app/integrations/Integration";

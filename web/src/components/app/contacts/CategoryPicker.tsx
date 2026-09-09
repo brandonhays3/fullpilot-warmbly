@@ -16,7 +16,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckIcon, Loader2Icon, PlusIcon, XIcon } from "lucide-react";
+import { CheckIcon, Loader2Icon, PlusIcon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { useUserProfile } from "@/hooks/context/user";

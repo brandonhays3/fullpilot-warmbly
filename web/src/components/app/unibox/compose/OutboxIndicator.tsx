@@ -8,7 +8,7 @@
 import React from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2Icon, SendIcon } from "lucide-react";
+import { Loader2Icon, SendIcon } from "@/components/icons";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";

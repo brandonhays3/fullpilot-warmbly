@@ -46,7 +46,7 @@ import {
     UserPlusIcon,
     XIcon,
     GlobeIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import useContactTimeline from "@/lib/api/hooks/app/contacts/useContactTimeline";
 import useContactCampaignStates from "@/lib/api/hooks/app/contacts/useContactCampaignStates";
 import type ContactTimelineEvent from "@/lib/api/models/app/contacts/ContactTimelineEvent";

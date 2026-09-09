@@ -14,7 +14,7 @@ import {
     RefreshCwIcon,
     AlertTriangleIcon,
     WrenchIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import {
     useMCPServers,
     useCreateMCPServer,

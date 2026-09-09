@@ -20,7 +20,7 @@ import {
     MonitorIcon,
     TerminalIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { Wordmark } from "@/components/svg";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { WEBSITE_URL } from "@/lib/information";

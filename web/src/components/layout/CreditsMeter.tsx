@@ -15,7 +15,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRightIcon } from "lucide-react";
+import { ArrowUpRightIcon } from "@/components/icons";
 import useClickOutside from "@/hooks/useClickOutside";
 import AnimatedNumber from "@/components/ui/AnimatedNumber";
 import useCredits from "@/lib/api/hooks/app/subscription/useCredits";

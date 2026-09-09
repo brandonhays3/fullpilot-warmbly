@@ -13,7 +13,7 @@ import {
     SendIcon,
     Settings2Icon,
     UsersIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { campaignDisplayLabel, isIdleCampaign, isOneTimeCampaign } from "@/components/app/campaigns/status";
 import useCampaign from "@/lib/api/hooks/app/campaigns/useCampaign";
 import useStartCampaign from "@/lib/api/hooks/app/campaigns/useStartCampaign";

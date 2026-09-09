@@ -31,7 +31,7 @@ import {
     RefreshCwIcon,
     SearchIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 
 import {

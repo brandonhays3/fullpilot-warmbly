@@ -10,7 +10,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { CalendarCheckIcon, ExternalLinkIcon, RefreshCwIcon, SettingsIcon } from "lucide-react";
+import { CalendarCheckIcon, ExternalLinkIcon, RefreshCwIcon, SettingsIcon } from "@/components/icons";
 
 import {
     EmptyBlock,

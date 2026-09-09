@@ -41,7 +41,7 @@ import {
     UserPlusIcon,
     UsersIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 
 import { useConfirm } from "@/hooks/context/confirm";
 import { useWriteGuard } from "@/hooks/usePermission";

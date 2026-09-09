@@ -12,7 +12,7 @@ import {
     PencilIcon,
     PlayIcon,
     TrashIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import {
     PopoverMenu,
     PopoverMenuContent,

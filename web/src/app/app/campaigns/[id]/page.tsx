@@ -5,7 +5,7 @@ import {
     ReplyIcon,
     SendIcon,
     TriangleAlertIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { useCampaign } from "@/hooks/context/campaign";
 import useCampaignAnalytics from "@/lib/api/hooks/app/analytics/useCampaignAnalytics";
 import type { CampaignEngagementBreakdown, EngagementBucket } from "@/lib/api/models/app/analytics/CampaignAnalytics";

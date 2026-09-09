@@ -6,7 +6,7 @@
 // expand it to a display name.
 
 import React from "react";
-import { CheckIcon, Loader2Icon, PencilIcon, PlusIcon, TrashIcon, XIcon } from "lucide-react";
+import { CheckIcon, Loader2Icon, PencilIcon, PlusIcon, TrashIcon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import useContactNotes from "@/lib/api/hooks/app/contacts/useContactNotes";
 import useCreateContactNote from "@/lib/api/hooks/app/contacts/useCreateContactNote";

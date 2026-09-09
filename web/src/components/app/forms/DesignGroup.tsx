@@ -7,7 +7,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRightIcon } from "lucide-react";
+import { ChevronRightIcon } from "@/components/icons";
 
 export default function DesignGroup({
     title,

@@ -10,7 +10,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { AlertOctagonIcon, Loader2Icon, UndoIcon } from "lucide-react";
+import { AlertOctagonIcon, Loader2Icon, UndoIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import useFeatureAccess from "@/hooks/useFeatureAccess";
 import useOrganizationDangerZone from "@/lib/api/hooks/app/dangerzone/useOrganizationDangerZone";

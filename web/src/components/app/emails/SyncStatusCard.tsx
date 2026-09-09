@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { CheckCircle2Icon, DownloadIcon, HourglassIcon, RefreshCwIcon } from "lucide-react";
+import { CheckCircle2Icon, DownloadIcon, HourglassIcon, RefreshCwIcon } from "@/components/icons";
 import useSync from "@/lib/api/hooks/app/emails/useSync";
 import type { SyncThrottleReason } from "@/lib/api/models/app/emails/SyncState";
 import { cn } from "@/lib/utils";

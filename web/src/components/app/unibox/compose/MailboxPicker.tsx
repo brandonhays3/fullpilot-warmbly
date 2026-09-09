@@ -16,7 +16,7 @@ import {
     SearchIcon,
     SparklesIcon,
     TagIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import type { ComposeCandidate, ComposeCandidatesResponse } from "@/lib/api/models/app/unibox/Compose";
 import AnimatedHeight from "@/components/app/unibox/compose/AnimatedHeight";
 import FilterMenu from "@/components/app/unibox/compose/FilterMenu";

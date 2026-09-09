@@ -13,7 +13,7 @@
 // endpoints — the page wires `onUpload` to the right mutation.
 
 import React from "react";
-import { CameraIcon, ImageIcon, Loader2Icon, TrashIcon } from "lucide-react";
+import { CameraIcon, ImageIcon, Loader2Icon, TrashIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import {
     AVATAR_ACCEPT,

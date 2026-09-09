@@ -5,7 +5,7 @@
 
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { LockIcon, XIcon } from "lucide-react";
+import { LockIcon, XIcon } from "@/components/icons";
 
 export default function AccessLockedDialog({
     open,

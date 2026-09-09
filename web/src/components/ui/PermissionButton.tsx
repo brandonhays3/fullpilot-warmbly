@@ -6,7 +6,7 @@
 // delete / create affordances.
 
 import React from "react";
-import { LockIcon } from "lucide-react";
+import { LockIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { useWriteGuard, type PermissionKey } from "@/hooks/usePermission";
 

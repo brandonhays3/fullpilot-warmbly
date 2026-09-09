@@ -4,7 +4,7 @@
 // offset and convert to an ISO timestamp at the boundary. `null` = no due date.
 
 import React from "react";
-import { CalendarClockIcon, XIcon } from "lucide-react";
+import { CalendarClockIcon, XIcon } from "@/components/icons";
 import { NumberInput } from "@/components/ui/field";
 
 const PRESETS = [

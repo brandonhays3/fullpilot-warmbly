@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { RiAppleFill } from "@remixicon/react";
-import { KeyRound, Loader2Icon } from "lucide-react";
+import { KeyRound, Loader2Icon } from "@/components/icons";
 import { Google } from "../svg";
 import { AUTH_CELL as CELL } from "./styles";
 

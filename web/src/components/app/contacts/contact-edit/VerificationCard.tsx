@@ -14,7 +14,7 @@ import {
     ReplyIcon,
     ShieldCheckIcon,
     ShieldXIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import type { ContactVerificationDetail, VerificationEvidenceKind } from "@/lib/api/models/app/contacts/ContactDetail";
 import { fmtRelative } from "./format";
 import { cn } from "@/lib/utils";

@@ -6,7 +6,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { AlertTriangleIcon, ArrowRightIcon, CoinsIcon, ShieldCheckIcon } from "lucide-react";
+import { AlertTriangleIcon, ArrowRightIcon, CoinsIcon, ShieldCheckIcon } from "@/components/icons";
 
 import { Section } from "@/app/app/settings/_components/SectionShell";
 import AnimatedNumber from "@/components/ui/AnimatedNumber";

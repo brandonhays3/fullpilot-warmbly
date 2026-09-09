@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { FlameIcon, XIcon } from "lucide-react";
+import { FlameIcon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Label, NumberInput } from "@/components/ui/field";

@@ -31,7 +31,7 @@ import {
     ShieldCheckIcon,
     UploadCloudIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 

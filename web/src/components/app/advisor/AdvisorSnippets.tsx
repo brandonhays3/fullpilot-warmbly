@@ -11,7 +11,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { CheckIcon, CopyIcon } from "@/components/icons";
 import type { AdvisorSnippet } from "@/lib/api/models/app/advisor/Advisor";
 
 export default function AdvisorSnippets({ snippets }: { snippets: AdvisorSnippet[] }) {

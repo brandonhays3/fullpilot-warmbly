@@ -8,7 +8,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2Icon, AlertCircleIcon } from "lucide-react";
+import { Loader2Icon, AlertCircleIcon } from "@/components/icons";
 
 import exchangeSSO from "@/lib/api/client/auth/exchangeSSO";
 import { takeSSOBinding } from "@/lib/api/client/auth/beginSSO";

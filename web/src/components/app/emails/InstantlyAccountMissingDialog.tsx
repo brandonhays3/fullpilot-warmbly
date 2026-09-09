@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ExternalLinkIcon, FlameIcon, RefreshCwIcon, XIcon } from "lucide-react";
+import { ExternalLinkIcon, FlameIcon, RefreshCwIcon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import type { AppError } from "@/lib/api/client/normalizeError";
 import buildError from "@/lib/helper/buildError";

@@ -4,7 +4,7 @@
 // expression editor (and reusable anywhere a "?" reference helps).
 
 import toast from "react-hot-toast";
-import { CircleHelpIcon, CopyIcon, ExternalLinkIcon } from "lucide-react";
+import { CircleHelpIcon, CopyIcon, ExternalLinkIcon } from "@/components/icons";
 import { PopoverMenu, PopoverMenuTrigger, PopoverMenuContent } from "@/components/ui/popover-menu";
 import { WEBSITE_URL } from "@/lib/information";
 

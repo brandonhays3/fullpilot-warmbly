@@ -3,7 +3,7 @@
 // list, excludes them / clears the override).
 
 import React from "react";
-import { Loader2Icon, LayersIcon } from "lucide-react";
+import { Loader2Icon, LayersIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import {

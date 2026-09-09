@@ -5,7 +5,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckIcon, Loader2Icon, Trash2Icon, XIcon } from "lucide-react";
+import { CheckIcon, Loader2Icon, Trash2Icon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { EmptyBlock } from "@/components/layout/Page";

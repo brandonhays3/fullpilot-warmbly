@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRightIcon, EyeIcon, PencilIcon, ReplyIcon } from "lucide-react";
+import { ArrowRightIcon, EyeIcon, PencilIcon, ReplyIcon } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useOnlineMembers, type PresenceUser } from "@/hooks/PresenceProvider";
 import useClickOutside from "@/hooks/useClickOutside";

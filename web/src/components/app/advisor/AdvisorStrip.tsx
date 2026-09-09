@@ -8,7 +8,7 @@
 
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { SparklesIcon } from "lucide-react";
+import { SparklesIcon } from "@/components/icons";
 import type {
     AdvisorCategory,
     AdvisorFinding,

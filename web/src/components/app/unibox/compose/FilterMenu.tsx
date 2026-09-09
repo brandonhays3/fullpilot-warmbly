@@ -6,7 +6,7 @@
 import React from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckIcon, ChevronDownIcon, type LucideIcon } from "lucide-react";
+import { CheckIcon, ChevronDownIcon, type LucideIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 export interface FilterMenuOption {

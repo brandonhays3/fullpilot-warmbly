@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { KeyRound } from "lucide-react";
+import { KeyRound } from "@/components/icons";
 import {
     Dialog,
     DialogContent,

@@ -7,7 +7,7 @@
 import React from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { SparklesIcon } from "lucide-react";
+import { SparklesIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import type { Editor } from "@tiptap/react";
 import useGenerateEdit from "@/lib/api/hooks/app/generation/useGenerateEdit";

@@ -3,7 +3,7 @@
 // a row's status changes rather than just appearing.
 
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertTriangleIcon, CircleDashedIcon, ShieldCheckIcon, ShieldXIcon } from "lucide-react";
+import { AlertTriangleIcon, CircleDashedIcon, ShieldCheckIcon, ShieldXIcon } from "@/components/icons";
 import type Contact from "@/lib/api/models/app/contacts/Contact";
 import { cn } from "@/lib/utils";
 

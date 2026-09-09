@@ -25,7 +25,7 @@ import {
     ShieldCheckIcon,
     TrashIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 
 import type APIKey from "@/lib/api/models/app/apikeys/APIKey";

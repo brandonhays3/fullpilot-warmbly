@@ -2,7 +2,7 @@
 // with the manual override (pin in / pin out / back to automatic) per row.
 
 import React from "react";
-import { CheckIcon, Loader2Icon, MinusIcon, RotateCcwIcon } from "lucide-react";
+import { CheckIcon, Loader2Icon, MinusIcon, RotateCcwIcon } from "@/components/icons";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 

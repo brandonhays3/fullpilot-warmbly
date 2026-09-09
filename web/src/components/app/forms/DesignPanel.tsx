@@ -4,7 +4,7 @@
 // re-renders live. Images save immediately (they are not part of the draft).
 
 import React from "react";
-import { ImageIcon, PlusIcon, XIcon } from "lucide-react";
+import { ImageIcon, PlusIcon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { Label, NumberInput, TextInput } from "@/components/ui/field";

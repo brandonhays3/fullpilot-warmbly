@@ -8,7 +8,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDownIcon, Loader2Icon } from "lucide-react";
+import { ChevronDownIcon, Loader2Icon } from "@/components/icons";
 import type { AdvisorFinding, AdvisorGroup } from "@/lib/api/models/app/advisor/Advisor";
 import {
     CATEGORY_LABEL,

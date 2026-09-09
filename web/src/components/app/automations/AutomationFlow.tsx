@@ -63,7 +63,7 @@ import {
     XCircleIcon,
     XIcon,
     ZapIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 import PermissionButton from "@/components/ui/PermissionButton";
 import { usePermission } from "@/hooks/usePermission";

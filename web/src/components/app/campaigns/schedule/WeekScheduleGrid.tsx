@@ -7,7 +7,7 @@
 // 0 = Monday); the page converts to/from the Sun=0 wire format.
 
 import React from "react";
-import { CopyIcon, PlusIcon, XIcon } from "lucide-react";
+import { CopyIcon, PlusIcon, XIcon } from "@/components/icons";
 
 export interface Interval {
     start: number; // minutes since midnight [0,1440)

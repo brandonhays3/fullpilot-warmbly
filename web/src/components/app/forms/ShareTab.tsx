@@ -2,7 +2,7 @@
 // and per-contact personalized links on the right.
 
 import React from "react";
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { CheckIcon, CopyIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { SearchInput } from "@/components/ui/field";

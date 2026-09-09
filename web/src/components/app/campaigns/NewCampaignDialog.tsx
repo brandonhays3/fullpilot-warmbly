@@ -26,7 +26,7 @@ import {
     Trash2Icon,
     UsersIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import useCreateCampaign from "@/lib/api/hooks/app/campaigns/useCreateCampaign";

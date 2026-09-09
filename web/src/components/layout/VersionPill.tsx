@@ -10,7 +10,7 @@
 import React from "react";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowUpCircleIcon, Loader2Icon } from "lucide-react";
+import { ArrowUpCircleIcon, Loader2Icon } from "@/components/icons";
 import useInstanceVersion from "@/lib/api/hooks/auth/useInstanceVersion";
 import useUser from "@/lib/api/hooks/auth/useUser";
 import { isUpdateRunning, runningLabel, useInstanceUpdate } from "@/lib/api/hooks/auth/useInstanceUpdate";

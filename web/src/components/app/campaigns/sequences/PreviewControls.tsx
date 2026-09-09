@@ -4,7 +4,7 @@
 // variants so every arm previews against the same lead and sender.
 
 import React from "react";
-import { Loader2Icon, MailIcon, SendIcon, UserRoundIcon } from "lucide-react";
+import { Loader2Icon, MailIcon, SendIcon, UserRoundIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import type Contact from "@/lib/api/models/app/contacts/Contact";
 import type Inbox from "@/lib/api/models/app/emails/Inbox";

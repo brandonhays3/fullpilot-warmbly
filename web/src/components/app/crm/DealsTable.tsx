@@ -24,7 +24,7 @@ import {
     GitBranchIcon,
     UserIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { SectionBar, Stat, StatStrip } from "@/components/layout/Page";
 import { Label, SearchInput, TextInput } from "@/components/ui/field";
 import { DatePicker } from "@/components/ui/DatePicker";

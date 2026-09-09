@@ -6,7 +6,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2Icon, UserPlusIcon, XIcon } from "lucide-react";
+import { Loader2Icon, UserPlusIcon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import useAddContacts from "@/lib/api/hooks/app/contacts/useAddContacts";
 import type { AddContact } from "@/components/app/AddContacts";

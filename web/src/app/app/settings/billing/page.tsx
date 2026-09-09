@@ -22,7 +22,7 @@ import {
     SparklesIcon,
     TicketIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import toast from "react-hot-toast";

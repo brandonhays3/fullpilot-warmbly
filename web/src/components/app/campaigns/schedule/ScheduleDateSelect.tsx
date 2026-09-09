@@ -1,5 +1,5 @@
 import React from "react";
-import { CalendarIcon, XIcon } from "lucide-react";
+import { CalendarIcon, XIcon } from "@/components/icons";
 import Calendar from "../../Calendar";
 import { format } from "date-fns";
 import { Label } from "@/components/ui/field";

@@ -7,7 +7,7 @@ import {
     TriangleAlertIcon,
     XCircleIcon,
     type LucideIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { useCampaignChannel, type ActivityItem } from "@/hooks/useCampaignChannel";
 import useCampaignLogs from "@/lib/api/hooks/app/campaigns/useCampaignLogs";
 import { DitherMeter } from "@/components/ui/dither";

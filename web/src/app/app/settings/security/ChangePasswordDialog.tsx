@@ -3,7 +3,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2Icon, XIcon } from "lucide-react";
+import { Loader2Icon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import { Label, TextInput } from "@/components/ui/field";
 import changePassword from "@/lib/api/client/auth/changePassword";

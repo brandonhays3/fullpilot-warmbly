@@ -3,7 +3,7 @@
 // workspace created); Owner is a membership status and never appears here.
 
 import React from "react";
-import { CheckIcon, ChevronDownIcon, Loader2Icon } from "lucide-react";
+import { CheckIcon, ChevronDownIcon, Loader2Icon } from "@/components/icons";
 import type OrganizationRole from "@/lib/api/models/app/organizations/OrganizationRole";
 import {
     PopoverMenu,

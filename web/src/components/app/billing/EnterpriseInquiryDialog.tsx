@@ -6,7 +6,7 @@ import React from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { Loader2Icon, SendIcon, XIcon } from "lucide-react";
+import { Loader2Icon, SendIcon, XIcon } from "@/components/icons";
 import { useUserProfile } from "@/hooks/context/user";
 import { useAppStore } from "@/stores";
 import useEnterpriseInquiry from "@/lib/api/hooks/app/subscription/useEnterpriseInquiry";

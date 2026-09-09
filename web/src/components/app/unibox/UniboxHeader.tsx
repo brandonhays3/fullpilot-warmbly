@@ -8,7 +8,7 @@
 // pill always sits on the left edge so it stays reachable even when
 // the rest of the strip scrolls horizontally.
 
-import { LayoutGridIcon, PenLineIcon, XIcon } from "lucide-react";
+import { LayoutGridIcon, PenLineIcon, XIcon } from "@/components/icons";
 import useUniboxOverview from "@/lib/api/hooks/app/unibox/useUniboxOverview";
 import AnimatedNumber from "@/components/ui/AnimatedNumber";
 import ShortcutTooltip from "@/components/ui/shortcut-tooltip";

@@ -16,7 +16,7 @@ import { createPortal } from "react-dom";
 import { Node as TiptapNode, mergeAttributes, nodeInputRule } from "@tiptap/core";
 import { ReactNodeViewRenderer, NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Link2Icon, XIcon, CheckIcon } from "lucide-react";
+import { Link2Icon, XIcon, CheckIcon } from "@/components/icons";
 import { useForms } from "@/lib/api/hooks/app/forms";
 import { useAnchoredFloating } from "@/hooks/useAnchoredFloating";
 import { buildFormLinkToken } from "@/lib/templateVars";

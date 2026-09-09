@@ -20,7 +20,7 @@ import {
     SheetIcon,
     Trash2Icon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { announceResult, describeError } from "./importShared";

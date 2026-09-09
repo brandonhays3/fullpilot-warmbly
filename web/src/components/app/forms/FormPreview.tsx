@@ -4,7 +4,7 @@
 // a full paged/focus preview in design mode.
 
 import React from "react";
-import { ChevronLeftIcon, ChevronRightIcon, CopyIcon, GripVerticalIcon, Trash2Icon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, CopyIcon, GripVerticalIcon, Trash2Icon } from "@/components/icons";
 import { SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 

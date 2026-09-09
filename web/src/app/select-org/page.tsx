@@ -17,7 +17,7 @@
 
 import React from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { LogOutIcon, Loader2Icon, MailIcon, PlusIcon, UsersIcon } from "lucide-react";
+import { LogOutIcon, Loader2Icon, MailIcon, PlusIcon, UsersIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import getToken from "@/lib/helper/getToken";
 import useOrganizations from "@/lib/api/hooks/app/organizations/useOrganizations";

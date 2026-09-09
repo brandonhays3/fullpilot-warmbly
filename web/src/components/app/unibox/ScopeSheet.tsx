@@ -8,7 +8,7 @@
 // picking any scope (which is what the user came in for).
 
 import { AnimatePresence, motion } from "framer-motion";
-import { XIcon } from "lucide-react";
+import { XIcon } from "@/components/icons";
 import { ScopeRail, type UniboxScope } from "./ScopeRail";
 
 interface ScopeSheetProps {

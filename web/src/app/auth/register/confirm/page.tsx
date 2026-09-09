@@ -3,7 +3,7 @@ import { TurnstileModal } from "@/components/captcha/TurnstileModal";
 import AuthButton from "@/components/auth/button";
 import OTPInput from "@/components/auth/OTP";
 import { useRegisterConfirmForm } from "../../hooks/useRegisterConfirmForm";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/components/icons";
 
 export default function RegisterConfirmPage() {
     const { mail, otp, setOtp, captcha, pending, onSubmit, onToken } = useRegisterConfirmForm();

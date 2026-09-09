@@ -5,7 +5,7 @@
 
 import React from "react";
 import { format, parse, isValid } from "date-fns";
-import { CalendarIcon, XIcon } from "lucide-react";
+import { CalendarIcon, XIcon } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import Calendar from "@/components/app/Calendar";

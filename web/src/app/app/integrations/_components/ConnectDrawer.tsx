@@ -27,7 +27,7 @@ import {
     ShieldCheckIcon,
     XIcon,
     ZapIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { Label, TextInput } from "@/components/ui/field";

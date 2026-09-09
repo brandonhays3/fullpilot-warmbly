@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion"
-import { AlertCircleIcon, LoaderIcon } from "lucide-react"
+import { AlertCircleIcon, LoaderIcon } from "@/components/icons"
 
 export default function LoadingScreen({
     errorTitle,

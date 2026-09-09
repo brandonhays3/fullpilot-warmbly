@@ -5,7 +5,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { LockIcon, SparklesIcon, XIcon } from "lucide-react";
+import { LockIcon, SparklesIcon, XIcon } from "@/components/icons";
 import { Link } from "react-router-dom";
 
 interface DeniedDetail {

@@ -7,7 +7,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertTriangleIcon, Loader2Icon, XIcon } from "lucide-react";
+import { AlertTriangleIcon, Loader2Icon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import buildError from "@/lib/helper/buildError";
 import type { AppError } from "@/lib/api/client/normalizeError";

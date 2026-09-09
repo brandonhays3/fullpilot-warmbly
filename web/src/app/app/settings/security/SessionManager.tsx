@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { Monitor, Smartphone, Globe, LogOut } from "lucide-react";
+import { Monitor, Smartphone, Globe, LogOut } from "@/components/icons";
 import { Section } from "../_components/SectionShell";
 import { Loading } from "@/components/loader";
 import { useConfirm } from "@/hooks/context/confirm";

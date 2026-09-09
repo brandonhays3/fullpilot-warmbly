@@ -4,7 +4,7 @@
 // task_assigned_team_id independently. Teams render with their color dot.
 
 import React from "react";
-import { ChevronDownIcon, UserIcon, UsersRoundIcon } from "lucide-react";
+import { ChevronDownIcon, UserIcon, UsersRoundIcon } from "@/components/icons";
 import useMembers from "@/lib/api/hooks/app/organizations/useMembers";
 import useTeams from "@/lib/api/hooks/app/teams/useTeams";
 import useClickOutside from "@/hooks/useClickOutside";

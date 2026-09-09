@@ -16,7 +16,7 @@ import {
     RefreshCwIcon,
     SendIcon,
     UnplugIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { TextInput } from "@/components/ui/field";

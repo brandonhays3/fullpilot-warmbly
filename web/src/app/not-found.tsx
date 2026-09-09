@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MailX, LayoutDashboard, LogIn } from "lucide-react";
+import { MailX, LayoutDashboard, LogIn } from "@/components/icons";
 import { Wordmark } from "@/components/svg";
 
 export default function NotFound() {
