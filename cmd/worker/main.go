@@ -160,8 +160,10 @@ func main() {
 	// Token refresh needs the provider client credentials in the worker env.
 	// Warn loudly if they're missing: the initial token still works, but refresh
 	// fails silently once it expires (~1h), stalling the mailbox.
-	if oauthInbox.Outlook == nil || oauthInbox.Outlook.ClientID == "" || oauthInbox.Outlook.ClientSecret == "" {
-		log.Println("WARNING: BOX_OUTLOOK_CLIENT_ID/SECRET not set; Microsoft Graph mailbox token refresh will fail on expiry")
+	outlookOK := oauthInbox.Outlook != nil && oauthInbox.Outlook.ClientID != "" && oauthInbox.Outlook.ClientSecret != ""
+	outlookDesktopOK := oauthInbox.OutlookDesktop != nil && oauthInbox.OutlookDesktop.ClientID != ""
+	if !outlookOK && !outlookDesktopOK {
+		log.Println("WARNING: neither BOX_OUTLOOK_CLIENT_ID/SECRET nor BOX_OUTLOOK_DESKTOP_CLIENT_ID set; Microsoft Graph mailbox token refresh will fail on expiry")
 	}
 	googleOK := oauthInbox.Google != nil && oauthInbox.Google.ClientID != "" && oauthInbox.Google.ClientSecret != ""
 	desktopOK := oauthInbox.GoogleDesktop != nil && oauthInbox.GoogleDesktop.ClientID != "" && oauthInbox.GoogleDesktop.ClientSecret != ""

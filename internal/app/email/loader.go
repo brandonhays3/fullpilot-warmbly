@@ -305,6 +305,7 @@ func (s *emailService) buildAddWorkerEmail(ctx context.Context, acc *models.Emai
 		if cerr != nil {
 			return nil, cerr
 		}
+		out.OAuthClient = creds.OAuthClient
 		out.Graph = &models.AddWorkerEmailGraphData{
 			Token:      oauthToken(creds),
 			DeltaLinks: s.deltaLinksFor(ctx, userID, acc.ID),

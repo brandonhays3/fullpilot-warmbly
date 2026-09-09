@@ -67,14 +67,14 @@ func (s *emailService) OAuthStart(ctx context.Context, userID string, orgID *uui
 // registered redirect_uri is a loopback address. The dashboard then asks the
 // user to paste the landing address instead of waiting for postMessage.
 func manualRedirect(client string, cfg *oauth2.Config) bool {
-	if client == models.OAuthClientGoogleDesktop {
+	if client == models.OAuthClientGoogleDesktop || client == models.OAuthClientOutlookDesktop {
 		return true
 	}
 	if cfg == nil {
 		return false
 	}
 	u := strings.ToLower(cfg.RedirectURL)
-	return strings.HasPrefix(u, "http://localhost") || strings.HasPrefix(u, "http://127.0.0.1")
+	return strings.HasPrefix(u, "http://localhost") || strings.HasPrefix(u, "https://localhost") || strings.HasPrefix(u, "http://127.0.0.1")
 }
 
 // guardInboxLimit refuses a connect that would take the workspace past its
@@ -289,9 +289,18 @@ func oauthConfigured(cfg *oauth2.Config) bool {
 	return cfg != nil && cfg.ClientID != "" && cfg.ClientSecret != ""
 }
 
+// publicClientConfigured is oauthConfigured for a public (desktop-type)
+// client, which has an id but may have no secret.
+func publicClientConfigured(cfg *oauth2.Config) bool {
+	return cfg != nil && cfg.ClientID != ""
+}
+
 // normalizeOAuthClient maps an empty or foreign client name to the default.
 func normalizeOAuthClient(provider models.InboxProvider, client string) string {
 	if provider == models.InboxProviderGoogle && client == models.OAuthClientGoogleDesktop {
+		return client
+	}
+	if provider == models.InboxProviderOutlook && client == models.OAuthClientOutlookDesktop {
 		return client
 	}
 	return models.OAuthClientDefault
@@ -302,9 +311,18 @@ func normalizeOAuthClient(provider models.InboxProvider, client string) string {
 // IS the Gmail path, so "default" resolves to it and tokens are recorded as its.
 func (s *emailService) resolveOAuthClient(provider models.InboxProvider, client string) string {
 	client = normalizeOAuthClient(provider, client)
-	if provider == models.InboxProviderGoogle && client == models.OAuthClientDefault && s.oauthInbox != nil &&
-		!oauthConfigured(s.oauthInbox.Google) && oauthConfigured(s.oauthInbox.GoogleDesktop) {
-		return models.OAuthClientGoogleDesktop
+	if client != models.OAuthClientDefault || s.oauthInbox == nil {
+		return client
+	}
+	switch provider {
+	case models.InboxProviderGoogle:
+		if !oauthConfigured(s.oauthInbox.Google) && oauthConfigured(s.oauthInbox.GoogleDesktop) {
+			return models.OAuthClientGoogleDesktop
+		}
+	case models.InboxProviderOutlook:
+		if !oauthConfigured(s.oauthInbox.Outlook) && publicClientConfigured(s.oauthInbox.OutlookDesktop) {
+			return models.OAuthClientOutlookDesktop
+		}
 	}
 	return client
 }
@@ -326,6 +344,12 @@ func (s *emailService) oauthConfigFor(provider models.InboxProvider, client stri
 		}
 		return s.oauthInbox.Google, nil
 	case models.InboxProviderOutlook:
+		if client == models.OAuthClientOutlookDesktop {
+			if s.oauthInbox == nil || !publicClientConfigured(s.oauthInbox.OutlookDesktop) {
+				return nil, errx.ErrEmailOnboardOutlookNotConfigured
+			}
+			return s.oauthInbox.OutlookDesktop, nil
+		}
 		if s.oauthInbox == nil || !oauthConfigured(s.oauthInbox.Outlook) {
 			return nil, errx.ErrEmailOnboardOutlookNotConfigured
 		}

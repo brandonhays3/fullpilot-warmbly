@@ -321,8 +321,9 @@ type NewSMTPIMAPAccount struct {
 // their issuing client, so this rides along in email_accounts_oauth and in the
 // worker payload.
 const (
-	OAuthClientDefault       = "default"
-	OAuthClientGoogleDesktop = "google_desktop"
+	OAuthClientDefault        = "default"
+	OAuthClientGoogleDesktop  = "google_desktop"
+	OAuthClientOutlookDesktop = "outlook_desktop"
 )
 
 type EmailOnboardingState struct {

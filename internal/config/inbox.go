@@ -19,7 +19,15 @@ type Oauth2Inbox struct {
 	// which client connected it (email_accounts_oauth.oauth_client).
 	GoogleDesktop *oauth2.Config
 	Outlook       *oauth2.Config
+	// OutlookDesktop is the Microsoft counterpart: a public (no secret)
+	// desktop-type Entra app whose redirect is https://localhost, so the same
+	// paste-the-address flow applies. Thunderbird's public client, for instance.
+	OutlookDesktop *oauth2.Config
 }
+
+// OutlookDesktopRedirect is the loopback redirect_uri registered on
+// Thunderbird's Microsoft client (Entra ignores the port on loopback). Nothing listens there; the user pastes it.
+const OutlookDesktopRedirect = "http://127.0.0.1"
 
 // GoogleDesktopRedirect is the loopback redirect_uri for GoogleDesktop. The
 // port is arbitrary; nothing listens on it.
@@ -78,6 +86,30 @@ func OutlookOauth2Inbox(baseURL string) *oauth2.Config {
 		ClientID:     os.Getenv("BOX_OUTLOOK_CLIENT_ID"),
 		ClientSecret: os.Getenv("BOX_OUTLOOK_CLIENT_SECRET"),
 		RedirectURL:  redirectOverride("BOX_OUTLOOK_REDIRECT_URL", baseURL+"/addresses/outlook/callback"),
+		Scopes: []string{
+			"openid",
+			"email",
+			"profile",
+			"offline_access",
+			"https://graph.microsoft.com/User.Read",
+			"https://graph.microsoft.com/Mail.Send",
+			"https://graph.microsoft.com/Mail.ReadWrite",
+		},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+			TokenURL: "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+		},
+	}
+}
+
+// OutlookDesktopOauth2Inbox is the desktop-type Microsoft client, read from
+// BOX_OUTLOOK_DESKTOP_CLIENT_ID (public client: the secret is optional). Same
+// Graph scopes as the web client; Entra consents to them dynamically.
+func OutlookDesktopOauth2Inbox() *oauth2.Config {
+	return &oauth2.Config{
+		ClientID:     os.Getenv("BOX_OUTLOOK_DESKTOP_CLIENT_ID"),
+		ClientSecret: os.Getenv("BOX_OUTLOOK_DESKTOP_CLIENT_SECRET"),
+		RedirectURL:  redirectOverride("BOX_OUTLOOK_DESKTOP_REDIRECT_URL", OutlookDesktopRedirect),
 		Scopes: []string{
 			"openid",
 			"email",

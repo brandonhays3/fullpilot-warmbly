@@ -69,6 +69,9 @@ func (m *MailManager) cfgFor(t models.InboxProvider, client string) oauth2.Confi
 			return *m.oauthInbox.Google
 		}
 	case models.InboxProviderOutlook:
+		if client == models.OAuthClientOutlookDesktop && m.oauthInbox.OutlookDesktop != nil {
+			return *m.oauthInbox.OutlookDesktop
+		}
 		if m.oauthInbox.Outlook != nil {
 			return *m.oauthInbox.Outlook
 		}

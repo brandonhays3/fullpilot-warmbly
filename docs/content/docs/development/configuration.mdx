@@ -337,6 +337,7 @@ Needed on the backend **and** every worker: the backend starts the OAuth flow, a
 |---|---|---|
 | `BOX_GOOGLE_CLIENT_ID`, `BOX_GOOGLE_CLIENT_SECRET` | Connect Gmail and Google Workspace mailboxes. Redirect URI is your API base plus `/addresses/google/callback` | unset |
 | `BOX_GOOGLE_REDIRECT_URL`, `BOX_OUTLOOK_REDIRECT_URL` | Present this exact redirect_uri to the provider instead of API base plus the callback path, for a client whose registered redirect lives on a host you control and forward to the callback (query string intact) | unset |
+| `BOX_OUTLOOK_DESKTOP_CLIENT_ID`, `BOX_OUTLOOK_DESKTOP_CLIENT_SECRET` | Optional public (desktop-type) Microsoft client; the secret may be empty. Its redirect is `https://localhost`, so the connect modal asks the user to paste the address the consent window lands on. Used as the Outlook path when no `BOX_OUTLOOK_CLIENT_*` is set | unset |
 | `BOX_GOOGLE_DESKTOP_CLIENT_ID`, `BOX_GOOGLE_DESKTOP_CLIENT_SECRET` | Optional second Gmail client of Google's desktop type. Google only lets it redirect to localhost, so the connect modal offers it as an alternative and asks the user to paste the address the consent window lands on. Mailboxes remember which client connected them and refresh with the same one | unset |
 | `BOX_OUTLOOK_CLIENT_ID`, `BOX_OUTLOOK_CLIENT_SECRET` | Connect Outlook and Microsoft 365 mailboxes. Redirect URI is your API base plus `/addresses/outlook/callback` | unset |
 

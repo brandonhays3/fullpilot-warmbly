@@ -15,8 +15,9 @@ func LoadOauth2(baseURL string) *Oauth2 {
 
 func LoadOauth2Inbox(baseURL string) Oauth2Inbox {
 	return Oauth2Inbox{
-		Google:        GoogleOauth2Inbox(baseURL),
-		GoogleDesktop: GoogleDesktopOauth2Inbox(),
-		Outlook:       OutlookOauth2Inbox(baseURL),
+		Google:         GoogleOauth2Inbox(baseURL),
+		GoogleDesktop:  GoogleDesktopOauth2Inbox(),
+		Outlook:        OutlookOauth2Inbox(baseURL),
+		OutlookDesktop: OutlookDesktopOauth2Inbox(),
 	}
 }
