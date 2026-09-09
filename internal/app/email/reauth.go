@@ -84,7 +84,7 @@ func (s *emailService) OAuthReauth(ctx context.Context, userID string, orgID *uu
 	return &models.EmailOnboardingStartResponse{
 		URL:            url,
 		State:          state,
-		ManualRedirect: client == models.OAuthClientGoogleDesktop,
+		ManualRedirect: manualRedirect(client, cfg),
 	}, nil
 }
 

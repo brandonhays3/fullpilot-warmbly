@@ -58,8 +58,23 @@ func (s *emailService) OAuthStart(ctx context.Context, userID string, orgID *uui
 	return &models.EmailOnboardingStartResponse{
 		URL:            url,
 		State:          state,
-		ManualRedirect: client == models.OAuthClientGoogleDesktop,
+		ManualRedirect: manualRedirect(client, cfg),
 	}, nil
+}
+
+// manualRedirect reports whether the consent window will land somewhere the
+// callback page cannot run: the desktop-type client, or any client whose
+// registered redirect_uri is a loopback address. The dashboard then asks the
+// user to paste the landing address instead of waiting for postMessage.
+func manualRedirect(client string, cfg *oauth2.Config) bool {
+	if client == models.OAuthClientGoogleDesktop {
+		return true
+	}
+	if cfg == nil {
+		return false
+	}
+	u := strings.ToLower(cfg.RedirectURL)
+	return strings.HasPrefix(u, "http://localhost") || strings.HasPrefix(u, "http://127.0.0.1")
 }
 
 // guardInboxLimit refuses a connect that would take the workspace past its
