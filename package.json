@@ -6,7 +6,7 @@
     "dev": "make dev",
     "dev:web": "make web",
     "dev:admin": "make admin",
-    "dev:run": "make run",
+    "dev:run": "bash deploy/fullpilot/dev-run.sh",
     "dev:stop": "make stop",
     "dev:logs": "make logs",
     "images": "bash deploy/fullpilot/build-images.sh",

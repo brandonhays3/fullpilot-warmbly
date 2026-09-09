@@ -23,6 +23,7 @@ SECRETS = {
     "CREDENTIALS_ENCRYPTION_KEY": "warmbly-credentials-key",
     "AWS_ACCESS_KEY_ID": "warmbly-blob-access-key",
     "AWS_SECRET_ACCESS_KEY": "warmbly-blob-secret-key",
+    "BOX_GOOGLE_CLIENT_SECRET": "warmbly-box-google-client-secret",
 }
 # End the worker cleanly at 290s so the task counts as success; real crashes still fail.
 CMD = ["/bin/sh"]

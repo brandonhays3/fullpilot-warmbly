@@ -110,3 +110,6 @@ build-errors.log
 xcuserdata/
 .DS_Store
 /.worktrees/
+
+# Fullpilot local dev overrides (see deploy/fullpilot/dev.env.example)
+.env.fullpilot.local

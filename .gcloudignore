@@ -11,7 +11,7 @@ node_modules
 **/_build
 **/deps
 **/.elixir_ls
-data
+/data
 *.log
 .env
 .env.*
