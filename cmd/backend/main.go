@@ -1226,6 +1226,9 @@ func main() {
 		// backfill state, and the saved IMAP folder cursors.
 		emailSyncStateRepository = repository.NewEmailSyncStateRepository(primaryDB)
 		emailService.WireSyncState(emailSyncStateRepository)
+		// The sync start boundary: nothing received before an address was first
+		// connected is ever imported, and a reconnect keeps the original one.
+		emailService.WireSyncBoundary(repository.NewMailboxSyncBoundaryRepository(primaryDB))
 		emailService.WireMailboxes(repository.NewMailboxRepository(primaryDB))
 		if instanceSettings != nil {
 			emailService.WireSyncBudget(instanceSettings)
@@ -1545,8 +1548,10 @@ func main() {
 		// self-hostable). Platform-paid, never charged to org credits. Nil provider
 		// leaves Layer 3 disabled (the ambiguous middle resolves to "unknown").
 		if aiProvider != nil {
+			// Reply classification runs on a cheap model of its own (AI_MODEL_CLASSIFY).
+			aiClassifyModel := generation.ClassifyModel(aiProviderName, cfg.GetStringOptional(ctx, "AI_MODEL_CLASSIFY", "ai_model_classify", ""))
 			replyclassify.SetModelClassifier(func(ctx context.Context, system, user string) (string, error) {
-				res, err := aiProvider.Complete(ctx, generation.CompletionRequest{System: system, Prompt: user, MaxTokens: 16, Temperature: generation.Deterministic()})
+				res, err := aiProvider.Complete(ctx, generation.CompletionRequest{System: system, Prompt: user, Model: aiClassifyModel, MaxTokens: 16, Temperature: generation.Deterministic()})
 				if err != nil {
 					return "", err
 				}

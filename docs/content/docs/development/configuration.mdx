@@ -357,6 +357,7 @@ Plain SMTP and IMAP mailboxes need none of this. If a worker is missing these va
 | `AI_PROVIDER` | `openai`, `openrouter`, `groq`, `ollama`, `anthropic` or `custom`. Omit every AI variable to run with AI off, in which case AI endpoints return a clean `503` | unset |
 | `AI_API_KEY` | Provider key. Not needed for `ollama` | unset |
 | `AI_MODEL`, `AI_MODEL_TRIAL`, `AI_MODEL_PAID` | Model selection, optionally split by plan | provider preset |
+| `AI_MODEL_CLASSIFY` | The cheap model campaign replies are classified with (interested, not interested, neutral, auto reply, out of office, unsubscribe). Runs on the consumer for every reply in a campaign conversation; with AI off, or when the call fails, the built-in heuristic classifier decides instead | `openai/gpt-5.6-luna` when `AI_PROVIDER=openrouter`, otherwise the provider's default model |
 | `AI_BASE_URL` | Required for `custom`. Any OpenAI compatible endpoint | unset |
 | `AI_FREE` | Treats AI usage as uncharged | derived |
 | `SEARCH_PROVIDER`, `SEARCH_API_URL`, `SEARCH_API_KEY` | Web search for the assistant (`serper` or `searxng`) | unset |

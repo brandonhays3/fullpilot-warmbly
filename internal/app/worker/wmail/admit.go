@@ -129,6 +129,35 @@ func (w *WMail) laneOf(ctx context.Context, key string, msg *models.EmailMessage
 	return lane
 }
 
+// beforeBoundary reports whether a message was received before the sync
+// start boundary: the moment the address was first connected. Such mail is
+// never stored or offered to the consumer, on any provider and in any lane;
+// it is treated as handled so cursors still advance past it.
+func (w *WMail) beforeBoundary(msg *models.EmailMessageData) bool {
+	if msg == nil {
+		return false
+	}
+	received := msg.InternalDate
+	if received.IsZero() {
+		received = msg.Date
+	}
+	return w.gov.Policy().Boundary(received)
+}
+
+// backfillSince is the cutoff the running import walks back to: the window
+// fixed at start, never earlier than the sync start boundary. The clamp also
+// covers a window fixed by a worker that predates the boundary.
+func (w *WMail) backfillSince() time.Time {
+	var since time.Time
+	if st := w.tracker.state.BackfillSince; st != nil {
+		since = *st
+	}
+	if b := w.gov.Policy().SyncSince; b != nil && b.After(since) {
+		since = *b
+	}
+	return since
+}
+
 // beginTick releases an expired hold so the state reports "within budget"
 // before the pass looks at anything.
 func (w *WMail) beginTick() {

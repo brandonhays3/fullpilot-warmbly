@@ -125,9 +125,11 @@ Reconnecting never counts against the mailbox allowance, so a workspace at its c
 
 ## What gets synced
 
-Connecting a mailbox does two things: it imports the mailbox's recent history, and from then on it follows new mail as it arrives. Both are the same on every provider.
+Connecting a mailbox does two things: it imports the mailbox's recent history, and from then on it follows new mail as it arrives. Both are the same on every provider, and both stop at the same line: nothing received before the moment the address was first connected is ever imported or processed.
 
-**The import** brings in the last `90` days, newest first, up to `5,000` messages per mailbox (the defaults; a self-hosted instance can change both under Instance settings). It reads the inbox, sent mail and archive (plus your own folders on Gmail and IMAP), and skips trash, drafts, spam and Gmail's "All Mail". You can watch it in the mailbox drawer's **Sync** card: a progress bar with a running count while it works, then "Up to date" with what was imported. Because it runs newest first, the mail you would look for is there within the first minute; a large mailbox finishes over the next while at a steady pace.
+That moment is remembered per address for the workspace, not per connection. Disconnect a mailbox and connect the same address again, weeks later, and it keeps its original line rather than pulling in whatever arrived while it was gone or the years of history before it. On Gmail the sync asks for mail after that moment, on Outlook the delta and history listings are filtered by received time, and on IMAP the search runs from that date and anything older is skipped by its internal date. A mailbox connected before this line existed has it set to when it was connected.
+
+**The import** brings in the last `90` days, newest first, up to `5,000` messages per mailbox (the defaults; a self-hosted instance can change both under Instance settings), never reaching past the connect line. It reads the inbox, sent mail and archive (plus your own folders on Gmail and IMAP), and skips trash, drafts, spam and Gmail's "All Mail". You can watch it in the mailbox drawer's **Sync** card: a progress bar with a running count while it works, then "Up to date" with what was imported. Because it runs newest first, the mail you would look for is there within the first minute; a large mailbox finishes over the next while at a steady pace.
 
 **Live sync** then follows every folder the provider exposes, including junk (so placement problems are visible) and sent mail (so a conversation shows both sides). Read state, flags, deletions and moves are mirrored too.
 

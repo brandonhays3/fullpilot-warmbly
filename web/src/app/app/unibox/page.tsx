@@ -54,8 +54,8 @@ export default function UniboxPage() {
 
   // ── URL state ──────────────────────────────────────────────────
   // Readable, path-based URLs: /app/unibox/<scope>[/<threadId>]. The scope is a
-  // path segment (all, unread, today, week, awaiting, snoozed, scheduled, or a
-  // mailbox/tag/category view); an open thread is the next segment; ref (the
+  // path segment (all, unread, today, week, awaiting, other, snoozed, scheduled,
+  // or a mailbox/tag/category view); an open thread is the next segment; ref (the
   // opaque mailbox/tag/label id for those scopes) is the only query param left.
   // Accounts are no longer in the URL: the thread fetch scans every mailbox the
   // user owns, which is the right default for a unified inbox.
@@ -114,6 +114,8 @@ export default function UniboxPage() {
         return { kind: "awaiting" };
       case "agent_drafts":
         return { kind: "agent_drafts" };
+      case "other":
+        return { kind: "other" };
       case "snoozed":
         return { kind: "snoozed" };
       case "scheduled":
@@ -185,28 +187,42 @@ export default function UniboxPage() {
   );
   const paramsForScope = React.useCallback(
     (sortBy: UniboxSearchParams["sortBy"]): UniboxSearchParams => {
+      // The inbox views show campaign conversations only; everything else a
+      // mailbox receives sits under Other. Folder drill-downs (sent, drafts,
+      // archive, spam, trash) and mailbox/tag/label scopes show both.
       const next: UniboxSearchParams = { sortBy: sortBy ?? "newest" };
       switch (scope.kind) {
+        case "all":
+          next.campaign = true;
+          break;
         case "unread":
           next.unseen = true;
+          next.campaign = true;
           break;
         case "today":
           next.since = startOfToday();
+          next.campaign = true;
           break;
         case "week":
           next.since = startOfWeek();
+          next.campaign = true;
           break;
         case "awaiting":
           next.awaitingReply = true;
+          next.campaign = true;
           break;
         case "agent_drafts":
           next.agentDrafts = true;
+          break;
+        case "other":
+          next.campaign = false;
           break;
         case "snoozed":
           next.snoozed = true;
           break;
         case "folder":
           next.folder = scope.folder;
+          if (scope.folder === "inbox") next.campaign = true;
           break;
         case "mailbox":
           next.accountIds = [scope.mailboxId];
@@ -260,6 +276,8 @@ export default function UniboxPage() {
         return "Awaiting reply";
       case "agent_drafts":
         return "Agent drafts";
+      case "other":
+        return "Other";
       case "snoozed":
         return "Snoozed";
       case "scheduled":

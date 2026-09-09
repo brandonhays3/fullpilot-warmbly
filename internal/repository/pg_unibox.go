@@ -87,6 +87,15 @@ type UniboxRepository interface {
 	// the body column, which is far too big to carry on a list response.
 	GroundingByThread(ctx context.Context, orgID uuid.UUID, threadID string, limit int) ([]models.MessageGrounding, error)
 	GroundingByAddress(ctx context.Context, orgID uuid.UUID, address string, limit int) ([]models.MessageGrounding, error)
+
+	// IsCampaignConversation reports whether a message belongs to a campaign
+	// conversation: one of the RFC ids it references (its own, In-Reply-To,
+	// parent, thread root) is something Warmbly sent from this mailbox, or its
+	// provider thread already holds linked mail. MarkThreadCampaignLinked then
+	// lifts the whole thread into the Inbox, so a conversation never splits
+	// between the Inbox and the Other view.
+	IsCampaignConversation(ctx context.Context, emailID uuid.UUID, messageIDs []string, threadID string) (bool, error)
+	MarkThreadCampaignLinked(ctx context.Context, emailID uuid.UUID, threadID string) error
 }
 
 // UniboxBodyTarget is one message awaiting a search-text backfill. UserID is
@@ -111,7 +120,7 @@ var mailFieldsFull = []string{
 	"gmail_id", "parent_id", "uid", "mod_seq",
 	"flags", "bcc", "cc", "from_addr", "in_reply_to", "reply_to",
 	"to_addr", "subject", "size", "internal_date", "sent_date",
-	"snippet", "seen", "updated_at", "created_at", "folder",
+	"snippet", "seen", "updated_at", "created_at", "folder", "campaign_linked",
 }
 
 var mailFieldsPreview = []string{
@@ -126,13 +135,13 @@ func (r *uniboxRepository) CreateEntry(ctx context.Context, userID uuid.UUID, e 
 			gmail_id, parent_id, uid, mod_seq,
 			flags, bcc, cc, from_addr, in_reply_to, reply_to,
 			to_addr, subject, size, internal_date, sent_date,
-			snippet, seen, created_at, updated_at, body_text, folder
+			snippet, seen, created_at, updated_at, body_text, folder, campaign_linked
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, $7,
 			$8, $9, $10, $11,
 			$12, $13, $14, $15, $16, $17,
 			$18, $19, $20, $21, $22,
-			$23, $24, $25, $26, $27, $28
+			$23, $24, $25, $26, $27, $28, $29
 		)
 		ON CONFLICT (id) DO NOTHING
 	`
@@ -146,7 +155,7 @@ func (r *uniboxRepository) CreateEntry(ctx context.Context, userID uuid.UUID, e 
 		textArray(e.InReplyTo), textArray(e.ReplyTo), textArray(e.ToAddr),
 		e.Subject, e.Size, e.InternalDate, e.SentDate,
 		e.Snippet, e.Seen, e.CreatedAt, e.UpdatedAt, e.BodyText,
-		models.NormalizeFolder(e.Folder, e.Flags),
+		models.NormalizeFolder(e.Folder, e.Flags), e.CampaignLinked,
 	)
 	return err
 }
@@ -251,7 +260,7 @@ func (r *uniboxRepository) GetByID(ctx context.Context, userID, id uuid.UUID) (*
 		&e.GmailID, &e.ParentID, &e.UID, &e.ModSeq,
 		&e.Flags, &e.BCC, &e.CC, &e.FromAddr, &e.InReplyTo, &e.ReplyTo,
 		&e.ToAddr, &e.Subject, &e.Size, &e.InternalDate, &e.SentDate,
-		&e.Snippet, &e.Seen, &e.UpdatedAt, &e.CreatedAt, &e.Folder,
+		&e.Snippet, &e.Seen, &e.UpdatedAt, &e.CreatedAt, &e.Folder, &e.CampaignLinked,
 	)
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -290,7 +299,7 @@ func (r *uniboxRepository) GetByIDForOrg(ctx context.Context, orgID, id uuid.UUI
 		&e.GmailID, &e.ParentID, &e.UID, &e.ModSeq,
 		&e.Flags, &e.BCC, &e.CC, &e.FromAddr, &e.InReplyTo, &e.ReplyTo,
 		&e.ToAddr, &e.Subject, &e.Size, &e.InternalDate, &e.SentDate,
-		&e.Snippet, &e.Seen, &e.UpdatedAt, &e.CreatedAt, &e.Folder,
+		&e.Snippet, &e.Seen, &e.UpdatedAt, &e.CreatedAt, &e.Folder, &e.CampaignLinked,
 	)
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -423,6 +432,15 @@ func (r *uniboxRepository) Search(ctx context.Context, orgID, userID uuid.UUID, 
 		argPos++
 	} else {
 		inner += ` AND ue.folder NOT IN ('spam', 'trash')`
+	}
+
+	// Triage: the Inbox is campaign conversations only, the Other view is
+	// everything else. nil (folder drill-downs, mailbox and tag scopes)
+	// shows both.
+	if params.CampaignLinked != nil {
+		inner += fmt.Sprintf(` AND ue.campaign_linked = $%d`, argPos)
+		args = append(args, *params.CampaignLinked)
+		argPos++
 	}
 
 	// Snooze handling. nil = exclude snoozed (the inbox default), so
@@ -605,13 +623,14 @@ func (r *uniboxRepository) GetUnseenCount(ctx context.Context, orgID uuid.UUID, 
 	var count int64
 
 	// Count unread THREADS (distinct, empty-thread-safe), not messages,
-	// so the badge agrees with the collapsed list + Overview.Unread.
+	// so the badge agrees with the collapsed list + Overview.Unread: campaign
+	// conversations only, like the Inbox they open.
 	if emailAccountID != nil {
 		err := r.db.QueryRow(ctx,
 			`SELECT COUNT(DISTINCT COALESCE(NULLIF(thread_id, ''), id::text))
 			 FROM unibox_emails
 			 WHERE email_id IN (SELECT id FROM email_accounts WHERE organization_id = $1)
-			   AND email_id = $2 AND seen = FALSE
+			   AND email_id = $2 AND seen = FALSE AND campaign_linked
 			   AND folder NOT IN ('spam', 'trash')`,
 			orgID, *emailAccountID,
 		).Scan(&count)
@@ -622,7 +641,7 @@ func (r *uniboxRepository) GetUnseenCount(ctx context.Context, orgID uuid.UUID, 
 		`SELECT COUNT(DISTINCT COALESCE(NULLIF(thread_id, ''), id::text))
 		 FROM unibox_emails
 		 WHERE email_id IN (SELECT id FROM email_accounts WHERE organization_id = $1) AND seen = FALSE
-		   AND folder NOT IN ('spam', 'trash')`,
+		   AND campaign_linked AND folder NOT IN ('spam', 'trash')`,
 		orgID,
 	).Scan(&count)
 	return count, err
@@ -1009,6 +1028,7 @@ func (r *uniboxRepository) Overview(ctx context.Context, orgID uuid.UUID) (*mode
 				e.from_addr,
 				e.internal_date,
 				e.seen,
+				e.campaign_linked,
 				EXISTS (
 					SELECT 1 FROM unibox_snoozes s
 					WHERE s.user_id = e.user_id
@@ -1022,27 +1042,30 @@ func (r *uniboxRepository) Overview(ctx context.Context, orgID uuid.UUID) (*mode
 		threads AS (
 			SELECT
 				tkey,
-				bool_or(is_snoozed) AS is_snoozed,
-				bool_or(NOT seen)   AS has_unread,
-				max(internal_date)  AS last_date
+				bool_or(is_snoozed)     AS is_snoozed,
+				bool_or(NOT seen)       AS has_unread,
+				bool_or(campaign_linked) AS linked,
+				max(internal_date)      AS last_date
 			FROM ue
 			GROUP BY tkey
 		),
 		latest_per_thread AS (
 			SELECT DISTINCT ON (tkey) tkey, from_addr
 			FROM ue
-			WHERE NOT is_snoozed
+			WHERE NOT is_snoozed AND campaign_linked
 			ORDER BY tkey, internal_date DESC
 		),
 		user_mailbox_emails AS (
 			SELECT email FROM email_accounts WHERE organization_id = $1
 		)
 		SELECT
-			COUNT(*) FILTER (WHERE NOT t.is_snoozed)                            AS total,
-			COUNT(*) FILTER (WHERE NOT t.is_snoozed AND t.has_unread)           AS unread,
-			COUNT(*) FILTER (WHERE NOT t.is_snoozed AND t.last_date >= $2)      AS today,
-			COUNT(*) FILTER (WHERE NOT t.is_snoozed AND t.last_date >= $3)      AS week,
-			COUNT(*) FILTER (WHERE t.is_snoozed)                                AS snoozed,
+			COUNT(*) FILTER (WHERE NOT t.is_snoozed AND t.linked)                            AS total,
+			COUNT(*) FILTER (WHERE NOT t.is_snoozed AND t.linked AND t.has_unread)           AS unread,
+			COUNT(*) FILTER (WHERE NOT t.is_snoozed AND t.linked AND t.last_date >= $2)      AS today,
+			COUNT(*) FILTER (WHERE NOT t.is_snoozed AND t.linked AND t.last_date >= $3)      AS week,
+			COUNT(*) FILTER (WHERE t.is_snoozed)                                             AS snoozed,
+			COUNT(*) FILTER (WHERE NOT t.is_snoozed AND NOT t.linked)                        AS other,
+			COUNT(*) FILTER (WHERE NOT t.is_snoozed AND NOT t.linked AND t.has_unread)       AS other_unread,
 			(SELECT COUNT(*) FROM latest_per_thread l
 				WHERE EXISTS (SELECT 1 FROM user_mailbox_emails u WHERE u.email = ANY(l.from_addr)))             AS awaiting,
 			(SELECT COUNT(*) FROM ai_thread_drafts d
@@ -1054,6 +1077,8 @@ func (r *uniboxRepository) Overview(ctx context.Context, orgID uuid.UUID) (*mode
 		&overview.Today,
 		&overview.Week,
 		&overview.Snoozed,
+		&overview.Other,
+		&overview.OtherUnread,
 		&overview.AwaitingReply,
 		&overview.AwaitingAgentDraft,
 	)
@@ -1073,6 +1098,7 @@ func (r *uniboxRepository) Overview(ctx context.Context, orgID uuid.UUID) (*mode
 			COUNT(DISTINCT COALESCE(NULLIF(e.thread_id, ''), e.id::text))                            AS total
 		FROM unibox_emails e
 		WHERE e.email_id IN (SELECT id FROM email_accounts WHERE organization_id = $1)
+		  AND (e.folder <> 'inbox' OR e.campaign_linked)
 		  AND NOT EXISTS (
 			SELECT 1 FROM unibox_snoozes s
 			WHERE s.user_id = e.user_id
@@ -1310,4 +1336,44 @@ func (r *uniboxRepository) scanGrounding(ctx context.Context, query string, orgI
 		out = append(out, m)
 	}
 	return out, rows.Err()
+}
+
+func (r *uniboxRepository) IsCampaignConversation(ctx context.Context, emailID uuid.UUID, messageIDs []string, threadID string) (bool, error) {
+	ids := make([]string, 0, len(messageIDs))
+	for _, id := range messageIDs {
+		if id = strings.TrimSpace(id); id != "" {
+			ids = append(ids, id)
+		}
+	}
+	if len(ids) == 0 && threadID == "" {
+		return false, nil
+	}
+	// Every send Warmbly makes (campaign, reply, scheduled) records its
+	// Message-ID on a task, so a task match is "a thread Warmbly started or a
+	// reply to it". The thread check carries the link to later messages that
+	// only reference each other.
+	const q = `
+		SELECT EXISTS (
+			SELECT 1 FROM tasks
+			WHERE email_account_id = $1 AND message_id <> '' AND cardinality($2::text[]) > 0 AND message_id = ANY($2)
+		) OR EXISTS (
+			SELECT 1 FROM unibox_emails
+			WHERE email_id = $1 AND $3 <> '' AND thread_id = $3 AND campaign_linked
+		)
+	`
+	var linked bool
+	if err := r.db.QueryRow(ctx, q, emailID, ids, threadID).Scan(&linked); err != nil {
+		return false, fmt.Errorf("unibox: campaign conversation: %w", err)
+	}
+	return linked, nil
+}
+
+func (r *uniboxRepository) MarkThreadCampaignLinked(ctx context.Context, emailID uuid.UUID, threadID string) error {
+	if threadID == "" {
+		return nil
+	}
+	_, err := r.db.Exec(ctx,
+		`UPDATE unibox_emails SET campaign_linked = true WHERE email_id = $1 AND thread_id = $2 AND NOT campaign_linked`,
+		emailID, threadID)
+	return err
 }

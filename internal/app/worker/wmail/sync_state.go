@@ -97,12 +97,16 @@ func (t *syncTracker) touch(now time.Time) {
 }
 
 // startBackfill fixes the window when the import first runs, so an operator
-// changing the setting later does not move the goalposts mid-walk.
-func (t *syncTracker) startBackfill(now time.Time, days int) {
+// changing the setting later does not move the goalposts mid-walk. The
+// window never reaches past the sync start boundary.
+func (t *syncTracker) startBackfill(now time.Time, days int, boundary *time.Time) {
 	if t.state.BackfillStatus != models.SyncBackfillPending {
 		return
 	}
 	since := now.Add(-time.Duration(days) * 24 * time.Hour)
+	if boundary != nil && boundary.After(since) {
+		since = *boundary
+	}
 	t.state.BackfillSince = &since
 	t.state.BackfillStartedAt = &now
 	t.state.BackfillStatus = models.SyncBackfillRunning

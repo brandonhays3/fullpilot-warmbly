@@ -2,6 +2,7 @@ package wmail
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/warmbly/warmbly/internal/app/cipher"
@@ -220,6 +221,10 @@ func NewWMail(
 		}
 		token := data.Graph.Token
 		deltaLinks := data.Graph.DeltaLinks
+		var syncSince time.Time
+		if policy.SyncSince != nil {
+			syncSince = *policy.SyncSince
+		}
 
 		mail.GraphData = &GraphData{
 			Client: &msgraph.Client{
@@ -229,6 +234,7 @@ func NewWMail(
 
 				Cache:      mail.Cache,
 				DeltaLinks: cloneStringMap(deltaLinks),
+				SyncSince:  syncSince,
 
 				OnMessageSeen:   mail.onGraphMessageSeen,
 				OnMessageRemove: mail.onGraphMessageRemove,

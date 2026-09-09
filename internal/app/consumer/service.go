@@ -30,13 +30,16 @@ type JobsService struct {
 	Bus eventbus.EventBus
 	// Codec decodes bus payloads (jobs.worker-events); it must match the
 	// CODEC_PROVIDER the producing services run with.
-	Codec                       codec.Codec
-	UniboxRepository            repository.UniboxRepository
-	MailboxRepository           repository.MailboxRepository
-	EmailRepository             repository.EmailRepository
-	EmailHistoryIDRepository    repository.EmailHistoryIDRepository
-	EmailGraphDeltaRepository   repository.EmailGraphDeltaRepository
-	EmailSyncStateRepository    repository.EmailSyncStateRepository
+	Codec                     codec.Codec
+	UniboxRepository          repository.UniboxRepository
+	MailboxRepository         repository.MailboxRepository
+	EmailRepository           repository.EmailRepository
+	EmailHistoryIDRepository  repository.EmailHistoryIDRepository
+	EmailGraphDeltaRepository repository.EmailGraphDeltaRepository
+	EmailSyncStateRepository  repository.EmailSyncStateRepository
+	// SyncBoundaryRepo is the sync start boundary per connected address; new
+	// mail from before it is dropped even if a worker offered it.
+	SyncBoundaryRepo            repository.MailboxSyncBoundaryRepository
 	EmailAccountErrorRepository repository.EmailAccountErrorRepository
 	WarmupRepo                  repository.WarmupRepository
 	// PoolLinkRepo marks warmup-only mailboxes of linked instances; nil when unused.

@@ -127,15 +127,49 @@ func TestSyncTrackerThrottleAndRelease(t *testing.T) {
 func TestSyncTrackerBackfillWindowIsFixed(t *testing.T) {
 	tr := newSyncTracker(nil, func(models.SyncState) error { return nil })
 	now := time.Now()
-	tr.startBackfill(now, 30)
+	tr.startBackfill(now, 30, nil)
 	first := *tr.state.BackfillSince
-	tr.startBackfill(now.Add(time.Hour), 90)
+	tr.startBackfill(now.Add(time.Hour), 90, nil)
 	if !tr.state.BackfillSince.Equal(first) {
 		t.Fatal("backfill window moved after start")
 	}
 	tr.completeBackfill(now)
 	if tr.state.BackfillStatus != models.SyncBackfillComplete || tr.state.BackfillCompletedAt == nil {
 		t.Fatal("not completed")
+	}
+}
+
+// The window never reaches past the sync start boundary: a 90-day setting
+// on an address connected yesterday imports one day.
+func TestSyncTrackerBackfillWindowStopsAtBoundary(t *testing.T) {
+	tr := newSyncTracker(nil, func(models.SyncState) error { return nil })
+	now := time.Now()
+	boundary := now.Add(-24 * time.Hour)
+	tr.startBackfill(now, 90, &boundary)
+	if !tr.state.BackfillSince.Equal(boundary) {
+		t.Fatalf("since=%v want the boundary %v", tr.state.BackfillSince, boundary)
+	}
+
+	// A boundary older than the window leaves the window alone.
+	tr = newSyncTracker(nil, func(models.SyncState) error { return nil })
+	old := now.Add(-365 * 24 * time.Hour)
+	tr.startBackfill(now, 30, &old)
+	if want := now.Add(-30 * 24 * time.Hour); !tr.state.BackfillSince.Equal(want) {
+		t.Fatalf("since=%v want %v", tr.state.BackfillSince, want)
+	}
+}
+
+func TestSyncPolicyBoundary(t *testing.T) {
+	since := time.Now()
+	p := models.SyncPolicy{SyncSince: &since}
+	if !p.Boundary(since.Add(-time.Minute)) {
+		t.Fatal("older mail must be cut")
+	}
+	if p.Boundary(since.Add(time.Minute)) || p.Boundary(time.Time{}) {
+		t.Fatal("newer or undated mail must pass")
+	}
+	if (models.SyncPolicy{}).Boundary(since.Add(-time.Hour)) {
+		t.Fatal("no boundary means no cut")
 	}
 }
 

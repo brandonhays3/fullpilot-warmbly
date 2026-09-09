@@ -14,6 +14,7 @@ import (
 	"io"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/warmbly/warmbly/internal/errx"
@@ -50,6 +51,11 @@ type Client struct {
 	// name -> deltaLink URL). Seeded from persisted state on init and advanced
 	// as sync runs; OnDelta persists each new value off the disposable worker.
 	DeltaLinks map[string]string
+
+	// SyncSince, when set, bounds a folder's first delta walk to messages
+	// received on or after it (receivedDateTime ge), the sync start boundary.
+	// Zero means unbounded.
+	SyncSince time.Time
 
 	// folderIDs caches resolved folder ids (e.g. the created "Fullpilot" folder)
 	// so we don't re-list on every warmup action.

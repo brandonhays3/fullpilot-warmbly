@@ -268,7 +268,7 @@ func (s *emailService) buildAddWorkerEmail(ctx context.Context, acc *models.Emai
 		FirstName:      first,
 		LastName:       last,
 		Type:           provider,
-		Sync:           s.syncDataFor(ctx, acc.ID),
+		Sync:           s.syncDataFor(ctx, acc),
 		// Only SMTP/IMAP acts on this; Gmail and Graph file their own copy.
 		SaveToSent: &saveToSent,
 	}
@@ -357,7 +357,8 @@ func (s *emailService) lastHistoryFor(ctx context.Context, userID, emailID uuid.
 // state a previous worker left behind. Policy comes from instance settings
 // (compiled defaults when none are wired), so an operator's change applies at
 // the next load: onboarding, reassignment, or the reconciler's republish.
-func (s *emailService) syncDataFor(ctx context.Context, emailID uuid.UUID) *models.AddWorkerEmailSyncData {
+func (s *emailService) syncDataFor(ctx context.Context, acc *models.Email) *models.AddWorkerEmailSyncData {
+	emailID := acc.ID
 	budget := instancesettings.DefaultSync()
 	if s.syncBudget != nil {
 		budget = s.syncBudget.SyncBudget(ctx)
@@ -377,6 +378,7 @@ func (s *emailService) syncDataFor(ctx context.Context, emailID uuid.UUID) *mode
 			data.Policy.BackfillMessages = 25
 		}
 	}
+	data.Policy.SyncSince = s.syncSinceFor(ctx, acc)
 	if s.syncState != nil {
 		if saved, err := s.syncState.Get(ctx, emailID); err == nil {
 			data.State = saved
@@ -385,6 +387,28 @@ func (s *emailService) syncDataFor(ctx context.Context, emailID uuid.UUID) *mode
 		}
 	}
 	return data
+}
+
+// syncSinceFor is the sync start boundary the mailbox syncs behind: the
+// moment its address was first connected to the organization. The first load
+// after connect writes it (the account's created_at is that moment); every
+// later load, including a reconnect of the same address under a new account
+// row, reads the stored one back. Nil when the boundary cannot be resolved,
+// which the worker treats as "no boundary" rather than refusing to sync.
+func (s *emailService) syncSinceFor(ctx context.Context, acc *models.Email) *time.Time {
+	if s.syncBoundary == nil || acc.OrganizationID == nil {
+		return nil
+	}
+	first := acc.CreatedAt
+	if first.IsZero() {
+		first = time.Now()
+	}
+	since, err := s.syncBoundary.Ensure(ctx, *acc.OrganizationID, acc.Email, first)
+	if err != nil {
+		log.Warn().Err(err).Str("email_id", acc.ID.String()).Msg("sync boundary lookup failed; worker syncs without one")
+		return nil
+	}
+	return &since
 }
 
 // mailboxesFor is the IMAP folder state (name, UIDVALIDITY, HIGHESTMODSEQ)

@@ -43,6 +43,12 @@ export default interface UniboxOverview {
   awaiting_reply: number;
   /** Threads with a pending inbox-agent draft awaiting human review. */
   awaiting_agent_draft: number;
+  /**
+   * Threads outside any campaign conversation (the Other view). total,
+   * unread, today and week count the Inbox only.
+   */
+  other: number;
+  other_unread: number;
   /** Pending outbound email tasks queued by the user. */
   scheduled_pending: number;
   /**
