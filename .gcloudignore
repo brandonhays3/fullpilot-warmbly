@@ -1,0 +1,18 @@
+# What `gcloud builds submit` uploads. Keep the tarball small: Cloud Build
+# rebuilds everything inside Docker anyway.
+.git
+.github
+node_modules
+**/node_modules
+**/dist
+**/build
+**/.next
+**/target
+**/_build
+**/deps
+**/.elixir_ls
+data
+*.log
+.env
+.env.*
+!.env.example

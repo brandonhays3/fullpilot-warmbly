@@ -1,0 +1,70 @@
+# Builds every Warmbly image on Cloud Build (linux/amd64) and pushes them to
+# Artifact Registry. Invoked by deploy/fullpilot/build-images.sh; do not run
+# by hand unless you pass the same substitutions.
+#
+#   _PREFIX  us-docker.pkg.dev/data-286013/fullpilot
+#   _TAG     fp-<sha>
+#   _VERSION shown in the admin panel
+substitutions:
+  _PREFIX: us-docker.pkg.dev/data-286013/fullpilot
+  _TAG: dev
+  _VERSION: dev
+options:
+  machineType: E2_HIGHCPU_32
+  logging: CLOUD_LOGGING_ONLY
+timeout: 3600s
+
+steps:
+  # Go services share one context and one Dockerfile shape each.
+  - id: backend
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["-"]
+    args: ["build", "-f", "deploy/docker/backend.Dockerfile", "--build-arg", "VERSION=${_VERSION}", "--build-arg", "COMMIT=${COMMIT_SHA}", "-t", "${_PREFIX}/backend:${_TAG}", "."]
+  - id: consumer
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["-"]
+    args: ["build", "-f", "deploy/docker/consumer.Dockerfile", "--build-arg", "VERSION=${_VERSION}", "--build-arg", "COMMIT=${COMMIT_SHA}", "-t", "${_PREFIX}/consumer:${_TAG}", "."]
+  - id: worker
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["-"]
+    args: ["build", "-f", "deploy/docker/worker.Dockerfile", "--build-arg", "VERSION=${_VERSION}", "--build-arg", "COMMIT=${COMMIT_SHA}", "-t", "${_PREFIX}/worker:${_TAG}", "."]
+  - id: forms
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["-"]
+    args: ["build", "-f", "deploy/docker/forms.Dockerfile", "--build-arg", "VERSION=${_VERSION}", "--build-arg", "COMMIT=${COMMIT_SHA}", "-t", "${_PREFIX}/forms:${_TAG}", "."]
+  - id: updater
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["-"]
+    args: ["build", "-f", "deploy/docker/updater.Dockerfile", "--build-arg", "VERSION=${_VERSION}", "--build-arg", "COMMIT=${COMMIT_SHA}", "-t", "${_PREFIX}/updater:${_TAG}", "."]
+
+  # Elixir realtime and Rust tracking.
+  - id: realtime
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["-"]
+    args: ["build", "-f", "deploy/docker/realtime.Dockerfile", "--build-arg", "VERSION=${_VERSION}", "-t", "${_PREFIX}/realtime:${_TAG}", "."]
+  - id: tracking
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["-"]
+    args: ["build", "-f", "tracking/Dockerfile", "--build-arg", "VERSION=${_VERSION}", "-t", "${_PREFIX}/tracking:${_TAG}", "tracking"]
+
+  # React dashboard and admin panel. API URLs are injected at container
+  # start from the .env on the host, so these builds carry no environment.
+  - id: web
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["-"]
+    args: ["build", "-f", "web/Dockerfile", "--build-arg", "VERSION=${_VERSION}", "-t", "${_PREFIX}/web:${_TAG}", "web"]
+  - id: admin
+    name: gcr.io/cloud-builders/docker
+    waitFor: ["-"]
+    args: ["build", "-f", "admin/Dockerfile", "--build-arg", "VERSION=${_VERSION}", "-t", "${_PREFIX}/admin:${_TAG}", "admin"]
+
+images:
+  - ${_PREFIX}/backend:${_TAG}
+  - ${_PREFIX}/consumer:${_TAG}
+  - ${_PREFIX}/worker:${_TAG}
+  - ${_PREFIX}/forms:${_TAG}
+  - ${_PREFIX}/updater:${_TAG}
+  - ${_PREFIX}/realtime:${_TAG}
+  - ${_PREFIX}/tracking:${_TAG}
+  - ${_PREFIX}/web:${_TAG}
+  - ${_PREFIX}/admin:${_TAG}

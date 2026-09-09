@@ -1,0 +1,23 @@
+{
+  "name": "fullpilot-warmbly",
+  "private": true,
+  "description": "Fullpilot's fork of Warmbly. npm scripts wrap the upstream Makefile for dev and add Fullpilot's build + deploy pipeline to Google Cloud.",
+  "scripts": {
+    "dev": "make dev",
+    "dev:web": "make web",
+    "dev:admin": "make admin",
+    "dev:run": "make run",
+    "dev:stop": "make stop",
+    "dev:logs": "make logs",
+    "images": "bash deploy/fullpilot/build-images.sh",
+    "deploy": "bash deploy/fullpilot/rollout.sh",
+    "release": "bash deploy/fullpilot/build-images.sh && bash deploy/fullpilot/rollout.sh",
+    "fleet": "bash deploy/fullpilot/ssh.sh 'cd /opt/warmbly && sudo docker compose -p warmbly exec backend warmblyctl fleet list'",
+    "prod:logs": "bash deploy/fullpilot/ssh.sh 'cd /opt/warmbly && sudo docker compose -p warmbly logs --tail 200'",
+    "prod:ps": "bash deploy/fullpilot/ssh.sh 'cd /opt/warmbly && sudo docker compose -p warmbly ps'",
+    "prod:ssh": "bash deploy/fullpilot/ssh.sh",
+    "workers:run": "bash deploy/fullpilot/workers.sh run",
+    "workers:status": "bash deploy/fullpilot/workers.sh status",
+    "upstream:sync": "git fetch upstream --tags && git checkout main && git merge --ff-only upstream/main && git push origin main && git checkout fullpilot"
+  }
+}
