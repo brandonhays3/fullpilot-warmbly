@@ -19,32 +19,39 @@ steps:
   - id: backend
     name: gcr.io/cloud-builders/docker
     waitFor: ["-"]
+    env: ["DOCKER_BUILDKIT=1"]
     args: ["build", "-f", "deploy/docker/backend.Dockerfile", "--build-arg", "VERSION=${_VERSION}", "--build-arg", "COMMIT=${COMMIT_SHA}", "-t", "${_PREFIX}/backend:${_TAG}", "."]
   - id: consumer
     name: gcr.io/cloud-builders/docker
     waitFor: ["-"]
+    env: ["DOCKER_BUILDKIT=1"]
     args: ["build", "-f", "deploy/docker/consumer.Dockerfile", "--build-arg", "VERSION=${_VERSION}", "--build-arg", "COMMIT=${COMMIT_SHA}", "-t", "${_PREFIX}/consumer:${_TAG}", "."]
   - id: worker
     name: gcr.io/cloud-builders/docker
     waitFor: ["-"]
+    env: ["DOCKER_BUILDKIT=1"]
     args: ["build", "-f", "deploy/docker/worker.Dockerfile", "--build-arg", "VERSION=${_VERSION}", "--build-arg", "COMMIT=${COMMIT_SHA}", "-t", "${_PREFIX}/worker:${_TAG}", "."]
   - id: forms
     name: gcr.io/cloud-builders/docker
     waitFor: ["-"]
+    env: ["DOCKER_BUILDKIT=1"]
     args: ["build", "-f", "deploy/docker/forms.Dockerfile", "--build-arg", "VERSION=${_VERSION}", "--build-arg", "COMMIT=${COMMIT_SHA}", "-t", "${_PREFIX}/forms:${_TAG}", "."]
   - id: updater
     name: gcr.io/cloud-builders/docker
     waitFor: ["-"]
+    env: ["DOCKER_BUILDKIT=1"]
     args: ["build", "-f", "deploy/docker/updater.Dockerfile", "--build-arg", "VERSION=${_VERSION}", "--build-arg", "COMMIT=${COMMIT_SHA}", "-t", "${_PREFIX}/updater:${_TAG}", "."]
 
   # Elixir realtime and Rust tracking.
   - id: realtime
     name: gcr.io/cloud-builders/docker
     waitFor: ["-"]
+    env: ["DOCKER_BUILDKIT=1"]
     args: ["build", "-f", "deploy/docker/realtime.Dockerfile", "--build-arg", "VERSION=${_VERSION}", "-t", "${_PREFIX}/realtime:${_TAG}", "."]
   - id: tracking
     name: gcr.io/cloud-builders/docker
     waitFor: ["-"]
+    env: ["DOCKER_BUILDKIT=1"]
     args: ["build", "-f", "tracking/Dockerfile", "--build-arg", "VERSION=${_VERSION}", "-t", "${_PREFIX}/tracking:${_TAG}", "tracking"]
 
   # React dashboard and admin panel. API URLs are injected at container
@@ -52,10 +59,12 @@ steps:
   - id: web
     name: gcr.io/cloud-builders/docker
     waitFor: ["-"]
+    env: ["DOCKER_BUILDKIT=1"]
     args: ["build", "-f", "web/Dockerfile", "--build-arg", "VERSION=${_VERSION}", "-t", "${_PREFIX}/web:${_TAG}", "web"]
   - id: admin
     name: gcr.io/cloud-builders/docker
     waitFor: ["-"]
+    env: ["DOCKER_BUILDKIT=1"]
     args: ["build", "-f", "admin/Dockerfile", "--build-arg", "VERSION=${_VERSION}", "-t", "${_PREFIX}/admin:${_TAG}", "admin"]
 
 images:
