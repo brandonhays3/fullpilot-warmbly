@@ -4,18 +4,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { APP_URL, WEBSITE_URL } from "@/lib/information";
 import getToken from "@/lib/helper/getToken";
 import { Logo } from "@/components/svg";
-import AuthShowcase from "./_components/AuthShowcase";
 
-/* ═══════════════════════════════════════════
-   Auth layout.
-
-   Desktop : two panes — the airy-sky showcase (left, logo pinned in white)
-             and the form (right) on a light page.
-   Mobile  : the whole page becomes the airy sky, with a clean white form
-             card floating on it (logo in white above, footer below). Same
-             "air" feel as desktop, no cramped showcase banner.
-   ═══════════════════════════════════════════ */
-
+// Auth layout: one centered card on a quiet page. Logo above, form inside,
+// legal links below. Same on every viewport.
 export default function AuthLayout({
     redirectIfAuthenticated = true,
 }: { redirectIfAuthenticated?: boolean } = {}) {
@@ -37,70 +28,32 @@ export default function AuthLayout({
     }
 
     return (
-        <div className="relative flex min-h-dvh w-full items-center justify-center px-4 py-8 text-slate-900 sm:px-5 sm:py-10 lg:bg-slate-50">
-            {/* Mobile airy-sky backdrop (desktop gets the sky inside the card instead) */}
-            <div className="absolute inset-0 overflow-hidden lg:hidden" aria-hidden="true">
-                <div className="sky-base" />
-                <div className="sky-breathe" />
-                <div className="sun-glow" />
-                <img src="/backdrops/cloud-3.webp" alt="" aria-hidden="true" decoding="async" className="cloud-drift cloud-1 absolute select-none" style={{ top: "4%", left: "-16%", width: 280, opacity: 0.6, height: "auto" }} />
-                <img src="/backdrops/cloud-4.webp" alt="" aria-hidden="true" decoding="async" className="cloud-drift cloud-2 absolute select-none" style={{ bottom: "12%", right: "-14%", width: 240, opacity: 0.5, height: "auto" }} />
-            </div>
-
-            <div className="relative z-10 w-full max-w-[400px] lg:max-w-[900px]">
-                {/* Mobile logo — white, on the sky, above the card */}
-                <a href={WEBSITE_URL} className="mb-5 flex w-fit items-center gap-2.5 mx-auto lg:hidden">
-                    <Logo className="w-7 text-white" />
-                    <span className="font-extrabold text-[18px] tracking-tight text-white">Fullpilot</span>
+        <div className="flex min-h-dvh w-full items-center justify-center bg-slate-50 px-4 py-10 text-slate-900">
+            <div className="w-full max-w-[420px]">
+                <a href={WEBSITE_URL} className="mb-6 flex w-fit items-center gap-2.5 mx-auto">
+                    <Logo className="w-8 text-sky-600" />
+                    <span className="font-extrabold text-[19px] tracking-tight text-slate-900">Fullpilot</span>
                 </a>
 
-                {/* Card */}
-                <div className="animate-card-float grid overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_30px_70px_-32px_rgba(15,23,42,0.32)] lg:grid-cols-2 lg:min-h-[580px]">
-                    {/* Showcase — desktop only */}
-                    <div className="relative hidden lg:block lg:border-r lg:border-slate-200">
-                        <AuthShowcase />
-                        <a href={WEBSITE_URL} className="absolute left-8 top-8 z-20 flex items-center gap-2.5">
-                            <Logo className="w-7 text-white" />
-                            <span className="font-extrabold text-[18px] tracking-tight text-white">Fullpilot</span>
-                        </a>
-                    </div>
-
-                    {/* Form column */}
-                    <div className="flex flex-col px-6 py-9 sm:px-10">
-                        <div className="mx-auto flex w-full max-w-[360px] flex-1 flex-col">
-                            <div className="flex flex-1 items-center">
-                                <div className="w-full">
-                                    {/* Animate full route changes too (login → forgot password) */}
-                                    <AnimatePresence mode="wait" initial={false}>
-                                        <motion.div
-                                            key={location.pathname}
-                                            initial={{ opacity: 0, x: 12 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: -12 }}
-                                            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-                                        >
-                                            {outlet}
-                                        </motion.div>
-                                    </AnimatePresence>
-                                </div>
-                            </div>
-
-                            {/* Footer — desktop, inside the card */}
-                            <div className="hidden items-center gap-3 pt-9 text-[12px] text-slate-400 lg:flex">
-                                <a href={`${WEBSITE_URL}/terms`} target="_blank" rel="noopener noreferrer" className="hover:text-slate-700 transition-colors">Terms</a>
-                                <a href={`${WEBSITE_URL}/privacy`} target="_blank" rel="noopener noreferrer" className="hover:text-slate-700 transition-colors">Privacy</a>
-                                <span className="ml-auto">© {new Date().getFullYear()} Fullpilot</span>
-                            </div>
-                        </div>
-                    </div>
+                <div className="rounded-2xl border border-slate-200 bg-white px-6 py-8 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_24px_48px_-24px_rgba(15,23,42,0.18)] sm:px-9">
+                    <AnimatePresence mode="wait" initial={false}>
+                        <motion.div
+                            key={location.pathname}
+                            initial={{ opacity: 0, x: 12 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -12 }}
+                            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                        >
+                            {outlet}
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
 
-                {/* Footer — mobile, on the sky below the card */}
-                <div className="mt-5 flex items-center justify-center gap-3 text-[12px] text-white/70 lg:hidden">
-                    <a href={`${WEBSITE_URL}/terms`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Terms</a>
-                    <span className="text-white/40">·</span>
-                    <a href={`${WEBSITE_URL}/privacy`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Privacy</a>
-                    <span className="text-white/40">·</span>
+                <div className="mt-5 flex items-center justify-center gap-3 text-[12px] text-slate-400">
+                    <a href={`${WEBSITE_URL}/terms`} target="_blank" rel="noopener noreferrer" className="hover:text-slate-700 transition-colors">Terms</a>
+                    <span className="text-slate-300">·</span>
+                    <a href={`${WEBSITE_URL}/privacy`} target="_blank" rel="noopener noreferrer" className="hover:text-slate-700 transition-colors">Privacy</a>
+                    <span className="text-slate-300">·</span>
                     <span>© {new Date().getFullYear()} Fullpilot</span>
                 </div>
             </div>
