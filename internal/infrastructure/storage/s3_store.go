@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -38,7 +39,28 @@ func (c *Client) Get(ctx context.Context, key string) (io.ReadCloser, error) {
 	return out.Body, nil
 }
 
+// seekable gives the SDK a body with a known length. An unknown-length
+// stream is sent aws-chunked with a trailing signature, which S3-compatible
+// stores such as Cloud Storage reject as SignatureDoesNotMatch.
+func seekable(body io.Reader) (io.Reader, error) {
+	if body == nil {
+		return nil, nil
+	}
+	if _, ok := body.(io.ReadSeeker); ok {
+		return body, nil
+	}
+	b, err := io.ReadAll(body)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.NewReader(b), nil
+}
+
 func (c *Client) Put(ctx context.Context, key string, body io.Reader, contentType string) error {
+	body, err := seekable(body)
+	if err != nil {
+		return err
+	}
 	in := &s3.PutObjectInput{
 		Bucket: aws.String(c.Bucket),
 		Key:    aws.String(key),
@@ -47,13 +69,17 @@ func (c *Client) Put(ctx context.Context, key string, body io.Reader, contentTyp
 	if contentType != "" {
 		in.ContentType = aws.String(contentType)
 	}
-	_, err := c.PutObject(ctx, in)
+	_, err = c.PutObject(ctx, in)
 	return err
 }
 
 // PutPublic writes a public-read object with a long immutable cache and
 // returns its public URL. Used for avatars and org logos.
 func (c *Client) PutPublic(ctx context.Context, key string, body io.Reader, contentType string) (string, error) {
+	body, err := seekable(body)
+	if err != nil {
+		return "", err
+	}
 	in := &s3.PutObjectInput{
 		Bucket:       aws.String(c.Bucket),
 		Key:          aws.String(key),

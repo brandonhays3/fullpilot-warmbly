@@ -27,6 +27,10 @@ func NewClient(ctx context.Context, cfg aws.Config, bucket string) (*Client, err
 			// bucket. Real AWS (no endpoint override) keeps the default.
 			if os.Getenv("AWS_ENDPOINT_URL") != "" || os.Getenv("AWS_ENDPOINT_URL_S3") != "" {
 				o.UsePathStyle = true
+				// S3-compatible stores (Cloud Storage, MinIO, R2) reject the
+				// SDK's default CRC checksums and chunked streaming signing.
+				o.RequestChecksumCalculation = aws.RequestChecksumCalculationWhenRequired
+				o.ResponseChecksumValidation = aws.ResponseChecksumValidationWhenRequired
 			}
 		}),
 	}, nil
