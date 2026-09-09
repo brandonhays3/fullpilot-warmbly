@@ -13,7 +13,7 @@ import json, os, subprocess, sys, time, urllib.request, urllib.error
 
 PROJECT = "data-286013"
 JOB = "warmbly-worker"
-IMAGE = os.environ.get("WORKER_IMAGE", "us-docker.pkg.dev/data-286013/ghcr-remote/warmbly/warmbly/worker:v0.4.1")
+IMAGE = os.environ.get("WORKER_IMAGE", "us-docker.pkg.dev/data-286013/fullpilot/worker:fp-153d37bc")
 SA = "warmbly-worker@data-286013.iam.gserviceaccount.com"
 REGIONS = ["us-central1", "us-east1", "us-west1", "europe-west1"]
 SECRETS = {
@@ -24,6 +24,8 @@ SECRETS = {
     "AWS_ACCESS_KEY_ID": "warmbly-blob-access-key",
     "AWS_SECRET_ACCESS_KEY": "warmbly-blob-secret-key",
     "BOX_GOOGLE_CLIENT_SECRET": "warmbly-box-google-client-secret",
+    "BOX_GOOGLE_DESKTOP_CLIENT_SECRET": "warmbly-box-google-desktop-client-secret",
+    "BOX_OUTLOOK_CLIENT_SECRET": "warmbly-box-outlook-client-secret",
 }
 # End the worker cleanly at 290s so the task counts as success; real crashes still fail.
 CMD = ["/bin/sh"]

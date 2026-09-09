@@ -206,39 +206,46 @@ spam complaint never touches fullpilot.com's reputation. To move it: add an A
 record on the other domain, add a Caddy block for it, set `TRACKING_DOMAIN` in
 `.env`, `docker compose up -d`.
 
-## Gmail OAuth (Thunderbird's public client, localhost-redirect mode)
+## Mailbox OAuth: two Gmail clients plus Outlook
 
-Brandon's decision: use Thunderbird's public Google OAuth client instead of a
-Fullpilot-owned one, to skip Google's unverified-app screen and restricted-scope
-verification. Its client ID and secret are public in Thunderbird's source
-(`mailnews/base/src/OAuth2Providers.sys.mjs`). Caveat: it's a desktop-type
-client, so Google only lets it redirect to localhost, and using another
-product's client is against Google's API terms; Google could revoke it.
+Default path = Fullpilot's own apps ("Fullpilot Sequencer", Google client
+397999256581-…, and "Fullpilot Sequencer Outlook", Entra app 2db46e08-…, tenant
+common). Their redirect URIs must include
+`https://api.portal.fullpilot.com/addresses/google/callback` and
+`.../addresses/outlook/callback` respectively (registered in the Google Cloud
+Console project that owns the client, and in the Entra app). Secrets live in
+Secret Manager (`warmbly-box-google-client-secret` v2, `warmbly-box-outlook-client-secret`)
+and in `/opt/warmbly/.env`.
 
-Fork change (branch `fullpilot`, commit "Gmail OAuth: localhost redirect mode"):
-- `BOX_GOOGLE_REDIRECT_MODE=localhost` -> redirect_uri is
-  `http://localhost:17777/warmbly/oauth`, scope `https://mail.google.com/`.
-- `/emails/onboarding/oauth/start` returns `manual_redirect: true`; the connect
-  modal shows a paste field. The customer approves in the Google popup, lands on
-  a "localhost refused to connect" page, copies that address bar into the modal,
-  and Warmbly finishes from the `code` + `state` in it.
+Alternative Gmail path = Thunderbird's public desktop-type client, offered in
+the connect modal as "Connect through Thunderbird's client instead". Its ID and
+secret are public in Thunderbird's source (`mailnews/base/src/OAuth2Providers.sys.mjs`).
+Caveats: Google only lets a desktop client redirect to localhost, and using
+another product's client is against Google's API terms; Google could revoke it.
+
+Fork changes (branch `fullpilot`, migration 000135):
+- `BOX_GOOGLE_DESKTOP_CLIENT_ID/SECRET` configure the second client:
+  redirect `http://localhost:17777/warmbly/oauth`, scope `https://mail.google.com/`.
+  `GET /auth/config` reports `gmail_desktop_client: true` when set.
+- `POST /emails/onboarding/oauth/start` takes `client: "google_desktop"`; the
+  response carries `manual_redirect: true` and the modal shows a paste field.
+  The customer approves in the Google popup, lands on "localhost refused to
+  connect", copies that address bar into the modal, and Warmbly finishes from
+  the `code` + `state` in it.
+- `email_accounts_oauth.oauth_client` ('default' | 'google_desktop') records
+  which client issued a mailbox's tokens; the worker payload carries it and the
+  worker refreshes with the matching client. Reauth reuses the stored client.
 - Reconnect-from-drawer flow (`web/src/lib/emails/emailOAuthPopup.ts`) is NOT
-  adapted yet; reconnecting a Gmail mailbox should go through Add mailbox.
+  adapted for the paste step; a desktop-client mailbox that needs reconsent
+  should be removed and re-added for now.
 
-Env, set in `/opt/warmbly/.env` and in every `infra/worker-env-*.yaml`
-(secret via Secret Manager `warmbly-box-google-client-secret`):
+Env, in `/opt/warmbly/.env` and every `infra/worker-env-*.yaml` (secrets via
+Secret Manager, see `infra/create-worker-jobs.py` SECRETS):
 ```
-BOX_GOOGLE_CLIENT_ID=406964657835-aq8lmia8j95dhl1a2bvharmfk3t1hgqj.apps.googleusercontent.com
-BOX_GOOGLE_CLIENT_SECRET=<Thunderbird's, in Secret Manager>
-BOX_GOOGLE_REDIRECT_MODE=localhost
+BOX_GOOGLE_CLIENT_ID / BOX_GOOGLE_CLIENT_SECRET            Fullpilot Sequencer (default)
+BOX_GOOGLE_DESKTOP_CLIENT_ID / BOX_GOOGLE_DESKTOP_CLIENT_SECRET   Thunderbird's client
+BOX_OUTLOOK_CLIENT_ID / BOX_OUTLOOK_CLIENT_SECRET          Fullpilot Sequencer Outlook
 ```
-To switch to a Fullpilot-owned client later: create a Web application OAuth
-client with redirect `https://api.portal.fullpilot.com/addresses/google/callback`,
-set the ID/secret, remove `BOX_GOOGLE_REDIRECT_MODE`, restart, re-run
-`create-worker-jobs.py`. No code change needed.
-
-Microsoft 365 (`BOX_OUTLOOK_CLIENT_ID/SECRET`) still needs an Entra app
-registration with redirect `https://api.portal.fullpilot.com/addresses/outlook/callback`.
 
 ## Current production images
 
