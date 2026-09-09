@@ -50,7 +50,6 @@ import usePipelines from "@/lib/api/hooks/app/crm/pipelines/usePipelines";
 import useTemplates from "@/lib/api/hooks/app/templates/useTemplates";
 import useUsageOverview from "@/lib/api/hooks/app/analytics/useUsageOverview";
 import useDashboard from "@/lib/api/hooks/app/analytics/useDashboard";
-import mailboxDisplayStatus from "@/lib/mailboxStatus";
 import useAPIKeys from "@/lib/api/hooks/app/api-keys/useAPIKeys";
 import useIntegrationConnections from "@/lib/api/hooks/app/integrations/useIntegrationConnections";
 import AnimatedNumber from "@/components/ui/AnimatedNumber";
@@ -625,151 +624,49 @@ function Section({ section, first = false }: { section: NavSection; first?: bool
  */
 function LivePanel() {
     const emails = useAppStore((s) => s.emails);
-    const unseenCount = useAppStore((s) => s.unseenCount);
     const dash = useDashboard("30d");
-    const [hovered, setHovered] = useState<number | null>(null);
 
-    const { active, mailboxes, capacity } = useMemo(() => {
-        const m = emails.length;
-        const a = emails.filter((e) => {
-            const st = mailboxDisplayStatus(e);
-            return st === "healthy" || st === "warming";
-        }).length;
-        // Capacity = the sum of each mailbox's configured daily campaign
-        // limit (default 50/day), not a flat count × 50 — a tuned-down or
-        // raised mailbox should move the meter's denominator.
-        const cap = emails.reduce((sum, e) => sum + (e.campaign_limit ?? 50), 0);
-        return { active: a, mailboxes: m, capacity: cap };
-    }, [emails]);
-
-    const { sentToday, trend } = useMemo(() => {
-        // daily_trend only contains days that had sends; rebuild a continuous
-        // last-14-days axis (zero-filling the gaps) so the sparkline's x
-        // spacing is honest — otherwise a quiet week would be silently
-        // squeezed out and two distant days would read as adjacent.
-        const byDate = new Map(
-            (dash.data?.daily_trend ?? []).map((d) => [d.date?.slice(0, 10), d.sent]),
-        );
-        const out: { date: string; sent: number }[] = [];
-        const now = new Date();
-        for (let i = 13; i >= 0; i--) {
-            const d = new Date(now);
-            d.setUTCDate(now.getUTCDate() - i);
-            const key = d.toISOString().slice(0, 10);
-            out.push({ date: key, sent: byDate.get(key) ?? 0 });
-        }
-        return { sentToday: out[out.length - 1].sent, trend: out };
+    const capacity = useMemo(
+        () => emails.reduce((sum, e) => sum + (e.campaign_limit ?? 50), 0),
+        [emails],
+    );
+    const sentToday = useMemo(() => {
+        const key = new Date().toISOString().slice(0, 10);
+        const today = (dash.data?.daily_trend ?? []).find((d) => d.date?.slice(0, 10) === key);
+        return today?.sent ?? 0;
     }, [dash.data]);
-
-    const scrub = hovered != null ? trend[hovered] : undefined;
     const pct = capacity > 0 ? Math.min(100, (sentToday / capacity) * 100) : 0;
 
+    // One line and a hairline meter under the profile: a glance at today's
+    // usage, nothing more. Clicking opens analytics.
     return (
         <Link
             to="/app/analytics"
-            className="group block mx-2 mt-1 mb-2 shrink-0 rounded-md bg-white/80 hover:bg-white border border-slate-200/70 hover:border-slate-300 pt-2 overflow-hidden transition-colors"
+            className="group block px-4 pt-2 pb-2.5 shrink-0 hover:bg-slate-50/80 transition-colors"
+            title="Open analytics"
         >
-            {/* Today's sends against the derived daily cap, kept small so it
-                reads as a footer stat. While the sparkline is being scrubbed
-                it shows the hovered day instead. */}
-            <div className="px-2.5 flex items-baseline gap-1.5 whitespace-nowrap">
-                {scrub ? (
-                    <>
-                        <span className="text-[13px] font-semibold text-slate-800 leading-none tabular-nums">
-                            {scrub.sent.toLocaleString()}
-                        </span>
-                        <span className="text-[10.5px] text-slate-500">
-                            sent {formatTrendDay(scrub.date)}
-                        </span>
-                    </>
-                ) : (
-                    <>
-                        <AnimatedNumber
-                            value={sentToday}
-                            className="text-[13px] font-semibold text-slate-800 leading-none tabular-nums"
-                        />
-                        <span className="text-[10.5px] text-slate-500">
-                            {capacity > 0
-                                ? `of ${capacity.toLocaleString()} sent today`
-                                : "sent today"}
-                        </span>
-                    </>
-                )}
-            </div>
-
-            {/* Capacity meter: same-ramp track so the unfilled part still reads
-                as "room left today", not as a broken bar. */}
-            <div
-                className="mt-1.5 px-2.5"
-                title={
-                    capacity > 0
-                        ? `${sentToday} of ${capacity} daily capacity used`
-                        : "Connect a mailbox to start sending"
-                }
-            >
-                <div className="h-1 rounded-full bg-sky-100 overflow-hidden">
-                    <div
-                        className="h-full rounded-full bg-sky-500 transition-[width] duration-700 ease-out"
-                        style={{ width: `${pct}%` }}
-                    />
-                </div>
-            </div>
-
-            <Sparkline points={trend} hovered={hovered} onHover={setHovered} />
-
-            {/* Glance chips: mailboxes · active senders · unread inbox. Icons
-                carry the labels (title attrs spell them out) so this stays one
-                quiet row instead of two label/value text lines. */}
-            <div className="border-t border-slate-100 px-2.5 py-1.5 flex items-center gap-3 text-[10.5px]">
-                <span
-                    className="inline-flex items-center gap-1 text-slate-500"
-                    title={`${mailboxes} ${mailboxes === 1 ? "mailbox" : "mailboxes"} connected`}
-                >
-                    <MailIcon className="w-3 h-3 text-slate-400" />
-                    <span className="font-mono tabular-nums">{mailboxes}</span>
+            <div className="flex items-baseline justify-between gap-2 text-[10.5px] leading-none">
+                <span className="text-slate-500">Sent today</span>
+                <span className="tabular-nums text-slate-700">
+                    <span className="font-semibold text-slate-800">{sentToday.toLocaleString()}</span>
+                    {capacity > 0 && <span className="text-slate-400"> / {capacity.toLocaleString()}</span>}
                 </span>
-                {active > 0 && (
-                    <span
-                        className="inline-flex items-center gap-1 text-emerald-600"
-                        title={`${active} warming or sending`}
-                    >
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                        <span className="font-mono tabular-nums">{active}</span>
-                    </span>
-                )}
-                <span
-                    className={cn(
-                        "ml-auto inline-flex items-center gap-1",
-                        unseenCount > 0 ? "text-sky-600" : "text-slate-400",
-                    )}
-                    title={`${unseenCount} unread in inbox`}
-                >
-                    <InboxIcon className="w-3 h-3" />
-                    <span className="font-mono tabular-nums">
-                        {unseenCount > 99 ? "99+" : unseenCount}
-                    </span>
-                </span>
+            </div>
+            <div className="mt-1.5 h-[3px] w-full rounded-full bg-slate-200/80 overflow-hidden">
+                <div
+                    className="h-full rounded-full bg-sky-600 transition-[width] duration-300"
+                    style={{ width: `${pct}%` }}
+                />
             </div>
         </Link>
     );
 }
 
 /** "2026-08-30" → "Aug 30" for the sparkline scrub readout. */
-function formatTrendDay(iso: string): string {
-    const d = new Date(iso);
-    return Number.isNaN(d.getTime())
-        ? iso
-        : d.toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" });
-}
 
 // Sparkline geometry. Width matches the card's inner width (sidebar w-64
 // minus mx-2 and borders) so preserveAspectRatio="none" barely distorts
 // the dots; side padding keeps markers clear of the overflow-hidden edges.
-const SPARK_W = 238;
-const SPARK_H = 34;
-const SPARK_PAD_X = 6;
-const SPARK_PAD_TOP = 6;
-const SPARK_PAD_BOTTOM = 3;
 
 /**
  * Sparkline — the last two weeks of send volume as a smooth area line
@@ -779,142 +676,6 @@ const SPARK_PAD_BOTTOM = 3;
  * columns report the hovered day via onHover so the hero number above
  * scrubs with the cursor.
  */
-function Sparkline({
-    points,
-    hovered,
-    onHover,
-}: {
-    points: { date: string; sent: number }[];
-    hovered: number | null;
-    onHover: (i: number | null) => void;
-}) {
-    const { linePath, areaPath, dots, hasVolume } = useMemo(() => {
-        const n = points.length;
-        const baseY = SPARK_H - SPARK_PAD_BOTTOM;
-        if (n < 2) {
-            return {
-                linePath: "",
-                areaPath: "",
-                dots: [] as { x: number; y: number }[],
-                hasVolume: false,
-            };
-        }
-        const max = Math.max(...points.map((p) => p.sent), 1);
-        const span = SPARK_W - SPARK_PAD_X * 2;
-        const usable = baseY - SPARK_PAD_TOP;
-        const pts = points.map((p, i) => ({
-            x: SPARK_PAD_X + (i / (n - 1)) * span,
-            y: baseY - (p.sent / max) * usable,
-        }));
-        // Catmull-Rom → cubic bezier; control ys are clamped so a spike next
-        // to a flat run never overshoots the frame.
-        const clamp = (y: number) =>
-            Math.min(baseY, Math.max(SPARK_PAD_TOP, y));
-        let d = `M ${pts[0].x} ${pts[0].y}`;
-        for (let i = 0; i < n - 1; i++) {
-            const p0 = pts[i - 1] ?? pts[i];
-            const p1 = pts[i];
-            const p2 = pts[i + 1];
-            const p3 = pts[i + 2] ?? p2;
-            const c1x = p1.x + (p2.x - p0.x) / 6;
-            const c1y = clamp(p1.y + (p2.y - p0.y) / 6);
-            const c2x = p2.x - (p3.x - p1.x) / 6;
-            const c2y = clamp(p2.y - (p3.y - p1.y) / 6);
-            d += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`;
-        }
-        return {
-            linePath: d,
-            areaPath: `${d} L ${pts[n - 1].x} ${baseY} L ${pts[0].x} ${baseY} Z`,
-            dots: pts,
-            hasVolume: points.some((p) => p.sent > 0),
-        };
-    }, [points]);
-
-    const n = points.length;
-    const step = n > 1 ? (SPARK_W - SPARK_PAD_X * 2) / (n - 1) : 0;
-    const hoverDot = hovered != null ? dots[hovered] : undefined;
-    const endDot = dots[dots.length - 1];
-
-    return (
-        <svg
-            viewBox={`0 0 ${SPARK_W} ${SPARK_H}`}
-            preserveAspectRatio="none"
-            aria-hidden
-            className={cn(
-                "mt-1 block w-full h-[34px]",
-                hasVolume ? "text-sky-500" : "text-slate-300",
-            )}
-            onMouseLeave={() => onHover(null)}
-        >
-            <defs>
-                <linearGradient id="livepanel-spark-fill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="currentColor" stopOpacity="0.18" />
-                    <stop offset="100%" stopColor="currentColor" stopOpacity="0.02" />
-                </linearGradient>
-            </defs>
-            {linePath && hasVolume && (
-                <path d={areaPath} fill="url(#livepanel-spark-fill)" />
-            )}
-            {linePath && (
-                <path
-                    d={linePath}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    vectorEffect="non-scaling-stroke"
-                />
-            )}
-            {/* Hover scrub: hairline + marker on the hovered day. */}
-            {hoverDot && (
-                <>
-                    <line
-                        x1={hoverDot.x}
-                        y1={SPARK_PAD_TOP - 4}
-                        x2={hoverDot.x}
-                        y2={SPARK_H - SPARK_PAD_BOTTOM}
-                        className="stroke-slate-200"
-                        strokeWidth="1"
-                        vectorEffect="non-scaling-stroke"
-                    />
-                    <circle
-                        cx={hoverDot.x}
-                        cy={hoverDot.y}
-                        r="3"
-                        fill="currentColor"
-                        className="stroke-white"
-                        strokeWidth="1.5"
-                    />
-                </>
-            )}
-            {/* End-of-series marker (today), ringed in the surface color. */}
-            {endDot && hovered == null && (
-                <circle
-                    cx={endDot.x}
-                    cy={endDot.y}
-                    r="2.5"
-                    fill="currentColor"
-                    className="stroke-white"
-                    strokeWidth="1.5"
-                />
-            )}
-            {/* Invisible per-day hit columns driving the scrub. */}
-            {n >= 2 &&
-                points.map((_, i) => (
-                    <rect
-                        key={i}
-                        x={SPARK_PAD_X + i * step - step / 2}
-                        y={0}
-                        width={step}
-                        height={SPARK_H}
-                        fill="transparent"
-                        onMouseEnter={() => onHover(i)}
-                    />
-                ))}
-        </svg>
-    );
-}
 
 export function AppNav({ open = false, onClose }: { open?: boolean; onClose?: () => void }) {
     return (
@@ -965,10 +726,6 @@ export function AppNav({ open = false, onClose }: { open?: boolean; onClose?: ()
                 ))}
             </nav>
 
-            {/* Footer stat: today's sends, beneath the tabs so it reads as
-                telemetry rather than the headline. */}
-            <LivePanel />
-
             <div className="border-t border-slate-200/60 py-1 shrink-0">
                 <NavRow
                     item={{ title: "Settings", url: "/app/settings", icon: SettingsIcon }}
@@ -977,6 +734,7 @@ export function AppNav({ open = false, onClose }: { open?: boolean; onClose?: ()
 
             <div className="border-t border-slate-200/60 shrink-0">
                 <UserNav />
+                <LivePanel />
             </div>
             </aside>
         </>
