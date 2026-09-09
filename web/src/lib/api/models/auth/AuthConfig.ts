@@ -34,4 +34,9 @@ export default interface AuthConfig {
      *  backend (Thunderbird's public client, for instance). The connect modal
      *  then offers it as an alternative that finishes by pasting an address. */
     gmail_desktop_client?: boolean;
+    /** True when connecting that provider ends on a localhost address the user
+     *  has to copy back (desktop-type client). The connect modal explains this
+     *  and asks for an acknowledgement before opening the consent window. */
+    gmail_paste_flow?: boolean;
+    outlook_paste_flow?: boolean;
 }

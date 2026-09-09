@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/warmbly/warmbly/internal/config"
@@ -88,6 +89,12 @@ type DeploymentAuthConfig struct {
 	// GmailDesktopClient is true when a second, desktop-type Gmail OAuth client
 	// is configured (BOX_GOOGLE_DESKTOP_*), so the connect modal can offer it.
 	GmailDesktopClient bool `json:"gmail_desktop_client"`
+	// GmailPasteFlow / OutlookPasteFlow are true when the provider's default
+	// connect path ends on a loopback address the user has to paste back
+	// (desktop-type client, or a loopback redirect override), so the connect
+	// modal can explain that before the consent window opens.
+	GmailPasteFlow   bool `json:"gmail_paste_flow"`
+	OutlookPasteFlow bool `json:"outlook_paste_flow"`
 }
 
 // accountsDocsURL is the page every registration refusal points at.
@@ -129,5 +136,28 @@ func (h *Handler) AuthConfig(c *gin.Context) {
 			w := config.GoogleOauth2Inbox("")
 			return d.ClientID != "" && d.ClientSecret != "" && w.ClientID != "" && w.ClientSecret != ""
 		}(),
+		GmailPasteFlow: func() bool {
+			w := config.GoogleOauth2Inbox("")
+			d := config.GoogleDesktopOauth2Inbox()
+			if w.ClientID != "" && w.ClientSecret != "" {
+				return loopbackRedirect(w.RedirectURL)
+			}
+			return d.ClientID != "" && d.ClientSecret != ""
+		}(),
+		OutlookPasteFlow: func() bool {
+			w := config.OutlookOauth2Inbox("")
+			d := config.OutlookDesktopOauth2Inbox()
+			if w.ClientID != "" && w.ClientSecret != "" {
+				return loopbackRedirect(w.RedirectURL)
+			}
+			return d.ClientID != ""
+		}(),
 	})
+}
+
+// loopbackRedirect reports whether an OAuth redirect_uri points at the user's
+// own machine, where nothing of ours can answer it.
+func loopbackRedirect(u string) bool {
+	u = strings.ToLower(u)
+	return strings.HasPrefix(u, "http://localhost") || strings.HasPrefix(u, "https://localhost") || strings.HasPrefix(u, "http://127.0.0.1") || strings.HasPrefix(u, "https://127.0.0.1")
 }

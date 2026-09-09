@@ -62,7 +62,9 @@ export function VersionPill() {
         }
     }, [started, admin, updating, open, qc]);
 
-    if (!v || !selfHosted) return null;
+    // Members never see the instance version or an update prompt; that is the
+    // platform admin's business.
+    if (!v || !selfHosted || !isAdmin) return null;
 
     const running = v.version && v.version !== "dev" ? v.version : v.commit ? `dev ${v.commit.slice(0, 7)}` : "dev";
     const available = v.update_available;

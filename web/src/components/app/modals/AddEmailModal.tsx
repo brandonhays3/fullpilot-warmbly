@@ -158,7 +158,14 @@ export default function AddEmailModal() {
     const viaCloud = pool.connected;
     // A second, desktop-type Gmail client on the backend (Thunderbird's public
     // one, for instance) is offered as an alternative connect path.
-    const gmailDesktop = useAuthConfig().data?.gmail_desktop_client === true;
+    const authCfg = useAuthConfig().data;
+    const gmailDesktop = authCfg?.gmail_desktop_client === true;
+    // Providers whose consent window lands on localhost: the panel explains the
+    // copy-the-address step and asks for an acknowledgement first.
+    const pasteFlow: Record<OAuthProvider, boolean> = {
+        gmail: authCfg?.gmail_paste_flow === true,
+        outlook: authCfg?.outlook_paste_flow === true,
+    };
 
     // The allowance is read while the modal is open so the picker can show it
     // and a refused connect can explain itself. Fetched from the same query
@@ -424,6 +431,7 @@ export default function AddEmailModal() {
                                                 busy={oauthBusy === "gmail"}
                                                 viaCloud={viaCloud}
                                                 onConnect={() => startOAuth("gmail")}
+                                                pasteFlow={pasteFlow.gmail}
                                                 onConnectDesktop={gmailDesktop ? () => startOAuth("gmail", "google_desktop") : undefined}
                                                 manual={
                                                     manualPaste?.provider === "gmail"
@@ -449,6 +457,7 @@ export default function AddEmailModal() {
                                                 busy={oauthBusy === "outlook"}
                                                 viaCloud={viaCloud}
                                                 onConnect={() => startOAuth("outlook")}
+                                                pasteFlow={pasteFlow.outlook}
                                             />
                                         )
                                     )}
@@ -781,11 +790,15 @@ function OAuthPanel({
     onConnect,
     onConnectDesktop,
     manual,
+    pasteFlow = false,
 }: {
     provider: OAuthProvider;
     busy: boolean;
     viaCloud: boolean;
     onConnect: () => void;
+    // The consent window will land on localhost and the user has to copy its
+    // address back. Explain that and require an acknowledgement before opening it.
+    pasteFlow?: boolean;
     // Alternative Gmail path through a desktop-type client; ends with the
     // paste-the-address step. Absent when the deployment has no such client.
     onConnectDesktop?: () => void;
@@ -795,8 +808,58 @@ function OAuthPanel({
 }) {
     const label = provider === "gmail" ? "Google" : "Microsoft";
     const Icon = provider === "gmail" ? Google : Outlook;
+    const [acknowledged, setAcknowledged] = React.useState(false);
     if (manual) {
         return <ManualRedirectPanel label={label} Icon={Icon} onFinish={manual.onFinish} onCancel={manual.onCancel} />;
+    }
+    if (pasteFlow && !viaCloud) {
+        return (
+            <div className="px-5 py-6 space-y-5">
+                <div className="flex items-center gap-3">
+                    <div className="size-11 rounded-md border border-slate-200 bg-white flex items-center justify-center shrink-0">
+                        <Icon className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <div className="text-[13.5px] font-medium text-slate-900">Connect with {label}</div>
+                        <div className="text-[11.5px] text-slate-500">Read this first. The {label} window ends on a page that looks broken, and that is expected.</div>
+                    </div>
+                </div>
+
+                <div className="rounded-md border border-amber-200 bg-amber-50 p-3">
+                    <ol className="text-[12px] text-amber-900 space-y-1.5 list-decimal list-inside">
+                        <li>A {label} window opens. Pick the mailbox and approve.</li>
+                        <li>
+                            {label} then sends that window to <span className="font-mono text-[11.5px]">localhost</span>, which shows{" "}
+                            <span className="font-medium">"refused to connect"</span> or a blank page. Nothing is wrong.
+                        </li>
+                        <li>Copy the whole address from that window's address bar and paste it back here. That finishes the connection.</li>
+                    </ol>
+                </div>
+
+                <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                    <input
+                        type="checkbox"
+                        checked={acknowledged}
+                        onChange={(e) => setAcknowledged(e.target.checked)}
+                        className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-sky-600"
+                    />
+                    <span className="text-[12.5px] text-slate-700">
+                        I understand the {label} window will end on a localhost page, and I will copy its address back here.
+                    </span>
+                </label>
+
+                <motion.button
+                    type="button"
+                    onClick={onConnect}
+                    disabled={busy || !acknowledged}
+                    whileTap={busy || !acknowledged ? undefined : { scale: 0.985 }}
+                    className="w-full h-9 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[12.5px] font-medium inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+                >
+                    {busy ? <Loader2Icon className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheckIcon className="w-3.5 h-3.5" />}
+                    {busy ? "Waiting for authorization…" : `I understand, continue with ${label}`}
+                </motion.button>
+            </div>
+        );
     }
     return (
         <div className="px-5 py-6 space-y-5">
