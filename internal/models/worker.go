@@ -233,6 +233,9 @@ type AddWorkerEmail struct {
 	Sync *AddWorkerEmailSyncData `json:"sync" avro:"sync"`
 	// Brokered: no credential travels; the worker fetches access tokens from the backend.
 	Brokered bool `json:"brokered" avro:"brokered"`
+	// OAuthClient names the client that issued the provider tokens
+	// (OAuthClient*), so the worker refreshes with the same one. Empty means default.
+	OAuthClient string `json:"oauth_client,omitempty" avro:"oauth_client"`
 
 	Cfg oauth2.Config `json:"-" avro:"-"`
 	// TokenSource is set by the worker for brokered mailboxes.

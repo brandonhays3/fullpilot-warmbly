@@ -61,7 +61,7 @@ type EmailService interface {
 	// Onboarding flow. OAuthFinish's second return is true when the round
 	// trip renewed an existing mailbox (OAuthReauth) rather than connecting
 	// a new one, so the handler can audit and answer accordingly.
-	OAuthStart(ctx context.Context, userID string, orgID *uuid.UUID, provider models.InboxProvider) (*models.EmailOnboardingStartResponse, *errx.Error)
+	OAuthStart(ctx context.Context, userID string, orgID *uuid.UUID, provider models.InboxProvider, client string) (*models.EmailOnboardingStartResponse, *errx.Error)
 	OAuthFinish(ctx context.Context, userID, code, state string) (*models.Email, bool, *errx.Error)
 	OnboardSMTPIMAP(ctx context.Context, userID string, orgID *uuid.UUID, data *models.NewSMTPIMAPAccount) (*models.Email, *errx.Error)
 	// OnboardSMTPIMAPBulk connects many SMTP/IMAP mailboxes in one call and

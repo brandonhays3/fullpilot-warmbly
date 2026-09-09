@@ -39,6 +39,8 @@ type OAuthCredentials struct {
 	AccessToken  string
 	RefreshToken string
 	ExpiresAt    time.Time
+	// OAuthClient is the client that issued the tokens (models.OAuthClient*).
+	OAuthClient string
 }
 
 // AccountScope confines a mailbox lookup to one tenant. The organization is the
@@ -397,15 +399,20 @@ func (r *emailRepository) NewOauthAccount(ctx context.Context, userID string, da
 	}
 
 	query = `
-		INSERT INTO email_accounts_oauth (email_account_id, access_token, refresh_token, expires_at)
-		VALUES ($1, $2, $3, $4)
+		INSERT INTO email_accounts_oauth (email_account_id, access_token, refresh_token, expires_at, oauth_client)
+		VALUES ($1, $2, $3, $4, $5)
 	`
 
+	oauthClient := data.OAuthClient
+	if oauthClient == "" {
+		oauthClient = models.OAuthClientDefault
+	}
 	params = []any{
 		id,
 		encAccessToken,
 		encRefreshToken,
 		data.ExpiresAt,
+		oauthClient,
 	}
 
 	_, err = tx.Exec(
@@ -1696,16 +1703,16 @@ func (r *emailRepository) GetOAuthCredentials(ctx context.Context, emailAccountI
 		return nil, errx.InternalError()
 	}
 	query := `
-		SELECT access_token, refresh_token, expires_at
+		SELECT access_token, refresh_token, expires_at, oauth_client
 		FROM email_accounts_oauth
 		WHERE email_account_id = $1
 	`
 
-	var accessToken, refreshToken string
+	var accessToken, refreshToken, oauthClient string
 	var expiresAt time.Time
 
 	err := r.DB.QueryRow(ctx, query, emailAccountID).Scan(
-		&accessToken, &refreshToken, &expiresAt,
+		&accessToken, &refreshToken, &expiresAt, &oauthClient,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -1734,6 +1741,7 @@ func (r *emailRepository) GetOAuthCredentials(ctx context.Context, emailAccountI
 		AccessToken:  decryptedAccessToken,
 		RefreshToken: decryptedRefreshToken,
 		ExpiresAt:    expiresAt,
+		OAuthClient:  oauthClient,
 	}, nil
 }
 

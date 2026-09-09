@@ -55,12 +55,16 @@ func NewMailManager(
 // cfgFor returns the OAuth config the worker uses to refresh a provider's
 // delegated token. Cfg is not carried in the AddWorkerEmail payload (avro
 // excludes it), so it is rebuilt here from the worker's local oauth config.
-func (m *MailManager) cfgFor(t models.InboxProvider) oauth2.Config {
+func (m *MailManager) cfgFor(t models.InboxProvider, client string) oauth2.Config {
 	if m.oauthInbox == nil {
 		return oauth2.Config{}
 	}
 	switch t {
 	case models.InboxProviderGoogle:
+		// Tokens refresh only with the client that issued them.
+		if client == models.OAuthClientGoogleDesktop && m.oauthInbox.GoogleDesktop != nil {
+			return *m.oauthInbox.GoogleDesktop
+		}
 		if m.oauthInbox.Google != nil {
 			return *m.oauthInbox.Google
 		}

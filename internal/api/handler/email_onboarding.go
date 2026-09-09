@@ -15,6 +15,9 @@ import (
 // OnboardingOAuthStartRequest starts an OAuth round trip for a Gmail or Outlook account.
 type OnboardingOAuthStartRequest struct {
 	Provider string `json:"provider"`
+	// Client picks an alternate OAuth client for the provider ("google_desktop").
+	// Empty means the default client.
+	Client string `json:"client"`
 }
 
 // OnboardingOAuthFinishRequest carries the authorization code + state back from the provider.
@@ -45,7 +48,7 @@ func (h *Handler) StartEmailOAuth(c *gin.Context) {
 		return
 	}
 
-	resp, xerr := h.EmailService.OAuthStart(c.Request.Context(), userID, orgID, models.InboxProvider(req.Provider))
+	resp, xerr := h.EmailService.OAuthStart(c.Request.Context(), userID, orgID, models.InboxProvider(req.Provider), req.Client)
 	if xerr != nil {
 		errx.Handle(c, xerr)
 		return

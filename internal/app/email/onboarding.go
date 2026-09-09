@@ -21,8 +21,9 @@ import (
 
 // OAuthStart issues a fresh state nonce and returns the provider-specific authorization URL.
 // The caller is expected to redirect the user to the URL and post back to OAuthFinish on return.
-func (s *emailService) OAuthStart(ctx context.Context, userID string, orgID *uuid.UUID, provider models.InboxProvider) (*models.EmailOnboardingStartResponse, *errx.Error) {
-	cfg, xerr := s.oauthConfigFor(provider)
+func (s *emailService) OAuthStart(ctx context.Context, userID string, orgID *uuid.UUID, provider models.InboxProvider, client string) (*models.EmailOnboardingStartResponse, *errx.Error) {
+	client = normalizeOAuthClient(provider, client)
+	cfg, xerr := s.oauthConfigFor(provider, client)
 	if xerr != nil {
 		return nil, xerr
 	}
@@ -44,6 +45,7 @@ func (s *emailService) OAuthStart(ctx context.Context, userID string, orgID *uui
 		OrganizationID: orgID,
 		Provider:       string(provider),
 		Nonce:          state,
+		OAuthClient:    client,
 	}); xerr != nil {
 		return nil, xerr
 	}
@@ -56,7 +58,7 @@ func (s *emailService) OAuthStart(ctx context.Context, userID string, orgID *uui
 	return &models.EmailOnboardingStartResponse{
 		URL:            url,
 		State:          state,
-		ManualRedirect: provider == models.InboxProviderGoogle && config.GoogleManualRedirect(),
+		ManualRedirect: client == models.OAuthClientGoogleDesktop,
 	}, nil
 }
 
@@ -128,7 +130,7 @@ func (s *emailService) OAuthFinish(ctx context.Context, userID, code, state stri
 	}
 
 	provider := models.InboxProvider(sess.Provider)
-	cfg, xerr := s.oauthConfigFor(provider)
+	cfg, xerr := s.oauthConfigFor(provider, sess.OAuthClient)
 	if xerr != nil {
 		return nil, false, xerr
 	}
@@ -168,6 +170,7 @@ func (s *emailService) OAuthFinish(ctx context.Context, userID, code, state stri
 		AccessToken:    tok.AccessToken,
 		RefreshToken:   tok.RefreshToken,
 		ExpiresAt:      tok.Expiry,
+		OAuthClient:    normalizeOAuthClient(provider, sess.OAuthClient),
 	})
 	if xerr == nil && acc != nil {
 		s.syncWarmupPoolMembership(ctx, acc)
@@ -271,12 +274,26 @@ func oauthConfigured(cfg *oauth2.Config) bool {
 	return cfg != nil && cfg.ClientID != "" && cfg.ClientSecret != ""
 }
 
-func (s *emailService) oauthConfigFor(provider models.InboxProvider) (*oauth2.Config, *errx.Error) {
+// normalizeOAuthClient maps an empty or foreign client name to the default.
+func normalizeOAuthClient(provider models.InboxProvider, client string) string {
+	if provider == models.InboxProviderGoogle && client == models.OAuthClientGoogleDesktop {
+		return client
+	}
+	return models.OAuthClientDefault
+}
+
+func (s *emailService) oauthConfigFor(provider models.InboxProvider, client string) (*oauth2.Config, *errx.Error) {
 	// LoadOauth2Inbox always returns a config, populated with empty strings when
 	// the variables are unset, so the credentials themselves are what decides
 	// whether the provider is actually available here.
 	switch provider {
 	case models.InboxProviderGoogle:
+		if client == models.OAuthClientGoogleDesktop {
+			if s.oauthInbox == nil || !oauthConfigured(s.oauthInbox.GoogleDesktop) {
+				return nil, errx.ErrEmailOnboardGoogleNotConfigured
+			}
+			return s.oauthInbox.GoogleDesktop, nil
+		}
 		if s.oauthInbox == nil || !oauthConfigured(s.oauthInbox.Google) {
 			return nil, errx.ErrEmailOnboardGoogleNotConfigured
 		}

@@ -30,4 +30,8 @@ export default interface AuthConfig {
     invites_required: boolean;
     /** Where to send someone a deployment policy refused, not their mistake. */
     docs_url: string;
+    /** True when a second, desktop-type Gmail OAuth client is configured on the
+     *  backend (Thunderbird's public client, for instance). The connect modal
+     *  then offers it as an alternative that finishes by pasting an address. */
+    gmail_desktop_client?: boolean;
 }

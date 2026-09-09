@@ -47,7 +47,12 @@ func (s *emailService) OAuthReauth(ctx context.Context, userID string, orgID *uu
 		}
 	}
 
-	cfg, xerr := s.oauthConfigFor(provider)
+	// Reconsent must run against the client that issued the stored tokens.
+	client := models.OAuthClientDefault
+	if creds, cerr := s.emailRepository.GetOAuthCredentials(ctx, accountID); cerr == nil && creds != nil {
+		client = normalizeOAuthClient(provider, creds.OAuthClient)
+	}
+	cfg, xerr := s.oauthConfigFor(provider, client)
 	if xerr != nil {
 		return nil, xerr
 	}
@@ -64,6 +69,7 @@ func (s *emailService) OAuthReauth(ctx context.Context, userID string, orgID *uu
 		Provider:       string(provider),
 		Nonce:          state,
 		EmailAccountID: &accountID,
+		OAuthClient:    client,
 	}); xerr != nil {
 		return nil, xerr
 	}
@@ -75,7 +81,11 @@ func (s *emailService) OAuthReauth(ctx context.Context, userID string, orgID *uu
 		// Preselect the mailbox being renewed in the provider's picker.
 		oauth2.SetAuthURLParam("login_hint", account.Email),
 	)
-	return &models.EmailOnboardingStartResponse{URL: url, State: state}, nil
+	return &models.EmailOnboardingStartResponse{
+		URL:            url,
+		State:          state,
+		ManualRedirect: client == models.OAuthClientGoogleDesktop,
+	}, nil
 }
 
 // finishReauth lands a reauth round trip: same-address check, token rewrite,

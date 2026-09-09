@@ -84,6 +84,10 @@ type DeploymentAuthConfig struct {
 	// a chat integration) cannot derive it: on a self-hosted instance the host
 	// layout is whatever the operator chose.
 	AppURL string `json:"app_url,omitempty"`
+
+	// GmailDesktopClient is true when a second, desktop-type Gmail OAuth client
+	// is configured (BOX_GOOGLE_DESKTOP_*), so the connect modal can offer it.
+	GmailDesktopClient bool `json:"gmail_desktop_client"`
 }
 
 // accountsDocsURL is the page every registration refusal points at.
@@ -118,5 +122,9 @@ func (h *Handler) AuthConfig(c *gin.Context) {
 		DocsURL:           accountsDocsURL,
 		WebsocketURL:      config.WebsocketURL(),
 		AppURL:            config.AppBaseURL(),
+		GmailDesktopClient: func() bool {
+			c := config.GoogleDesktopOauth2Inbox()
+			return c.ClientID != "" && c.ClientSecret != ""
+		}(),
 	})
 }

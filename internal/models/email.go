@@ -302,6 +302,8 @@ type NewOauthAccount struct {
 	AccessToken  string
 	RefreshToken string
 	ExpiresAt    time.Time
+	// OAuthClient names the client that issued these tokens (OAuthClient*).
+	OAuthClient string
 }
 
 type NewSMTPIMAPAccount struct {
@@ -315,11 +317,22 @@ type NewSMTPIMAPAccount struct {
 }
 
 // EmailOnboardingState is stored in Redis for the lifetime of an OAuth round trip.
+// Which OAuth client a mailbox was connected with. Refresh tokens are bound to
+// their issuing client, so this rides along in email_accounts_oauth and in the
+// worker payload.
+const (
+	OAuthClientDefault       = "default"
+	OAuthClientGoogleDesktop = "google_desktop"
+)
+
 type EmailOnboardingState struct {
 	UserID         string     `json:"user_id"`
 	OrganizationID *uuid.UUID `json:"organization_id,omitempty"`
 	Provider       string     `json:"provider"`
 	Nonce          string     `json:"nonce"`
+	// OAuthClient is the client this round trip runs against (OAuthClient*).
+	// Empty means default.
+	OAuthClient string `json:"oauth_client,omitempty"`
 	// EmailAccountID marks a re-authorization round trip: the finish leg
 	// renews this mailbox's tokens instead of connecting a new one.
 	EmailAccountID *uuid.UUID `json:"email_account_id,omitempty"`

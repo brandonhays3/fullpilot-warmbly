@@ -25,7 +25,7 @@ func TestOAuthConfigFor_UnconfiguredProviderIsReported(t *testing.T) {
 		{models.InboxProviderGoogle, errx.ErrEmailOnboardGoogleNotConfigured},
 		{models.InboxProviderOutlook, errx.ErrEmailOnboardOutlookNotConfigured},
 	} {
-		cfg, err := svc.oauthConfigFor(tc.provider)
+		cfg, err := svc.oauthConfigFor(tc.provider, models.OAuthClientDefault)
 		if cfg != nil {
 			t.Errorf("%s: expected no config, got one", tc.provider)
 		}
@@ -47,10 +47,10 @@ func TestOAuthConfigFor_PartialCredentialsAreNotConfigured(t *testing.T) {
 		Outlook: &oauth2.Config{ClientSecret: "secret-without-id"},
 	}}
 
-	if _, err := svc.oauthConfigFor(models.InboxProviderGoogle); err != errx.ErrEmailOnboardGoogleNotConfigured {
+	if _, err := svc.oauthConfigFor(models.InboxProviderGoogle, models.OAuthClientDefault); err != errx.ErrEmailOnboardGoogleNotConfigured {
 		t.Errorf("google with no secret should be unconfigured, got %v", err)
 	}
-	if _, err := svc.oauthConfigFor(models.InboxProviderOutlook); err != errx.ErrEmailOnboardOutlookNotConfigured {
+	if _, err := svc.oauthConfigFor(models.InboxProviderOutlook, models.OAuthClientDefault); err != errx.ErrEmailOnboardOutlookNotConfigured {
 		t.Errorf("outlook with no client id should be unconfigured, got %v", err)
 	}
 }
@@ -62,7 +62,7 @@ func TestOAuthConfigFor_ConfiguredProviderIsReturned(t *testing.T) {
 		Outlook: &oauth2.Config{},
 	}}
 
-	cfg, err := svc.oauthConfigFor(models.InboxProviderGoogle)
+	cfg, err := svc.oauthConfigFor(models.InboxProviderGoogle, models.OAuthClientDefault)
 	if err != nil {
 		t.Fatalf("configured google should be returned, got %v", err)
 	}
@@ -71,7 +71,7 @@ func TestOAuthConfigFor_ConfiguredProviderIsReturned(t *testing.T) {
 	}
 
 	// One provider being configured must not make the other appear available.
-	if _, err := svc.oauthConfigFor(models.InboxProviderOutlook); err != errx.ErrEmailOnboardOutlookNotConfigured {
+	if _, err := svc.oauthConfigFor(models.InboxProviderOutlook, models.OAuthClientDefault); err != errx.ErrEmailOnboardOutlookNotConfigured {
 		t.Errorf("outlook should still be unconfigured, got %v", err)
 	}
 }

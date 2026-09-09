@@ -58,7 +58,7 @@ import {
 } from "@/lib/api/models/app/emails/Service";
 import SecuritySelect from "@/components/app/emails/SecuritySelect";
 import useAuthConfig from "@/lib/api/hooks/auth/useAuthConfig";
-import onboardOAuthStart from "@/lib/api/client/app/emails/onboardOAuthStart";
+import onboardOAuthStart, { type OAuthClientChoice } from "@/lib/api/client/app/emails/onboardOAuthStart";
 import onboardOAuthFinish from "@/lib/api/client/app/emails/onboardOAuthFinish";
 import { capture } from "@/lib/productAnalytics";
 import { finishCloudOAuth, startCloudOAuth } from "@/lib/api/client/app/cloudlink/cloudLink";
@@ -156,6 +156,9 @@ export default function AddEmailModal() {
     const pendingCloud = React.useRef<{ provider: OAuthProvider; session: string } | null>(null);
     const pool = useCloudPool();
     const viaCloud = pool.connected;
+    // A second, desktop-type Gmail client on the backend (Thunderbird's public
+    // one, for instance) is offered as an alternative connect path.
+    const gmailDesktop = useAuthConfig().data?.gmail_desktop_client === true;
 
     // The allowance is read while the modal is open so the picker can show it
     // and a refused connect can explain itself. Fetched from the same query
@@ -303,7 +306,7 @@ export default function AddEmailModal() {
         return () => window.removeEventListener("message", onMessage);
     }, [finishOAuth]);
 
-    async function startOAuth(provider: OAuthProvider) {
+    async function startOAuth(provider: OAuthProvider, client: OAuthClientChoice = "default") {
         if (oauthBusy) return;
         setOauthBusy(provider);
         setNotConfigured(null);
@@ -329,7 +332,7 @@ export default function AddEmailModal() {
             return;
         }
         try {
-            const { url, state, manual_redirect } = await onboardOAuthStart(provider);
+            const { url, state, manual_redirect } = await onboardOAuthStart(provider, client);
             pendingState.current = { provider, state };
             const popup = openCentered(url, `connect-${provider}`);
             if (!popup) {
@@ -421,6 +424,7 @@ export default function AddEmailModal() {
                                                 busy={oauthBusy === "gmail"}
                                                 viaCloud={viaCloud}
                                                 onConnect={() => startOAuth("gmail")}
+                                                onConnectDesktop={gmailDesktop ? () => startOAuth("gmail", "google_desktop") : undefined}
                                                 manual={
                                                     manualPaste?.provider === "gmail"
                                                         ? {
@@ -789,12 +793,16 @@ function OAuthPanel({
     busy,
     viaCloud,
     onConnect,
+    onConnectDesktop,
     manual,
 }: {
     provider: OAuthProvider;
     busy: boolean;
     viaCloud: boolean;
     onConnect: () => void;
+    // Alternative Gmail path through a desktop-type client; ends with the
+    // paste-the-address step. Absent when the deployment has no such client.
+    onConnectDesktop?: () => void;
     // Present while the consent window is going to land on localhost: the
     // user pastes that window's address here to finish.
     manual?: { onFinish: (pasted: string) => string | null; onCancel: () => void };
@@ -850,6 +858,21 @@ function OAuthPanel({
                 )}
                 {busy ? "Waiting for authorization…" : `Continue with ${label}`}
             </motion.button>
+
+            {onConnectDesktop && !viaCloud && (
+                <div className="text-[11.5px] text-slate-500 text-center">
+                    Google won't allow it for this account?{" "}
+                    <button
+                        type="button"
+                        onClick={onConnectDesktop}
+                        disabled={busy}
+                        className="underline underline-offset-2 text-slate-700 hover:text-slate-900 transition-colors disabled:opacity-60"
+                    >
+                        Connect through Thunderbird's client instead
+                    </button>
+                    <span className="block text-slate-400 mt-0.5">One extra step: you paste an address back here.</span>
+                </div>
+            )}
         </div>
     );
 }

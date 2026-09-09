@@ -295,6 +295,7 @@ func (s *emailService) buildAddWorkerEmail(ctx context.Context, acc *models.Emai
 		if cerr != nil {
 			return nil, cerr
 		}
+		out.OAuthClient = creds.OAuthClient
 		out.Google = &models.AddWorkerEmailGoogleData{
 			Token:         oauthToken(creds),
 			LastHistoryID: s.lastHistoryFor(ctx, userID, acc.ID, acc.LastID),

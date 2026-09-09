@@ -16,7 +16,7 @@ import (
 // Brokered OAuth: consent on this deployment's OAuth app for a linked instance; the grant stays here.
 
 func (s *emailService) OAuthAuthorizeURL(provider models.InboxProvider, state string) (string, *errx.Error) {
-	cfg, xerr := s.oauthConfigFor(provider)
+	cfg, xerr := s.oauthConfigFor(provider, models.OAuthClientDefault)
 	if xerr != nil {
 		return "", xerr
 	}
@@ -31,7 +31,7 @@ func (s *emailService) OAuthConnectWithCode(ctx context.Context, userID string, 
 	if xerr != nil {
 		return nil, xerr
 	}
-	cfg, xerr := s.oauthConfigFor(provider)
+	cfg, xerr := s.oauthConfigFor(provider, models.OAuthClientDefault)
 	if xerr != nil {
 		return nil, xerr
 	}
@@ -87,7 +87,7 @@ func (s *emailService) OAuthAccessToken(ctx context.Context, accountID uuid.UUID
 		return current, nil
 	}
 	// The client config is only needed to refresh.
-	cfg, xerr := s.oauthConfigFor(models.InboxProvider(acc.Provider))
+	cfg, xerr := s.oauthConfigFor(models.InboxProvider(acc.Provider), models.OAuthClientDefault)
 	if xerr != nil {
 		return nil, xerr
 	}
