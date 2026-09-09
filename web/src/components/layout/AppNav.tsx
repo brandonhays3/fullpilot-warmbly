@@ -36,7 +36,6 @@ import { usePermission, type PermissionKey } from "@/hooks/usePermission";
 import { useUpgradeDialog } from "@/hooks/context/upgrade";
 import { PLAN_ACCENT_CLASSES, getPlan, type PlanID } from "@/lib/plans";
 import AccessLockedDialog from "./AccessLockedDialog";
-import type SearchContacts from "@/lib/api/models/app/contacts/SearchContacts";
 import useDashboard from "@/lib/api/hooks/app/analytics/useDashboard";
 import AdvisorNavBadge from "@/components/app/advisor/AdvisorNavBadge";
 import type { AdvisorSurface } from "@/lib/api/models/app/advisor/Advisor";

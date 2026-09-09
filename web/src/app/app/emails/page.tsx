@@ -371,7 +371,7 @@ export default function AddressesPage() {
                                 </th>
                                 <th className="px-3 py-2 text-[10px] font-medium text-slate-400 uppercase tracking-[0.14em]">Account</th>
                                 <th className="px-3 py-2 text-[10px] font-medium text-slate-400 uppercase tracking-[0.14em] w-24 text-right">Warmup</th>
-                                <th className="px-3 py-2 text-[10px] font-medium text-slate-400 uppercase tracking-[0.14em] w-10 md:w-32"><span className="hidden md:inline">Health</span></th>
+                                <th className="px-3 py-2 text-[10px] font-medium text-slate-400 uppercase tracking-[0.14em] w-10 md:w-36"><span className="hidden md:inline">Health</span></th>
                                 <th className="px-3 py-2 w-16"></th>
                             </tr>
                         </thead>
@@ -685,7 +685,7 @@ function MailboxRow({
                         )}
                         <span className={`relative inline-flex w-1.5 h-1.5 rounded-full ${tone.dot}`} />
                     </span>
-                    <span className="uppercase tracking-[0.08em] hidden md:inline">{tone.label}</span>
+                    <span className="uppercase tracking-[0.08em] hidden md:inline whitespace-nowrap">{tone.label}</span>
                 </button>
             </td>
             <td className="px-3">
