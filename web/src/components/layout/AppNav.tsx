@@ -47,13 +47,6 @@ import { cn } from "@/lib/utils";
 // Stable (module-level) empty contacts search so the sidebar's contact-count
 // query key never changes identity between renders (which would refetch-loop).
 // limit 1 keeps the payload tiny — we only read pagination.total.
-const CONTACTS_COUNT_SEARCH: SearchContacts = {
-    query: "",
-    filters: [],
-    campaign_ids: [],
-    sort_by: "created_at",
-    reverse: false,
-};
 
 interface NavItem {
     title: string;

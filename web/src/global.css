@@ -613,3 +613,14 @@ svg.loading circle {
 @media (max-width: 767px) {
   input, select, textarea, [contenteditable="true"] { font-size: max(16px, 1em) !important; }
 }
+
+/* Thick buttons. The dashboard is written with compact h-7/h-8 controls; these
+   unlayered rules give every <button> more body and side padding without
+   touching the call sites. Unlayered so they win over Tailwind's utilities. */
+button.h-7 { height: 2rem; }
+button.h-8 { height: 2.25rem; }
+button.w-7.h-7, button.size-7 { width: 2rem; }
+button.w-8.h-8, button.size-8 { width: 2.25rem; }
+button.px-2:not(.w-7):not(.w-8):not(.size-7):not(.size-8) { padding-inline: 0.75rem; }
+button.px-2\.5 { padding-inline: 0.875rem; }
+button.px-3 { padding-inline: 1rem; }

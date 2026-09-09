@@ -81,7 +81,7 @@ const slideTrans = {
 
 /* ── Shared input class ─────────────────────── */
 
-const INPUT = "w-full h-11 rounded-lg border border-slate-200 bg-white px-4 text-[15px] text-slate-900 placeholder:text-slate-400 outline-none transition-colors duration-200 focus:border-sky-400 focus:ring-4 focus:ring-sky-400/15";
+const INPUT = "w-full h-10 rounded-md border border-slate-200 bg-white px-4 text-[15px] text-slate-900 placeholder:text-slate-400 outline-none transition-colors duration-200 focus:border-sky-400 focus:ring-4 focus:ring-sky-400/15";
 
 /* ── Password strength ─────────────────────── */
 
@@ -1060,7 +1060,7 @@ function SignupUnavailable({
                 <button
                     type="button"
                     onClick={onBack}
-                    className="w-full h-11 rounded-lg bg-slate-900 text-white text-[13px] font-medium hover:bg-slate-800 transition-colors cursor-pointer"
+                    className="w-full h-10 rounded-md bg-slate-900 text-white text-[13px] font-medium hover:bg-slate-800 transition-colors cursor-pointer"
                 >
                     Back to sign in
                 </button>
@@ -1069,7 +1069,7 @@ function SignupUnavailable({
                         href={docsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full h-11 rounded-lg border border-slate-200 bg-white text-slate-700 text-[13px] font-medium inline-flex items-center justify-center hover:bg-slate-50 transition-colors"
+                        className="w-full h-10 rounded-md border border-slate-200 bg-white text-slate-700 text-[13px] font-medium inline-flex items-center justify-center hover:bg-slate-50 transition-colors"
                     >
                         Learn more
                     </a>
@@ -1312,7 +1312,7 @@ function VerifyStep({
                                 <InputOTPSlot
                                     key={i}
                                     index={i}
-                                    className="!w-10 !h-12 lg:!w-12 lg:!h-14 !rounded-lg !border-slate-200 text-lg font-semibold data-[active=true]:!border-sky-400 data-[active=true]:!ring-sky-400/15 !shadow-none first:!rounded-lg last:!rounded-lg !border"
+                                    className="!w-10 !h-11 lg:!w-11 lg:!h-12 !rounded-md !border-slate-200 text-lg font-semibold data-[active=true]:!border-sky-400 data-[active=true]:!ring-sky-400/15 !shadow-none first:!rounded-lg last:!rounded-lg !border"
                                 />
                             ))}
                         </InputOTPGroup>
@@ -1395,7 +1395,7 @@ function TwoFactorStep({
                             placeholder="xxxxx-xxxxx"
                             autoFocus
                             autoComplete="off"
-                            className="w-full h-12 px-3 rounded-lg border border-slate-200 text-center font-mono tracking-wider text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-400/15"
+                            className="w-full h-11 px-3 rounded-md border border-slate-200 text-center tracking-wider text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-400/15"
                         />
                         <AuthButton loading={pending}>Verify</AuthButton>
                     </form>
@@ -1407,7 +1407,7 @@ function TwoFactorStep({
                                     <InputOTPSlot
                                         key={i}
                                         index={i}
-                                        className="!w-10 !h-12 lg:!w-12 lg:!h-14 !rounded-lg !border-slate-200 text-lg font-semibold data-[active=true]:!border-sky-400 data-[active=true]:!ring-sky-400/15 !shadow-none first:!rounded-lg last:!rounded-lg !border"
+                                        className="!w-10 !h-11 lg:!w-11 lg:!h-12 !rounded-md !border-slate-200 text-lg font-semibold data-[active=true]:!border-sky-400 data-[active=true]:!ring-sky-400/15 !shadow-none first:!rounded-lg last:!rounded-lg !border"
                                     />
                                 ))}
                             </InputOTPGroup>
