@@ -148,6 +148,10 @@ export default function AddEmailModal() {
     // with a link, not a transient failure.
     const [notConfigured, setNotConfigured] = React.useState<OAuthProvider | null>(null);
     const pendingState = React.useRef<{ provider: OAuthProvider; state: string } | null>(null);
+    // Set when the provider redirects the consent window to localhost instead
+    // of our callback page (desktop-type OAuth client). The panel then shows a
+    // field to paste the address the window landed on.
+    const [manualPaste, setManualPaste] = React.useState<{ provider: OAuthProvider; state: string } | null>(null);
     // A consent running on Warmbly Cloud's app; redeemed by session, not code.
     const pendingCloud = React.useRef<{ provider: OAuthProvider; session: string } | null>(null);
     const pool = useCloudPool();
@@ -178,11 +182,60 @@ export default function AddEmailModal() {
             setView("pick");
             setOauthBusy(null);
             setNotConfigured(null);
+            setManualPaste(null);
             setAllowanceOpen(false);
             pendingState.current = null;
             pendingCloud.current = null;
         }
     }, [user.addEmail]);
+
+    // Redeem an authorization code for a mailbox. Shared by the callback
+    // page's postMessage and the paste-the-address path.
+    const finishOAuth = React.useCallback(
+        (provider: OAuthProvider, code: string, state: string) => {
+            void toast.promise(
+                onboardOAuthFinish(code, state).then((inbox) => {
+                    qc.invalidateQueries({ queryKey: ["emails", "list"] });
+                    capture("mailbox_connected", { provider, method: "oauth" });
+                    user.setAddEmail(false);
+                    return inbox;
+                }),
+                {
+                    loading: "Connecting…",
+                    success: "Mailbox connected",
+                    error: (e: AppError) => buildError(e),
+                },
+            )
+                .catch(onConnectError)
+                .finally(() => {
+                    setOauthBusy(null);
+                    setManualPaste(null);
+                });
+        },
+        [qc, user, onConnectError],
+    );
+
+    // The user pasted the address the consent window landed on. Pull the code
+    // and state out of it; the state must be the one we issued.
+    function finishFromPastedUrl(pasted: string): string | null {
+        const expected = pendingState.current;
+        if (!expected) return "This connection timed out. Start again.";
+        let code = "";
+        let state = "";
+        try {
+            const u = new URL(pasted.trim());
+            code = u.searchParams.get("code") ?? "";
+            state = u.searchParams.get("state") ?? "";
+            if (u.searchParams.get("error") === "access_denied") return "Google reported that access was denied. Start again and approve the request.";
+        } catch {
+            return "That doesn't look like a full address. Copy everything in the address bar, starting with http://localhost.";
+        }
+        if (!code || !state) return "That address has no authorization code in it. Copy the full address bar of the window Google sent you to.";
+        if (state !== expected.state) return "That address belongs to a different connection attempt. Click Continue with Google again and paste the new one.";
+        pendingState.current = null;
+        finishOAuth(expected.provider, code, state);
+        return null;
+    }
 
     // The cloud-brokered popup lands on our own origin (/cloud-oauth/done).
     React.useEffect(() => {
@@ -244,25 +297,11 @@ export default function AddEmailModal() {
                 return;
             }
 
-            void toast.promise(
-                onboardOAuthFinish(data.code, data.state).then((inbox) => {
-                    qc.invalidateQueries({ queryKey: ["emails", "list"] });
-                    capture("mailbox_connected", { provider: expected.provider, method: "oauth" });
-                    user.setAddEmail(false);
-                    return inbox;
-                }),
-                {
-                    loading: "Connecting…",
-                    success: "Mailbox connected",
-                    error: (e: AppError) => buildError(e),
-                },
-            )
-                .catch(onConnectError)
-                .finally(() => setOauthBusy(null));
+            finishOAuth(expected.provider, data.code, data.state);
         }
         window.addEventListener("message", onMessage);
         return () => window.removeEventListener("message", onMessage);
-    }, [qc, user, onConnectError]);
+    }, [finishOAuth]);
 
     async function startOAuth(provider: OAuthProvider) {
         if (oauthBusy) return;
@@ -290,14 +329,16 @@ export default function AddEmailModal() {
             return;
         }
         try {
-            const { url, state } = await onboardOAuthStart(provider);
+            const { url, state, manual_redirect } = await onboardOAuthStart(provider);
             pendingState.current = { provider, state };
             const popup = openCentered(url, `connect-${provider}`);
             if (!popup) {
                 pendingState.current = null;
                 setOauthBusy(null);
                 toast.error("Could not open the authorization window. Please allow popups and try again.");
+                return;
             }
+            setManualPaste(manual_redirect ? { provider, state } : null);
         } catch (err) {
             pendingState.current = null;
             setOauthBusy(null);
@@ -380,6 +421,18 @@ export default function AddEmailModal() {
                                                 busy={oauthBusy === "gmail"}
                                                 viaCloud={viaCloud}
                                                 onConnect={() => startOAuth("gmail")}
+                                                manual={
+                                                    manualPaste?.provider === "gmail"
+                                                        ? {
+                                                              onFinish: finishFromPastedUrl,
+                                                              onCancel: () => {
+                                                                  pendingState.current = null;
+                                                                  setManualPaste(null);
+                                                                  setOauthBusy(null);
+                                                              },
+                                                          }
+                                                        : undefined
+                                                }
                                             />
                                         )
                                     )}
@@ -736,14 +789,21 @@ function OAuthPanel({
     busy,
     viaCloud,
     onConnect,
+    manual,
 }: {
     provider: OAuthProvider;
     busy: boolean;
     viaCloud: boolean;
     onConnect: () => void;
+    // Present while the consent window is going to land on localhost: the
+    // user pastes that window's address here to finish.
+    manual?: { onFinish: (pasted: string) => string | null; onCancel: () => void };
 }) {
     const label = provider === "gmail" ? "Google" : "Microsoft";
     const Icon = provider === "gmail" ? Google : Outlook;
+    if (manual) {
+        return <ManualRedirectPanel label={label} Icon={Icon} onFinish={manual.onFinish} onCancel={manual.onCancel} />;
+    }
     return (
         <div className="px-5 py-6 space-y-5">
             <div className="flex items-center gap-3">
@@ -790,6 +850,118 @@ function OAuthPanel({
                 )}
                 {busy ? "Waiting for authorization…" : `Continue with ${label}`}
             </motion.button>
+        </div>
+    );
+}
+
+// ManualRedirectPanel — the consent window was sent to a localhost address
+// nothing listens on, so the browser shows a "can't connect" page. The
+// authorization code is in that page's address bar; the user copies it here.
+function ManualRedirectPanel({
+    label,
+    Icon,
+    onFinish,
+    onCancel,
+}: {
+    label: string;
+    Icon: React.ComponentType<{ className: string }>;
+    onFinish: (pasted: string) => string | null;
+    onCancel: () => void;
+}) {
+    const [pasted, setPasted] = React.useState("");
+    const [error, setError] = React.useState<string | null>(null);
+    const [submitting, setSubmitting] = React.useState(false);
+    const inputRef = React.useRef<HTMLInputElement>(null);
+    React.useEffect(() => {
+        inputRef.current?.focus();
+    }, []);
+    function submit() {
+        if (!pasted.trim() || submitting) return;
+        const err = onFinish(pasted);
+        if (err) {
+            setError(err);
+            return;
+        }
+        setError(null);
+        setSubmitting(true);
+    }
+    return (
+        <div className="px-5 py-6 space-y-5">
+            <div className="flex items-center gap-3">
+                <div className="size-11 rounded-md border border-slate-200 bg-white flex items-center justify-center shrink-0">
+                    <Icon className="w-6 h-6" />
+                </div>
+                <div>
+                    <div className="text-[13.5px] font-medium text-slate-900">Almost there</div>
+                    <div className="text-[11.5px] text-slate-500">Approve in the {label} window, then bring its address back here.</div>
+                </div>
+            </div>
+
+            <ol className="text-[11.5px] text-slate-600 space-y-1.5 px-1 list-decimal list-inside">
+                <li>In the {label} window, pick the mailbox and click Allow.</li>
+                <li>
+                    It will land on a page that says <span className="font-medium text-slate-800">localhost refused to connect</span>. That is expected.
+                </li>
+                <li>Click the address bar of that window, copy the whole address, and paste it below.</li>
+            </ol>
+
+            <div className="space-y-1.5">
+                <input
+                    ref={inputRef}
+                    type="text"
+                    value={pasted}
+                    onChange={(e) => {
+                        setPasted(e.target.value);
+                        if (error) setError(null);
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") submit();
+                    }}
+                    onPaste={(e) => {
+                        // Finish on paste when the pasted text already is a complete address.
+                        const text = e.clipboardData.getData("text");
+                        if (/^https?:\/\/localhost/i.test(text.trim())) {
+                            e.preventDefault();
+                            setPasted(text);
+                            window.setTimeout(() => {
+                                const err = onFinish(text);
+                                if (err) setError(err);
+                                else setSubmitting(true);
+                            }, 0);
+                        }
+                    }}
+                    placeholder="http://localhost:17777/warmbly/oauth?state=…&code=…"
+                    spellCheck={false}
+                    autoComplete="off"
+                    disabled={submitting}
+                    className={cn(
+                        "w-full h-9 px-3 rounded-md border bg-white text-[12.5px] font-mono text-slate-900 placeholder:text-slate-400 outline-none transition-colors disabled:opacity-60",
+                        error ? "border-rose-300 focus:border-rose-400" : "border-slate-200 focus:border-slate-400",
+                    )}
+                />
+                {error && <div className="text-[11.5px] text-rose-600">{error}</div>}
+            </div>
+
+            <div className="flex items-center gap-2">
+                <motion.button
+                    type="button"
+                    onClick={submit}
+                    disabled={!pasted.trim() || submitting}
+                    whileTap={submitting ? undefined : { scale: 0.985 }}
+                    className="flex-1 h-9 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[12.5px] font-medium inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+                >
+                    {submitting ? <Loader2Icon className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheckIcon className="w-3.5 h-3.5" />}
+                    {submitting ? "Connecting…" : "Finish connecting"}
+                </motion.button>
+                <button
+                    type="button"
+                    onClick={onCancel}
+                    disabled={submitting}
+                    className="h-9 px-3 rounded-md border border-slate-200 text-[12.5px] text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors disabled:opacity-60"
+                >
+                    Cancel
+                </button>
+            </div>
         </div>
     );
 }

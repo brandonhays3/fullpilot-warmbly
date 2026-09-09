@@ -329,6 +329,11 @@ type EmailOnboardingState struct {
 type EmailOnboardingStartResponse struct {
 	URL   string `json:"url"`
 	State string `json:"state"`
+	// ManualRedirect is set when the provider redirects the consent window to
+	// localhost (desktop-type OAuth client). The dashboard then asks the user
+	// to paste the address the window lands on instead of waiting for the
+	// callback page's postMessage.
+	ManualRedirect bool `json:"manual_redirect,omitempty"`
 }
 
 type EmailsResult struct {

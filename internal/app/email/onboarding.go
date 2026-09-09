@@ -53,7 +53,11 @@ func (s *emailService) OAuthStart(ctx context.Context, userID string, orgID *uui
 		oauth2.AccessTypeOffline,
 		oauth2.ApprovalForce, // force refresh_token issuance on reconnect
 	)
-	return &models.EmailOnboardingStartResponse{URL: url, State: state}, nil
+	return &models.EmailOnboardingStartResponse{
+		URL:            url,
+		State:          state,
+		ManualRedirect: provider == models.InboxProviderGoogle && config.GoogleManualRedirect(),
+	}, nil
 }
 
 // guardInboxLimit refuses a connect that would take the workspace past its
