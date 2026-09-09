@@ -391,9 +391,6 @@ function AddMemberPicker({
                                         <span className="block text-[12px] text-slate-900 truncate leading-tight">
                                             {email}
                                         </span>
-                                        <span className="block text-[10px] text-slate-400 truncate font-mono leading-tight">
-                                            {m.user_id.slice(0, 8)}
-                                        </span>
                                     </span>
                                 </button>
                             );

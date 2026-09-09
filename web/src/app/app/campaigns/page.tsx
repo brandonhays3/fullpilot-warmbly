@@ -554,9 +554,6 @@ export default function CampaignsPage() {
                                     <span className="text-[12.5px] text-slate-900 font-medium truncate max-w-[40%]">
                                         {c.name}
                                     </span>
-                                    <span className="font-mono text-[10.5px] text-slate-400 tabular-nums shrink-0 hidden sm:inline">
-                                        {c.id.slice(0, 8)}
-                                    </span>
                                     {isOneTimeCampaign(c) && (
                                         <span
                                             title="One-time email: a single message, no follow-ups"
