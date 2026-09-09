@@ -15,7 +15,6 @@ import {
     CheckSquareIcon,
     CircleDollarSignIcon,
     FileTextIcon,
-    FlameIcon,
     GitBranchIcon,
     InboxIcon,
     KeyIcon,
@@ -30,29 +29,15 @@ import {
     XIcon,
     ZapIcon,
 } from "@/components/icons";
-import { type ReactNode, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useAppStore } from "@/stores";
 import useFeatureAccess from "@/hooks/useFeatureAccess";
 import { usePermission, type PermissionKey } from "@/hooks/usePermission";
 import { useUpgradeDialog } from "@/hooks/context/upgrade";
 import { PLAN_ACCENT_CLASSES, getPlan, type PlanID } from "@/lib/plans";
 import AccessLockedDialog from "./AccessLockedDialog";
-import useCampaigns from "@/lib/api/hooks/app/campaigns/useCampaigns";
-import useEmails from "@/lib/api/hooks/app/emails/useEmails";
-import useTasksSummary from "@/lib/api/hooks/app/crm/tasks/useTasksSummary";
-import useMeetingsSummary from "@/lib/api/hooks/app/meetings/useMeetingsSummary";
-import useDealsSummary from "@/lib/api/hooks/app/crm/deals/useDealsSummary";
-import { EMPTY_TASK_SEARCH } from "@/lib/api/models/app/crm/SearchTasks";
-import { EMPTY_DEAL_SEARCH } from "@/lib/api/models/app/crm/SearchDeals";
-import useSearchContacts from "@/lib/api/hooks/app/contacts/useSearchContacts";
 import type SearchContacts from "@/lib/api/models/app/contacts/SearchContacts";
-import usePipelines from "@/lib/api/hooks/app/crm/pipelines/usePipelines";
-import useTemplates from "@/lib/api/hooks/app/templates/useTemplates";
-import useUsageOverview from "@/lib/api/hooks/app/analytics/useUsageOverview";
 import useDashboard from "@/lib/api/hooks/app/analytics/useDashboard";
-import useAPIKeys from "@/lib/api/hooks/app/api-keys/useAPIKeys";
-import useIntegrationConnections from "@/lib/api/hooks/app/integrations/useIntegrationConnections";
-import AnimatedNumber from "@/components/ui/AnimatedNumber";
 import AdvisorNavBadge from "@/components/app/advisor/AdvisorNavBadge";
 import type { AdvisorSurface } from "@/lib/api/models/app/advisor/Advisor";
 import { UserNav } from "./UserNav";
@@ -276,17 +261,6 @@ function NavRow({ item }: { item: NavItem }) {
                 "Campaigns"/"Accounts" used to clip it at narrower widths. */}
             <span className="truncate flex-1 min-w-0">{item.title}</span>
             {item.advisorSurface && !locked && <AdvisorNavBadge surface={item.advisorSurface} />}
-            {item.indicator === "campaigns" && !locked && <CampaignActivity />}
-            {item.indicator === "accounts" && !locked && <MailboxActivity />}
-            {item.indicator === "tasks" && !locked && <TasksActivity />}
-            {item.indicator === "meetings" && !locked && <MeetingsActivity />}
-            {item.indicator === "contacts" && !locked && <ContactsActivity />}
-            {item.indicator === "deals" && !locked && <DealsActivity />}
-            {item.indicator === "pipelines" && !locked && <PipelinesActivity />}
-            {item.indicator === "templates" && !locked && <TemplatesActivity />}
-            {item.indicator === "analytics" && !locked && <AnalyticsActivity />}
-            {item.indicator === "apikeys" && !locked && <ApiKeysActivity />}
-            {item.indicator === "integrations" && !locked && <IntegrationsActivity />}
             {planBadge ? (
                 <span
                     className={cn(
@@ -307,15 +281,6 @@ function NavRow({ item }: { item: NavItem }) {
     );
 }
 
-// compactN renders large counts tersely (12.3k, 1.2M) so a headline number like
-// total emails sent fits a nav row.
-function compactN(n: number): string {
-    const v = Math.round(n);
-    if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
-    if (v >= 10_000) return `${Math.round(v / 1000)}k`;
-    if (v >= 1_000) return `${(v / 1000).toFixed(1)}k`;
-    return String(v);
-}
 
 // The "how many" total at the end of a nav row. Light slate so it reads as
 // ambient metadata (lifting a touch on row hover), but visible, and it tweens
@@ -323,260 +288,19 @@ function compactN(n: number): string {
 // motif (sending dot-grid, warming flame, overdue ping) — sits in front to flag
 // a live state without stealing the number, which stays the plain total. Hidden
 // only when there's truly nothing to show.
-const COUNT_LIGHT =
-    "text-[10.5px] font-medium tabular-nums leading-none text-slate-300 transition-colors group-hover:text-slate-500";
 
-function TabStat({
-    total,
-    glyph,
-    format = compactN,
-    title,
-}: {
-    total: number;
-    glyph?: ReactNode;
-    format?: (n: number) => string;
-    title?: string;
-}) {
-    // Always render the number (including 0) so every data tab visibly carries a
-    // count instead of going blank — it just tweens up as the query resolves.
-    return (
-        <span
-            className="ml-auto inline-flex items-center gap-1.5 shrink-0"
-            title={title}
-        >
-            {glyph}
-            <AnimatedNumber value={total} format={format} className={COUNT_LIGHT} />
-        </span>
-    );
-}
 
-// TabDualStat shows TWO numbers on a row: the light "how many in total" (the calm
-// baseline, e.g. all campaigns / all mailboxes) plus, when there's a live subset,
-// a coloured sub-count with its motif (e.g. how many are sending / warming). Both
-// tween. The total stays the faint baseline; the active subset is the coloured
-// attention.
-function TabDualStat({
-    total,
-    active,
-    activeGlyph,
-    activeClass,
-    title,
-}: {
-    total: number;
-    active: number;
-    activeGlyph: ReactNode;
-    activeClass: string;
-    title?: string;
-}) {
-    return (
-        <span
-            className="ml-auto inline-flex items-center gap-2.5 shrink-0"
-            title={title}
-        >
-            <AnimatedNumber value={total} format={compactN} className={COUNT_LIGHT} />
-            {/* Hairline divider so the light total and the active count read as two
-                separate values. Always present on a dual row so every one of them
-                (campaigns, accounts, tasks) shows both numbers consistently. */}
-            <span className="h-3 w-px shrink-0 bg-slate-200" aria-hidden />
-            <span
-                className={`inline-flex items-center gap-1 ${active > 0 ? activeClass : "text-slate-300"}`}
-            >
-                {/* The motif (sending dot-grid / warming flame / overdue ping) only
-                    appears when there's actually a live subset; at 0 it's a calm
-                    muted number. */}
-                {active > 0 && activeGlyph}
-                <AnimatedNumber
-                    value={active}
-                    format={compactN}
-                    className="text-[10.5px] font-semibold tabular-nums leading-none"
-                />
-            </span>
-        </span>
-    );
-}
 
-// CampaignActivity is the ambient, realtime indicator on the Campaigns nav row.
-// While campaigns are sending it escalates to a sky 3x3 dot-grid + a live count;
-// otherwise it shows a faint total of all campaigns. The counts come from the
-// shared campaigns-list cache, which the realtime layer invalidates on campaign
-// events, so it stays live without a refresh.
-function CampaignActivity() {
-    const { campaigns } = useCampaigns({ query: "", folder: "" });
-    const active = useMemo(
-        () => campaigns.filter((c) => c.status === "active").length,
-        [campaigns],
-    );
-    return (
-        <TabDualStat
-            total={campaigns.length}
-            active={active}
-            activeClass="text-sky-600"
-            activeGlyph={<span className="campaign-grid" aria-hidden />}
-            title={`${campaigns.length} campaign${campaigns.length === 1 ? "" : "s"}${active > 0 ? `, ${active} sending now` : ""}`}
-        />
-    );
-}
 
-// MailboxActivity is the Accounts-row indicator — deliberately a DIFFERENT
-// motif than the campaigns dot-grid: a flickering flame + count of mailboxes
-// warming up right now (warmup enabled and not paused). Hidden when none are
-// warming. Counts come from the shared emails-list cache, which the realtime
-// layer invalidates on account/warmup events, so it stays live.
-function MailboxActivity() {
-    const { emails } = useEmails({ query: "", tag: "" });
-    const warming = useMemo(
-        () => emails.filter((e) => !!e.warmup && !e.warmup_paused_at).length,
-        [emails],
-    );
-    return (
-        <TabDualStat
-            total={emails.length}
-            active={warming}
-            activeClass="text-orange-500"
-            activeGlyph={
-                <FlameIcon className="w-3.5 h-3.5 flame-flicker" strokeWidth={2.2} />
-            }
-            title={`${emails.length} mailbox${emails.length === 1 ? "" : "es"}${warming > 0 ? `, ${warming} warming up` : ""}`}
-        />
-    );
-}
 
-// TasksActivity is the Tasks-row indicator — its own motif again. Overdue is the
-// urgent state (a soft red ping + count); when nothing is overdue it falls back
-// to a quiet count of open tasks (todo) so the row still tells you how much work
-// is waiting instead of going blank. Counts are SERVER aggregates (useTasksSummary)
-// so "how many" is correct over the whole set, not a truncated page, and the
-// realtime layer invalidates ["crm","tasks"] so they stay live. The number tweens
-// (AnimatedNumber) when it changes.
-function TasksActivity() {
-    const { data } = useTasksSummary(EMPTY_TASK_SEARCH);
-    const overdue = data?.overdue_count ?? 0;
-    const todo = (data?.pending_count ?? 0) + (data?.in_progress_count ?? 0);
-    return (
-        <TabDualStat
-            total={todo}
-            active={overdue}
-            activeClass="text-red-600"
-            activeGlyph={
-                <span className="relative inline-flex shrink-0">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                    <span className="absolute inset-0 rounded-full bg-red-500/40 animate-ping" />
-                </span>
-            }
-            title={`${todo} open task${todo === 1 ? "" : "s"}${overdue > 0 ? `, ${overdue} overdue` : ""}`}
-        />
-    );
-}
 
-// MeetingsActivity — upcoming booked calls, with a live sky pulse on the ones
-// happening today (a meeting today is the "act now" subset, like overdue tasks).
-function MeetingsActivity() {
-    const { data } = useMeetingsSummary();
-    const upcoming = data?.upcoming ?? 0;
-    const today = data?.today ?? 0;
-    return (
-        <TabDualStat
-            total={upcoming}
-            active={today}
-            activeClass="text-sky-600"
-            activeGlyph={
-                <span className="relative inline-flex shrink-0">
-                    <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
-                    <span className="absolute inset-0 rounded-full bg-sky-500/40 animate-ping" />
-                </span>
-            }
-            title={`${upcoming} upcoming meeting${upcoming === 1 ? "" : "s"}${today > 0 ? `, ${today} today` : ""}`}
-        />
-    );
-}
 
-// Contacts row: total contacts. Reads pagination.total from a small search — the
-// limit MUST be >= the backend LimitMin (10) or validate.Limit rejects it (400)
-// and the whole count comes back as 0.
-function ContactsActivity() {
-    const { data } = useSearchContacts({ options: CONTACTS_COUNT_SEARCH, limit: 10 });
-    const total = data?.pages?.[0]?.pagination?.total ?? 0;
-    return <TabStat total={total} title={`${total.toLocaleString()} contacts`} />;
-}
 
-// Deals row: open (not won/lost) deals.
-function DealsActivity() {
-    const { data } = useDealsSummary(EMPTY_DEAL_SEARCH);
-    const open = data?.open_count ?? 0;
-    return (
-        <TabStat total={open} title={`${open} open deal${open === 1 ? "" : "s"}`} />
-    );
-}
 
-// Pipelines row: how many pipelines exist.
-function PipelinesActivity() {
-    const { data } = usePipelines();
-    const n = data?.length ?? 0;
-    return (
-        <TabStat total={n} title={`${n} pipeline${n === 1 ? "" : "s"}`} />
-    );
-}
 
-// Templates row: how many saved templates.
-function TemplatesActivity() {
-    const { data } = useTemplates();
-    const n = data?.length ?? 0;
-    return (
-        <TabStat total={n} title={`${n} template${n === 1 ? "" : "s"}`} />
-    );
-}
 
-// Analytics row: a live, compact tally of emails sent this period — the headline
-// throughput metric, surfaced right in the nav. From the org-wide usage overview.
-function AnalyticsActivity() {
-    const { data } = useUsageOverview();
-    const sent = data?.campaigns?.emails_sent ?? 0;
-    return (
-        <TabStat
-            total={sent}
-            format={compactN}
-            title={`${sent.toLocaleString()} emails sent this period`}
-        />
-    );
-}
 
-// API keys row: how many keys are currently active (not revoked / expired).
-function ApiKeysActivity() {
-    const { data } = useAPIKeys();
-    const active = (data?.data ?? []).filter((k) => k.status === "active").length;
-    return (
-        <TabStat
-            total={active}
-            format={(v) => String(Math.round(v))}
-            title={`${active} active API key${active === 1 ? "" : "s"}`}
-        />
-    );
-}
 
-// Integrations row: total connected integrations + a coloured "needs attention"
-// sub-count (degraded / reauth-required) so a broken connection is visible from
-// the sidebar. Reads the shared connections cache the realtime layer invalidates.
-function IntegrationsActivity() {
-    const { data } = useIntegrationConnections();
-    const conns = data?.connections ?? [];
-    const attention = conns.filter(
-        (c) => c.status === "degraded" || c.status === "reauth_required" || c.health === "down",
-    ).length;
-    return (
-        <TabDualStat
-            total={conns.length}
-            active={attention}
-            activeClass="text-amber-600"
-            activeGlyph={
-                <span className="relative inline-flex shrink-0">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                    <span className="absolute inset-0 rounded-full bg-amber-500/40 animate-ping" />
-                </span>
-            }
-            title={`${conns.length} connected${attention > 0 ? `, ${attention} need attention` : ""}`}
-        />
-    );
-}
 
 function Section({ section, first = false }: { section: NavSection; first?: boolean }) {
     return (
@@ -703,7 +427,7 @@ export function AppNav({ open = false, onClose }: { open?: boolean; onClose?: ()
                     has no chrome of its own — the brand lives in AppHeader.) */}
                 <div className="md:hidden flex items-center justify-between px-3 h-14 border-b border-slate-200/70">
                     <Link to="/app/emails" onClick={onClose} className="flex items-center">
-                        <Wordmark size={24} />
+                        <Wordmark size={20} />
                     </Link>
                     <button
                         type="button"

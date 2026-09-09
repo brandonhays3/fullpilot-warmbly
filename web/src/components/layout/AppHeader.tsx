@@ -98,7 +98,7 @@ export function AppHeader({ onMenu }: { onMenu?: () => void }) {
                 {/* The word hides on mobile: the mark + the drawer's own brand
                     header carry it there, leaving room for the workspace pill. */}
                 <Logo className="w-6 text-[#0c58c6] group-hover:text-sky-700 transition-colors duration-150 md:hidden" />
-                <Wordmark size={26} className="hidden md:inline-flex group-hover:opacity-80 transition-opacity duration-150" />
+                <Wordmark size={20} className="hidden md:inline-flex group-hover:opacity-80 transition-opacity duration-150" />
             </Link>
 
             {/* Breadcrumb: org switcher (always) > section > subpages. The

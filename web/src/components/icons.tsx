@@ -142,8 +142,8 @@ import {
     Moon02Icon as H_Moon02Icon,
     MoreHorizontalIcon as H_MoreHorizontalIcon,
     MoreVerticalIcon as H_MoreVerticalIcon,
-    Notification03Icon as H_Notification03Icon,
-    NotificationOff03Icon as H_NotificationOff03Icon,
+    Notification01Icon as H_Notification01Icon,
+    NotificationOff01Icon as H_NotificationOff01Icon,
     PaintBoardIcon as H_PaintBoardIcon,
     PauseCircleIcon as H_PauseCircleIcon,
     PauseIcon as H_PauseIcon,
@@ -283,8 +283,8 @@ export const ArrowUpRightIcon = createIcon("ArrowUpRightIcon", H_ArrowUpRight01I
 export const AtSignIcon = createIcon("AtSignIcon", H_AtIcon);
 export const BanIcon = createIcon("BanIcon", H_UnavailableIcon);
 export const BarChart3Icon = createIcon("BarChart3Icon", H_BarChartIcon);
-export const BellIcon = createIcon("BellIcon", H_Notification03Icon);
-export const BellOffIcon = createIcon("BellOffIcon", H_NotificationOff03Icon);
+export const BellIcon = createIcon("BellIcon", H_Notification01Icon);
+export const BellOffIcon = createIcon("BellOffIcon", H_NotificationOff01Icon);
 export const BoldIcon = createIcon("BoldIcon", H_TextBoldIcon);
 export const BookmarkPlusIcon = createIcon("BookmarkPlusIcon", H_BookmarkAdd02Icon);
 export const BoxesIcon = createIcon("BoxesIcon", H_CubeIcon);
