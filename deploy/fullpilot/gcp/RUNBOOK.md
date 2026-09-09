@@ -1,0 +1,224 @@
+# Fullpilot Warmbly deployment
+
+Self-hosted Warmbly (open-source cold email + warmup) running on Google Cloud
+project `data-286013`, set up 2026-09-09. This folder is the runbook. Secrets
+are NOT in here; they live in `/opt/warmbly/.env` on the control plane VM and
+in Secret Manager.
+
+## Layout
+
+```
+Fullpilot-Warmbly/
+  README.md            this runbook
+  infra/               non-secret config used to build the GCP pieces
+    worker-env.yaml    env vars for the Cloud Run worker jobs
+    docker-startup.sh  VM startup script that installs Docker
+  warmbly/             git clone of the fork (github.com/brandonhays3/fullpilot-warmbly)
+```
+
+## Architecture
+
+```
+                          Internet
+                             |
+   users ─────────────> control plane VM (warmbly-cp, us-central1-a)
+                        34.45.45.44 public / 10.128.0.2 internal
+                        docker compose: backend, consumer, web, admin,
+                        realtime, tracking, forms, updater, postgres,
+                        redis, nats (+ a local worker)
+                             ^
+                             |  NATS 4222 + Redis 6379 + backend 8080
+                             |  over the VPC (internal IP only)
+   Cloud Run Jobs "warmbly-worker" in us-central1, us-east1, us-west1,
+   europe-west1. Each run = 2 fresh containers, 5 min lifetime, fresh
+   Google egress IP every time. Cloud Scheduler fires each region every
+   15 min, staggered.
+                             |
+   mailbox traffic (Gmail/M365 OAuth on 443, IMAP 993, SMTP 465/587)
+   leaves from the worker's rotating IP. Sending IP seen by recipients
+   is always the mailbox provider's, never ours.
+```
+
+Blob storage: Cloud Storage bucket `warmbly-blobs-data-286013` used through
+its S3-compatible endpoint, so control plane and remote workers share files.
+
+Images: Artifact Registry remote repo `ghcr-remote` (location `us`) mirrors
+`ghcr.io/warmbly/warmbly/*` because Cloud Run cannot pull from ghcr.io.
+Worker image path:
+`us-docker.pkg.dev/data-286013/ghcr-remote/warmbly/warmbly/worker:v0.4.1`
+
+## GCP inventory
+
+| Thing | Name | Notes |
+|---|---|---|
+| Project | data-286013 | billing on |
+| VM | warmbly-cp, us-central1-a, e2-standard-2, 50 GB | Ubuntu 24.04, Docker via startup script |
+| Static IP | warmbly-cp-ip = 34.45.45.44 | us-central1 |
+| Firewall | warmbly-cp-web | tcp 80,443 from anywhere, tag warmbly-cp |
+| Firewall | warmbly-cp-direct-brandon | tcp 5173,5174,8080,4000,3000,8090 from Brandon's IP only. Remove once Caddy/TLS is in front |
+| Bucket | warmbly-blobs-data-286013 | us-central1, uniform access |
+| Service account | warmbly-blobs@ | HMAC key for S3 API, objectAdmin on bucket |
+| Service account | warmbly-worker@ | runtime identity of Cloud Run jobs; secretAccessor on the 5 secrets, artifactregistry.reader on ghcr-remote |
+| Service account | warmbly-scheduler@ | Cloud Scheduler identity; needs run.invoker on each job |
+| Secrets | warmbly-internal-api-token, warmbly-kms-master-key, warmbly-credentials-key, warmbly-blob-access-key, warmbly-blob-secret-key | Secret Manager |
+| Artifact Registry | ghcr-remote (us) | remote repo -> ghcr.io |
+| Cloud Run jobs | warmbly-worker in 4 regions | see "Worker jobs" |
+| Cloud Scheduler | warmbly-worker-<region> | */15 cron, staggered |
+
+## Control plane VM
+
+Install dir `/opt/warmbly`, installed with Warmbly's `install.sh` v0.4.1:
+
+```
+sudo env WARMBLY_S3_BUCKET=warmbly-blobs-data-286013 \
+  WARMBLY_S3_ENDPOINT=https://storage.googleapis.com \
+  WARMBLY_S3_REGION=us-central1 \
+  WARMBLY_S3_ACCESS_KEY_ID=<hmac id> WARMBLY_S3_SECRET_ACCESS_KEY=<hmac secret> \
+  sh install.sh --host 34.45.45.44 --tls none --blobs s3 --dir /opt/warmbly
+```
+
+Two fixes the v0.4.1 installer misses, appended to `.env` by hand:
+
+```
+GEODB_PATH=/app/data/GeoLite2-City.mmdb   # file may be absent; var must exist
+EMAIL_NAME=Warmbly
+```
+
+`docker-compose.override.yml` publishes NATS and Redis on the internal IP only:
+
+```yaml
+services:
+  nats:
+    ports: ["10.128.0.2:4222:4222"]
+  redis:
+    ports: ["10.128.0.2:6379:6379"]
+```
+
+Files on the VM to back up: `/opt/warmbly/.env`, `/opt/warmbly/keys-backup.txt`
+(both 0600 root), and Postgres. Losing KMS_LOCAL_MASTER_KEY or
+CREDENTIALS_ENCRYPTION_KEY makes every stored mailbox credential unrecoverable.
+
+Useful commands (via `gcloud compute ssh warmbly-cp --zone us-central1-a --tunnel-through-iap`):
+
+```
+cd /opt/warmbly
+sudo docker compose -p warmbly ps
+sudo docker compose -p warmbly logs backend --tail 100
+sudo docker compose -p warmbly up -d            # apply .env changes
+sudo docker compose -p warmbly exec backend warmblyctl --help        # v0.4.1 has no `fleet` subcommand yet; workers show under Instance in the admin panel
+sudo docker compose -p warmbly exec backend warmblyctl setup-link   # new claim link if no accounts yet
+sudo docker compose -p warmbly exec backend warmblyctl backup --out /data/blobs/warmbly.tar.gz
+```
+
+## Worker jobs (Cloud Run)
+
+One job per region, identical except `WORKER_REGION` and the scheduler offset.
+
+**How they were actually created:** `infra/create-worker-jobs.py`, which calls
+the Cloud Run Admin API v2 directly, because the Homebrew gcloud on this Mac
+(481.0.0, mid-2024) predates the `--network/--subnet/--vpc-egress` flags for
+jobs. Re-run it to update all four jobs after editing `worker-env-<region>.yaml`
+(`python3 infra/create-worker-jobs.py`, or pass a region). It also accepts
+`WORKER_IMAGE=...` to point at a Fullpilot-built image. The gcloud equivalent
+below is for reference and works on a current SDK. Note: `brew upgrade --cask
+google-cloud-sdk` installed a newer SDK under
+`/opt/homebrew/Caskroom/google-cloud-sdk/latest/` but the `gcloud` symlink still
+points at 481.0.0; fix with `brew reinstall --cask google-cloud-sdk` when
+convenient.
+
+Verified 2026-09-09: a test execution started 2 containers, both joined NATS
+and heartbeated to the backend from 10.128.0.16 / .17 (Direct VPC egress).
+
+```
+gcloud run jobs create warmbly-worker --region <REGION> \
+  --image us-docker.pkg.dev/data-286013/ghcr-remote/warmbly/warmbly/worker:v0.4.1 \
+  --service-account warmbly-worker@data-286013.iam.gserviceaccount.com \
+  --command /bin/sh \
+  --args='^|^-c|timeout -s TERM 290 /app/worker; rc=$?; [ $rc -eq 124 ] && exit 0; exit $rc' \
+  --tasks 2 --parallelism 2 --task-timeout 330s --max-retries 0 \
+  --cpu 1 --memory 512Mi \
+  --env-vars-file infra/worker-env.yaml \
+  --set-env-vars WORKER_REGION=<us-central|us-east|us-west|eu-west> \
+  --set-secrets INTERNAL_API_TOKEN=warmbly-internal-api-token:latest,ENCRYPTED_KEYS_WORKER_TOKEN=warmbly-internal-api-token:latest,KMS_LOCAL_MASTER_KEY=warmbly-kms-master-key:latest,CREDENTIALS_ENCRYPTION_KEY=warmbly-credentials-key:latest,AWS_ACCESS_KEY_ID=warmbly-blob-access-key:latest,AWS_SECRET_ACCESS_KEY=warmbly-blob-secret-key:latest \
+  --network default --subnet default --vpc-egress private-ranges-only
+```
+
+The `timeout` wrapper ends the worker cleanly at 290 s so the task reports
+success; a real crash still reports failure. Each task gets a fresh Google
+egress IP. `private-ranges-only` sends only 10.x traffic (NATS, Redis, backend)
+through the VPC; mailbox traffic goes straight out.
+
+Scheduler, staggered 4 min apart per region:
+
+```
+gcloud scheduler jobs create http warmbly-worker-<REGION> --location <REGION> \
+  --schedule "<OFFSET>/15 * * * *" \
+  --uri https://run.googleapis.com/v2/projects/data-286013/locations/<REGION>/jobs/warmbly-worker:run \
+  --http-method POST \
+  --oauth-service-account-email warmbly-scheduler@data-286013.iam.gserviceaccount.com
+```
+
+Offsets: us-central1 `0`, us-east1 `4`, us-west1 `8`, europe-west1 `12`.
+The scheduler SA needs `roles/run.invoker` on each job:
+`gcloud run jobs add-iam-policy-binding warmbly-worker --region <REGION> --member serviceAccount:warmbly-scheduler@data-286013.iam.gserviceaccount.com --role roles/run.invoker`
+
+Scaling knobs: more IP spread = more regions or more `--tasks`; faster pickup =
+tighter cron (`*/10`). Cost is about $60/month per always-on vCPU equivalent.
+
+## Why rotation, and what it does and does not do
+
+Worker IPs are only seen by the mailbox provider at login. Recipients see the
+provider's IP. Warmbly's own scheduler prefers a stable worker per mailbox
+(their PR #395: "IP stability per mailbox beats IP diversity"). This deploy
+overrides that on purpose per Brandon's decision. Residential/mobile proxy
+providers (Decodo, IPRoyal, Rayobyte, Webshare, Bright Data) all refuse SMTP
+ports, so Cloud Run's per-run IP is the rotation source.
+
+## Domain and TLS (live: portal.fullpilot.com)
+
+Done 2026-09-09. fullpilot.com DNS is on Cloudflare under the
+brandonhays123@gmail.com Cloudflare account (NOT the brandon.hays@fullpilot.com
+one); apex and www are on Vercel. Six A records point at 34.45.45.44 with the
+Cloudflare proxy OFF (grey cloud) so Caddy on the VM can do ACME itself.
+`infra/switch-to-domain.sh` (run as root on the VM, idempotent) rewrote `.env`,
+wrote `/opt/warmbly/Caddyfile`, and added a `caddy` service to
+`docker-compose.override.yml`. Certificates come from Let's Encrypt and renew
+automatically. The temporary direct-port firewall rule was deleted; only 80/443
+are open.
+
+Dashboard: https://portal.fullpilot.com  Admin: https://admin.portal.fullpilot.com
+
+| Host | Backs |
+|---|---|
+| portal.fullpilot.com | web :5173 |
+| admin.portal.fullpilot.com | admin :5174 |
+| api.portal.fullpilot.com | backend :8080 |
+| ws.portal.fullpilot.com | realtime :4000 (HTTP/1.1 only) |
+| track.portal.fullpilot.com | tracking :3000 |
+| forms.portal.fullpilot.com | forms :8090 |
+
+Worker env files (`infra/worker-env-*.yaml`) carry the same public URLs and
+were re-applied with `create-worker-jobs.py`.
+
+Deliverability note: `track.portal.fullpilot.com` is under the company domain.
+Cold-email tracking links are usually put on a separate throwaway domain so a
+spam complaint never touches fullpilot.com's reputation. To move it: add an A
+record on the other domain, add a Caddy block for it, set `TRACKING_DOMAIN` in
+`.env`, `docker compose up -d`.
+
+Next: Gmail/Microsoft OAuth for mailbox connections (`BOX_GOOGLE_CLIENT_ID/SECRET`,
+`BOX_OUTLOOK_CLIENT_ID/SECRET`). Needs an OAuth client in Google Cloud Console
+(APIs & Services > Credentials) with redirect URI on https://api.portal.fullpilot.com
+(exact path: check `internal/` for the Gmail callback route), then add both vars to
+`.env` AND to every `worker-env-*.yaml`, restart the stack, re-run
+`create-worker-jobs.py`.
+
+## Custom code and deploys
+
+Fork: https://github.com/brandonhays3/fullpilot-warmbly
+- `main` tracks upstream `warmbly/warmbly` main (sync: `git fetch upstream && git merge --ff-only upstream/main`)
+- `fullpilot` is the branch for Fullpilot changes, started from tag `v0.4.1` to match production
+
+See `warmbly/FULLPILOT.md` for the npm scripts that run dev locally, build
+images, push them to Artifact Registry, and roll them out to the VM and the
+Cloud Run jobs.
