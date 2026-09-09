@@ -34,7 +34,7 @@ import {
     ChevronDownIcon,
     SparklesIcon,
     GitBranchIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import useClickOutside from "@/hooks/useClickOutside";
 import { useAnchoredFloating } from "@/hooks/useAnchoredFloating";

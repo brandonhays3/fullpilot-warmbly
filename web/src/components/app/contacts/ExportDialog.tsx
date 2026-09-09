@@ -25,7 +25,7 @@ import {
     Loader2Icon,
     PlusIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 
 import exportContacts, {

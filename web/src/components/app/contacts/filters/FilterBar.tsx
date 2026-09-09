@@ -4,7 +4,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckIcon, ChevronDownIcon, LayersIcon, Loader2Icon, PlusIcon, XIcon } from "lucide-react";
+import { CheckIcon, ChevronDownIcon, LayersIcon, Loader2Icon, PlusIcon, XIcon } from "@/components/icons";
 
 import { DatePicker } from "@/components/ui/DatePicker";
 import { NumberInput, TextInput } from "@/components/ui/field";

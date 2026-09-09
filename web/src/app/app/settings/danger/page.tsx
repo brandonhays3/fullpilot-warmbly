@@ -14,7 +14,7 @@
 // elapsed, with cancellation possible at any time before then.
 
 import React from "react";
-import { TrashIcon } from "lucide-react";
+import { TrashIcon } from "@/components/icons";
 import useFeatureAccess from "@/hooks/useFeatureAccess";
 import useOrganizationDangerZone from "@/lib/api/hooks/app/dangerzone/useOrganizationDangerZone";
 import useAccountDangerZone from "@/lib/api/hooks/app/dangerzone/useAccountDangerZone";

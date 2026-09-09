@@ -4,7 +4,7 @@
 // recipient made themselves is confirmed with a stronger warning.
 
 import React from "react";
-import { GlobeIcon, MailIcon, MoreHorizontalIcon, PlusIcon, XIcon } from "lucide-react";
+import { GlobeIcon, MailIcon, MoreHorizontalIcon, PlusIcon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { EmptyBlock, Page, PageBody, PageTopbar, SectionBar, TopbarAction } from "@/components/layout/Page";

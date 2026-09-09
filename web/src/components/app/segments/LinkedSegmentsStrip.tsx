@@ -2,7 +2,7 @@
 // live lead count, click to filter the list to it.
 
 import { Link } from "react-router-dom";
-import { ExternalLinkIcon, LayersIcon, Loader2Icon, UserPlusIcon } from "lucide-react";
+import { ExternalLinkIcon, LayersIcon, Loader2Icon, UserPlusIcon } from "@/components/icons";
 
 import type { CampaignSegmentLink } from "@/lib/api/models/app/segments/Segment";
 import { cn } from "@/lib/utils";

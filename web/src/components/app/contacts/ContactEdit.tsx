@@ -17,7 +17,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarPlusIcon, CheckIcon, CopyIcon, Loader2Icon, MailIcon, XIcon } from "lucide-react";
+import { CalendarPlusIcon, CheckIcon, CopyIcon, Loader2Icon, MailIcon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import useUpdateContact from "@/lib/api/hooks/app/contacts/useUpdateContact";
 import useContact from "@/lib/api/hooks/app/contacts/useContact";

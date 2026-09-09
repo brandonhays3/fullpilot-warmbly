@@ -38,6 +38,12 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.71.1(react@19.2.0))
+      '@hugeicons/core-free-icons':
+        specifier: ^1.2.1
+        version: 1.2.1
+      '@hugeicons/react':
+        specifier: ^1.1.10
+        version: 1.1.10(react@19.2.0)
       '@radix-ui/react-accordion':
         specifier: ^1.2.12
         version: 1.2.12(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -741,6 +747,14 @@ packages:
     resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
     peerDependencies:
       react-hook-form: ^7.55.0
+
+  '@hugeicons/core-free-icons@1.2.1':
+    resolution: {integrity: sha512-ho0QdGMkgL+kt+QsZocCsKvJou1rfyVQWARrxIhNLi+9tCKayUUtD9jlHgioaRphmskSl84TxrDm9Ae0G4Uu1g==}
+
+  '@hugeicons/react@1.1.10':
+    resolution: {integrity: sha512-9tAsd92yMVVGP+E+d8cM+wc0VnXuYZHNbWQi7TOe8k2neawmhiaFmVFbzyruejhOMa197/LbgvSED32ayUo3ZA==}
+    peerDependencies:
+      react: '>=16.0.0'
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -3997,6 +4011,12 @@ snapshots:
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.71.1(react@19.2.0)
+
+  '@hugeicons/core-free-icons@1.2.1': {}
+
+  '@hugeicons/react@1.1.10(react@19.2.0)':
+    dependencies:
+      react: 19.2.0
 
   '@humanfs/core@0.19.1': {}
 

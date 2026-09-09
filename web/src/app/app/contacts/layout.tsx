@@ -3,7 +3,7 @@
 
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { BanIcon, LayersIcon, TagIcon, UsersIcon } from "lucide-react";
+import { BanIcon, LayersIcon, TagIcon, UsersIcon } from "@/components/icons";
 
 import { NoAccess } from "@/components/layout/NoAccess";
 import { usePermission } from "@/hooks/usePermission";

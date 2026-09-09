@@ -5,7 +5,7 @@
 // and the dashboard always agree on what "Starter" looks like.
 
 import { Link } from "react-router-dom";
-import { SparklesIcon } from "lucide-react";
+import { SparklesIcon } from "@/components/icons";
 import useFeatureAccess from "@/hooks/useFeatureAccess";
 import { PLAN_ACCENT_CLASSES, getPlan } from "@/lib/plans";
 import { cn } from "@/lib/utils";

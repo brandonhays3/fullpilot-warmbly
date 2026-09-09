@@ -6,7 +6,7 @@
 // campaign at volume that nobody answers is spending sender reputation for
 // nothing. Setting a rate to 0 turns that rule off.
 
-import { PauseCircleIcon } from "lucide-react";
+import { PauseCircleIcon } from "@/components/icons";
 import type Campaign from "@/lib/api/models/app/campaigns/Campaign";
 import { Label, NumberInput } from "@/components/ui/field";
 import { SettingRow, Toggle } from "./components/CampaignPreferenceBoolBox";

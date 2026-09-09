@@ -4,7 +4,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { CheckIcon, XIcon } from "lucide-react";
+import { CheckIcon, XIcon } from "@/components/icons";
 import { Logo } from "@/components/svg";
 
 export interface CloudOAuthDoneMessage {

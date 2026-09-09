@@ -21,7 +21,7 @@
 //   </LockedSurface>
 
 import React from "react";
-import { CheckIcon, LockIcon, SparklesIcon } from "lucide-react";
+import { CheckIcon, LockIcon, SparklesIcon } from "@/components/icons";
 import { useAppStore } from "@/stores";
 import { useUpgradeDialog } from "@/hooks/context/upgrade";
 import { PLAN_ACCENT_CLASSES, getPlan, type PlanID } from "@/lib/plans";

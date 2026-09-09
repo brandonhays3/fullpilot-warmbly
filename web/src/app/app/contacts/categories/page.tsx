@@ -5,7 +5,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueries } from "@tanstack/react-query";
-import { CheckIcon, MoreHorizontalIcon, PlusIcon, XIcon } from "lucide-react";
+import { CheckIcon, MoreHorizontalIcon, PlusIcon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { EmptyBlock, Page, PageBody, PageTopbar, SectionBar, TopbarAction } from "@/components/layout/Page";

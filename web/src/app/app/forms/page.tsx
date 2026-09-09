@@ -5,7 +5,7 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon, ClipboardListIcon, LinkIcon, Loader2Icon, MoreHorizontalIcon, PlusIcon, XIcon } from "lucide-react";
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon, ClipboardListIcon, LinkIcon, Loader2Icon, MoreHorizontalIcon, PlusIcon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { EmptyBlock, Page, PageBody, PageTopbar, SectionBar, Stat, StatStrip, TopbarAction } from "@/components/layout/Page";

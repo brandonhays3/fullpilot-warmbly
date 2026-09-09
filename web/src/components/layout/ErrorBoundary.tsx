@@ -11,7 +11,7 @@
 
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { AlertTriangleIcon, RefreshCcwIcon } from "lucide-react";
+import { AlertTriangleIcon, RefreshCcwIcon } from "@/components/icons";
 
 interface State {
     error: Error | null;

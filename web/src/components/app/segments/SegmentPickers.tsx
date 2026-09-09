@@ -4,7 +4,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckIcon, PlusIcon, XIcon } from "lucide-react";
+import { CheckIcon, PlusIcon, XIcon } from "@/components/icons";
 
 import useClickOutside from "@/hooks/useClickOutside";
 import useFlipPlacement from "@/hooks/useFlipPlacement";

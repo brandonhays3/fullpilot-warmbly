@@ -16,7 +16,7 @@ import {
   isBefore,
   startOfDay,
 } from "date-fns";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/icons";
 
 export default function Calendar({
   date,

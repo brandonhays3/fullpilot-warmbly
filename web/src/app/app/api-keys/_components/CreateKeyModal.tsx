@@ -23,7 +23,7 @@ import {
     ShieldIcon,
     SlidersIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 
 import useCreateAPIKey from "@/lib/api/hooks/app/api-keys/useCreateAPIKey";

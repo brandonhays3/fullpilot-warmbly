@@ -25,7 +25,7 @@ import {
   TrashIcon,
   UserIcon,
   XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 
 import { MessageBubble } from "./MessageBubble";
 import { ReplyComposer, type ReplyMode, type ReplySeed } from "./ReplyComposer";

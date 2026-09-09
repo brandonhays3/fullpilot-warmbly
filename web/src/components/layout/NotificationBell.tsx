@@ -19,7 +19,7 @@ import {
     TriangleAlertIcon,
     UsersIcon,
     type LucideIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import useClickOutside from "@/hooks/useClickOutside";
 import {
     useNotifications,

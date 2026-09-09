@@ -7,7 +7,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckIcon, Loader2Icon, PlusIcon, TagIcon } from "lucide-react";
+import { CheckIcon, Loader2Icon, PlusIcon, TagIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserProfile } from "@/hooks/context/user";

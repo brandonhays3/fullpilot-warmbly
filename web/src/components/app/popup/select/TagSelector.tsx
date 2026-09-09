@@ -11,7 +11,7 @@
 // tags" footer opens the tag editor.
 
 import React from "react";
-import { CheckIcon, PlusIcon, XIcon, SlidersHorizontalIcon } from "lucide-react";
+import { CheckIcon, PlusIcon, XIcon, SlidersHorizontalIcon } from "@/components/icons";
 import { useUserProfile } from "@/hooks/context/user";
 import {
     PopoverMenu,

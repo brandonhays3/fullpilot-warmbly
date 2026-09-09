@@ -16,7 +16,7 @@ import {
     SettingsIcon,
     Share2Icon,
     WrenchIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 import {
     DndContext,

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckIcon, Loader2Icon, AlertCircleIcon } from "lucide-react";
+import { CheckIcon, Loader2Icon, AlertCircleIcon } from "@/components/icons";
 import type { AutosaveStatus } from "@/hooks/useAutosave";
 
 // Header indicator for the auto-save settings tabs: Saving… / Saved / retry.

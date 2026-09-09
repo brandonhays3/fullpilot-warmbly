@@ -19,7 +19,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckIcon, Loader2Icon, PencilIcon, PlusIcon, TrashIcon, XIcon } from "lucide-react";
+import { CheckIcon, Loader2Icon, PencilIcon, PlusIcon, TrashIcon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import type { AppError } from "@/lib/api/client/normalizeError";
 import buildError from "@/lib/helper/buildError";

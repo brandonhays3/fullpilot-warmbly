@@ -19,7 +19,7 @@ import {
     ListChecksIcon,
     RocketIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import type Campaign from "@/lib/api/models/app/campaigns/Campaign";
 import type { AppError } from "@/lib/api/client/normalizeError";
 import buildError from "@/lib/helper/buildError";

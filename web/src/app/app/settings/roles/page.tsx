@@ -4,7 +4,7 @@
 // Viewer rows that can be renamed, recolored, reshaped, or deleted like any
 // other role. Owner is a membership status, not a role.
 
-import { LockIcon } from "lucide-react";
+import { LockIcon } from "@/components/icons";
 import { Link } from "react-router-dom";
 import useFeatureAccess from "@/hooks/useFeatureAccess";
 import { useAppStore } from "@/stores";

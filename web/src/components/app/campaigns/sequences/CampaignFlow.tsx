@@ -43,7 +43,7 @@ import {
     UnlinkIcon,
     XIcon,
     ZapIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import {
     ReactFlow,
     Background,
@@ -88,7 +88,7 @@ import useUpdateCampaign from "@/lib/api/hooks/app/campaigns/useUpdateCampaign";
 import { useConfirm } from "@/hooks/context/confirm";
 import useClickOutside from "@/hooks/useClickOutside";
 import { usePermission, showPermissionDenied } from "@/hooks/usePermission";
-import { LockIcon } from "lucide-react";
+import { LockIcon } from "@/components/icons";
 import { NumberInput, Label, TextInput } from "@/components/ui/field";
 import { SelectMenu, type SelectOption } from "@/components/ui/select-menu";
 import { PopoverMenu, PopoverMenuContent, PopoverMenuTrigger } from "@/components/ui/popover-menu";

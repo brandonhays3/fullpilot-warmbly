@@ -15,7 +15,7 @@ import {
     PaperclipIcon,
     PencilLineIcon,
     SparklesIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 import RichTextEditor, { VariableMenu } from "./RichTextEditor";
 import { useTemplatePreview } from "@/lib/api/hooks/app/campaigns/useTemplatePreview";

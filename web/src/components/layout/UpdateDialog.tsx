@@ -28,7 +28,7 @@ import {
     ServerIcon,
     ShieldCheckIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { applyInstanceUpdate, checkInstanceUpdate } from "@/lib/api/client/admin/updates";
 import {
     INSTANCE_UPDATE_KEY,

@@ -6,7 +6,7 @@
 // for every number.
 
 import { useState } from "react";
-import { AlertCircleIcon } from "lucide-react";
+import { AlertCircleIcon } from "@/components/icons";
 import type Campaign from "@/lib/api/models/app/campaigns/Campaign";
 import { Label, NumberInput } from "@/components/ui/field";
 import { EmailListInput, OptionSelect, SettingRow, Toggle } from "./components/CampaignPreferenceBoolBox";

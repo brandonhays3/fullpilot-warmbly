@@ -8,7 +8,7 @@
 // shows an inline "A/B test" entry in its header.
 
 import React from "react";
-import { Loader2Icon, Trash2Icon, TrophyIcon, PauseIcon, PlayIcon, SplitIcon } from "lucide-react";
+import { Loader2Icon, Trash2Icon, TrophyIcon, PauseIcon, PlayIcon, SplitIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import type Sequence from "@/lib/api/models/app/campaigns/sequences/Sequence";
 import type ABVariant from "@/lib/api/models/app/campaigns/ABVariant";

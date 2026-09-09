@@ -1,7 +1,7 @@
 // FieldSettingsPanel — the builder's right rail when a field is selected.
 
 import React from "react";
-import { PlusIcon, XIcon } from "lucide-react";
+import { PlusIcon, XIcon } from "@/components/icons";
 
 import { Label, NumberInput, TextInput } from "@/components/ui/field";
 import { SelectMenu } from "@/components/ui/select-menu";

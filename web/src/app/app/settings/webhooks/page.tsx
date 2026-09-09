@@ -29,7 +29,7 @@ import {
     Trash2Icon,
     XIcon,
     type LucideIcon,
-} from "lucide-react";
+} from "@/components/icons";
 
 import { NoAccess } from "@/components/layout/NoAccess";
 import { usePermission } from "@/hooks/usePermission";

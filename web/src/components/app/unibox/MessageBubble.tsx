@@ -14,7 +14,7 @@
 // which specific message in the thread their reply targets.
 
 import React from "react";
-import { AlertCircleIcon, CornerUpLeftIcon, ForwardIcon, Loader2Icon } from "lucide-react";
+import { AlertCircleIcon, CornerUpLeftIcon, ForwardIcon, Loader2Icon } from "@/components/icons";
 import EmailBody from "./EmailBody";
 import useUniboxEmail from "@/lib/api/hooks/app/unibox/useUniboxEmail";
 import type UniboxEmail from "@/lib/api/models/app/unibox/UniboxEmail";

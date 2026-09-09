@@ -26,7 +26,7 @@ import {
     PencilIcon,
     PlusIcon,
     Trash2Icon,
-} from "lucide-react";
+} from "@/components/icons";
 
 import { useConfirm } from "@/hooks/context/confirm";
 import useClickOutside from "@/hooks/useClickOutside";

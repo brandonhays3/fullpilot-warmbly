@@ -4,7 +4,7 @@
 // meeting to that contact (contact_id) so attribution is exact.
 
 import React from "react";
-import { Loader2Icon, XIcon } from "lucide-react";
+import { Loader2Icon, XIcon } from "@/components/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { Label, NumberInput, TextInput } from "@/components/ui/field";

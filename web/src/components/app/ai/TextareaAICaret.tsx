@@ -19,7 +19,7 @@ import {
     RefreshCwIcon,
     SparklesIcon,
     Undo2Icon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 import useGenerateWrite from "@/lib/api/hooks/app/generation/useGenerateWrite";
 import { usePermission } from "@/hooks/usePermission";

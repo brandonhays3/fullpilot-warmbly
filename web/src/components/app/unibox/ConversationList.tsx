@@ -13,7 +13,7 @@
 // component owns only its own search box + focused row.
 
 import React from "react";
-import { Loader2Icon, SearchIcon, Settings2Icon } from "lucide-react";
+import { Loader2Icon, SearchIcon, Settings2Icon } from "@/components/icons";
 import { ConversationItem } from "./ConversationItem";
 import useUniboxSearch from "@/lib/api/hooks/app/unibox/useUniboxSearch";
 import { useAppStore } from "@/stores";

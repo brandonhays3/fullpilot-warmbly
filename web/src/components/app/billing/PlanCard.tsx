@@ -10,7 +10,7 @@
 
 import React from "react";
 import { AnimatePresence, motion, useAnimationControls, useReducedMotion } from "framer-motion";
-import { ArrowRightIcon, CheckIcon, Loader2Icon, MinusIcon, SparklesIcon } from "lucide-react";
+import { ArrowRightIcon, CheckIcon, Loader2Icon, MinusIcon, SparklesIcon } from "@/components/icons";
 import RollingNumber from "@/components/ui/RollingNumber";
 import type DiscountPreview from "@/lib/api/models/app/subscription/DiscountPreview";
 import {

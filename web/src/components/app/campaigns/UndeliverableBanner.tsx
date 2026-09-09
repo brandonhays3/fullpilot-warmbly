@@ -5,7 +5,7 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Loader2Icon, RefreshCcwIcon, SendIcon, ShieldAlertIcon } from "lucide-react";
+import { Loader2Icon, RefreshCcwIcon, SendIcon, ShieldAlertIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { useConfirm } from "@/hooks/context/confirm";

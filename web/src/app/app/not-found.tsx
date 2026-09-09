@@ -10,7 +10,7 @@ import {
   MegaphoneIcon,
   UsersIcon,
   BarChart3Icon,
-} from "lucide-react";
+} from "@/components/icons";
 import { useAppStore } from "@/stores";
 import { cn } from "@/lib/utils";
 

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { TrashIcon } from "lucide-react";
+import { TrashIcon } from "@/components/icons";
 import PermissionButton from "@/components/ui/PermissionButton";
 import type Campaign from "@/lib/api/models/app/campaigns/Campaign";
 import { useCampaignActions } from "@/components/app/campaigns/useCampaignActions";

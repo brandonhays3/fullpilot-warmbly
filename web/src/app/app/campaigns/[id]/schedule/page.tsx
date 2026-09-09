@@ -1,6 +1,6 @@
 import PermissionButton from "@/components/ui/PermissionButton";
 import React from "react";
-import { ArrowRightIcon, CalendarClockIcon, CalendarRangeIcon, GlobeIcon } from "lucide-react";
+import { ArrowRightIcon, CalendarClockIcon, CalendarRangeIcon, GlobeIcon } from "@/components/icons";
 import { addDays, differenceInCalendarDays, format } from "date-fns";
 import DateSelect from "@/components/app/campaigns/schedule/ScheduleDateSelect";
 import WeekScheduleGrid, { type Interval } from "@/components/app/campaigns/schedule/WeekScheduleGrid";

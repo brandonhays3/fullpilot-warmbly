@@ -1,4 +1,4 @@
-import { MoonIcon, SunIcon, MonitorIcon } from 'lucide-react'
+import { MoonIcon, SunIcon, MonitorIcon } from "@/components/icons"
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,

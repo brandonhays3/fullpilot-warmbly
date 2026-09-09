@@ -11,7 +11,7 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDownIcon, PlusIcon, Settings2Icon } from "lucide-react";
+import { ChevronDownIcon, PlusIcon, Settings2Icon } from "@/components/icons";
 import toast from "react-hot-toast";
 import { useAppStore } from "@/stores";
 import useSwitchOrganization from "@/lib/api/hooks/app/organizations/useSwitchOrganization";

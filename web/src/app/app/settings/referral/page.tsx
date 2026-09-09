@@ -12,7 +12,7 @@ import {
     GiftIcon,
     Loader2Icon,
     LockIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 import { Navigate } from "react-router-dom";
 import useFeatureAccess from "@/hooks/useFeatureAccess";

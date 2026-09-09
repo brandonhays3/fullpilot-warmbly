@@ -3,7 +3,7 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { MoreHorizontalIcon, PlusIcon } from "lucide-react";
+import { MoreHorizontalIcon, PlusIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { EmptyBlock, Page, PageBody, PageTopbar, SectionBar, StatStrip, Stat, TopbarAction } from "@/components/layout/Page";

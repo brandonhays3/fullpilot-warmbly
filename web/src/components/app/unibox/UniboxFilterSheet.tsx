@@ -21,7 +21,7 @@ import {
   SearchIcon,
   TagIcon,
   XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { SearchInput, TextInput } from "@/components/ui/field";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { SectionBar } from "@/components/layout/Page";

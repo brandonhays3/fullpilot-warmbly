@@ -8,7 +8,7 @@ import {
     Loader2Icon,
     Trash2Icon,
     UploadIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { useConfirm } from "@/hooks/context/confirm";
 import { downloadOrgExport } from "@/lib/api/client/app/orgtransfer/orgTransfer";
 import { useDeleteOrgExport } from "@/lib/api/hooks/app/orgtransfer/useOrgTransfer";

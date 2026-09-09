@@ -37,7 +37,7 @@ import {
     RefreshCcwIcon,
     SendIcon,
     Settings2Icon,
-} from "lucide-react";
+} from "@/components/icons";
 import {
     EmptyBlock,
     Page,

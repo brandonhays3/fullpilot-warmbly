@@ -3,7 +3,7 @@
 // Cal.com link is configured, so the action never shows as a dead button.
 // Shared by the reply composer and the compose window.
 
-import { CalendarPlusIcon } from "lucide-react";
+import { CalendarPlusIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import useIntegrationConnections from "@/lib/api/hooks/app/integrations/useIntegrationConnections";
 import { bookingURL, prefilledBookingURL } from "@/lib/api/models/app/integrations/Integration";

@@ -6,7 +6,7 @@
 // level via PUT /unibox/thread/labels.
 
 import React from "react";
-import { CheckIcon, Loader2Icon, PlusIcon, TagIcon } from "lucide-react";
+import { CheckIcon, Loader2Icon, PlusIcon, TagIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import {

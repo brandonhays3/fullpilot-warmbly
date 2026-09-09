@@ -6,7 +6,7 @@
 
 import React from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2Icon, AlertCircleIcon, MailIcon } from "lucide-react";
+import { Loader2Icon, AlertCircleIcon, MailIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import getToken from "@/lib/helper/getToken";
 import usePreviewInvitation from "@/lib/api/hooks/app/organizations/usePreviewInvitation";

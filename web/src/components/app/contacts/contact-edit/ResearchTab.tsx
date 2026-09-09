@@ -12,7 +12,7 @@ import {
     CopyIcon,
     CheckIcon,
     SearchXIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import {
     useContactResearch,
     useRunContactResearch,

@@ -4,7 +4,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRightIcon, CheckIcon, CloudIcon, InboxIcon, ServerIcon, SparklesIcon } from "lucide-react";
+import { ArrowRightIcon, CheckIcon, CloudIcon, InboxIcon, ServerIcon, SparklesIcon } from "@/components/icons";
 import { getPlan } from "@/lib/plans";
 import { useAppStore } from "@/stores";
 import { useUpgradeDialog } from "@/hooks/context/upgrade";

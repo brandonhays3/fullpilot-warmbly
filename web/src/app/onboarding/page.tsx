@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/components/icons";
 
 import AuthButton from "@/components/auth/button";
 import useCompleteOnboarding from "@/lib/api/hooks/auth/useCompleteOnboarding";

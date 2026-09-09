@@ -19,7 +19,7 @@ import {
     Undo2Icon,
     XIcon,
     ZapIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import type { AdvisorFinding } from "@/lib/api/models/app/advisor/Advisor";
 import {
     CATEGORY_LABEL,

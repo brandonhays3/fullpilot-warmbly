@@ -21,7 +21,7 @@ import {
     ShieldCheckIcon,
     TicketIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import useFeatureAccess from "@/hooks/useFeatureAccess";
 import useUpgradeFlow from "@/hooks/useUpgradeFlow";
 import type { UpgradeRequest } from "@/hooks/context/upgrade";

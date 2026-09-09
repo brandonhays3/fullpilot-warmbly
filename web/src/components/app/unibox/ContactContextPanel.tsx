@@ -25,7 +25,7 @@ import {
     UserXIcon,
     CheckSquareIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { Link } from "react-router-dom";
 import { TextInput } from "@/components/ui/field";
 import NewMeetingDialog from "@/components/app/meetings/NewMeetingDialog";

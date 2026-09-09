@@ -12,7 +12,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckIcon, PlusIcon, XIcon, MailIcon, TagIcon } from "lucide-react";
+import { CheckIcon, PlusIcon, XIcon, MailIcon, TagIcon } from "@/components/icons";
 import { useUserProfile } from "@/hooks/context/user";
 import useClickOutside from "@/hooks/useClickOutside";
 import useFlipPlacement from "@/hooks/useFlipPlacement";

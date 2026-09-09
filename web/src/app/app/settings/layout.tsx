@@ -30,7 +30,7 @@ import {
     UsersIcon,
     WebhookIcon,
     GlobeIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { UnsavedProvider, useUnsavedRegistry } from "@/hooks/context/unsaved";
 import { usePermission, type PermissionKey } from "@/hooks/usePermission";
 import { Page, PageTopbar } from "@/components/layout/Page";

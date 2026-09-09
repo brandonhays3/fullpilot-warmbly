@@ -7,7 +7,7 @@
 
 import React from "react";
 import toast from "react-hot-toast";
-import { Loader2Icon, SparklesIcon, PlusIcon } from "lucide-react";
+import { Loader2Icon, SparklesIcon, PlusIcon } from "@/components/icons";
 import useCredits from "@/lib/api/hooks/app/subscription/useCredits";
 import useCreditTransactions from "@/lib/api/hooks/app/subscription/useCreditTransactions";
 import useCreateCreditCheckout from "@/lib/api/hooks/app/subscription/useCreateCreditCheckout";

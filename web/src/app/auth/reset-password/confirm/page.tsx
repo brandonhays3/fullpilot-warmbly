@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { TurnstileModal } from "@/components/captcha/TurnstileModal";
 import AuthButton from "@/components/auth/button";
 import { useResetPasswordConfirmForm } from "../../hooks/useResetPasswordConfirmForm";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "@/components/icons";
 
 const INPUT = "w-full h-11 rounded-lg border border-slate-200 bg-white px-4 text-[15px] text-slate-900 placeholder:text-slate-400 outline-none transition-colors duration-200 focus:border-sky-400 focus:ring-4 focus:ring-sky-400/15";
 

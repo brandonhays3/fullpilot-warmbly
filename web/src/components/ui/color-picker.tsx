@@ -9,7 +9,7 @@
 import React from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { PipetteIcon } from "lucide-react";
+import { PipetteIcon } from "@/components/icons";
 
 import { useAnchoredFloating } from "@/hooks/useAnchoredFloating";
 

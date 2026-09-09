@@ -13,7 +13,7 @@ import {
     Trash2Icon,
     Loader2Icon,
     CheckIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import {
     useSkills,
     useCreateSkill,

@@ -8,7 +8,7 @@
 import React from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckIcon, ChevronDownIcon } from "lucide-react";
+import { CheckIcon, ChevronDownIcon } from "@/components/icons";
 
 import { useAnchoredFloating } from "@/hooks/useAnchoredFloating";
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { KeyRound, Trash2, Plus, Check, Pencil } from "lucide-react";
+import { KeyRound, Trash2, Plus, Check, Pencil } from "@/components/icons";
 import { Section } from "../_components/SectionShell";
 import { Loading } from "@/components/loader";
 import { useConfirm } from "@/hooks/context/confirm";

@@ -37,7 +37,7 @@ import {
     UsersIcon,
     UsersRoundIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { Link } from "react-router-dom";
 import useTeams from "@/lib/api/hooks/app/teams/useTeams";
 import toast from "react-hot-toast";

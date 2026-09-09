@@ -9,7 +9,7 @@
 // focus ring tuned to sky-200 so it blends with the rest of the chrome.
 
 import React from "react";
-import { SearchIcon, XIcon, ChevronUpIcon, ChevronDownIcon } from "lucide-react";
+import { SearchIcon, XIcon, ChevronUpIcon, ChevronDownIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 // 16px on mobile so iOS Safari doesn't auto-zoom on focus; 12.5px from md up.

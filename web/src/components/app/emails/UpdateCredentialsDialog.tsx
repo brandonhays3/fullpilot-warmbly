@@ -6,7 +6,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckIcon, InboxIcon, KeyRoundIcon, Loader2Icon, SendIcon, XIcon } from "lucide-react";
+import { CheckIcon, InboxIcon, KeyRoundIcon, Loader2Icon, SendIcon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 

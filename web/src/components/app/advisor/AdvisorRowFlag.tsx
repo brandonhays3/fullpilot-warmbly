@@ -11,7 +11,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRightIcon, CheckCircle2Icon, SparklesIcon } from "lucide-react";
+import { ArrowRightIcon, CheckCircle2Icon, SparklesIcon } from "@/components/icons";
 import type { AdvisorFinding } from "@/lib/api/models/app/advisor/Advisor";
 import {
     SEVERITY_DOT,

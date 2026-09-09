@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Loader2Icon } from "lucide-react";
+import { Loader2Icon } from "@/components/icons";
 import { useAutomation } from "@/lib/api/hooks/app/automations/useAutomation";
 import useIntegrationConnections from "@/lib/api/hooks/app/integrations/useIntegrationConnections";
 import useIntegrationCatalog from "@/lib/api/hooks/app/integrations/useIntegrationCatalog";

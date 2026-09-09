@@ -3,7 +3,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2Icon, MegaphoneIcon, XIcon } from "lucide-react";
+import { Loader2Icon, MegaphoneIcon, XIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { SearchInput } from "@/components/ui/field";

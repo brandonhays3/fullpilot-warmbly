@@ -4,7 +4,7 @@
 
 import React from "react";
 import toast from "react-hot-toast";
-import { CheckIcon, CopyIcon, Loader2Icon, ShieldCheckIcon, XIcon } from "lucide-react";
+import { CheckIcon, CopyIcon, Loader2Icon, ShieldCheckIcon, XIcon } from "@/components/icons";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import type { AppError } from "@/lib/api/client/normalizeError";
 import buildError from "@/lib/helper/buildError";

@@ -17,7 +17,7 @@ import {
     UserIcon,
     UserPlusIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import AnimatedHeight from "@/components/app/unibox/compose/AnimatedHeight";
 import FilterMenu from "@/components/app/unibox/compose/FilterMenu";
 import useSearchContacts from "@/lib/api/hooks/app/contacts/useSearchContacts";

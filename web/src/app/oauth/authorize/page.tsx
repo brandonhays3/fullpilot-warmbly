@@ -7,7 +7,7 @@
 
 import React from "react";
 import { useSearchParams } from "react-router-dom";
-import { CheckIcon, ExternalLinkIcon, ShieldCheckIcon } from "lucide-react";
+import { CheckIcon, ExternalLinkIcon, ShieldCheckIcon } from "@/components/icons";
 
 import getAuthorizeDetails from "@/lib/api/client/app/oauth/getAuthorizeDetails";
 import authorizeConsent from "@/lib/api/client/app/oauth/authorizeConsent";

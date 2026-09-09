@@ -1,4 +1,4 @@
-import { ClockIcon } from "lucide-react";
+import { ClockIcon } from "@/components/icons";
 import {
     PopoverMenu,
     PopoverMenuContent,

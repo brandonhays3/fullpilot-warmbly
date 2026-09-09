@@ -18,7 +18,7 @@ import {
     SunriseIcon,
     SunsetIcon,
     TimerIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 
 import { Toggle } from "@/components/app/campaigns/preferences/components/CampaignPreferenceBoolBox";

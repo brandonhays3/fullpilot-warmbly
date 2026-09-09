@@ -21,7 +21,7 @@ import {
     PlusIcon,
     TrashIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 import { TextInput } from "@/components/ui/field";
 import useUpdateContactsBulk from "@/lib/api/hooks/app/contacts/useUpdateContactsBulk";

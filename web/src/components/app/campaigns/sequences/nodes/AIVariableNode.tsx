@@ -17,7 +17,7 @@ import { createPortal } from "react-dom";
 import { Node as TiptapNode, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer, NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { SparklesIcon, GlobeIcon, TrashIcon } from "lucide-react";
+import { SparklesIcon, GlobeIcon, TrashIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import type { AppError } from "@/lib/api/client/normalizeError";
 import buildError from "@/lib/helper/buildError";

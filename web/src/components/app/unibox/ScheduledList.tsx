@@ -17,7 +17,7 @@ import {
     Loader2Icon,
     SendIcon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import useUniboxScheduled from "@/lib/api/hooks/app/unibox/useUniboxScheduled";
 import cancelScheduled from "@/lib/api/client/app/unibox/cancelScheduled";
 import type UniboxScheduledItem from "@/lib/api/models/app/unibox/UniboxScheduled";

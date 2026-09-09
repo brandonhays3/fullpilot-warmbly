@@ -37,7 +37,7 @@ import {
     XCircleIcon,
     RefreshCwIcon,
     type LucideIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import toast from "react-hot-toast";
 
 import type Inbox from "@/lib/api/models/app/emails/Inbox";

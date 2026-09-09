@@ -7,7 +7,7 @@
 
 "use client";
 
-import { CalendarPlusIcon } from "lucide-react";
+import { CalendarPlusIcon } from "@/components/icons";
 
 import {
     PopoverMenu,

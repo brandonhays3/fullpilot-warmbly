@@ -8,7 +8,7 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertTriangleIcon, Loader2Icon, XIcon } from "lucide-react";
+import { AlertTriangleIcon, Loader2Icon, XIcon } from "@/components/icons";
 import { ConfirmContext } from "./context/confirm";
 
 export default function ConfirmProvider({ children }: { children: React.ReactNode }) {

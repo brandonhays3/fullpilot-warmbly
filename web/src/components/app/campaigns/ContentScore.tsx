@@ -4,7 +4,7 @@
 // uses. It never blocks saving or sending.
 
 import * as React from "react";
-import { ShieldCheckIcon, AlertTriangleIcon, AlertCircleIcon } from "lucide-react";
+import { ShieldCheckIcon, AlertTriangleIcon, AlertCircleIcon } from "@/components/icons";
 import scoreTemplate from "@/lib/api/client/app/campaigns/scoreTemplate";
 import type TemplateScore from "@/lib/api/models/app/campaigns/TemplateScore";
 import type { TemplateScoreIssue } from "@/lib/api/models/app/campaigns/TemplateScore";

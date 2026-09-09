@@ -21,7 +21,7 @@ import {
     SparklesIcon,
     Undo2Icon,
     XIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import type { AdvisorAgentResult, AdvisorFinding } from "@/lib/api/models/app/advisor/Advisor";
 import {
     SEVERITY_CHIP,

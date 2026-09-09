@@ -5,7 +5,7 @@
 // content score).
 
 import React from "react";
-import { GitBranchIcon, Loader2Icon } from "lucide-react";
+import { GitBranchIcon, Loader2Icon } from "@/components/icons";
 import toast from "react-hot-toast";
 import type Sequence from "@/lib/api/models/app/campaigns/sequences/Sequence";
 import EmailContentEditor from "./EmailContentEditor";

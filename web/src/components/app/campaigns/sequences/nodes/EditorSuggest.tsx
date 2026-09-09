@@ -9,7 +9,7 @@ import React from "react";
 import { createPortal } from "react-dom";
 import type { Editor } from "@tiptap/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BracesIcon, GitBranchIcon, FunctionSquareIcon, ClipboardListIcon, LinkIcon } from "lucide-react";
+import { BracesIcon, GitBranchIcon, FunctionSquareIcon, ClipboardListIcon, LinkIcon } from "@/components/icons";
 import useCustomFieldKeys from "@/lib/api/hooks/app/contacts/useCustomFieldKeys";
 import { useForms } from "@/lib/api/hooks/app/forms";
 import { STANDARD_VARS, LINK_VARS, buildToken, buildFormLinkToken, cleanFieldName, isStandardKey } from "@/lib/templateVars";
