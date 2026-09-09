@@ -58,7 +58,7 @@ export default function SecuritySelect({
             </div>
             {value === "none" && allowNone && (
                 <p className="mt-1 text-[11.5px] leading-[1.4] text-slate-500">
-                    Credentials go over an unencrypted connection to this machine only. Warmbly refuses this mode for any
+                    Credentials go over an unencrypted connection to this machine only. Fullpilot refuses this mode for any
                     other host.
                 </p>
             )}

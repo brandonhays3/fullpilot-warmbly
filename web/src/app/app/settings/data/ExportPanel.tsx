@@ -140,7 +140,7 @@ export default function ExportPanel({
                                 ? `Use at least ${minPassphrase} characters.`
                                 : passphraseMismatch
                                     ? "The two passphrases do not match."
-                                    : "Warmbly never stores this passphrase. Lose it and the credentials in the archive cannot be recovered, so you would have to export again."}
+                                    : "Fullpilot never stores this passphrase. Lose it and the credentials in the archive cannot be recovered, so you would have to export again."}
                         </p>
                     </div>
                 )}

@@ -14,14 +14,9 @@ import removeEmail from "@/lib/api/client/app/emails/removeEmail";
 import { useUserProfile } from "@/hooks/context/user";
 import { useConfirm } from "@/hooks/context/confirm";
 import InboxDetails from "@/components/app/emails/InboxDetails";
-import WarmupCoverageNotice from "@/components/app/emails/WarmupCoverageNotice";
-import CloudPoolBanner from "@/components/app/emails/CloudPoolBanner";
-import CloudPathsPanel from "@/components/app/emails/CloudPathsPanel";
-import CloudConnectDialog from "@/components/app/cloud/CloudConnectDialog";
 import useCloudPool from "@/hooks/useCloudPool";
 import useAuthConfig from "@/lib/api/hooks/auth/useAuthConfig";
 import { useEnrollCloudLinkMailbox, useUnenrollCloudLinkMailbox, useCloudLinkMailboxLifecycle } from "@/lib/api/hooks/app/cloudlink/useCloudLink";
-import { providerSupported } from "@/app/app/settings/warmbly-cloud/providers";
 import { CloudIcon } from "lucide-react";
 import type { CloudLinkMailboxRow } from "@/lib/api/models/app/cloudlink/CloudLink";
 import buildError from "@/lib/helper/buildError";
@@ -113,10 +108,9 @@ export default function AddressesPage() {
     const featureStatus = useFeatureStatus();
     const canWarmup = featureStatus.data?.can_use_warmup !== false;
 
-    // Self-hosted instances can hand warmup to the Warmbly pool; the banner,
+    // Self-hosted instances can hand warmup to the Fullpilot pool; the banner,
     // row badges and menu items below key off this.
     const cloud = useCloudPool();
-    const [cloudDialog, setCloudDialog] = React.useState(false);
     const authConfigLoading = useAuthConfig().isLoading;
 
     // One query for the whole surface; each row reads its own advice out of the
@@ -160,7 +154,7 @@ export default function AddressesPage() {
         if (selected.length === 0 || removing) return;
         const n = selected.length;
         confirm.show(
-            `Remove ${n} mailbox${n > 1 ? "es" : ""}? This disconnects ${n > 1 ? "them" : "it"} from Warmbly.`,
+            `Remove ${n} mailbox${n > 1 ? "es" : ""}? This disconnects ${n > 1 ? "them" : "it"} from Fullpilot.`,
             async () => {
                 setRemoving(true);
                 const results = await Promise.allSettled(selected.map((id) => removeEmail(id)));
@@ -236,13 +230,6 @@ export default function AddressesPage() {
         }
         return s;
     }, [emailsData.emails]);
-
-    // Mailboxes actively warming (enabled and not paused). Warmup pairs mailboxes
-    // with each other, so too few starves it; the notice below warns on that.
-    const warmupActive = useMemo(
-        () => (emailsData.emails ?? []).filter((e) => !!e.warmup && !e.warmup_paused_at).length,
-        [emailsData.emails],
-    );
 
     function isSelectedAll(): boolean {
         return emailsData.emails
@@ -329,20 +316,6 @@ export default function AddressesPage() {
                     nounPlural="mailboxes"
                     className="mx-5 my-3"
                 />
-                <CloudPoolBanner onConnect={() => setCloudDialog(true)} mailboxCount={stats.total} />
-                {!emailsData.isLoading && <CloudPathsPanel mailboxCount={stats.total} onAdd={() => p?.setAddEmail(true)} />}
-                {/* Hosted, the pool is thousands of mailboxes: the pool-size advice is self-host only. */}
-                {cloud.selfHosted && (
-                    <WarmupCoverageNotice
-                        warmupCount={warmupActive}
-                        totalCount={stats.total}
-                        canWarmup={canWarmup}
-                        onAdd={() => p?.setAddEmail(true)}
-                        onConnectCloud={!cloud.connected ? () => setCloudDialog(true) : undefined}
-                        cloudConnected={cloud.connected}
-                    />
-                )}
-                <CloudConnectDialog open={cloudDialog} onClose={() => setCloudDialog(false)} />
                 {emailsData.isLoading ? (
                     <div className="divide-y divide-slate-200/60">
                         {Array.from({ length: 6 }).map((_, i) => (
@@ -541,7 +514,8 @@ function MailboxRow({
     const cloudLifecycle = useCloudLinkMailboxLifecycle();
     const inCloud = !!cloud?.enrolled;
     const cloudPaused = !!cloud?.cloud?.warmup?.paused;
-    const cloudSupported = providerSupported(box.provider);
+    // Pool enrolment is not offered on this deployment.
+    const cloudSupported = false;
     const cloudRun = async (fn: () => Promise<unknown>, ok: string) => {
         try {
             await fn();
@@ -625,7 +599,7 @@ function MailboxRow({
                     <span className="text-[12.5px] font-medium text-slate-900 truncate">{box.email}</span>
                     {inCloud && (
                         <span
-                            title={cloud?.managed ? "Signed in through Warmbly Cloud, which warms it" : cloudPaused ? "Paused in Warmbly Cloud" : "Warmed by Warmbly Cloud"}
+                            title={cloud?.managed ? "Signed in through Fullpilot Cloud, which warms it" : cloudPaused ? "Paused in Fullpilot Cloud" : "Warmed by Fullpilot Cloud"}
                             className={`inline-flex items-center gap-1 h-4 px-1.5 rounded-full text-[9.5px] font-medium uppercase tracking-[0.08em] shrink-0 ${cloudPaused ? "bg-amber-50 text-amber-600" : "bg-sky-600 text-white"}`}
                         >
                             <CloudIcon className="w-2.5 h-2.5" /> Cloud
@@ -703,22 +677,22 @@ function MailboxRow({
                             </button>
                         </PopoverMenuTrigger>
                         <PopoverMenuContent minWidth={208}>
-                            <PopoverMenuLabel>Warmup · {inCloud ? (cloudPaused ? "Paused in cloud" : "Warmbly Cloud") : active ? "Active" : paused ? "Paused" : "Off"}</PopoverMenuLabel>
+                            <PopoverMenuLabel>Warmup · {inCloud ? (cloudPaused ? "Paused in cloud" : "Fullpilot Cloud") : active ? "Active" : paused ? "Paused" : "Off"}</PopoverMenuLabel>
                             {inCloud && (
                                 <>
                                     <PopoverMenuItem
                                         onSelect={() => void cloudRun(() => cloudLifecycle.mutateAsync({ id: box.id, action: cloudPaused ? "resume" : "pause" }), cloudPaused ? "Warmup resumed" : "Warmup paused")}
                                         icon={cloudPaused ? <PlayIcon className="w-3 h-3" /> : <PauseIcon className="w-3 h-3" />}
                                     >
-                                        {cloudPaused ? "Resume in Warmbly Cloud" : "Pause in Warmbly Cloud"}
+                                        {cloudPaused ? "Resume in Fullpilot Cloud" : "Pause in Fullpilot Cloud"}
                                     </PopoverMenuItem>
                                     <PopoverMenuItem
                                         danger
                                         onSelect={() =>
                                             confirm.show(
                                                 cloud?.managed
-                                                    ? `Remove ${box.email} from this instance? It stays in your Warmbly Cloud workspace, where its sign-in lives; campaigns here stop sending from it.`
-                                                    : `Stop warming ${box.email} in the Warmbly pool? The cloud deletes its credential right away.`,
+                                                    ? `Remove ${box.email} from this instance? It stays in your Fullpilot Cloud workspace, where its sign-in lives; campaigns here stop sending from it.`
+                                                    : `Stop warming ${box.email} in the Fullpilot pool? The cloud deletes its credential right away.`,
                                                 async () => {
                                                     await cloudRun(() => cloudUnenroll.mutateAsync(box.id), cloud?.managed ? `${box.email} removed from this instance` : `${box.email} removed from the pool`);
                                                 },
@@ -726,7 +700,7 @@ function MailboxRow({
                                         }
                                         icon={<CloudIcon className="w-3 h-3" />}
                                     >
-                                        {cloud?.managed ? "Remove from this instance" : "Remove from Warmbly Cloud"}
+                                        {cloud?.managed ? "Remove from this instance" : "Remove from Fullpilot Cloud"}
                                     </PopoverMenuItem>
                                     <PopoverMenuSeparator />
                                 </>
@@ -736,7 +710,7 @@ function MailboxRow({
                                     onSelect={() => void cloudRun(() => cloudEnroll.mutateAsync(box.id), `${box.email} is now warming in the pool`)}
                                     icon={<CloudIcon className="w-3 h-3" />}
                                 >
-                                    Warm in Warmbly Cloud
+                                    Warm in Fullpilot Cloud
                                 </PopoverMenuItem>
                             )}
                             {!inCloud && off && (

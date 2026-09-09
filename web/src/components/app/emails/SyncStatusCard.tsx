@@ -118,7 +118,7 @@ export default function SyncStatusCard({ mailboxId }: { mailboxId: string }) {
             {(state?.folders_skipped_cap ?? 0) > 0 && (
                 <p className="mt-1 text-[11.5px] text-amber-700">
                     {state!.folders_skipped_cap!.toLocaleString()} folder{state!.folders_skipped_cap === 1 ? " is" : "s are"} not synced: this mailbox has more
-                    folders than Warmbly follows. Your inbox, sent, drafts, archive, spam and trash are always included.
+                    folders than Fullpilot follows. Your inbox, sent, drafts, archive, spam and trash are always included.
                 </p>
             )}
 

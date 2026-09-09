@@ -20,16 +20,7 @@ export function PlanPill() {
 
     // No billing provider: nothing is metered, so there is no plan to show.
     if (!access.billing) {
-        return (
-            <Badge
-                to={access.isOwner ? "/app/settings/workspace" : "/app/settings/profile"}
-                className="bg-indigo-50 text-indigo-700 border-indigo-100"
-                dot="bg-indigo-500"
-                label="Self-hosted"
-                title="Self-hosted deployment: every feature is unlocked"
-                icon
-            />
-        );
+        return null;
     }
 
     // Status overrides — "Past due" and "Canceled" take precedence

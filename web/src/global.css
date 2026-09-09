@@ -1,8 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+
+/* Fullpilot brand. The dashboard's accent utilities are the Tailwind `sky`
+   family (bg-sky-600, text-sky-700, ring-sky-100, ...), so the brand blue is
+   applied by redefining that scale around Fullpilot's primary #0c58c6. */
+@theme {
+  --color-sky-50: #eef4fd;
+  --color-sky-100: #d9e6fb;
+  --color-sky-200: #b3cdf6;
+  --color-sky-300: #85adef;
+  --color-sky-400: #4f86e3;
+  --color-sky-500: #2468d4;
+  --color-sky-600: #0c58c6;
+  --color-sky-700: #0a48a3;
+  --color-sky-800: #0a3c85;
+  --color-sky-900: #0b336c;
+  --color-sky-950: #071f45;
+}
 
 @layer base {
   .tiptap :where(p, a, div, h1, h2, h3, h4, h5, h6, ul, ol, li, blockquote) {
@@ -82,9 +99,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-sans: 'Rethink Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
-  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Rethink Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
   --ease-bezier: cubic-bezier(.53,-0.14,.16,1.78);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -174,7 +191,7 @@ svg.loading circle {
     #7dd3fc 0%,
     #38bdf8 20%,
     #0ea5e9 40%,
-    #0284c7 62%,
+    #0c58c6 62%,
     #075985 84%,
     #0c4a6e 100%
   );
@@ -438,7 +455,7 @@ svg.loading circle {
 .tiptap-body ol { list-style: decimal; padding-left: 1.25rem; margin: 0.4em 0; }
 .tiptap-body li { margin: 0.15em 0; }
 .tiptap-body li > p { margin: 0; }
-.tiptap-body a { color: #0284c7; text-decoration: underline; }
+.tiptap-body a { color: #0c58c6; text-decoration: underline; }
 .tiptap-body strong { font-weight: 600; }
 .tiptap-body:focus { outline: none; }
 
@@ -469,7 +486,7 @@ svg.loading circle {
 .tiptap-body .tpl-var.tpl-var-active {
   border-color: #7dd3fc; /* sky-300 */
   background: #f0f9ff; /* sky-50 */
-  color: #0369a1; /* sky-700 */
+  color: #0a48a3; /* sky-700 */
 }
 
 /* AI blocks — per-recipient generated copy. A restrained sky tint (with a
@@ -485,7 +502,7 @@ svg.loading circle {
   border-radius: 0.25rem;
   border: 1px solid #bae6fd; /* sky-200 */
   background: #f0f9ff; /* sky-50 */
-  color: #0369a1; /* sky-700 */
+  color: #0a48a3; /* sky-700 */
   font-size: 11px;
   line-height: 1;
   font-weight: 500;
@@ -532,7 +549,7 @@ svg.loading circle {
 .tiptap-body .tpl-if.tpl-if-active {
   border-color: #7dd3fc; /* sky-300 */
   background: #f0f9ff; /* sky-50 */
-  color: #0369a1; /* sky-700 */
+  color: #0a48a3; /* sky-700 */
 }
 
 /* Campaign flow canvas — smoothly glide nodes when the layout recomputes

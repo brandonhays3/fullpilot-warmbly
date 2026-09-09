@@ -1,5 +1,5 @@
 /**
- * The running Warmbly on a self-hosted instance and whether a newer one
+ * The running Fullpilot on a self-hosted instance and whether a newer one
  * exists, served by GET /auth/instance. A hosted deployment answers
  * `self_hosted: false` and nothing else, so the dashboard shows no pill there.
  * Timestamps are Date objects: Request revives ISO strings on every response.

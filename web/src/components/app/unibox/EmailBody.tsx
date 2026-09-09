@@ -33,7 +33,7 @@ const DOCUMENT_CSS = `
   }
   img { max-width: 100%; height: auto; border: 0; }
   table { max-width: 100%; }
-  a { color: #0284c7; }
+  a { color: #0c58c6; }
   blockquote {
     margin: 0.5em 0;
     padding-left: 0.75em;

@@ -139,7 +139,7 @@ export default function OAuthConsentPage() {
                 )}
                 <h1 className="text-[15px] font-semibold text-slate-900">{info.name}</h1>
                 <p className="text-center text-[12.5px] text-slate-500">
-                    wants to access your Warmbly workspace
+                    wants to access your Fullpilot workspace
                 </p>
                 {info.website_url && (
                     <a

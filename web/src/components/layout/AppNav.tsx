@@ -941,12 +941,12 @@ export function AppNav({ open = false, onClose }: { open?: boolean; onClose?: ()
                     has no chrome of its own — the brand lives in AppHeader.) */}
                 <div className="md:hidden flex items-center justify-between px-3 h-14 border-b border-slate-200/70">
                     <Link to="/app/emails" onClick={onClose} className="flex items-center gap-2.5">
-                        <Logo className="w-6 text-slate-900" />
+                        <Logo className="w-6 text-sky-600" />
                         <span
                             style={{ fontFamily: "var(--font-display)" }}
                             className="font-extrabold text-[15px] tracking-tight text-slate-900"
                         >
-                            Warmbly
+                            Fullpilot
                         </span>
                     </Link>
                     <button

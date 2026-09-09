@@ -415,7 +415,7 @@ function WebhookToolsBlock({
                     </div>
                     <p className="text-[11px] text-slate-400 leading-relaxed">
                         Every delivery is signed with{" "}
-                        <span className="font-mono">X-Warmbly-Signature: t=&lt;unix&gt;,v1=&lt;hmac&gt;</span> (HMAC-SHA256
+                        <span className="font-mono">X-Fullpilot-Signature: t=&lt;unix&gt;,v1=&lt;hmac&gt;</span> (HMAC-SHA256
                         of <span className="font-mono">{"{t}.{body}"}</span>). Use this secret to verify it.
                     </p>
                     {secret ? (

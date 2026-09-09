@@ -115,7 +115,7 @@ function CLIAuthInner() {
             <div className="relative z-10 w-full max-w-[560px]">
                 <a href={WEBSITE_URL} className="mb-5 flex w-fit items-center gap-2.5 mx-auto">
                     <Logo className="w-7 text-white" />
-                    <span className="font-extrabold text-[18px] tracking-tight text-white">Warmbly</span>
+                    <span className="font-extrabold text-[18px] tracking-tight text-white">Fullpilot</span>
                 </a>
 
                 <motion.div
@@ -185,7 +185,7 @@ function Steps({ current }: { current: "code" | "review" | "done" }) {
                         <div className="flex items-center gap-2">
                             <motion.span
                                 animate={{
-                                    backgroundColor: state === "todo" ? "#f1f5f9" : "#0284c7",
+                                    backgroundColor: state === "todo" ? "#f1f5f9" : "#0c58c6",
                                     color: state === "todo" ? "#94a3b8" : "#ffffff",
                                 }}
                                 className="size-6 rounded-full inline-flex items-center justify-center text-[11px] font-semibold"
@@ -211,7 +211,7 @@ function CodeStep({ code, setCode, loading, error, onRetry }: { code: string; se
         <div>
             <div className="text-center">
                 <span className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full bg-sky-50 text-sky-700 text-[11px] font-medium">
-                    <TerminalIcon className="w-3 h-3" /> Warmbly CLI
+                    <TerminalIcon className="w-3 h-3" /> Fullpilot CLI
                 </span>
                 <h1 className="mt-4 text-[24px] sm:text-[28px] font-semibold tracking-[-0.03em] leading-[1.1] text-slate-900">Sign in to the CLI</h1>
                 <p className="mt-2.5 text-[13.5px] text-slate-500 leading-relaxed max-w-md mx-auto">
@@ -321,7 +321,7 @@ function ReviewStep({
                     <TerminalIcon className="w-5 h-5" />
                 </span>
                 <div className="min-w-0 flex-1">
-                    <p className="text-[15px] font-semibold text-slate-900 truncate">{info.client_name || "Warmbly CLI"}</p>
+                    <p className="text-[15px] font-semibold text-slate-900 truncate">{info.client_name || "Fullpilot CLI"}</p>
                     <p className="text-[12px] text-slate-500 truncate inline-flex items-center gap-1.5">
                         <MonitorIcon className="w-3 h-3 shrink-0" />
                         {info.hostname || "Machine name not shared"}

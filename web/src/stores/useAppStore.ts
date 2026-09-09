@@ -53,7 +53,7 @@ export const useAppStore = create<AppStore>()(
       }
     ),
     {
-      name: 'Warmbly Store',
+      name: 'Fullpilot Store',
     }
   )
 )

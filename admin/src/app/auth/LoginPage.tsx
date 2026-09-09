@@ -203,7 +203,7 @@ export default function LoginPage() {
                 {/* Brand */}
                 <div className="mb-6 flex items-center justify-center gap-2.5">
                     <Logo className="h-7 w-7 text-foreground" />
-                    <span className="text-[18px] font-bold tracking-tight">Warmbly</span>
+                    <span className="text-[18px] font-bold tracking-tight">Fullpilot</span>
                 </div>
 
                 {/* Card — a thin red top edge is the only "admin" flourish. */}
@@ -246,7 +246,7 @@ export default function LoginPage() {
                                     >
                                         <h1 className="text-[20px] font-semibold tracking-tight">Sign in</h1>
                                         <p className="mt-1 text-[13px] text-muted-foreground">
-                                            Restricted to Warmbly staff with admin permissions.
+                                            Restricted to Fullpilot staff with admin permissions.
                                         </p>
 
                                         <form className="mt-6 space-y-4" onSubmit={onCredentials}>
@@ -444,7 +444,7 @@ export default function LoginPage() {
                         href={DASHBOARD_URL}
                         className="inline-block text-[11px] text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
                     >
-                        ← Back to the Warmbly dashboard
+                        ← Back to the Fullpilot dashboard
                     </a>
                 </div>
             </div>

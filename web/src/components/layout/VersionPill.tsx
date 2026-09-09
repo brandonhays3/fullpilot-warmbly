@@ -1,4 +1,4 @@
-// VersionPill: the running Warmbly version, for self-hosted instances only.
+// VersionPill: the running Fullpilot version, for self-hosted instances only.
 //
 // Everyone in the workspace sees it, so nobody has to ask which version the
 // server runs, and it turns amber when a newer release exists. Only a platform
@@ -80,11 +80,11 @@ export function VersionPill() {
     let tone = available ? "bg-amber-50 text-amber-800 border-amber-200" : "bg-white/70 text-slate-500 border-slate-200";
     let title = available
         ? isAdmin
-            ? `Warmbly ${latest ?? "newer"} is available; this instance runs ${running}. Click to update.`
-            : `Warmbly ${latest ?? "newer"} is available; this instance runs ${running}. Ask a platform admin to update.`
+            ? `Fullpilot ${latest ?? "newer"} is available; this instance runs ${running}. Click to update.`
+            : `Fullpilot ${latest ?? "newer"} is available; this instance runs ${running}. Ask a platform admin to update.`
         : isAdmin
-          ? `Warmbly ${running}, up to date. Click for details.`
-          : `Warmbly ${running}, up to date.`;
+          ? `Fullpilot ${running}, up to date. Click for details.`
+          : `Fullpilot ${running}, up to date.`;
 
     if (isAdmin && (updating || restarting)) {
         label = restarting ? "Reconnecting" : "Updating";

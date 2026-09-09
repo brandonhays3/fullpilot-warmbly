@@ -1,4 +1,4 @@
-// One view of the Warmbly Cloud pool link for the dashboard: whether this is
+// One view of the Fullpilot Cloud pool link for the dashboard: whether this is
 // a self-hosted instance, whether it is linked, and which mailboxes the cloud
 // warms. Queries stay disabled on the hosted product.
 

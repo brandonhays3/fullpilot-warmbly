@@ -169,7 +169,7 @@ export default function NotificationsSettingsPage() {
                         </Row>
                         <Row
                             label="Mobile push"
-                            description="Alerts on devices signed in with the Warmbly iOS app. The first event pushes right away; bursts arrive as one summary instead of a ping per event."
+                            description="Alerts on devices signed in with the Fullpilot iOS app. The first event pushes right away; bursts arrive as one summary instead of a ping per event."
                         >
                             <Toggle on={channelOn("push")} onChange={(v) => setChannel("push", v)} />
                         </Row>

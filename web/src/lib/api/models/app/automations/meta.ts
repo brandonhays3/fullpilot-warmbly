@@ -5,7 +5,7 @@
 import { EVENT_LABELS, REPLY_INTENT_OPTIONS } from "@/lib/api/models/app/integrations/Integration";
 import type { AutomationCondition } from "@/lib/api/models/app/automations/Automation";
 
-// Warmbly events that can trigger an automation. Order = how they're listed.
+// Fullpilot events that can trigger an automation. Order = how they're listed.
 // "campaign.action" is the manual / campaign-launched trigger: it never fires on
 // a real event, only via a campaign "Run automation" step (RunAutomationByID).
 export const TRIGGER_EVENTS: string[] = [
@@ -43,7 +43,7 @@ export const ACTION_LABELS: Record<string, string> = {
     "salesforce.upsert_contact": "Create / update Salesforce contact",
     "close.upsert_lead": "Create / update Close lead",
     "webhook.ping": "Send a webhook",
-    // Native (Warmbly built-in) actions — no external connection needed.
+    // Native (Fullpilot built-in) actions — no external connection needed.
     "warmbly.add_tag": "Add a tag",
     "warmbly.remove_tag": "Remove a tag",
     "warmbly.create_task": "Create a task",
@@ -64,7 +64,7 @@ export function actionLabel(a: string): string {
     return ACTION_LABELS[a] ?? a;
 }
 
-// Native (Warmbly-internal) actions operate on the event's contact directly,
+// Native (Fullpilot-internal) actions operate on the event's contact directly,
 // with no external connection. The "__native__" sentinel is the connection-select
 // value that switches the action editor into native mode.
 export const NATIVE_CONNECTION = "__native__";

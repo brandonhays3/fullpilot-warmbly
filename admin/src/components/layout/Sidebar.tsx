@@ -146,7 +146,7 @@ export function Sidebar() {
                     <Logo className="size-6 shrink-0 text-foreground" />
                     <div className="min-w-0 leading-none">
                         <div className="text-sm font-semibold text-sidebar-foreground leading-none truncate">
-                            Warmbly
+                            Fullpilot
                         </div>
                         <div className="text-[11px] text-muted-foreground mt-1">
                             Control plane

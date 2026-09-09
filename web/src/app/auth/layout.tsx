@@ -51,7 +51,7 @@ export default function AuthLayout({
                 {/* Mobile logo — white, on the sky, above the card */}
                 <a href={WEBSITE_URL} className="mb-5 flex w-fit items-center gap-2.5 mx-auto lg:hidden">
                     <Logo className="w-7 text-white" />
-                    <span className="font-extrabold text-[18px] tracking-tight text-white">Warmbly</span>
+                    <span className="font-extrabold text-[18px] tracking-tight text-white">Fullpilot</span>
                 </a>
 
                 {/* Card */}
@@ -61,7 +61,7 @@ export default function AuthLayout({
                         <AuthShowcase />
                         <a href={WEBSITE_URL} className="absolute left-8 top-8 z-20 flex items-center gap-2.5">
                             <Logo className="w-7 text-white" />
-                            <span className="font-extrabold text-[18px] tracking-tight text-white">Warmbly</span>
+                            <span className="font-extrabold text-[18px] tracking-tight text-white">Fullpilot</span>
                         </a>
                     </div>
 
@@ -89,7 +89,7 @@ export default function AuthLayout({
                             <div className="hidden items-center gap-3 pt-9 text-[12px] text-slate-400 lg:flex">
                                 <a href={`${WEBSITE_URL}/terms`} target="_blank" rel="noopener noreferrer" className="hover:text-slate-700 transition-colors">Terms</a>
                                 <a href={`${WEBSITE_URL}/privacy`} target="_blank" rel="noopener noreferrer" className="hover:text-slate-700 transition-colors">Privacy</a>
-                                <span className="ml-auto">© {new Date().getFullYear()} Warmbly</span>
+                                <span className="ml-auto">© {new Date().getFullYear()} Fullpilot</span>
                             </div>
                         </div>
                     </div>
@@ -101,7 +101,7 @@ export default function AuthLayout({
                     <span className="text-white/40">·</span>
                     <a href={`${WEBSITE_URL}/privacy`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Privacy</a>
                     <span className="text-white/40">·</span>
-                    <span>© {new Date().getFullYear()} Warmbly</span>
+                    <span>© {new Date().getFullYear()} Fullpilot</span>
                 </div>
             </div>
         </div>

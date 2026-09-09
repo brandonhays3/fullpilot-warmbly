@@ -2488,7 +2488,7 @@ function ActionEditor({
     const isNative = isNativeAction(data.action ?? "");
     const selectedConn = isNative ? NATIVE_CONNECTION : (data.connection_id ?? "");
     const connOptions: SelectOption[] = [
-        { value: NATIVE_CONNECTION, label: "Warmbly (built-in)", icon: <ZapIcon className="size-3.5 shrink-0 text-indigo-600" /> },
+        { value: NATIVE_CONNECTION, label: "Fullpilot (built-in)", icon: <ZapIcon className="size-3.5 shrink-0 text-indigo-600" /> },
         ...targets.map((c) => ({
             value: c.id,
             label: connLabel(c.id),
@@ -2609,7 +2609,7 @@ function PrioritySegment({ value, onChange }: { value: string; onChange: (p: str
 
 const NATIVE_CURRENCIES: SelectOption[] = ["USD", "EUR", "GBP", "CAD", "AUD"].map((c) => ({ value: c, label: c }));
 
-// NativeActionConfig renders the right editor for a built-in (Warmbly) action.
+// NativeActionConfig renders the right editor for a built-in (Fullpilot) action.
 function NativeActionConfig({
     action,
     trigger,

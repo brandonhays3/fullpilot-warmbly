@@ -171,7 +171,7 @@ export default function APIKeysPage() {
                             body={
                                 search
                                     ? "Try a shorter search."
-                                    : "Create a key to start calling Warmbly from your server or CI."
+                                    : "Create a key to start calling Fullpilot from your server or CI."
                             }
                             cta={
                                 !search && (

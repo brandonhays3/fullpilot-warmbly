@@ -82,7 +82,7 @@ export default function AutomationsPage() {
 
     return (
         <Page>
-            <PageTopbar eyebrow="Automations" subtitle="When something happens in Warmbly, do this across your integrations">
+            <PageTopbar eyebrow="Automations" subtitle="When something happens in Fullpilot, do this across your integrations">
                 <TopbarAction
                     onClick={newAutomation}
                     icon={create.isPending ? <Loader2Icon className="w-3.5 h-3.5 animate-spin" /> : <PlusIcon className="w-3.5 h-3.5" />}

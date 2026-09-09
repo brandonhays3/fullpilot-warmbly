@@ -229,7 +229,7 @@ export default function WorkersPage() {
         <div>
             <PageHeader
                 title="Workers"
-                description="Physical worker processes managed over SSH. One worker = one machine running the Warmbly worker binary."
+                description="Physical worker processes managed over SSH. One worker = one machine running the Fullpilot worker binary."
             >
                 <Button size="sm" asChild>
                     <Link to="/workers/new">

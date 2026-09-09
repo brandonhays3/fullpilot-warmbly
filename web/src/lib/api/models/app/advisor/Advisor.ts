@@ -96,7 +96,7 @@ export interface AdvisorFinding {
     // False for anything living outside it, like a DNS record, so those show
     // their steps rather than a button that cannot succeed.
     agent_fixable?: boolean;
-    // Exact values to paste somewhere Warmbly cannot reach, such as a DNS
+    // Exact values to paste somewhere Fullpilot cannot reach, such as a DNS
     // record at a registrar.
     snippets?: AdvisorSnippet[];
     // False while the card carries the built-in copy rather than AI-written

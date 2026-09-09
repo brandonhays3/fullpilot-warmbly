@@ -2,7 +2,7 @@
 //
 // Reads as one continuous line across the entire top of the shell:
 //
-//   [Warmbly logo]  >  [Org picker]  >  [Current section]      [⌘K  ⚡]
+//   [Fullpilot logo]  >  [Org picker]  >  [Current section]      [⌘K  ⚡]
 //
 // The logo sits over the sidebar column, the org picker + section live
 // in the open area, the right side has connection indicator + search.
@@ -106,14 +106,14 @@ export function AppHeader({ onMenu }: { onMenu?: () => void }) {
                     slight warm shift on hover. The earlier blue-gray
                     was too pale and competed with the chrome rather
                     than anchoring it. */}
-                <Logo className="w-7 text-slate-900 group-hover:text-slate-700 transition-colors duration-150" />
+                <Logo className="w-7 text-sky-600 group-hover:text-sky-700 transition-colors duration-150" />
                 {/* Wordmark hides on mobile — the mark + the drawer's own brand
                     header carry it there, leaving room for the workspace pill. */}
                 <span
                     style={{ fontFamily: "var(--font-display)" }}
                     className="hidden md:inline font-extrabold text-[15.5px] tracking-tight text-slate-900"
                 >
-                    Warmbly
+                    Fullpilot
                 </span>
             </Link>
 

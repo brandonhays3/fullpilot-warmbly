@@ -564,7 +564,7 @@ export default function LoginPage() {
                 // is signed in: land in the dashboard.
                 if (!res.code_required) {
                     if (res.token) {
-                        toast.success("Welcome to Warmbly!");
+                        toast.success("Welcome to Fullpilot!");
                         await completeSession(res.token);
                         return;
                     }
@@ -622,7 +622,7 @@ export default function LoginPage() {
                 } else {
                     const created = await registerConfirmMutation.mutateAsync({ session, code, turnstile: token });
                     if (created?.token) {
-                        toast.success("Welcome to Warmbly!");
+                        toast.success("Welcome to Fullpilot!");
                         await completeSession(created.token);
                         return;
                     }

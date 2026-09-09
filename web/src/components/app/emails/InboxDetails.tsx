@@ -65,7 +65,6 @@ import UpdateCredentialsDialog from "./UpdateCredentialsDialog";
 import EmailEditor from "../EmailEditor";
 import SendingBehaviorTab from "./SendingBehaviorTab";
 import SyncStatusCard from "./SyncStatusCard";
-import CloudWarmupCard from "./CloudWarmupCard";
 import useCloudPool from "@/hooks/useCloudPool";
 import { Toggle } from "@/components/app/campaigns/preferences/components/CampaignPreferenceBoolBox";
 import useSendingBehavior from "@/lib/api/hooks/app/emails/useSendingBehavior";
@@ -200,7 +199,7 @@ function SendHoldControl({ mailboxId, state }: { mailboxId: string; state?: impo
             <div className="min-w-0">
                 <div className="text-[12.5px] font-medium text-slate-900">Hold from campaigns</div>
                 <div className="text-[11px] text-slate-400">
-                    Keeps this mailbox out of campaign sending until you turn the hold off. Warmup is not affected, and Warmbly never releases a hold on its own.
+                    Keeps this mailbox out of campaign sending until you turn the hold off. Warmup is not affected, and Fullpilot never releases a hold on its own.
                 </div>
             </div>
             <div className="shrink-0">
@@ -1047,7 +1046,7 @@ function WarmupTab({ form, update, status, mailbox, canWarmup = true }: { form: 
     const off = !mailbox.warmup;
     const paused = !!mailbox.warmup && !!mailbox.warmup_paused_at;
     const active = !!mailbox.warmup && !mailbox.warmup_paused_at;
-    // When Warmbly Cloud warms this mailbox the local controls step aside.
+    // When Fullpilot Cloud warms this mailbox the local controls step aside.
     const pool = useCloudPool();
     const inCloud = pool.connected && pool.isEnrolled(mailbox.id);
 
@@ -1077,8 +1076,6 @@ function WarmupTab({ form, update, status, mailbox, canWarmup = true }: { form: 
         <div className="divide-y divide-slate-200/60">
             {/* Ban banner + appeal — only when the mailbox is blocked from the pool */}
             <WarmupBanBanner emailId={mailbox.id} />
-
-            <CloudWarmupCard mailboxId={mailbox.id} email={mailbox.email} provider={mailbox.provider} />
 
             {/* Lifecycle control */}
             {!inCloud && (
@@ -1184,7 +1181,7 @@ function WarmupTab({ form, update, status, mailbox, canWarmup = true }: { form: 
                     <div className="rounded-md border border-sky-100 bg-sky-50/70 px-3 py-2.5 flex gap-2.5">
                         <ShieldCheckIcon className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
                         <p className="text-[11.5px] text-sky-900/90 leading-relaxed">
-                            This mailbox is active in a campaign. Warmbly keeps a low volume of
+                            This mailbox is active in a campaign. Fullpilot keeps a low volume of
                             {" "}<b>health-check warmup (~5/day)</b> flowing{active ? "" : " even while warmup is off"} so we can
                             continuously watch deliverability while it sends cold outreach.
                         </p>
@@ -1383,7 +1380,7 @@ function TrackingDomainCard({ mailbox }: { mailbox: Inbox }) {
             {!problem && normalized && status.data && !target && (
                 <div className="flex items-start gap-1.5 text-[11.5px] text-amber-700">
                     <AlertTriangleIcon className="w-3.5 h-3.5 shrink-0 mt-px" />
-                    <span>This Warmbly install has no tracking host configured, so a custom domain cannot be verified yet. Ask your administrator to set TRACKING_DOMAIN.</span>
+                    <span>This Fullpilot install has no tracking host configured, so a custom domain cannot be verified yet. Ask your administrator to set TRACKING_DOMAIN.</span>
                 </div>
             )}
 
@@ -1520,7 +1517,7 @@ function SettingsTab({ form, update, mailbox }: { form: Inbox; update: (p: Parti
                                 Keep a copy of sent mail
                             </div>
                             <div className="text-[11px] text-slate-400">
-                                Files each message Warmbly sends into this mailbox's Sent
+                                Files each message Fullpilot sends into this mailbox's Sent
                                 folder. Turn it off if your provider already saves one, or
                                 you will see every message twice.
                             </div>

@@ -569,7 +569,7 @@ function RegisterModal({ onClose }: { onClose: () => void }) {
                                     {step === 4 && (
                                         <>
                                             <p className="text-[12px] text-slate-500 leading-relaxed">
-                                                Optionally receive Warmbly events over webhooks. Each org that authorizes the app gets its own
+                                                Optionally receive Fullpilot events over webhooks. Each org that authorizes the app gets its own
                                                 signed delivery stream, scoped to what that org granted. You can skip this and add it later.
                                             </p>
                                             <div>
@@ -1324,7 +1324,7 @@ export default function OAuthAppsPage() {
     return (
         <SectionShell
             title="OAuth apps"
-            description="Apps that connect to Warmbly on a user's behalf via OAuth2."
+            description="Apps that connect to Fullpilot on a user's behalf via OAuth2."
             actions={
                 tab === "apps" ? (
                     <button
@@ -1373,7 +1373,7 @@ export default function OAuthAppsPage() {
                             list.length === 0 ? (
                                 <EmptyBlock
                                     title="No OAuth apps yet"
-                                    body="Register an app to let it request scoped access to Warmbly accounts via OAuth2."
+                                    body="Register an app to let it request scoped access to Fullpilot accounts via OAuth2."
                                 />
                             ) : (
                                 <div className="space-y-2">

@@ -39,7 +39,7 @@ export interface FeatureAccess {
     billing: boolean;
     /** Active subscription on any paid tier. */
     paid: boolean;
-    /** Hosted workspace without a subscription: only mailboxes, the Warmbly
+    /** Hosted workspace without a subscription: only mailboxes, the Fullpilot
      *  Cloud link and settings are open; everything else waits for a plan. */
     locked: boolean;
     /** Unified inbox — free trial and Starter+. */

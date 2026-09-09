@@ -18,7 +18,7 @@
 // OAuth popup posts {type:"email_oauth_callback", code, state} back here
 // via window.postMessage; we then call OAuth-finish with the user's bearer.
 //
-// Linked to Warmbly Cloud: the consent runs on the cloud's app, the popup
+// Linked to Fullpilot Cloud: the consent runs on the cloud's app, the popup
 // returns to /cloud-oauth/done, and we redeem its session via /cloud-link/oauth/finish.
 
 import React from "react";
@@ -152,7 +152,7 @@ export default function AddEmailModal() {
     // of our callback page (desktop-type OAuth client). The panel then shows a
     // field to paste the address the window landed on.
     const [manualPaste, setManualPaste] = React.useState<{ provider: OAuthProvider; state: string } | null>(null);
-    // A consent running on Warmbly Cloud's app; redeemed by session, not code.
+    // A consent running on Fullpilot Cloud's app; redeemed by session, not code.
     const pendingCloud = React.useRef<{ provider: OAuthProvider; session: string } | null>(null);
     const pool = useCloudPool();
     const viaCloud = pool.connected;
@@ -266,7 +266,7 @@ export default function AddEmailModal() {
                 }),
                 {
                     loading: "Adding the mailbox…",
-                    success: "Mailbox connected. Warmbly Cloud warms it from now on.",
+                    success: "Mailbox connected. Fullpilot Cloud warms it from now on.",
                     error: (e: AppError) => buildError(e),
                 },
             )
@@ -612,20 +612,6 @@ function ProviderNotConfigured({ provider, selfHosted }: { provider: OAuthProvid
     const { label, vars } = PROVIDER_SETUP[provider];
     return (
         <div className="p-4">
-            {selfHosted && (
-                <div className="mb-3 rounded-md border border-sky-200 bg-sky-50 p-3 flex items-start gap-2.5">
-                    <CloudIcon className="w-4 h-4 text-sky-600 mt-0.5 shrink-0" />
-                    <div className="min-w-0">
-                        <p className="text-[12.5px] font-medium text-sky-900">Skip the OAuth setup: connect Warmbly Cloud</p>
-                        <p className="text-[12.5px] text-sky-800 mt-1">
-                            Linked instances sign mailboxes in through Warmbly's own Google and Microsoft apps, and the cloud warms them. Free for 10 mailboxes.
-                        </p>
-                        <a href="/app/settings/warmbly-cloud" className="mt-2 inline-flex h-7 px-2.5 items-center gap-1.5 rounded-md bg-sky-600 hover:bg-sky-700 text-white text-[12px] font-medium transition-colors">
-                            Connect Warmbly Cloud
-                        </a>
-                    </div>
-                </div>
-            )}
             <div className="rounded-md border border-amber-200 bg-amber-50 p-3">
                 <div className="flex items-start gap-2.5">
                     <SettingsIcon className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
@@ -636,7 +622,7 @@ function ProviderNotConfigured({ provider, selfHosted }: { provider: OAuthProvid
                         <p className="text-[12.5px] text-amber-800 mt-1">
                             Connecting these mailboxes needs an OAuth client. Add both values to
                             the <code className="bg-white/70 px-1 rounded">.env</code> at the root of
-                            your Warmbly install, then restart with{" "}
+                            your Fullpilot install, then restart with{" "}
                             <code className="bg-white/70 px-1 rounded">make up</code>.
                         </p>
                         <ul className="mt-2 space-y-1">
@@ -682,14 +668,14 @@ function PickProvider({ onPick, viaCloud, onAdopted }: { onPick: (v: View) => vo
             key: "gmail",
             icon: <Google className="w-5 h-5" />,
             title: "Gmail / Google Workspace",
-            sub: viaCloud ? "Sign in through Warmbly Cloud. Warmup included, no OAuth app needed." : "OAuth via Google. Best deliverability for Gmail.",
+            sub: viaCloud ? "Sign in through Fullpilot Cloud. Warmup included, no OAuth app needed." : "OAuth via Google. Best deliverability for Gmail.",
             tone: "primary",
         },
         {
             key: "outlook",
             icon: <Outlook className="w-5 h-5" />,
             title: "Outlook / Microsoft 365",
-            sub: viaCloud ? "Sign in through Warmbly Cloud. Warmup included, no OAuth app needed." : "OAuth via Microsoft. Native sync for Outlook accounts.",
+            sub: viaCloud ? "Sign in through Fullpilot Cloud. Warmup included, no OAuth app needed." : "OAuth via Microsoft. Native sync for Outlook accounts.",
             tone: "primary",
         },
         {
@@ -734,7 +720,7 @@ function PickProvider({ onPick, viaCloud, onAdopted }: { onPick: (v: View) => vo
     );
 }
 
-// Mailboxes connected directly on the linked Warmbly Cloud workspace: one
+// Mailboxes connected directly on the linked Fullpilot Cloud workspace: one
 // click brings each one here, sending with tokens the cloud brokers.
 function WorkspaceMailboxes({ onAdopted }: { onAdopted: () => void }) {
     const list = useCloudWorkspaceMailboxes();
@@ -760,7 +746,7 @@ function WorkspaceMailboxes({ onAdopted }: { onAdopted: () => void }) {
         <div className="px-4 py-3 bg-sky-50/40">
             <div className="flex items-center gap-1.5 mb-2">
                 <CloudIcon className="w-3.5 h-3.5 text-sky-600" />
-                <span className="text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium">In your Warmbly Cloud workspace</span>
+                <span className="text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium">In your Fullpilot Cloud workspace</span>
             </div>
             <div className="space-y-1.5">
                 {items.map((m) => (
@@ -824,7 +810,7 @@ function OAuthPanel({
                     </div>
                     <div className="text-[11.5px] text-slate-500">
                         {viaCloud
-                            ? `Warmbly Cloud opens the ${label} window on its own app. Approve and you're done.`
+                            ? `Fullpilot Cloud opens the ${label} window on its own app. Approve and you're done.`
                             : `We'll open a ${label} window. Approve the scopes and you're done.`}
                     </div>
                 </div>
@@ -833,7 +819,7 @@ function OAuthPanel({
             {viaCloud ? (
                 <ul className="text-[11.5px] text-slate-600 space-y-1.5 px-1">
                     <Scope>Sends campaigns and syncs replies from this server, as usual</Scope>
-                    <Scope>Warmbly Cloud keeps the sign-in and warms the mailbox in its pool</Scope>
+                    <Scope>Fullpilot Cloud keeps the sign-in and warms the mailbox in its pool</Scope>
                     <Scope>The mailbox also appears in your cloud workspace; remove it from either side</Scope>
                 </ul>
             ) : (

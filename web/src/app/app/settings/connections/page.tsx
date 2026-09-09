@@ -1,5 +1,5 @@
 // Connections: external MCP servers that add tools to the AI assistant. Admin
-// connects a server, reviews the tools Warmbly discovered, then enables it. Once
+// connects a server, reviews the tools Fullpilot discovered, then enables it. Once
 // enabled, the assistant can use those tools, always asking before it runs one.
 
 import React from "react";
@@ -40,7 +40,7 @@ export default function ConnectionsSettingsPage() {
     return (
         <SectionShell
             title="Connections"
-            description="Connect external MCP servers to give the AI assistant extra tools. Warmbly discovers each server's tools; you review and enable them. The assistant always asks before running an external tool."
+            description="Connect external MCP servers to give the AI assistant extra tools. Fullpilot discovers each server's tools; you review and enable them. The assistant always asks before running an external tool."
             actions={
                 canManage ? (
                     <button

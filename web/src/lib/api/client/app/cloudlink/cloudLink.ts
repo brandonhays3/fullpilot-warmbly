@@ -1,4 +1,4 @@
-// /cloud-link/* — the self-hosted instance's link to Warmbly Cloud.
+// /cloud-link/* — the self-hosted instance's link to Fullpilot Cloud.
 
 import Request from "@/lib/api/client/Request";
 import type {
@@ -49,7 +49,7 @@ export async function setCloudLinkMailboxLifecycle(id: string, action: "pause" |
     return await Request<CloudLinkMailboxRow>({ method: "POST", url: `/cloud-link/mailboxes/${id}/${action}`, authorization: true });
 }
 
-// Cloud-managed mailboxes: Google/Microsoft sign-in through Warmbly Cloud's own
+// Cloud-managed mailboxes: Google/Microsoft sign-in through Fullpilot Cloud's own
 // OAuth app, and adoption of mailboxes connected directly on the workspace.
 
 export async function startCloudOAuth(provider: "gmail" | "outlook"): Promise<CloudLinkOAuthStart> {

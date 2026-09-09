@@ -1,4 +1,4 @@
-// Landing page for the Google/Microsoft popup that Warmbly Cloud ran on a
+// Landing page for the Google/Microsoft popup that Fullpilot Cloud ran on a
 // linked instance's behalf. Hands the session back to the opener (the Add
 // account dialog) and closes; without an opener it explains what happened.
 
@@ -50,7 +50,7 @@ export default function CloudOAuthDonePage() {
                     {delivered
                         ? "This window closes on its own."
                         : status === "ok"
-                          ? "Go back to the Warmbly tab; the mailbox is being added there."
+                          ? "Go back to the Fullpilot tab; the mailbox is being added there."
                           : message || error || "Try again from Add account."}
                 </p>
                 {!delivered && (

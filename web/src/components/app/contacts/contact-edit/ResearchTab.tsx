@@ -58,7 +58,7 @@ export default function ResearchTab({ contactId }: { contactId: string }) {
                     Research this contact
                 </div>
                 <p className="text-[11.5px] text-slate-500 mt-1 leading-relaxed">
-                    Warmbly searches the public web for current, cited facts about this person and
+                    Fullpilot searches the public web for current, cited facts about this person and
                     their company.{metered ? " Costs 2 AI credits per run." : ""}
                 </p>
                 <div className="mt-2.5 flex items-center gap-2">

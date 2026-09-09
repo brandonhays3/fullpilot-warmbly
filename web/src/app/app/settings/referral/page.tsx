@@ -64,7 +64,7 @@ export default function ReferralSettingsPage() {
     return (
         <SectionShell
             title="Refer & earn"
-            description="Invite other teams to Warmbly and earn account credit on your invoices."
+            description="Invite other teams to Fullpilot and earn account credit on your invoices."
         >
             <Section
                 eyebrow="How it works"

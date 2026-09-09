@@ -165,7 +165,7 @@ export default function FormsDomainCard() {
             )}
 
             <p className="lg:col-span-2 text-[11px] text-slate-400">
-                Until it verifies, links keep working on the shared host. Warmbly re-checks hourly, so a record that
+                Until it verifies, links keep working on the shared host. Fullpilot re-checks hourly, so a record that
                 finishes propagating starts being used on its own, and one that stops pointing here stops being used
                 instead of quietly breaking links.
             </p>

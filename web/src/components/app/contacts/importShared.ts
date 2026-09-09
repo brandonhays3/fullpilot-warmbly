@@ -35,7 +35,7 @@ export const VERIFICATION_VOCABULARY_LABELS: Record<string, string> = {
     debounce: "DeBounce",
     clearout: "Clearout",
     emaillistverify: "EmailListVerify",
-    builtin: "Warmbly",
+    builtin: "Fullpilot",
 };
 
 export const DEDUP_OPTIONS: { id: ImportDedupStrategy; label: string; hint: string }[] = [

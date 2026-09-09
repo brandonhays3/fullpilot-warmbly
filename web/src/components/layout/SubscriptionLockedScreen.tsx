@@ -47,7 +47,7 @@ export default function SubscriptionLockedScreen({ feature }: { feature: string 
                         {feature} unlocks with a plan.
                     </h1>
                     <p className="mt-3 text-[14px] text-slate-500 leading-relaxed max-w-xl mx-auto">
-                        Your workspace is free forever for warming mailboxes. Pick how you want to send: connect mailboxes here, run Warmbly on your own server,
+                        Your workspace is free forever for warming mailboxes. Pick how you want to send: connect mailboxes here, run Fullpilot on your own server,
                         or choose a plan for the full hosted product.
                     </p>
                 </div>
@@ -57,14 +57,14 @@ export default function SubscriptionLockedScreen({ feature }: { feature: string 
                         icon={InboxIcon}
                         eyebrow="Included"
                         title="Warm up to 10 mailboxes"
-                        body="Connect mailboxes and they warm in the Warmbly pool at no cost, with replies and spam rescue handled for you."
+                        body="Connect mailboxes and they warm in the Fullpilot pool at no cost, with replies and spam rescue handled for you."
                         cta="Go to mailboxes"
                         to="/app/emails"
                     />
                     <Path
                         icon={ServerIcon}
                         eyebrow="Free"
-                        title="Self-host Warmbly"
+                        title="Self-host Fullpilot"
                         body="Run the whole platform on your server, unlimited, then link the instance so this workspace warms its mailboxes."
                         cta="Self-host guide"
                         href={SELF_HOST_DOCS}
@@ -73,7 +73,7 @@ export default function SubscriptionLockedScreen({ feature }: { feature: string 
                     <Path
                         icon={CloudIcon}
                         eyebrow={starter.priceMonthly != null ? `From $${starter.priceMonthly}/mo` : "Plans"}
-                        title="Send from Warmbly Cloud"
+                        title="Send from Fullpilot Cloud"
                         body="Campaigns, the unified inbox, contacts, CRM, automations and integrations on our infrastructure."
                         bullets={starter.bullets}
                         cta={isOwner ? "Choose a plan" : "See plans"}

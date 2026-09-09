@@ -1,5 +1,5 @@
 // Prebuilt automation starting points. Each is a full graph the "New automation"
-// menu / empty state can instantiate. They lean on native (Warmbly built-in)
+// menu / empty state can instantiate. They lean on native (Fullpilot built-in)
 // actions so they work without any external connection — the user just fills in
 // the specifics (which tag, which pipeline) the template can't know.
 

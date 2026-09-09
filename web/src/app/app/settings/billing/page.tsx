@@ -385,7 +385,7 @@ export default function BillingSettingsPage() {
                                 >
                                     <Row
                                         label="Payment method"
-                                        description="Cards are held by Stripe and never touch Warmbly, so they are read and changed in the portal."
+                                        description="Cards are held by Stripe and never touch Fullpilot, so they are read and changed in the portal."
                                     >
                                         <button
                                             type="button"

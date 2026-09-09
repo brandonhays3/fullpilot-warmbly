@@ -1524,7 +1524,7 @@ export default function CampaignFlow({ campaignId }: { campaignId: string }) {
                         label: wt || undefined,
                         reconnectable: true,
                         style: edgeStyle(true),
-                        labelStyle: { fill: "#0369a1", fontSize: 10 },
+                        labelStyle: { fill: "#0a48a3", fontSize: 10 },
                         labelBgStyle: { fill: "#fff", stroke: "#bae6fd" },
                         labelBgPadding: [5, 3],
                         labelBgBorderRadius: 5,

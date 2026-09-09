@@ -163,7 +163,7 @@ export type IntegrationAction =
     | "salesforce.upsert_contact"
     | "close.upsert_lead"
     | "webhook.ping"
-    // Native (Warmbly built-in) automation actions — no external connection.
+    // Native (Fullpilot built-in) automation actions — no external connection.
     | "warmbly.add_tag"
     | "warmbly.remove_tag"
     | "warmbly.create_task"
@@ -306,7 +306,7 @@ export const REPLY_INTENT_OPTIONS: { value: string; label: string }[] = [
     { value: "out_of_office", label: "Out of office" },
 ];
 
-// Human labels for the Warmbly event vocabulary (subset surfaced as triggers).
+// Human labels for the Fullpilot event vocabulary (subset surfaced as triggers).
 export const EVENT_LABELS: Record<string, string> = {
     "campaign.reply_received": "Prospect replies",
     "contact.created": "Contact created",

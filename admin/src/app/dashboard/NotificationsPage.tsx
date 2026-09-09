@@ -366,7 +366,7 @@ export default function NotificationsPage() {
                                             />
                                             <p className="text-xs text-muted-foreground">
                                                 Signs the body as{" "}
-                                                <code>X-Warmbly-Signature: t=&lt;unix&gt;,v1=&lt;hex&gt;</code>, the
+                                                <code>X-Fullpilot-Signature: t=&lt;unix&gt;,v1=&lt;hex&gt;</code>, the
                                                 same scheme customer webhooks use.
                                             </p>
                                         </div>

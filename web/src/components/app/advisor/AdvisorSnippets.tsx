@@ -1,4 +1,4 @@
-// The exact values to paste, for a fix that lives outside Warmbly.
+// The exact values to paste, for a fix that lives outside Fullpilot.
 //
 // "Add an SPF record" is where most people stop, because the hard part was never
 // the instruction, it was knowing what to type. So the DNS findings hand over

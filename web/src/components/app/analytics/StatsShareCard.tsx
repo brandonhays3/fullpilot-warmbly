@@ -3,7 +3,7 @@ import { Logo } from "@/components/svg";
 import { type ChartPoint } from "@/components/ui/charts";
 
 // A branded analytics card rasterized to a shareable PNG (see useExportCard).
-// Design: a flat branded sky background, the Warmbly logo white on the sky, and
+// Design: a flat branded sky background, the Fullpilot logo white on the sky, and
 // one clean white panel holding the title, metrics, and area chart.
 //
 // Capture-safe for html-to-image (SVG foreignObject):
@@ -119,7 +119,7 @@ function ShareAreaChart({ points }: { points: ChartPoint[] }) {
                         <path
                             d={line}
                             fill="none"
-                            stroke="#0284c7"
+                            stroke="#0c58c6"
                             strokeWidth={3}
                             strokeLinejoin="round"
                             strokeLinecap="round"
@@ -179,7 +179,7 @@ const StatsShareCard = React.forwardRef<HTMLDivElement, { data: ShareCardData; a
                                 className="text-white font-extrabold tracking-tight"
                                 style={{ fontFamily: "var(--font-display)", fontSize: wordmarkSize }}
                             >
-                                Warmbly
+                                Fullpilot
                             </span>
                         </div>
                         <span className="font-mono text-[15px] tabular-nums text-white/85">

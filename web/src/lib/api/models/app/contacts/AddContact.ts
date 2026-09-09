@@ -7,7 +7,7 @@ export default interface AddContact {
     campaigns: string[];
     categories?: string[];
 
-    // A verdict you already hold for the address, in Warmbly's vocabulary or
+    // A verdict you already hold for the address, in Fullpilot's vocabulary or
     // any known provider's (ZeroBounce, MillionVerifier, NeverBounce, ...).
     verification_status?: string;
     verification_provider?: string;

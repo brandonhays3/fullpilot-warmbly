@@ -1,5 +1,5 @@
 // Webhooks — a Settings section. Workspaces register HTTPS endpoints here and
-// Warmbly POSTs an HMAC-signed callback whenever a subscribed event fires. Each
+// Fullpilot POSTs an HMAC-signed callback whenever a subscribed event fires. Each
 // endpoint is issued a signing secret once (verify it by replying 2xx to a test
 // event), subscribes to a set of event types, and keeps a per-attempt delivery
 // log you can filter and redeliver from. High-volume "firehose" events are only

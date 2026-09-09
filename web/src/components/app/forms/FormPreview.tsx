@@ -492,7 +492,7 @@ export default function FormPreview({
                         </div>
                         <div className="brand">
                             <a href="https://warmbly.com" target="_blank" rel="noopener noreferrer" onClick={(e) => e.preventDefault()}>
-                                Powered by Warmbly
+                                Powered by Fullpilot
                             </a>
                         </div>
                     </main>

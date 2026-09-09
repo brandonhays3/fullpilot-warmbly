@@ -1,4 +1,4 @@
-// Settings → Data. Move this workspace to or from another Warmbly instance.
+// Settings → Data. Move this workspace to or from another Fullpilot instance.
 //
 // Backed by:
 //   GET    /organization/current/transfer/groups
@@ -33,7 +33,7 @@ export default function DataSettingsPage() {
         return (
             <SectionShell
                 title="Data"
-                description="Move this workspace to or from another Warmbly instance."
+                description="Move this workspace to or from another Fullpilot instance."
             >
                 <Section eyebrow="Restricted">
                     <p className="text-[12.5px] text-slate-500 leading-relaxed">
@@ -49,7 +49,7 @@ export default function DataSettingsPage() {
     return (
         <SectionShell
             title="Data"
-            description="Move this workspace to or from another Warmbly instance."
+            description="Move this workspace to or from another Fullpilot instance."
         >
             <Section
                 eyebrow="Export"

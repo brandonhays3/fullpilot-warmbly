@@ -1,14 +1,14 @@
 {
-  "name": "Warmbly",
-  "short_name": "Warmbly",
-  "description": "The deliverability platform for cold email. Warm your inboxes, send at scale, keep your reputation clean.",
+  "name": "Fullpilot",
+  "short_name": "Fullpilot",
+  "description": "Fullpilot outreach: warm your inboxes, send at scale, keep your reputation clean.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "lang": "en",
-  "theme_color": "#0284c7",
-  "background_color": "#0369a1",
+  "theme_color": "#0c58c6",
+  "background_color": "#ffffff",
   "icons": [
     {
       "src": "/favicon-96x96.png",

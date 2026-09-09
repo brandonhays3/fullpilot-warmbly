@@ -23,7 +23,7 @@ import { THEME_PRESETS, applyThemePreset, type ThemePreset } from "./themePreset
 
 type GroupKey = "theme" | "layout" | "header" | "cover" | "branding" | "colors" | "button";
 
-const SWATCHES = ["#0284c7", "#7c3aed", "#db2777", "#dc2626", "#ea580c", "#ca8a04", "#16a34a", "#0d9488", "#0f172a", "#475569"];
+const SWATCHES = ["#0c58c6", "#7c3aed", "#db2777", "#dc2626", "#ea580c", "#ca8a04", "#16a34a", "#0d9488", "#0f172a", "#475569"];
 const HEX_RE = /^#[0-9a-fA-F]{6}$/;
 
 function ColorField({
@@ -587,8 +587,8 @@ export default function DesignPanel({
                 )}
             </DesignGroup>
 
-            <DesignGroup title="Colors" hint={design.accent_color || "#0284c7"} {...group("colors")}>
-                <ColorField label="Accent" value={design.accent_color} fallback="#0284c7" onChange={(v) => onChange({ accent_color: v })} swatches />
+            <DesignGroup title="Colors" hint={design.accent_color || "#0c58c6"} {...group("colors")}>
+                <ColorField label="Accent" value={design.accent_color} fallback="#0c58c6" onChange={(v) => onChange({ accent_color: v })} swatches />
                 <div className="grid grid-cols-2 gap-3">
                     <ColorField label="Page background" value={design.page_background} fallback="#f8fafc" onChange={(v) => onChange({ page_background: v })} />
                     {gradientOpen ? (
@@ -638,7 +638,7 @@ export default function DesignPanel({
                     <TextInput value={design.button_text ?? ""} onChange={(v) => onChange({ button_text: v })} placeholder="Submit" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                    <ColorField label="Background" value={design.button_background} fallback="#0284c7" onChange={(v) => onChange({ button_background: v })} />
+                    <ColorField label="Background" value={design.button_background} fallback="#0c58c6" onChange={(v) => onChange({ button_background: v })} />
                     <ColorField label="Text color" value={design.button_text_color} fallback="#ffffff" onChange={(v) => onChange({ button_text_color: v })} />
                 </div>
                 <div>

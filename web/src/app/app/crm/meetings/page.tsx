@@ -2,7 +2,7 @@
 //
 // Two sources feed this page:
 //   1. Manual — meetings the user schedules/logs here with "New meeting"
-//      (source "manual"); created instantly in Warmbly, no external site.
+//      (source "manual"); created instantly in Fullpilot, no external site.
 //   2. Auto — calls a prospect self-books through a connected Calendly / Cal.com
 //      link, captured over that provider's inbound webhook.
 //
@@ -113,7 +113,7 @@ function downloadICS(m: MeetingBooking) {
     const lines = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
-        "PRODID:-//Warmbly//Meetings//EN",
+        "PRODID:-//Fullpilot//Meetings//EN",
         "BEGIN:VEVENT",
         `UID:${m.id}@warmbly`,
         m.scheduled_for ? `DTSTART:${gcalStamp(m.scheduled_for)}` : "",
@@ -264,7 +264,7 @@ function MeetingRow({ m }: { m: MeetingBooking }) {
     const del = useDeleteMeeting();
 
     const remove = () =>
-        confirm.show("Delete this meeting? This only removes it from Warmbly.", async () => {
+        confirm.show("Delete this meeting? This only removes it from Fullpilot.", async () => {
             await del.mutateAsync(m.id);
             toast.success("Meeting deleted");
         });

@@ -143,7 +143,7 @@ function SelectOrgPageInner() {
                         style={{ fontFamily: "var(--font-display)" }}
                         className="font-bold text-[13px] tracking-tight text-slate-900 shrink-0"
                     >
-                        Warmbly
+                        Fullpilot
                     </span>
                     <div className="h-4 w-px bg-slate-200 shrink-0" />
                     <span className="text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium min-w-0 truncate">

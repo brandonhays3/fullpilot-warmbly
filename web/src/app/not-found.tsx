@@ -19,7 +19,7 @@ export default function NotFound() {
             className="text-[15px] font-medium text-slate-900"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Warmbly
+            Fullpilot
           </span>
         </div>
 

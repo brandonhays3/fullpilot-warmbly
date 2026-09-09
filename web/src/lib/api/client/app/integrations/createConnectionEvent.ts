@@ -9,7 +9,7 @@ export interface CreateConnectionEventInput {
     enabled?: boolean;
 }
 
-// Wires a Warmbly event (e.g. campaign.reply_received) to a provider action
+// Wires a Fullpilot event (e.g. campaign.reply_received) to a provider action
 // (e.g. slack.notify) on a connection.
 export default async function createConnectionEvent(
     input: CreateConnectionEventInput,

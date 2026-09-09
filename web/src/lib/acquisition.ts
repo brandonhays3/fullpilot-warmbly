@@ -23,7 +23,7 @@ export interface Acquisition {
 
 // The parameters carried across. The five UTM names are the conventional set
 // every ad platform and email tool already emits, so nothing has to be taught
-// a Warmbly-specific parameter.
+// a Fullpilot-specific parameter.
 export const UTM_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"] as const;
 
 // Values are clamped here as well as on the server, so a hand-edited link

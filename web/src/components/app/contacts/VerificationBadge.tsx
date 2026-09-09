@@ -26,7 +26,7 @@ const SUB_LABEL: Record<string, string> = {
 };
 
 const SOURCE_LABEL: Record<string, string> = {
-    probe: "checked by Warmbly",
+    probe: "checked by Fullpilot",
     provider: "checked by MillionVerifier",
     imported: "imported with the list",
     manual: "marked by a teammate",

@@ -264,7 +264,7 @@ export default function OutreachPage() {
         <div>
             <PageHeader
                 title="Outreach"
-                description="Send platform email from the Warmbly noreply address with a configurable Reply-To. Every message is audit-logged below."
+                description="Send platform email from the Fullpilot noreply address with a configurable Reply-To. Every message is audit-logged below."
             />
 
             <section className="border border-border rounded-lg bg-card p-4 mb-6">

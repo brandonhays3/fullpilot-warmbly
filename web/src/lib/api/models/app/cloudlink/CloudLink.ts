@@ -1,6 +1,6 @@
 // Shapes for the self-hosted warmup pool link, both sides.
 //
-// Self-hosted side:  GET/POST /cloud-link/*   (Settings > Warmbly Cloud)
+// Self-hosted side:  GET/POST /cloud-link/*   (Settings > Fullpilot Cloud)
 // Cloud side:        GET/POST /pool-link/*    (the /connect approval page and
 //                    the workspace's linked instances)
 
@@ -158,7 +158,7 @@ export interface CloudLinkMailboxRow {
     cloud?: PoolLinkMailboxState | null;
 }
 
-/** A Google or Microsoft consent started through Warmbly Cloud. */
+/** A Google or Microsoft consent started through Fullpilot Cloud. */
 export interface CloudLinkOAuthStart {
     url: string;
     session: string;

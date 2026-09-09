@@ -5,7 +5,7 @@
 //     No credentials are ever pasted. Providers without server credentials
 //     render as "coming soon".
 //   - api_key (Close, Zapier, Make, n8n): paste a provider token (Close) or a
-//     scoped Warmbly API key (Zapier/Make/n8n).
+//     scoped Fullpilot API key (Zapier/Make/n8n).
 //   - webhook (Discord): paste a channel webhook URL.
 //   - inbound webhook (Calendly, Cal.com): we mint an inbound URL on connect.
 //
@@ -77,7 +77,7 @@ const FIELDS_BY_PROVIDER: Record<string, FieldDef[]> = {
     ],
     // Zapier / Make / n8n need no credential to connect — see the note in the
     // overview step. We fan events to a per-automation webhook URL, and the
-    // reverse direction authenticates with a Warmbly API key created in the
+    // reverse direction authenticates with a Fullpilot API key created in the
     // API-keys page (pasted into the tool, not here).
     discord: [
         { key: "server", label: "Server name", placeholder: "Acme" },
@@ -207,10 +207,10 @@ export default function ConnectDrawer({
                             <div className="rounded-md border border-sky-200 bg-sky-50/50 px-3 py-2.5 space-y-1.5">
                                 <p className="text-[12px] text-slate-700 leading-relaxed">
                                     No key needed to connect. After connecting, add an automation that
-                                    sends Warmbly events to your {entry.name} webhook URL.
+                                    sends Fullpilot events to your {entry.name} webhook URL.
                                 </p>
                                 <p className="text-[11px] text-slate-500 leading-relaxed">
-                                    Want {entry.name} to call Warmbly back (e.g. create a contact)? Create a
+                                    Want {entry.name} to call Fullpilot back (e.g. create a contact)? Create a
                                     scoped key under Settings → API keys and paste it into {entry.name}.
                                 </p>
                             </div>

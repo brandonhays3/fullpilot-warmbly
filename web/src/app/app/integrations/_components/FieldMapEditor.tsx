@@ -1,4 +1,4 @@
-// FieldMapEditor — lets a user control exactly which Warmbly fields land in
+// FieldMapEditor — lets a user control exactly which Fullpilot fields land in
 // which provider fields for one CRM object. Standard fields (email/name/company/
 // phone) map automatically; rows here ADD or OVERRIDE on top of that default,
 // so the connection writes precisely what the user configured instead of a fixed
@@ -97,7 +97,7 @@ export default function FieldMapEditor({
                     return;
                 }
             } else if (!row.warmbly_field.trim()) {
-                toast.error(`The mapping for "${ext}" needs a Warmbly field`);
+                toast.error(`The mapping for "${ext}" needs a Fullpilot field`);
                 return;
             }
             out.push({
@@ -117,7 +117,7 @@ export default function FieldMapEditor({
     return (
         <div className="space-y-2.5">
             <p className="text-[11.5px] text-slate-500 leading-relaxed">
-                Email, name, company and phone map automatically. Add rows to send more Warmbly data
+                Email, name, company and phone map automatically. Add rows to send more Fullpilot data
                 into {object.label.toLowerCase()} fields, or override a default.
             </p>
 
@@ -139,7 +139,7 @@ export default function FieldMapEditor({
                                             onChange={(v) => patch(i, { warmbly_field: v })}
                                             options={warmblyOptions}
                                             className="w-full"
-                                            aria-label="Warmbly field"
+                                            aria-label="Fullpilot field"
                                         />
                                     )}
                                 </div>

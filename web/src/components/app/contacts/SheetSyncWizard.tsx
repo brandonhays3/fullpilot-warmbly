@@ -457,7 +457,7 @@ function ConnectStep({ busy, onConnect }: { busy: boolean; onConnect: () => void
                 </div>
                 <p className="text-[13px] text-slate-900 font-medium mt-3">Connect Google Sheets</p>
                 <p className="text-[11.5px] text-slate-500 mt-1 max-w-[42ch] mx-auto leading-relaxed">
-                    Authorize Warmbly to read your spreadsheets. We only read the rows of the tab
+                    Authorize Fullpilot to read your spreadsheets. We only read the rows of the tab
                     you choose — nothing is written back.
                 </p>
                 <button

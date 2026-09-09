@@ -537,7 +537,7 @@ export default function InstanceSettingsPage() {
                             <CardDescription>
                                 Gmail, Yahoo, and Outlook reject or spam-filter mail from a domain
                                 without SPF and DMARC, and one unauthenticated sender damages the
-                                reputation of every mailbox in the shared warmup pool. Warmbly
+                                reputation of every mailbox in the shared warmup pool. Fullpilot
                                 checks each sending domain daily and can stop cold sending and
                                 warmup from a domain that keeps failing. The grace period is how
                                 long a domain may keep failing first, so a DNS outage cannot stop

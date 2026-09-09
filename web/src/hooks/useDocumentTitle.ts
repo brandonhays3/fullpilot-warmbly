@@ -9,14 +9,14 @@ import { setFaviconBadge } from "@/lib/faviconBadge";
  * react-router is used here in declarative/library mode (createBrowserRouter +
  * RouterProvider, no SSR), so the framework-mode `meta` export does not apply.
  * Instead we keep one central route -> label map and set `document.title` on
- * every navigation. Titles read "Section | Warmbly" (mirrors the marketing
+ * every navigation. Titles read "Section | Fullpilot" (mirrors the marketing
  * site's separator); the bare brand is the fallback for unmapped routes.
  *
  * Called once from RootLayout, which renders the <Outlet/> for every route, so
  * a single hook covers auth, onboarding and the whole /app dashboard.
  */
 
-const BRAND = "Warmbly";
+const BRAND = "Fullpilot";
 
 // Static routes: exact pathname -> label. Dynamic segments (:id) are handled
 // by the parameterised list below.
@@ -36,7 +36,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/onboarding": "Welcome",
   "/select-org": "Select workspace",
   "/invite": "Join workspace",
-  "/setup": "Set up Warmbly",
+  "/setup": "Set up Fullpilot",
   "/oauth/authorize": "Authorize app",
   "/cloud-oauth/done": "Mailbox connected",
 
@@ -64,8 +64,6 @@ const ROUTE_TITLES: Record<string, string> = {
 
   // Settings
   "/app/settings/profile": "Profile",
-  "/app/settings/warmbly-cloud": "Warmbly Cloud",
-  "/connect": "Connect",
   "/cli": "Authorize CLI",
   "/app/settings/notifications": "Notifications",
   "/app/settings/security": "Security",
@@ -115,8 +113,8 @@ function titleForPath(pathname: string): string {
 }
 
 // Fold the current workspace in as context, before the brand:
-//   "Mailboxes | Warmbly"  ->  "Mailboxes · Acme | Warmbly"
-//   "Warmbly"              ->  "Acme | Warmbly"
+//   "Mailboxes | Fullpilot"  ->  "Mailboxes · Acme | Fullpilot"
+//   "Fullpilot"              ->  "Acme | Fullpilot"
 function withOrg(base: string, org?: string): string {
   if (!org) return base;
   const suffix = ` | ${BRAND}`;

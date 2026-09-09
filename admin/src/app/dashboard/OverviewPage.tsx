@@ -68,7 +68,7 @@ export default function OverviewPage() {
         <div>
             <PageHeader
                 title="Platform overview"
-                description="Snapshot of the Warmbly control plane. Live counts pull from /admin/analytics/overview every minute."
+                description="Snapshot of the Fullpilot control plane. Live counts pull from /admin/analytics/overview every minute."
             />
 
             <InstanceProblemsPanel />
