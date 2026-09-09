@@ -206,12 +206,53 @@ spam complaint never touches fullpilot.com's reputation. To move it: add an A
 record on the other domain, add a Caddy block for it, set `TRACKING_DOMAIN` in
 `.env`, `docker compose up -d`.
 
-Next: Gmail/Microsoft OAuth for mailbox connections (`BOX_GOOGLE_CLIENT_ID/SECRET`,
-`BOX_OUTLOOK_CLIENT_ID/SECRET`). Needs an OAuth client in Google Cloud Console
-(APIs & Services > Credentials) with redirect URI on https://api.portal.fullpilot.com
-(exact path: check `internal/` for the Gmail callback route), then add both vars to
-`.env` AND to every `worker-env-*.yaml`, restart the stack, re-run
-`create-worker-jobs.py`.
+## Gmail OAuth (Thunderbird's public client, localhost-redirect mode)
+
+Brandon's decision: use Thunderbird's public Google OAuth client instead of a
+Fullpilot-owned one, to skip Google's unverified-app screen and restricted-scope
+verification. Its client ID and secret are public in Thunderbird's source
+(`mailnews/base/src/OAuth2Providers.sys.mjs`). Caveat: it's a desktop-type
+client, so Google only lets it redirect to localhost, and using another
+product's client is against Google's API terms; Google could revoke it.
+
+Fork change (branch `fullpilot`, commit "Gmail OAuth: localhost redirect mode"):
+- `BOX_GOOGLE_REDIRECT_MODE=localhost` -> redirect_uri is
+  `http://localhost:17777/warmbly/oauth`, scope `https://mail.google.com/`.
+- `/emails/onboarding/oauth/start` returns `manual_redirect: true`; the connect
+  modal shows a paste field. The customer approves in the Google popup, lands on
+  a "localhost refused to connect" page, copies that address bar into the modal,
+  and Warmbly finishes from the `code` + `state` in it.
+- Reconnect-from-drawer flow (`web/src/lib/emails/emailOAuthPopup.ts`) is NOT
+  adapted yet; reconnecting a Gmail mailbox should go through Add mailbox.
+
+Env, set in `/opt/warmbly/.env` and in every `infra/worker-env-*.yaml`
+(secret via Secret Manager `warmbly-box-google-client-secret`):
+```
+BOX_GOOGLE_CLIENT_ID=406964657835-aq8lmia8j95dhl1a2bvharmfk3t1hgqj.apps.googleusercontent.com
+BOX_GOOGLE_CLIENT_SECRET=<Thunderbird's, in Secret Manager>
+BOX_GOOGLE_REDIRECT_MODE=localhost
+```
+To switch to a Fullpilot-owned client later: create a Web application OAuth
+client with redirect `https://api.portal.fullpilot.com/addresses/google/callback`,
+set the ID/secret, remove `BOX_GOOGLE_REDIRECT_MODE`, restart, re-run
+`create-worker-jobs.py`. No code change needed.
+
+Microsoft 365 (`BOX_OUTLOOK_CLIENT_ID/SECRET`) still needs an Entra app
+registration with redirect `https://api.portal.fullpilot.com/addresses/outlook/callback`.
+
+## Current production images
+
+Since 2026-09-09 17:36 UTC every service runs Fullpilot-built images
+(`us-docker.pkg.dev/data-286013/fullpilot/<svc>:fp-153d37bc`), not upstream's.
+Per-service images are recorded in `/opt/warmbly/images.env` and rendered to
+`docker-compose.images.yml` (loaded via `COMPOSE_FILE` in `.env`). Rollback to
+upstream for one service: delete its line from `images.env`, regenerate with
+`npm run deploy` or by hand, `docker compose up -d`.
+
+Local dev on Brandon's Mac: Docker Desktop 24 ships Compose 2.23 and buildx
+0.12, both too old for Warmbly's compose file; Homebrew `docker-compose` (5.x)
+and `docker-buildx` (0.37) are installed and registered via
+`cliPluginsExtraDirs` in `~/.docker/config.json`.
 
 ## Custom code and deploys
 
