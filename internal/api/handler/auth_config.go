@@ -122,9 +122,12 @@ func (h *Handler) AuthConfig(c *gin.Context) {
 		DocsURL:           accountsDocsURL,
 		WebsocketURL:      config.WebsocketURL(),
 		AppURL:            config.AppBaseURL(),
+		// Offered as an alternative only when there is also a web client;
+		// alone, the desktop client simply is the Gmail path.
 		GmailDesktopClient: func() bool {
-			c := config.GoogleDesktopOauth2Inbox()
-			return c.ClientID != "" && c.ClientSecret != ""
+			d := config.GoogleDesktopOauth2Inbox()
+			w := config.GoogleOauth2Inbox("")
+			return d.ClientID != "" && d.ClientSecret != "" && w.ClientID != "" && w.ClientSecret != ""
 		}(),
 	})
 }

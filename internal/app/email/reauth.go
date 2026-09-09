@@ -50,7 +50,7 @@ func (s *emailService) OAuthReauth(ctx context.Context, userID string, orgID *uu
 	// Reconsent must run against the client that issued the stored tokens.
 	client := models.OAuthClientDefault
 	if creds, cerr := s.emailRepository.GetOAuthCredentials(ctx, accountID); cerr == nil && creds != nil {
-		client = normalizeOAuthClient(provider, creds.OAuthClient)
+		client = s.resolveOAuthClient(provider, creds.OAuthClient)
 	}
 	cfg, xerr := s.oauthConfigFor(provider, client)
 	if xerr != nil {

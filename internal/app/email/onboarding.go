@@ -22,7 +22,7 @@ import (
 // OAuthStart issues a fresh state nonce and returns the provider-specific authorization URL.
 // The caller is expected to redirect the user to the URL and post back to OAuthFinish on return.
 func (s *emailService) OAuthStart(ctx context.Context, userID string, orgID *uuid.UUID, provider models.InboxProvider, client string) (*models.EmailOnboardingStartResponse, *errx.Error) {
-	client = normalizeOAuthClient(provider, client)
+	client = s.resolveOAuthClient(provider, client)
 	cfg, xerr := s.oauthConfigFor(provider, client)
 	if xerr != nil {
 		return nil, xerr
@@ -185,7 +185,7 @@ func (s *emailService) OAuthFinish(ctx context.Context, userID, code, state stri
 		AccessToken:    tok.AccessToken,
 		RefreshToken:   tok.RefreshToken,
 		ExpiresAt:      tok.Expiry,
-		OAuthClient:    normalizeOAuthClient(provider, sess.OAuthClient),
+		OAuthClient:    s.resolveOAuthClient(provider, sess.OAuthClient),
 	})
 	if xerr == nil && acc != nil {
 		s.syncWarmupPoolMembership(ctx, acc)
@@ -295,6 +295,18 @@ func normalizeOAuthClient(provider models.InboxProvider, client string) string {
 		return client
 	}
 	return models.OAuthClientDefault
+}
+
+// resolveOAuthClient is normalizeOAuthClient plus one deployment rule: when no
+// web Gmail client is configured but a desktop-type one is, the desktop client
+// IS the Gmail path, so "default" resolves to it and tokens are recorded as its.
+func (s *emailService) resolveOAuthClient(provider models.InboxProvider, client string) string {
+	client = normalizeOAuthClient(provider, client)
+	if provider == models.InboxProviderGoogle && client == models.OAuthClientDefault && s.oauthInbox != nil &&
+		!oauthConfigured(s.oauthInbox.Google) && oauthConfigured(s.oauthInbox.GoogleDesktop) {
+		return models.OAuthClientGoogleDesktop
+	}
+	return client
 }
 
 func (s *emailService) oauthConfigFor(provider models.InboxProvider, client string) (*oauth2.Config, *errx.Error) {

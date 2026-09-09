@@ -163,8 +163,10 @@ func main() {
 	if oauthInbox.Outlook == nil || oauthInbox.Outlook.ClientID == "" || oauthInbox.Outlook.ClientSecret == "" {
 		log.Println("WARNING: BOX_OUTLOOK_CLIENT_ID/SECRET not set; Microsoft Graph mailbox token refresh will fail on expiry")
 	}
-	if oauthInbox.Google == nil || oauthInbox.Google.ClientID == "" || oauthInbox.Google.ClientSecret == "" {
-		log.Println("WARNING: BOX_GOOGLE_CLIENT_ID/SECRET not set; Gmail mailbox token refresh will fail on expiry")
+	googleOK := oauthInbox.Google != nil && oauthInbox.Google.ClientID != "" && oauthInbox.Google.ClientSecret != ""
+	desktopOK := oauthInbox.GoogleDesktop != nil && oauthInbox.GoogleDesktop.ClientID != "" && oauthInbox.GoogleDesktop.ClientSecret != ""
+	if !googleOK && !desktopOK {
+		log.Println("WARNING: neither BOX_GOOGLE_CLIENT_ID/SECRET nor BOX_GOOGLE_DESKTOP_CLIENT_ID/SECRET set; Gmail mailbox token refresh will fail on expiry")
 	}
 
 	// WorkerService
