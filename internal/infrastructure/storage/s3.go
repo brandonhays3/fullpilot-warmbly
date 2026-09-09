@@ -6,7 +6,22 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/smithy-go/middleware"
+	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
+
+// dropAcceptEncoding removes the Accept-Encoding header before signing. The
+// SDK signs "Accept-Encoding: identity", and Google Cloud Storage's front end
+// rewrites that header to "identity,gzip(gfe)" before verifying, so every
+// signed request fails with SignatureDoesNotMatch. Unsigned, the transport
+// adds its own value and the store ignores it.
+var dropAcceptEncoding = middleware.FinalizeMiddlewareFunc("DropAcceptEncoding",
+	func(ctx context.Context, in middleware.FinalizeInput, next middleware.FinalizeHandler) (middleware.FinalizeOutput, middleware.Metadata, error) {
+		if req, ok := in.Request.(*smithyhttp.Request); ok {
+			req.Header.Del("Accept-Encoding")
+		}
+		return next.HandleFinalize(ctx, in)
+	})
 
 type Client struct {
 	Bucket string
@@ -31,6 +46,9 @@ func NewClient(ctx context.Context, cfg aws.Config, bucket string) (*Client, err
 				// SDK's default CRC checksums and chunked streaming signing.
 				o.RequestChecksumCalculation = aws.RequestChecksumCalculationWhenRequired
 				o.ResponseChecksumValidation = aws.ResponseChecksumValidationWhenRequired
+				o.APIOptions = append(o.APIOptions, func(stack *middleware.Stack) error {
+					return stack.Finalize.Insert(dropAcceptEncoding, "Signing", middleware.Before)
+				})
 			}
 		}),
 	}, nil
