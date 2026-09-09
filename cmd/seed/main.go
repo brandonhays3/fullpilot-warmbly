@@ -2,7 +2,7 @@
 //
 // Idempotent fixture loader for the local dev/sim stack. Always loads:
 //
-//   - baseline user dev@warmbly.com / password123 with one org, one
+//   - baseline user dev@fullpilot.com / password123 with one org, one
 //     shared worker, two connected email accounts (warmup-pooled), and
 //     a sample webhook endpoint pointing at the docker-compose
 //     webhook-sink service for end-to-end testing
@@ -126,7 +126,7 @@ func main() {
 // baseline
 
 func seedBaseline(ctx context.Context, pool *pgxpool.Pool) error {
-	if err := upsertUser(ctx, pool, userDev, "Dev", "User", "dev@warmbly.com", "password123"); err != nil {
+	if err := upsertUser(ctx, pool, userDev, "Dev", "User", "dev@fullpilot.com", "password123"); err != nil {
 		return err
 	}
 	if err := upsertOrg(ctx, pool, orgDev, "Dev's Organization", "dev", userDev); err != nil {
@@ -149,8 +149,8 @@ func seedBaseline(ctx context.Context, pool *pgxpool.Pool) error {
 		warmupTag string
 		poolType  string
 	}{
-		{seed.DevMailboxSendID, "dev.send@warmbly.test", "Dev Sender", "dev-warmup-a", "premium"},
-		{seed.DevMailboxOutboundID, "dev.outbound@warmbly.test", "Dev Outbound", "dev-warmup-b", "premium"},
+		{seed.DevMailboxSendID, "dev.send@fullpilot.test", "Dev Sender", "dev-warmup-a", "premium"},
+		{seed.DevMailboxOutboundID, "dev.outbound@fullpilot.test", "Dev Outbound", "dev-warmup-b", "premium"},
 	}
 	for _, a := range devAccounts {
 		if err := upsertEmailAccount(ctx, pool, a.id, userDev, orgDev, workerShared, a.email, a.name, a.warmupTag, a.poolType); err != nil {
@@ -183,7 +183,7 @@ func seedBaseline(ctx context.Context, pool *pgxpool.Pool) error {
 			id: uuid.MustParse("77777777-0000-0000-0000-000000000101"), userID: userDev,
 			emailID: devAccounts[0].id, threadID: "seed-dev-thread-reply",
 			messageID: "<seed-dev-reply@northwind.test>", uid: 101,
-			from: []string{"Aiden Park <aiden.park@northwind.test>"}, to: []string{"Dev Sender <dev.send@warmbly.test>"},
+			from: []string{"Aiden Park <aiden.park@northwind.test>"}, to: []string{"Dev Sender <dev.send@fullpilot.test>"},
 			subject: "Re: Dev seed inbox check", snippet: "This unread reply is here so the unified inbox can be tested immediately after make seed.",
 			internalDate: "2026-05-30T09:20:00Z",
 		},
@@ -191,7 +191,7 @@ func seedBaseline(ctx context.Context, pool *pgxpool.Pool) error {
 			id: uuid.MustParse("77777777-0000-0000-0000-000000000102"), userID: userDev,
 			emailID: devAccounts[1].id, threadID: "seed-dev-thread-bounce",
 			messageID: "<seed-dev-bounce@mailer-daemon.test>", uid: 201,
-			from: []string{"Mail Delivery Subsystem <mailer-daemon@warmbly.test>"}, to: []string{"Dev Outbound <dev.outbound@warmbly.test>"},
+			from: []string{"Mail Delivery Subsystem <mailer-daemon@fullpilot.test>"}, to: []string{"Dev Outbound <dev.outbound@fullpilot.test>"},
 			subject: "Delivery Status Notification (Failure)", snippet: "A seeded bounce-style message for testing filters, unread counts, and message detail fallback.",
 			internalDate: "2026-05-29T16:05:00Z",
 		},
@@ -213,7 +213,7 @@ func seedBaseline(ctx context.Context, pool *pgxpool.Pool) error {
 		return fmt.Errorf("dev webhook endpoint: %w", err)
 	}
 
-	fmt.Println("baseline ok: dev@warmbly.com / password123")
+	fmt.Println("baseline ok: dev@fullpilot.com / password123")
 	fmt.Println("  dev webhook : sample endpoint at http://webhook-sink:8080/in (disabled by default)")
 	return nil
 }
@@ -353,7 +353,7 @@ func seedRich(ctx context.Context, pool *pgxpool.Pool) error {
 	}
 
 	fmt.Println("rich fixture loaded:")
-	fmt.Println("  users     dev@warmbly.com, alex@acme.test, beth@beta.test, gus@gamma.test (pw: password123)")
+	fmt.Println("  users     dev@fullpilot.com, alex@acme.test, beth@beta.test, gus@gamma.test (pw: password123)")
 	fmt.Println("  workers   shared / premium / dedicated (match docker-compose hostnames)")
 	fmt.Println("  accounts  2 per org, joined to free or premium warmup pool")
 	fmt.Println("  campaign  Beta Cold Outreach Q1 (2-step sequence, 10 contacts, 2 unsubscribed)")
