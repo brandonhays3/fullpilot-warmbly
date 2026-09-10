@@ -27,6 +27,9 @@ import { CreditsMeter } from "./CreditsMeter";
 // Pretty labels for path segments. Anything missing falls back to the
 // raw segment with its first letter capitalised.
 const labelMap: Record<string, string> = {
+    ai: "AI",
+    "ai-skills": "AI skills",
+    unibox: "Inbox",
     app: "Home",
     emails: "Accounts",
     unibox: "Inbox",
