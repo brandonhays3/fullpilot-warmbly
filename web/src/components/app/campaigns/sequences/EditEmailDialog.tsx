@@ -561,7 +561,7 @@ function DialogBody({
                                             : variant && arms.deleteArm(variant.id, () => onArmChange(ORIGINAL_ARM))
                                     }
                                     disabled={arms.busy}
-                                    className="inline-flex items-center gap-1.5 text-[11.5px] text-slate-400 hover:text-rose-600"
+                                    className="h-7 -mr-2 px-2 inline-flex items-center gap-1.5 text-[11.5px] text-slate-500 hover:bg-rose-50 hover:text-rose-600"
                                 >
                                     <TrashIcon className="w-3.5 h-3.5" />
                                     Delete {arms.arms.find((a) => a.key === armKey)?.name ?? "this version"}
