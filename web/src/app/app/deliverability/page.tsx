@@ -218,15 +218,15 @@ export default function DeliverabilityPage() {
                             {show("chart") && (
                                 <section className="flex flex-col min-h-0 lg:border-r lg:border-slate-200">
                                     <SectionBar label="Over time">
-                                        <div className="inline-flex items-center gap-0.5 rounded-md bg-slate-100 p-0.5 max-w-full overflow-x-auto">
+                                        <div className="inline-flex items-center gap-1 max-w-full overflow-x-auto">
                                             {METRICS.map((m) => {
                                                 const visible = !hiddenMetrics.includes(m.key);
                                                 return (
                                                     <button
                                                         key={m.key}
                                                         onClick={() => toggleMetric(m.key)}
-                                                        className={`h-6 px-2 rounded text-[11px] font-medium transition-colors inline-flex items-center gap-1.5 ${
-                                                            visible ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                                                        className={`h-6 px-2 text-[11px] font-medium transition-all inline-flex items-center gap-1.5 cursor-pointer hover:opacity-70 ${
+                                                            visible ? "text-slate-800" : "text-slate-400 line-through decoration-slate-300 opacity-60"
                                                         }`}
                                                     >
                                                         <span className={`size-1.5 rounded-full ${visible ? TONE_DOT[m.tone] : "bg-slate-300"}`} />
@@ -484,13 +484,13 @@ function CheckSquare({ on }: { on: boolean }) {
 
 function RangeTabs({ value, onChange }: { value: Range; onChange: (r: Range) => void }) {
     return (
-        <div className="inline-flex items-center gap-0.5 rounded-md bg-slate-100 p-0.5">
+        <div className="inline-flex items-center gap-0.5 border border-slate-200">
             {(Object.keys(RANGE_LABEL) as Range[]).map((r) => (
                 <button
                     key={r}
                     onClick={() => onChange(r)}
                     className={`h-7 px-2.5 rounded text-[12px] font-medium transition-colors ${
-                        value === r ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"
+                        value === r ? "bg-slate-900 text-white" : "text-slate-500 hover:text-slate-900"
                     }`}
                 >
                     {r}

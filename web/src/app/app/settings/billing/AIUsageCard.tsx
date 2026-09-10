@@ -442,7 +442,7 @@ function RangeToggle({ range, onChange }: { range: RangeDays; onChange: (r: Rang
                         type="button"
                         onClick={() => onChange(r)}
                         className={`h-5 px-2 rounded font-medium tabular-nums transition-colors ${
-                            active ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                            active ? "bg-slate-900 text-white" : "text-slate-500 hover:text-slate-700"
                         }`}
                     >
                         {r}d
