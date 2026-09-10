@@ -285,9 +285,10 @@ export function PopoverMenuContent({
                         maxWidth: "calc(100vw - 16px)",
                         width: matchTriggerWidth ? pos?.width : undefined,
                         visibility: pos ? "visible" : "hidden",
-                        // Above the contact/import drawers (z-110..130) but
-                        // below the global confirm dialog (z-200).
-                        zIndex: 150,
+                        // A popover is anchored to whatever opened it, so it sits
+                        // above every dialog layer (editor 120, confirm 200, AI
+                        // block 210, personalization 220).
+                        zIndex: 400,
                         transformOrigin,
                         willChange: "transform, opacity",
                     }}
