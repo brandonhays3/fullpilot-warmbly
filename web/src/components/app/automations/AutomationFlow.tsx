@@ -235,7 +235,7 @@ function TriggerNode({ data, selected }: NodeProps) {
             )}
         >
             <div className="flex items-center gap-2 rounded-t-xl border-b border-slate-200/70 bg-gradient-to-r from-sky-50/80 to-white px-2.5 py-1.5">
-                <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-md bg-sky-100 text-sky-600 ring-1 ring-sky-200/70">
+                <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-sky-600 ring-sky-200/70">
                     <ZapIcon className="w-3 h-3" />
                 </span>
                 <span className="text-[9.5px] font-semibold uppercase tracking-[0.12em] text-sky-500">When</span>
@@ -344,7 +344,7 @@ function ActionNode({ id, data, selected }: NodeProps) {
             ) : d.provider ? (
                 <ProviderGlyph provider={d.provider} name={d.provider} size={7} />
             ) : d.native ? (
-                <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-md bg-indigo-100 text-indigo-600 ring-1 ring-indigo-200/70">
+                <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-indigo-600 ring-indigo-200/70">
                     <ZapIcon className="w-3 h-3" />
                 </span>
             ) : (

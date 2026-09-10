@@ -104,18 +104,18 @@ export function AppHeader({ onMenu }: { onMenu?: () => void }) {
             {/* Breadcrumb: org switcher (always) > section > subpages. The
                 section crumbs are redundant with each page's own title on a
                 phone, so they only show on >=md. */}
-            <div className="flex items-center gap-1.5 min-w-0 flex-1 pr-2 md:pr-4">
+            <div className="flex items-center gap-2 min-w-0 flex-1 px-3 md:px-5">
                 {crumbs.map(({ seg, to }, i) => (
                     <div key={to} className="hidden md:flex items-center gap-2 min-w-0">
                         {i > 0 && <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />}
                         {to === currentPath ? (
-                            <span className="text-[13px] font-medium text-slate-900 truncate">
+                            <span className="text-[13px] font-semibold text-slate-900 truncate">
                                 {pretty(seg)}
                             </span>
                         ) : (
                             <Link
                                 to={to}
-                                className="text-[13px] text-slate-500 hover:text-slate-900 truncate transition-colors"
+                                className="text-[12.5px] text-slate-500 hover:text-slate-900 truncate transition-colors"
                             >
                                 {pretty(seg)}
                             </Link>
@@ -124,7 +124,7 @@ export function AppHeader({ onMenu }: { onMenu?: () => void }) {
                 ))}
             </div>
 
-            <div className="flex items-center gap-2 px-2 sm:px-4 shrink-0 border-l border-slate-200">
+            <div className="flex items-center gap-2.5 px-3 sm:px-5 shrink-0">
                 <div className="hidden sm:flex items-center gap-2">
                     <PlanPill />
                     <CreditsMeter />
@@ -133,7 +133,6 @@ export function AppHeader({ onMenu }: { onMenu?: () => void }) {
                 {/* Workspace switcher lives at the right edge, next to the
                     account controls, rather than heading the breadcrumb. */}
                 <OrgSwitcher />
-                <div className="h-4 w-px bg-slate-200/80 hidden sm:block" />
                 <PresenceAvatars />
                 <NotificationBell />
                 <AssistantButton />

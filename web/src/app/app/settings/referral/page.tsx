@@ -42,7 +42,7 @@ export default function ReferralSettingsPage() {
             <SectionShell title="Refer & earn" description="Owner only.">
                 <Section eyebrow="Permission denied">
                     <div className="flex items-start gap-3">
-                        <div className="size-9 rounded-md bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0">
+                        <div className="size-9 rounded-md-amber-200 text-amber-700 flex items-center justify-center shrink-0">
                             <LockIcon className="w-4 h-4" />
                         </div>
                         <div>
@@ -72,7 +72,7 @@ export default function ReferralSettingsPage() {
             >
                 <div className="rounded-md border border-sky-100 bg-sky-50/60 p-4">
                     <div className="flex items-start gap-3">
-                        <div className="size-9 rounded-md bg-white border border-sky-200 text-sky-700 flex items-center justify-center shrink-0">
+                        <div className="size-9 rounded-md-sky-200 text-sky-700 flex items-center justify-center shrink-0">
                             <GiftIcon className="w-4 h-4" />
                         </div>
                         <div className="min-w-0">

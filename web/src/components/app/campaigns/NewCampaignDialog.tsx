@@ -1210,7 +1210,7 @@ function AudienceStep({ draft, patch }: { draft: Draft; patch: (p: Partial<Draft
                     </p>
                 </div>
                 <div className="rounded-md border border-slate-200 px-3 py-2.5 flex items-center gap-3">
-                    <span className="size-7 rounded-md bg-slate-100 text-slate-600 inline-flex items-center justify-center shrink-0">
+                    <span className="size-7 rounded-md text-slate-600 inline-flex items-center justify-center shrink-0">
                         <UsersIcon className="w-3.5 h-3.5" />
                     </span>
                     <div className="min-w-0">

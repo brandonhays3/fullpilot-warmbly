@@ -420,7 +420,7 @@ export default function ContactRecipientField({
                                         idx === highlight ? "bg-sky-50" : "bg-white",
                                     )}
                                 >
-                                    <span className="size-5 rounded-full bg-slate-100 text-slate-500 inline-flex items-center justify-center shrink-0">
+                                    <span className="size-5 rounded-full text-slate-500 inline-flex items-center justify-center shrink-0">
                                         <UserIcon className="w-3 h-3" />
                                     </span>
                                     <span className="min-w-0 flex-1">

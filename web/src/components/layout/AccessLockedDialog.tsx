@@ -50,7 +50,7 @@ export default function AccessLockedDialog({
                                 <XIcon className="w-4 h-4" />
                             </button>
                         </div>
-                        <div className="mx-auto mb-3 size-11 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center">
+                        <div className="mx-auto mb-3 size-11 rounded-xl-amber-200 text-amber-600 flex items-center justify-center">
                             <LockIcon className="w-5 h-5" />
                         </div>
                         <h3 className="text-[14px] font-semibold text-slate-900">

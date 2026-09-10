@@ -243,7 +243,7 @@ function Chip({ children }: { children: React.ReactNode }) {
 function EmptyResearch() {
     return (
         <div className="text-center py-8 px-6">
-            <div className="size-9 rounded-lg bg-sky-50 border border-sky-100 text-sky-600 flex items-center justify-center mx-auto mb-2">
+            <div className="size-9 rounded-lg-sky-100 text-sky-600 flex items-center justify-center mx-auto mb-2">
                 <SparklesIcon className="w-4 h-4" />
             </div>
             <p className="text-[12px] text-slate-500 leading-relaxed max-w-[260px] mx-auto">

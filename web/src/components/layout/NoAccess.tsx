@@ -18,7 +18,7 @@ export function NoAccess({
     return (
         <div className="flex-1 min-h-[60vh] flex items-center justify-center px-6">
             <div className="max-w-sm text-center">
-                <div className="mx-auto mb-4 size-11 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center">
+                <div className="mx-auto mb-4 size-11 rounded-xl-amber-200 text-amber-600 flex items-center justify-center">
                     <LockIcon className="w-5 h-5" />
                 </div>
                 <h2 className="text-[15px] font-semibold text-slate-900">

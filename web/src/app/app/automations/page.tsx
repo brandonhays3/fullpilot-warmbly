@@ -143,7 +143,7 @@ function TemplateGallery({ onPick, busy }: { onPick: (t: AutomationTemplate) => 
                     className="text-left bg-white p-4 hover:bg-slate-50/60 transition-colors disabled:opacity-60"
                 >
                     <div className="flex items-center gap-2">
-                        <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200/60">
+                        <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-indigo-600 ring-indigo-200/60">
                             <ZapIcon className="w-3.5 h-3.5" />
                         </span>
                         <span className="text-[12.5px] font-medium text-slate-800">{t.name}</span>
@@ -218,7 +218,7 @@ function AutomationCard({
         >
             <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2 min-w-0">
-                    <span className="size-7 rounded-md bg-sky-50 text-sky-600 inline-flex items-center justify-center shrink-0">
+                    <span className="size-7 rounded-md text-sky-600 inline-flex items-center justify-center shrink-0">
                         <ZapIcon className="w-3.5 h-3.5" />
                     </span>
                     <div className="text-[13px] font-semibold text-slate-900 truncate">{a.name}</div>

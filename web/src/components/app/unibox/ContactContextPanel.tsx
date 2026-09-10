@@ -791,7 +791,7 @@ function RowSkeleton() {
 function NotAContact({ email }: { email?: string }) {
     return (
         <div className="px-3 py-8 text-center">
-            <div className="mx-auto size-9 rounded-md bg-white border border-slate-200 flex items-center justify-center mb-2.5">
+            <div className="mx-auto size-9 rounded-md-slate-200 flex items-center justify-center mb-2.5">
                 <UserIcon className="w-4 h-4 text-slate-400" />
             </div>
             <p className="text-[12px] font-medium text-slate-700 mb-0.5">Not a known contact</p>

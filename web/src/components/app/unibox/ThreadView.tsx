@@ -718,7 +718,7 @@ function ScheduledMessageBubble({
     <article className="px-3 sm:px-5 py-3">
       <div className="rounded-lg border border-dashed border-sky-300 bg-sky-50/40 px-3 sm:px-4 py-3">
         <header className="flex items-start gap-3">
-          <div className="size-7 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center shrink-0">
+          <div className="size-7 rounded-full text-sky-700 flex items-center justify-center shrink-0">
             <ClockIcon className="w-3.5 h-3.5" />
           </div>
           <div className="min-w-0 flex-1">

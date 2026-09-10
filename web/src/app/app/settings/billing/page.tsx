@@ -108,7 +108,7 @@ export default function BillingSettingsPage() {
             <SectionShell title="Billing" description="Owner only.">
                 <Section eyebrow="Permission denied">
                     <div className="flex items-start gap-3">
-                        <div className="size-9 rounded-md bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0">
+                        <div className="size-9 rounded-md-amber-200 text-amber-700 flex items-center justify-center shrink-0">
                             <LockIcon className="w-4 h-4" />
                         </div>
                         <div>

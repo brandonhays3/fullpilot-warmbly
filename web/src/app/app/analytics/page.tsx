@@ -328,7 +328,7 @@ function RangeTabs({ value, onChange }: { value: Range; onChange: (v: Range) => 
 function ErrorState({ onRetry, isRefetching }: { onRetry: () => void; isRefetching: boolean }) {
     return (
         <div className="px-5 py-12 text-center">
-            <div className="mx-auto mb-3 size-8 rounded-md bg-rose-50 text-rose-600 flex items-center justify-center">
+            <div className="mx-auto mb-3 size-8 rounded-md text-rose-600 flex items-center justify-center">
                 <AlertTriangleIcon className="w-4 h-4" />
             </div>
             <p className="text-[12.5px] text-slate-900 font-medium">Couldn't load analytics</p>

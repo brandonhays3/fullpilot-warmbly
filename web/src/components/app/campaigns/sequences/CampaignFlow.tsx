@@ -301,7 +301,7 @@ function StepNode({ data, selected }: NodeProps) {
         >
             <Handle type="target" position={Position.Top} className="!h-2 !w-2 !border-2 !border-white !bg-slate-300" />
             <div className="flex items-center gap-2 rounded-t-xl border-b border-slate-200/70 bg-gradient-to-r from-sky-50/80 to-white px-2.5 py-1.5">
-                <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-md bg-sky-100 text-sky-600 ring-1 ring-sky-200/70">
+                <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-sky-600 ring-sky-200/70">
                     <MailIcon className="w-3 h-3" />
                 </span>
                 <span className="min-w-0 flex-1 truncate text-[12.5px] font-semibold text-slate-800">
@@ -586,7 +586,7 @@ function ConditionNode({ data, selected }: NodeProps) {
         >
             <Handle type="target" position={Position.Top} className="!h-2 !w-2 !border-2 !border-white !bg-slate-300" />
             <div className="flex items-center gap-2 rounded-t-xl border-b border-amber-200/60 bg-gradient-to-r from-amber-50/80 to-white px-2.5 py-1.5">
-                <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-md bg-amber-100 text-amber-600 ring-1 ring-amber-200/70">
+                <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-amber-600 ring-amber-200/70">
                     <GitBranchIcon className="w-3 h-3" />
                 </span>
                 <span className="min-w-0 flex-1 truncate text-[12.5px] font-semibold text-slate-800">
@@ -1953,18 +1953,6 @@ export default function CampaignFlow({ campaignId }: { campaignId: string }) {
                                 onEnable={() => setStopOnReply(true)}
                             />
                         )}
-                    </div>
-                </Panel>
-
-                <Panel position="bottom-center">
-                    {/* Mouse/keyboard-only instructions; hidden on phones where the
-                        narrow auto-width panel would wrap into a tall block over the
-                        canvas (touch users remove edges via the editor's Disconnect). */}
-                    <div className="hidden md:flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md bg-white/95 px-3 py-1.5 text-[11px] text-slate-500 shadow-sm">
-                        <span className="text-slate-400">
-                            drag a node’s bottom dot onto another node to connect, or onto empty space to pick what comes next (email, action, condition, or Stop) · click a line to set its condition · add Condition nodes to branch, and chain them for nested trees · click a line then press Delete to remove it · a step with no outgoing line just ends
-                            {live.active ? " · press / to chat" : ""}
-                        </span>
                     </div>
                 </Panel>
             </ReactFlow>

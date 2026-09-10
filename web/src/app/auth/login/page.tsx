@@ -1049,7 +1049,7 @@ function SignupUnavailable({
     return (
         <div>
             <div className="text-center mb-6">
-                <div className="mx-auto w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                <div className="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-4">
                     <LockIcon className="w-6 h-6 text-slate-400" />
                 </div>
                 <h1 className="text-[28px] font-bold text-slate-900 tracking-tight leading-tight">{title}</h1>

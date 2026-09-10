@@ -323,7 +323,7 @@ function SelectOrgPageInner() {
 function EmptyFirstRun({ onCreate }: { onCreate: () => void }) {
     return (
         <div className="text-center py-3">
-            <div className="size-10 rounded-md bg-slate-100 text-slate-600 inline-flex items-center justify-center mb-3">
+            <div className="size-10 rounded-md text-slate-600 inline-flex items-center justify-center mb-3">
                 <UsersIcon className="w-4 h-4" />
             </div>
             <h1 className="text-[16px] font-semibold text-slate-900 mb-1">

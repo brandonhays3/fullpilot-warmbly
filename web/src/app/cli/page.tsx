@@ -316,7 +316,7 @@ function ReviewStep({
             </h1>
 
             <div className="mt-5 flex items-center gap-4 rounded-xl border border-slate-200 bg-gradient-to-b from-sky-50/60 to-white px-4 py-4">
-                <span className="size-11 rounded-lg bg-slate-900 text-white inline-flex items-center justify-center shrink-0">
+                <span className="size-11 rounded-lg text-white inline-flex items-center justify-center shrink-0">
                     <TerminalIcon className="w-5 h-5" />
                 </span>
                 <div className="min-w-0 flex-1">

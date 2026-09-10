@@ -58,7 +58,7 @@ export default function AgentDraftCard({ threadId }: { threadId: string }) {
     return (
         <div className="shrink-0 border-t border-slate-200 bg-gradient-to-b from-violet-50/70 to-white px-3 py-2.5">
             <div className="flex items-center gap-1.5">
-                <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-md bg-violet-100 text-violet-600 ring-1 ring-violet-200/70">
+                <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-violet-600 ring-violet-200/70">
                     <SparklesIcon className="w-3 h-3" />
                 </span>
                 <span className="text-[12.5px] font-semibold text-slate-800">AI reply draft</span>

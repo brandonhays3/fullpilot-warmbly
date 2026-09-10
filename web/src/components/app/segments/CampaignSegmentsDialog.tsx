@@ -146,7 +146,7 @@ export default function CampaignSegmentsDialog({
                         className="w-full max-w-[520px] rounded-lg bg-white border border-slate-200 shadow-[0_24px_48px_-12px_rgba(15,23,42,0.18),0_8px_16px_-8px_rgba(15,23,42,0.1)] overflow-hidden flex flex-col max-h-[80dvh]"
                     >
                         <header className="h-12 px-4 border-b border-slate-200 flex items-center gap-2.5 shrink-0">
-                            <div className="size-5 rounded bg-slate-100 text-slate-600 flex items-center justify-center">
+                            <div className="size-5 rounded text-slate-600 flex items-center justify-center">
                                 <LayersIcon className="w-3 h-3" />
                             </div>
                             <span className="text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium">Audience</span>

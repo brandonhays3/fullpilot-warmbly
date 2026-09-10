@@ -148,7 +148,7 @@ export default function CampaignSchedule() {
             <section className="rounded-lg border border-slate-200 bg-white overflow-hidden">
                 <div className="px-4 py-3 sm:py-0 sm:h-14 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 border-b border-slate-200/70">
                     <div className="flex items-center gap-3 min-w-0">
-                        <span className="size-7 rounded-md bg-sky-50 text-sky-600 inline-flex items-center justify-center shrink-0">
+                        <span className="size-7 rounded-md text-sky-600 inline-flex items-center justify-center shrink-0">
                             <CalendarClockIcon className="w-4 h-4" />
                         </span>
                         <div className="min-w-0">

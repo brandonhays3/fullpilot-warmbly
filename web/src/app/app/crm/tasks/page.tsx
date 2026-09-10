@@ -1298,7 +1298,7 @@ function EmptyState({
 }) {
     return (
         <div className="px-5 py-16 text-center">
-            <div className="mx-auto size-9 rounded-md bg-slate-50 border border-slate-200 flex items-center justify-center mb-3">
+            <div className="mx-auto size-9 rounded-md-slate-200 flex items-center justify-center mb-3">
                 <CheckSquareIcon className="w-4 h-4 text-slate-400" />
             </div>
             <p className="text-[12.5px] text-slate-700 font-medium mb-1">
@@ -1515,7 +1515,7 @@ function TaskDialog({
                         className="w-full max-w-[480px] max-h-[calc(100dvh-2rem)] flex flex-col rounded-lg bg-white border border-slate-200 shadow-[0_24px_48px_-12px_rgba(15,23,42,0.18)] overflow-hidden"
                     >
                         <div className="h-12 shrink-0 px-4 border-b border-slate-200 flex items-center gap-2.5">
-                            <div className="size-5 rounded bg-slate-100 text-slate-600 flex items-center justify-center">
+                            <div className="size-5 rounded text-slate-600 flex items-center justify-center">
                                 <CheckSquareIcon className="w-3 h-3" />
                             </div>
                             <span className="text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium">

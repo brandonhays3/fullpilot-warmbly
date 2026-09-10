@@ -517,7 +517,7 @@ function SkeletonRows() {
 function ErrorState({ onRetry, isRefetching }: { onRetry: () => void; isRefetching: boolean }) {
     return (
         <div className="px-5 py-16 flex flex-col items-center text-center gap-3">
-            <span className="inline-flex size-9 items-center justify-center rounded-full bg-rose-50 text-rose-600">
+            <span className="inline-flex size-9 items-center justify-center rounded-full text-rose-600">
                 <AlertTriangleIcon className="w-4 h-4" />
             </span>
             <div className="text-[13px] font-medium text-slate-900">Couldn't load deliverability</div>

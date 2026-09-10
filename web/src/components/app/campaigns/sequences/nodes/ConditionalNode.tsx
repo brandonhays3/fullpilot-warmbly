@@ -364,7 +364,7 @@ function ConditionalBuilder({
             className="z-[60] w-[320px] overflow-hidden rounded-xl border border-slate-200 bg-white text-left shadow-[0_16px_40px_-14px_rgba(15,23,42,0.28)]"
         >
             <div className="flex items-center gap-2 border-b border-slate-100 px-3 py-2">
-                <span className="flex size-6 items-center justify-center rounded-md bg-slate-100 text-slate-600">
+                <span className="flex size-6 items-center justify-center rounded-md text-slate-600">
                     <GitBranchIcon className="h-3.5 w-3.5" />
                 </span>
                 <span className="flex-1 text-[12.5px] font-medium text-slate-800">Condition</span>

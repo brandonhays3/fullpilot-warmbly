@@ -145,7 +145,7 @@ function Banner({
             role="alert"
             className="bg-red-600 text-white px-4 py-2 flex flex-wrap items-center gap-3 md:flex-nowrap border-b border-red-800/50 shadow-[0_1px_0_rgba(0,0,0,0.05)]"
         >
-            <div className="size-5 rounded bg-white/15 flex items-center justify-center shrink-0">
+            <div className="size-5 rounded flex items-center justify-center shrink-0">
                 <AlertOctagonIcon className="w-3 h-3" />
             </div>
             <div className="min-w-0 flex-1">

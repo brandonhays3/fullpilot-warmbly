@@ -178,7 +178,7 @@ function SkeletonRows() {
 function EmptyState({ onCreate }: { onCreate: () => void }) {
     return (
         <div className="rounded-md border border-dashed border-slate-300 bg-slate-50/40 p-8 text-center">
-            <div className="mx-auto size-9 rounded-md bg-white border border-slate-200 flex items-center justify-center mb-3">
+            <div className="mx-auto size-9 rounded-md-slate-200 flex items-center justify-center mb-3">
                 <FileTextIcon className="w-4 h-4 text-slate-400" />
             </div>
             <h3 className="text-[13px] font-semibold text-slate-900 mb-1">
@@ -578,7 +578,7 @@ function TemplateEditor({
                         className="w-full max-w-[640px] rounded-lg bg-white border border-slate-200 shadow-[0_24px_48px_-12px_rgba(15,23,42,0.18)] overflow-hidden"
                     >
                         <div className="h-12 px-4 border-b border-slate-200 flex items-center gap-2.5">
-                            <div className="size-5 rounded bg-slate-100 text-slate-600 flex items-center justify-center">
+                            <div className="size-5 rounded text-slate-600 flex items-center justify-center">
                                 <FileTextIcon className="w-3 h-3" />
                             </div>
                             <span className="text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium">

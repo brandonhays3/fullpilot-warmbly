@@ -104,7 +104,7 @@ export function ScheduledList() {
         return (
             <div className="flex-1 flex items-center justify-center">
                 <div className="text-center px-5">
-                    <div className="w-8 h-8 rounded-md bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-400">
+                    <div className="w-8 h-8 rounded-md flex items-center justify-center mx-auto mb-3 text-slate-400">
                         <SendIcon className="w-4 h-4" />
                     </div>
                     <p className="text-[12.5px] font-medium text-slate-700">

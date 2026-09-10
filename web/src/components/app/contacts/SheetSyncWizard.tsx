@@ -266,7 +266,7 @@ export default function SheetSyncWizard({ open, onClose, lockedCampaign, onSaved
                         className="w-full max-w-[760px] rounded-lg bg-white border border-slate-200 shadow-[0_24px_48px_-12px_rgba(15,23,42,0.18),0_8px_16px_-8px_rgba(15,23,42,0.1)] overflow-hidden flex flex-col max-h-[90dvh]"
                     >
                         <header className="h-12 px-4 border-b border-slate-200 flex items-center gap-2.5 shrink-0">
-                            <div className="size-5 rounded bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                            <div className="size-5 rounded text-emerald-600 flex items-center justify-center">
                                 <SheetIcon className="w-3 h-3" />
                             </div>
                             <span className="text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium">
@@ -452,7 +452,7 @@ function ConnectStep({ busy, onConnect }: { busy: boolean; onConnect: () => void
     return (
         <div className="space-y-4">
             <div className="rounded-lg border border-slate-200 p-6 text-center">
-                <div className="mx-auto size-10 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <div className="mx-auto size-10 rounded-md text-emerald-600 flex items-center justify-center">
                     <SheetIcon className="w-5 h-5" />
                 </div>
                 <p className="text-[13px] text-slate-900 font-medium mt-3">Connect Google Sheets</p>

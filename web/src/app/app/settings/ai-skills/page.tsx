@@ -84,7 +84,7 @@ function SkillRow({ skill, onOpen }: { skill: AISkill; onOpen: () => void }) {
             onClick={onOpen}
             className="w-full text-left px-3 py-2.5 flex items-center gap-3 hover:bg-slate-50 transition-colors"
         >
-            <div className="size-7 rounded-md bg-sky-50 border border-sky-100 text-sky-600 flex items-center justify-center shrink-0">
+            <div className="size-7 rounded-md-sky-100 text-sky-600 flex items-center justify-center shrink-0">
                 <SparklesIcon className="w-3.5 h-3.5" />
             </div>
             <div className="min-w-0 flex-1">
@@ -169,7 +169,7 @@ function SkillDrawer({ draft, onClose }: { draft: DraftSkill | null; onClose: ()
                         className="fixed right-0 top-0 z-50 h-full w-full sm:w-[520px] bg-white border-l border-slate-200 shadow-[0_0_60px_-12px_rgba(15,23,42,0.3)] flex flex-col"
                     >
                         <div className="shrink-0 px-5 h-14 flex items-center gap-3 border-b border-slate-200">
-                            <div className="size-7 rounded-md bg-sky-50 border border-sky-100 text-sky-600 flex items-center justify-center">
+                            <div className="size-7 rounded-md-sky-100 text-sky-600 flex items-center justify-center">
                                 <SparklesIcon className="w-4 h-4" />
                             </div>
                             <div className="text-[13px] font-semibold text-slate-900 flex-1">

@@ -143,7 +143,7 @@ export function NotificationBell() {
 
     const emptyState = (
         <div className="px-3 py-8 flex flex-col items-center gap-2 text-center">
-            <span className="flex size-8 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+            <span className="flex size-8 items-center justify-center rounded-full text-slate-400">
                 <BellIcon className="size-4" />
             </span>
             <span className="text-[12px] text-slate-400">You&apos;re all caught up.</span>

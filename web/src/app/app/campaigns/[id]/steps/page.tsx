@@ -44,7 +44,7 @@ function StepsBuilder({ campaignId }: { campaignId: string }) {
     if (sequences.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center rounded-md border border-slate-200 bg-white py-16">
-                <div className="mb-3 flex size-10 items-center justify-center rounded-md bg-sky-50 text-sky-600">
+                <div className="mb-3 flex size-10 items-center justify-center rounded-md text-sky-600">
                     <LayersIcon className="w-4 h-4" />
                 </div>
                 <h2 className="text-[13px] font-medium text-slate-900">Build your flow</h2>

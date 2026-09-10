@@ -219,7 +219,7 @@ export default function LaunchCampaignDialog({
                                 <motion.div key="form" exit={{ opacity: 0 }}>
                                     {/* Header */}
                                     <div className="px-5 pt-5 pb-4 flex items-start gap-3">
-                                        <span className="shrink-0 size-9 rounded-md bg-sky-50 text-sky-600 flex items-center justify-center">
+                                        <span className="shrink-0 size-9 rounded-md text-sky-600 flex items-center justify-center">
                                             <RocketIcon className="w-[18px] h-[18px]" />
                                         </span>
                                         <div className="min-w-0 flex-1">

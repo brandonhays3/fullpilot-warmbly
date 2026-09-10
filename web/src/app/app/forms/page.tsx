@@ -365,7 +365,7 @@ function FormsList() {
                                         </td>
                                         <td className="px-3 max-w-0 w-full md:max-w-none md:w-auto">
                                             <div className="flex items-center gap-2.5 min-w-0">
-                                                <div className="w-6 h-6 rounded-md bg-slate-100 flex items-center justify-center shrink-0">
+                                                <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0">
                                                     <ClipboardListIcon className="w-3 h-3 text-slate-500" />
                                                 </div>
                                                 <div className="min-w-0">

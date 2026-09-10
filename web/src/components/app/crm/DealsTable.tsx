@@ -495,7 +495,7 @@ function FilterPopover({
 function EmptyDeals({ hasFilters, onClear }: { hasFilters: boolean; onClear: () => void }) {
     return (
         <div className="px-5 py-16 text-center">
-            <div className="mx-auto size-9 rounded-md bg-slate-50 border border-slate-200 flex items-center justify-center mb-3">
+            <div className="mx-auto size-9 rounded-md-slate-200 flex items-center justify-center mb-3">
                 <CircleDollarSignIcon className="w-4 h-4 text-slate-400" />
             </div>
             <p className="text-[12.5px] text-slate-700 font-medium mb-1">

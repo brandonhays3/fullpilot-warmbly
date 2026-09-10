@@ -109,7 +109,7 @@ function ServerCard({ server, canManage }: { server: MCPServer; canManage: boole
     return (
         <div className="rounded-md border border-slate-200 p-3">
             <div className="flex items-start gap-3">
-                <div className="size-8 rounded-md bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+                <div className="size-8 rounded-md text-slate-500 flex items-center justify-center shrink-0">
                     <PlugIcon className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">

@@ -64,7 +64,7 @@ export default function InstantlyWarmupCard({ mailbox }: { mailbox: Inbox }) {
         <div className="px-5 py-4 space-y-3">
             <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="size-8 rounded-lg bg-sky-600 text-white inline-flex items-center justify-center shrink-0">
+                    <span className="size-8 rounded-lg text-white inline-flex items-center justify-center shrink-0">
                         <ZapIcon className="w-4 h-4" />
                     </span>
                     <div className="min-w-0">

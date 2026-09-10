@@ -133,13 +133,15 @@ export function ScopeRail({ scope, onChange }: ScopeRailProps) {
   }, [data?.folders]);
 
   return (
-    <nav className="h-full bg-slate-50/60 border-r border-slate-200 overflow-y-auto py-2">
-      <div className="px-2 pb-2">
+    <nav className="h-full bg-slate-50/60 border-r border-slate-200 overflow-y-auto pb-2">
+      {/* Same 36px row as the list's search bar so the two top edges and
+          bottom hairlines line up across the panes. */}
+      <div className="h-9 px-2 py-1 mb-2 border-b border-slate-200 flex items-center">
         <ShortcutTooltip label="New email" combo="n" side="bottom">
           <button
             type="button"
             onClick={() => useComposeStore.getState().openCompose()}
-            className="w-full h-8 rounded-lg bg-sky-600 text-white text-[12px] font-medium inline-flex items-center justify-center gap-1.5 hover:bg-sky-700 active:bg-sky-800 shadow-sm shadow-sky-600/20 transition-colors"
+            className="w-full h-full bg-sky-600 text-white text-[12px] font-medium inline-flex items-center justify-center gap-1.5 hover:bg-sky-700 active:bg-sky-800 transition-colors"
           >
             <PenLineIcon className="w-3.5 h-3.5" />
             Compose

@@ -173,7 +173,7 @@ function TemplateRow({
 function TemplatePickerEmpty({ onClose }: { onClose: () => void }) {
     return (
         <div className="px-4 pb-4 pt-2 text-center">
-            <div className="size-9 rounded-lg bg-slate-100 text-slate-400 inline-flex items-center justify-center mb-2">
+            <div className="size-9 rounded-lg text-slate-400 inline-flex items-center justify-center mb-2">
                 <FileTextIcon className="w-4 h-4" />
             </div>
             <p className="text-[12.5px] font-medium text-slate-900">

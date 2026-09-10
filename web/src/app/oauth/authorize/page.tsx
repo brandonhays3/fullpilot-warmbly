@@ -117,7 +117,7 @@ export default function OAuthConsentPage() {
         return (
             <div className={card}>
                 <div className="p-6 text-center">
-                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-rose-50 text-rose-600">
+                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full text-rose-600">
                         <ShieldCheckIcon className="h-5 w-5" />
                     </div>
                     <p className="text-[14px] font-semibold text-slate-800">This request can't be completed</p>

@@ -76,7 +76,7 @@ export function LockedSurface({
                 <div className="w-full max-w-[460px] my-auto rounded-lg bg-white border border-slate-200 shadow-[0_24px_48px_-12px_rgba(15,23,42,0.12),0_8px_16px_-8px_rgba(15,23,42,0.06)] overflow-hidden">
                     {/* Header row */}
                     <div className="h-12 px-4 border-b border-slate-200 flex items-center gap-2.5">
-                        <div className="size-5 rounded bg-amber-50 text-amber-600 flex items-center justify-center">
+                        <div className="size-5 rounded text-amber-600 flex items-center justify-center">
                             <LockIcon className="w-3 h-3" />
                         </div>
                         <span className="text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium">

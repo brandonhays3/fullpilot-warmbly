@@ -831,7 +831,7 @@ function WarmupBanBanner({ emailId }: { emailId: string }) {
         <div className="px-5 py-4">
             <div className="rounded-md border border-rose-200 bg-rose-50 p-3.5">
                 <div className="flex items-start gap-2.5">
-                    <div className="w-7 h-7 rounded-md bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                    <div className="w-7 h-7 rounded-md text-rose-600 flex items-center justify-center shrink-0">
                         <BanIcon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0 flex-1">
