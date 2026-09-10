@@ -441,10 +441,10 @@ function DialogBody({
                                         a.key === armKey ? (
                                             <div
                                                 key={a.key}
-                                                className={`-mb-px h-9 shrink-0 pl-2.5 pr-2 inline-flex items-center gap-1 border border-slate-200 border-b-white bg-white text-slate-900 ${a.active ? "" : "opacity-60"}`}
+                                                className={`-mb-px h-9 shrink-0 px-3.5 inline-flex items-center gap-2 border border-slate-200 border-b-white bg-white text-slate-900 ${a.active ? "" : "opacity-60"}`}
                                             >
                                                 {a.isOriginal ? (
-                                                    <span className="px-1 text-[12.5px] font-medium">{a.name}</span>
+                                                    <span className="text-[12.5px] font-medium">{a.name}</span>
                                                 ) : (
                                                     <input
                                                         value={variantName}
@@ -454,8 +454,7 @@ function DialogBody({
                                                             if (e.key === "Enter") e.currentTarget.blur();
                                                         }}
                                                         aria-label="Variant name"
-                                                        size={Math.max(6, variantName.length)}
-                                                        className="h-6 bg-transparent px-1 text-[12.5px] font-medium text-slate-900 outline-none focus:bg-slate-100"
+                                                        className="h-6 min-w-[3ch] bg-transparent text-[12.5px] font-medium text-slate-900 outline-none [field-sizing:content] focus:bg-slate-100"
                                                     />
                                                 )}
                                                 <input
@@ -467,9 +466,9 @@ function DialogBody({
                                                     }}
                                                     inputMode="numeric"
                                                     aria-label="Traffic share"
-                                                    className="h-6 w-7 bg-transparent text-right text-[11px] tabular-nums text-slate-500 outline-none focus:bg-slate-100 focus:text-slate-900"
+                                                    className="h-6 min-w-[2ch] bg-transparent text-right text-[11px] tabular-nums text-slate-500 outline-none [field-sizing:content] focus:bg-slate-100 focus:text-slate-900"
                                                 />
-                                                <span className="text-[11px] text-slate-400">%</span>
+                                                <span className="-ml-2 text-[11px] text-slate-400">%</span>
                                             </div>
                                         ) : (
                                             <button

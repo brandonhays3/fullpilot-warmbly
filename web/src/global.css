@@ -666,3 +666,6 @@ button.px-3 { padding-inline: 1rem; }
 
 /* `rounded` without a size is a fixed 0.25rem in Tailwind; square it too. */
 .rounded { border-radius: 0; }
+
+/* Anything clickable shows a pointer; Tailwind's preflight leaves buttons on the default arrow. */
+button:not(:disabled), [role="button"]:not([aria-disabled="true"]), summary { cursor: pointer; }
