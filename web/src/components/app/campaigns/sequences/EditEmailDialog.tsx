@@ -304,8 +304,15 @@ function DialogBody({
                   '<span class="pv-pending" aria-label="Resolving"><span class="pv-spin"></span></span>',
               )
             : html;
-    const shownSubject = live?.subject ?? renderPreview(effective.subject, ctx);
-    const shownBody = live?.body_html ?? pendingChips(linkifyUnsubscribe(renderPreview(effective.bodyHtml, ctx)));
+    // AI blocks are written per recipient at send time; the preview shows where
+    // one goes rather than its raw token.
+    const aiPlaceholders = (html: string) =>
+        html.replace(
+            /\[\[ai:[^\]]*\]\]/g,
+            '<span class="pv-ai">AI writes a unique line here</span>',
+        );
+    const shownSubject = (live?.subject ?? renderPreview(effective.subject, ctx)).replace(/\[\[ai:[^\]]*\]\]/g, "(AI line)");
+    const shownBody = aiPlaceholders(live?.body_html ?? pendingChips(linkifyUnsubscribe(renderPreview(effective.bodyHtml, ctx))));
     const shownSubjectNode = live ? shownSubject : shownSubject.split(/(\{\{[^}]*\}\})/g).map((part, i) =>
         /^\{\{[^}]*\}\}$/.test(part) ? (
             <span key={i} className="pv-pending" aria-label="Resolving">
