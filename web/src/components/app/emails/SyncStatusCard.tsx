@@ -39,6 +39,7 @@ export default function SyncStatusCard({ mailboxId }: { mailboxId: string }) {
     const sync = useSync(mailboxId);
     const state = sync.data?.state ?? null;
     const policy = sync.data?.policy;
+    const worker = sync.data?.worker ?? null;
 
     if (sync.isPending) {
         return (
@@ -108,6 +109,14 @@ export default function SyncStatusCard({ mailboxId }: { mailboxId: string }) {
                         : null}
                 {throttled ? " Replies to your outreach keep syncing; the rest resumes automatically." : null}
             </p>
+
+            {worker && (
+                <p className="mt-1 text-[11.5px] text-slate-500">
+                    {worker.ephemeral
+                        ? `Sending through a rotating worker${worker.started_at ? ` started ${relative(worker.started_at)}` : ""}; it moves to a fresh one every few minutes.`
+                        : `Sending through a persistent worker${worker.last_seen_at ? `, last seen ${relative(worker.last_seen_at)}` : ""}.`}
+                </p>
+            )}
 
             {(state?.deferred ?? 0) > 0 && (
                 <p className="mt-1 text-[11.5px] text-amber-700">

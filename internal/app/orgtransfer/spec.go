@@ -167,7 +167,7 @@ var Tables = []Table{
 		// on the destination for a reason nothing there observed; importing
 		// "active" would assert readiness the destination has not seen.
 		ResetOnImport: []string{
-			"worker_id", "auth_checked_at", "auth_failing_since", "cold_ramp_started_at",
+			"worker_id", "worker_assigned_at", "auth_checked_at", "auth_failing_since", "cold_ramp_started_at",
 			"send_lifecycle", "send_lifecycle_since", "send_lifecycle_reason",
 		},
 	},

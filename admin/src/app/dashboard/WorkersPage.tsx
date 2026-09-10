@@ -97,6 +97,19 @@ const columns: Column<ManagedWorker>[] = [
     },
     { id: "mailboxes", header: "Mailboxes", align: "right", sortable: true, sortKey: "mailboxes", cell: (w) => <span className="tabular-nums">{w.account_count}</span>, csv: (w) => w.account_count },
     {
+        id: "deployment",
+        header: "Deployment",
+        cell: (w) =>
+            w.deployment ? (
+                <Badge variant="outline" className="text-[10px]">
+                    {w.deployment === "cloud_run_worker" ? "ephemeral" : w.deployment}
+                </Badge>
+            ) : (
+                <span className="text-xs text-muted-foreground">—</span>
+            ),
+        csv: (w) => w.deployment || "",
+    },
+    {
         id: "image",
         header: "Image",
         cell: (w) => (w.image_version ? <span className="font-mono text-xs">{w.image_version}</span> : <span className="text-xs text-muted-foreground">—</span>),

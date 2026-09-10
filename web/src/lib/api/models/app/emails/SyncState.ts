@@ -34,7 +34,19 @@ export interface SyncPolicy {
     org_daily_messages: number;
 }
 
+// Where the mailbox runs right now. SMTP/IMAP mailboxes rotate across
+// ephemeral workers, so this changes every few minutes for them.
+export interface SyncWorker {
+    id: string;
+    deployment: "cloud_run_worker" | "cloud_vm" | "cloud_dev" | "";
+    ephemeral: boolean;
+    started_at?: string;
+    last_seen_at?: string;
+}
+
 export default interface EmailSync {
     state: SyncState | null;
     policy: SyncPolicy;
+    // null while the mailbox is not placed on a worker yet.
+    worker: SyncWorker | null;
 }

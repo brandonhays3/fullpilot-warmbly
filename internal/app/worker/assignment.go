@@ -61,6 +61,17 @@ type WorkerAssignmentService interface {
 	MigrateOrgToDedicated(ctx context.Context, orgID uuid.UUID, subscriptionID uuid.UUID) error
 	MigrateOrgToShared(ctx context.Context, orgID uuid.UUID) error
 	MigrateEmailsFromWorker(ctx context.Context, workerID uuid.UUID, targetFreeTier bool) error
+
+	// SMTP rotation across ephemeral workers (rotation.go). The email
+	// service's rotation reconciler drives these once a minute.
+	ListSmtpRotationCandidates(ctx context.Context) ([]repository.SmtpRotationCandidate, error)
+	// PlanSmtpRotation returns the live ephemeral worker the mailbox should
+	// move to now, or nil when it should stay where it is.
+	PlanSmtpRotation(ctx context.Context, cand repository.SmtpRotationCandidate, now time.Time, rotateAfter time.Duration) (*models.Worker, error)
+	// MoveEmailToWorker re-points the assignment and the two workers' load.
+	MoveEmailToWorker(ctx context.Context, emailAccountID, oldWorkerID, newWorkerID uuid.UUID) error
+	// HasInFlightSend reports whether a send tick for the mailbox is running.
+	HasInFlightSend(ctx context.Context, emailAccountID uuid.UUID) (bool, error)
 }
 
 type workerAssignmentService struct {
@@ -102,10 +113,10 @@ func (s *workerAssignmentService) AssignWorkerToEmail(ctx context.Context, email
 	isPaidOrg := s.selfHost || (sub != nil && sub.HasPaidSubscription())
 
 	// 3. Compute mailbox weight once - reused for whichever worker we
-	// land on (dedicated or shared). 0 is a sentinel that means
-	// "couldn't look it up, use default" and is handled by
-	// resolveMailboxWeight below.
-	weight := s.resolveMailboxWeight(ctx, emailAccountID)
+	// land on (dedicated or shared). The hint also says whether this is an
+	// SMTP/IMAP mailbox, which decides the ephemeral-first placement below.
+	hint := s.placementHint(ctx, emailAccountID)
+	weight := hintWeight(hint)
 
 	// 4. Check if paid org has dedicated worker plan. Requires a real
 	// subscription to read a plan from: with billing disabled isPaidOrg is true
@@ -182,9 +193,25 @@ func (s *workerAssignmentService) AssignWorkerToEmail(ctx context.Context, email
 	if err != nil {
 		return nil, err
 	}
-	worker, err := s.selectSharedWorkerForBandWeight(ctx, freeTier, band, weight)
-	if err != nil {
-		return nil, err
+	// An SMTP/IMAP mailbox sends from the worker's own egress IP, so it goes
+	// to a live ephemeral worker when there is one with headroom (a fresh IP
+	// every run) and only falls back to the persistent shared pool when
+	// none is live. Clean band only: risky and quarantine mailboxes keep
+	// their strict pool placement. OAuth mailboxes never take this path.
+	var worker *models.Worker
+	if isSmtpImapHint(hint) && band.MatchingRiskPool() == models.WorkerRiskPoolClean {
+		worker, err = s.selectEphemeralWorker(ctx, freeTier, weight, uuid.Nil)
+		if err != nil {
+			log.Warn().Err(err).Str("email_id", emailAccountID.String()).
+				Msg("assignment: ephemeral worker lookup failed; falling back to the shared pool")
+			worker = nil
+		}
+	}
+	if worker == nil {
+		worker, err = s.selectSharedWorkerForBandWeight(ctx, freeTier, band, weight)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// 6. Update database
@@ -222,11 +249,28 @@ func (s *workerAssignmentService) AssignWorkerToEmail(ctx context.Context, email
 // Any error or missing row falls back to defaultMailboxWeight so a
 // transient DB blip doesn't break placement.
 func (s *workerAssignmentService) resolveMailboxWeight(ctx context.Context, emailAccountID uuid.UUID) float64 {
+	return hintWeight(s.placementHint(ctx, emailAccountID))
+}
+
+// placementHint fetches the mailbox's provider and warmup flag; nil on any
+// error or missing row so callers degrade to defaults instead of failing.
+func (s *workerAssignmentService) placementHint(ctx context.Context, emailAccountID uuid.UUID) *repository.EmailAccountPlacementHint {
 	hint, err := s.workerRepo.GetEmailAccountPlacementHint(ctx, emailAccountID)
-	if err != nil || hint == nil {
+	if err != nil {
+		return nil
+	}
+	return hint
+}
+
+func hintWeight(hint *repository.EmailAccountPlacementHint) float64 {
+	if hint == nil {
 		return defaultMailboxWeight
 	}
 	return MailboxWeight(hint.Provider, hint.IsWarmup)
+}
+
+func isSmtpImapHint(hint *repository.EmailAccountPlacementHint) bool {
+	return hint != nil && hint.Provider == string(models.InboxProviderSMTPIMAP)
 }
 
 // IsWorkerLive reports whether a worker is still a valid target for commands.

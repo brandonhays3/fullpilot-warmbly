@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -29,6 +30,10 @@ type WorkerCapacityRowDB struct {
 	BouncesSoft1h    int64
 	Complaints1h     int64
 	AuthErrors1h     int64
+	// Deployment and StartedAt come from the workers row, not the view: the
+	// SMTP rotation policy prefers the most recently started ephemeral worker.
+	Deployment models.WorkerDeployment
+	StartedAt  *time.Time
 }
 
 // InsertWorkerHealthSample appends one telemetry row. Called by the
@@ -89,14 +94,15 @@ func (r *workerRepository) ListCapacityCandidates(
 		SELECT v.worker_id, v.worker_type, v.free_tier, v.egress_kind, v.health_state,
 		       v.load_score, v.base_capacity, v.health_multiplier, v.age_multiplier,
 		       v.sends_attempted_1h, v.sends_succeeded_1h,
-		       v.bounces_hard_1h, v.bounces_soft_1h, v.complaints_1h, v.auth_errors_1h
+		       v.bounces_hard_1h, v.bounces_soft_1h, v.complaints_1h, v.auth_errors_1h,
+		       COALESCE(w.deployment, ''), w.started_at
 		  FROM worker_capacity_view v
 		  JOIN workers w ON w.id = v.worker_id
 		 WHERE v.worker_type = 'shared'
 		   AND v.free_tier = $1
 		   AND v.health_state = ANY($2::text[])
-		   AND w.last_seen_at > now() - $3::interval
-	`, freeTier, states, WorkerLivenessWindow)
+		   AND `+workerLiveSQL("w")+`
+	`, freeTier, states)
 	if err != nil {
 		return nil, err
 	}
@@ -110,6 +116,7 @@ func (r *workerRepository) ListCapacityCandidates(
 			&c.LoadScore, &c.BaseCapacity, &c.HealthMultiplier, &c.AgeMultiplier,
 			&c.SendsAttempted1h, &c.SendsSucceeded1h,
 			&c.BouncesHard1h, &c.BouncesSoft1h, &c.Complaints1h, &c.AuthErrors1h,
+			&c.Deployment, &c.StartedAt,
 		); err != nil {
 			return nil, err
 		}

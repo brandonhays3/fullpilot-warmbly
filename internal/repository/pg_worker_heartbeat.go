@@ -6,6 +6,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// WorkerHeartbeat is what a worker reports about itself on every beat.
+type WorkerHeartbeat struct {
+	IPAddr     string
+	Tier       string
+	EgressKind string
+	// Deployment is the WORKER_DEPLOYMENT value (models.WorkerDeployment*);
+	// empty from a build that predates it, which leaves the stored value alone.
+	Deployment string
+	// Booted marks the first beat of a fresh process and restarts started_at.
+	Booted bool
+}
+
 // UpsertOnHeartbeat is called from the /api/v1/internal/worker/heartbeat
 // handler. It registers a newly-provisioned worker on its first contact and
 // keeps last_seen fresh on every subsequent ping.
@@ -13,19 +25,22 @@ import (
 // Tier mapping ("shared_free" / "shared_premium" / "dedicated") is collapsed
 // into the existing (worker_type, free_tier) columns so the rest of the
 // assignment logic keeps working unchanged.
-func (r *workerRepository) UpsertOnHeartbeat(ctx context.Context, id uuid.UUID, ipAddr, tier, egressKind string) error {
-	workerType, freeTier := tierToColumns(tier)
+func (r *workerRepository) UpsertOnHeartbeat(ctx context.Context, id uuid.UUID, hb WorkerHeartbeat) error {
+	workerType, freeTier := tierToColumns(hb.Tier)
+	egressKind := hb.EgressKind
 	if egressKind == "" {
 		egressKind = "cold_smtp"
 	}
 	// last_seen_at is set on insert too, not just on conflict: this call IS a
 	// heartbeat, and placement skips workers whose heartbeat is stale, so a
 	// newly-registered worker would otherwise be unselectable until its second
-	// ping.
+	// ping. started_at is the process start: set on insert, reset on a booted
+	// beat, and otherwise backfilled once for rows that predate the column.
 	const q = `
 		INSERT INTO workers (id, name, ip_addr, active, free_tier, worker_type,
-		                     egress_kind, health_state, load_score, last_seen_at)
-		VALUES ($1, $2, $3, TRUE, $4, $5, $6, 'healthy', 0, now())
+		                     egress_kind, health_state, load_score, last_seen_at,
+		                     deployment, started_at)
+		VALUES ($1, $2, $3, TRUE, $4, $5, $6, 'healthy', 0, now(), $7, now())
 		ON CONFLICT (id) DO UPDATE
 		   SET ip_addr = EXCLUDED.ip_addr,
 		       active = TRUE,
@@ -34,11 +49,13 @@ func (r *workerRepository) UpsertOnHeartbeat(ctx context.Context, id uuid.UUID, 
 		         ELSE workers.install_state
 		       END,
 		       last_seen_at = now(),
+		       deployment = CASE WHEN EXCLUDED.deployment <> '' THEN EXCLUDED.deployment ELSE workers.deployment END,
+		       started_at = CASE WHEN $8 THEN now() ELSE COALESCE(workers.started_at, now()) END,
 		       last_error = NULL,
 		       updated_at = now()
 	`
 	name := "auto-registered-" + id.String()[:8]
-	_, err := r.db.Exec(ctx, q, id, name, ipAddr, freeTier, workerType, egressKind)
+	_, err := r.db.Exec(ctx, q, id, name, hb.IPAddr, freeTier, workerType, egressKind, hb.Deployment, hb.Booted)
 	return err
 }
 

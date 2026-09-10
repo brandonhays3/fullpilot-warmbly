@@ -13,6 +13,7 @@ export type WorkerType = "shared" | "dedicated";
 
 export type WorkerRiskPool = "clean" | "risky" | "quarantine";
 export type WorkerEgressKind = "cold_smtp" | "oauth_api" | "warmup_only";
+export type WorkerDeployment = "cloud_run_worker" | "cloud_vm" | "cloud_dev";
 export type WorkerHealthState =
     | "healthy"
     | "watch"
@@ -33,6 +34,10 @@ export interface ManagedWorker {
     egress_kind: WorkerEgressKind;
     health_state: WorkerHealthState;
     load_score: number;
+    /** WORKER_DEPLOYMENT as reported by the heartbeat; cloud_run_worker is ephemeral. Empty on older builds. */
+    deployment: WorkerDeployment | "";
+    /** When the current worker process booted. */
+    started_at?: string;
 
     ssh_host?: string;
     ssh_port?: number;
