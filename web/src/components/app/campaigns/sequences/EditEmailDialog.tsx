@@ -305,6 +305,7 @@ function DialogBody({
 
     // ── Test send ─────────────────────────────────────────────────────────
     const [recipient, setRecipient] = React.useState(user.email ?? "");
+    const [testOpen, setTestOpen] = React.useState(false);
     const send = useSendTestEmail(campaignId);
     const recipientOk = EMAIL_RE.test(recipient.trim());
     const testBlocked = variant
@@ -356,7 +357,7 @@ function DialogBody({
                 exit={{ y: 8, opacity: 0, scale: 0.985 }}
                 transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                 onMouseDown={(e) => e.stopPropagation()}
-                className="flex h-[88vh] w-[92vw] max-w-[1280px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_24px_48px_-12px_rgba(15,23,42,0.18),0_8px_16px_-8px_rgba(15,23,42,0.1)]"
+                className="relative flex h-[88vh] w-[92vw] max-w-[1280px] flex-col overflow-hidden border border-slate-200 bg-white shadow-[0_24px_48px_-12px_rgba(15,23,42,0.18),0_8px_16px_-8px_rgba(15,23,42,0.1)]"
             >
                 <header className="flex h-12 shrink-0 items-center gap-2.5 border-b border-slate-200 px-4">
                     <MailIcon className="w-4 h-4 text-slate-600" />
@@ -373,9 +374,18 @@ function DialogBody({
                     </span>
                     <button
                         type="button"
+                        onClick={() => setTestOpen(true)}
+                        title={testBlocked ?? "Send a test of this step"}
+                        className="ml-auto h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                    >
+                        <SendIcon className="w-3.5 h-3.5" />
+                        Send test
+                    </button>
+                    <button
+                        type="button"
                         onClick={requestClose}
                         aria-label="Close"
-                        className="ml-auto inline-flex size-7 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                        className="inline-flex size-7 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
                     >
                         <XIcon className="w-3.5 h-3.5" />
                     </button>
@@ -515,42 +525,95 @@ function DialogBody({
                     </div>
                 </div>
 
-                <footer className="flex shrink-0 flex-wrap items-center gap-2 border-t border-slate-200 bg-slate-50/30 px-3 py-2">
-                    <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-slate-700">
-                        <SendIcon className="w-3.5 h-3.5 text-slate-400" />
-                        Send test email
-                    </span>
-                    <TestMailboxPicker mailboxes={mailboxes} value={mailbox} onChange={(m) => setMailboxId(m.id)} loading={emails.isLoading} />
-                    <TextInput
-                        type="email"
-                        value={recipient}
-                        onChange={setRecipient}
-                        placeholder="you@company.com"
-                        invalid={recipient.length > 0 && !recipientOk}
-                        className="w-52"
-                        title="Where the test goes"
-                    />
-                    <button
-                        type="button"
-                        onClick={() => void sendTest()}
-                        disabled={!!testBlocked || !recipientOk || send.isPending}
-                        title={testBlocked ?? "Send a test of this step"}
-                        className="h-7 px-3 inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white text-[12px] font-medium text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900 disabled:opacity-50"
-                    >
-                        {send.isPending ? <Loader2Icon className="w-3.5 h-3.5 animate-spin" /> : <SendIcon className="w-3.5 h-3.5" />}
-                        Send
-                    </button>
-                    {testBlocked && <span className="text-[11px] text-amber-600">{testBlocked}</span>}
+                <footer className="flex shrink-0 items-center justify-end gap-2 border-t border-slate-200 bg-slate-50/30 px-3 py-2">
                     <button
                         type="button"
                         onClick={() => void done()}
                         disabled={closing}
-                        className="ml-auto h-7 px-3 inline-flex items-center gap-1.5 rounded-md bg-sky-600 text-[12px] font-medium text-white transition-colors hover:bg-sky-700 disabled:opacity-50"
+                        className="h-7 px-3 inline-flex items-center gap-1.5 bg-sky-600 text-[12px] font-medium text-white transition-colors hover:bg-sky-700 disabled:opacity-60"
                     >
                         {closing && <Loader2Icon className="w-3 h-3 animate-spin" />}
                         Done
                     </button>
                 </footer>
+
+                {/* Test send lives in its own small dialog over the editor, so the
+                    mailbox and recipient never have to squeeze into a bar. */}
+                {testOpen && (
+                    <div
+                        data-floating
+                        className="absolute inset-0 z-10 flex items-center justify-center bg-slate-900/30"
+                        onMouseDown={(e) => {
+                            if (e.target === e.currentTarget) setTestOpen(false);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === "Escape") {
+                                e.stopPropagation();
+                                setTestOpen(false);
+                            }
+                        }}
+                    >
+                        <div
+                            role="dialog"
+                            aria-label="Send test email"
+                            className="w-[min(440px,92vw)] border border-slate-200 bg-white shadow-lg"
+                            onMouseDown={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex h-11 items-center gap-2 border-b border-slate-200 px-4">
+                                <SendIcon className="w-3.5 h-3.5 text-slate-500" />
+                                <span className="text-[12.5px] font-medium text-slate-900">Send test email</span>
+                                <button
+                                    type="button"
+                                    onClick={() => setTestOpen(false)}
+                                    aria-label="Close"
+                                    className="ml-auto inline-flex size-7 items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                                >
+                                    <XIcon className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
+                            <div className="space-y-3 px-4 py-4">
+                                <div className="space-y-1">
+                                    <div className="text-[11px] font-medium text-slate-500">From mailbox</div>
+                                    <TestMailboxPicker mailboxes={mailboxes} value={mailbox} onChange={(m) => setMailboxId(m.id)} loading={emails.isLoading} />
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="text-[11px] font-medium text-slate-500">Send to</div>
+                                    <TextInput
+                                        type="email"
+                                        value={recipient}
+                                        onChange={setRecipient}
+                                        placeholder="you@company.com"
+                                        invalid={recipient.length > 0 && !recipientOk}
+                                        className="w-full"
+                                        autoFocus
+                                    />
+                                </div>
+                                <p className="text-[11.5px] text-slate-500">
+                                    Sends the saved step through a real worker with the mailbox signature and the opt-out footer. Tracking is off.
+                                </p>
+                                {testBlocked && <p className="text-[11.5px] text-amber-600">{testBlocked}</p>}
+                            </div>
+                            <div className="flex items-center justify-end gap-2 border-t border-slate-200 px-4 py-2.5">
+                                <button
+                                    type="button"
+                                    onClick={() => setTestOpen(false)}
+                                    className="h-7 px-3 inline-flex items-center text-[12px] font-medium text-slate-600 hover:text-slate-900"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => void sendTest().then(() => setTestOpen(false))}
+                                    disabled={!!testBlocked || !recipientOk || send.isPending}
+                                    className="h-7 px-3 inline-flex items-center gap-1.5 bg-sky-600 text-[12px] font-medium text-white transition-colors hover:bg-sky-700 disabled:opacity-60"
+                                >
+                                    {send.isPending ? <Loader2Icon className="w-3.5 h-3.5 animate-spin" /> : <SendIcon className="w-3.5 h-3.5" />}
+                                    Send
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </motion.div>
         </motion.div>,
         document.body,
