@@ -29,14 +29,14 @@ import {
     XIcon,
     ZapIcon,
 } from "@/components/icons";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import useOrganizationLimits from "@/lib/api/hooks/app/organizations/useOrganizationLimits";
 import { useAppStore } from "@/stores";
 import useFeatureAccess from "@/hooks/useFeatureAccess";
 import { usePermission, type PermissionKey } from "@/hooks/usePermission";
 import { useUpgradeDialog } from "@/hooks/context/upgrade";
 import { PLAN_ACCENT_CLASSES, getPlan, type PlanID } from "@/lib/plans";
 import AccessLockedDialog from "./AccessLockedDialog";
-import useDashboard from "@/lib/api/hooks/app/analytics/useDashboard";
 import AdvisorNavBadge from "@/components/app/advisor/AdvisorNavBadge";
 import type { AdvisorSurface } from "@/lib/api/models/app/advisor/Advisor";
 import { UserNav } from "./UserNav";
@@ -339,42 +339,53 @@ function Section({ section, first = false }: { section: NavSection; first?: bool
  * (default 50/day, from internal/config/constants.go).
  */
 function LivePanel() {
+    const limits = useOrganizationLimits();
     const emails = useAppStore((s) => s.emails);
-    const dash = useDashboard("30d");
+    const l = limits.data;
 
-    const capacity = useMemo(
-        () => emails.reduce((sum, e) => sum + (e.campaign_limit ?? 50), 0),
-        [emails],
-    );
-    const sentToday = useMemo(() => {
-        const key = new Date().toISOString().slice(0, 10);
-        const today = (dash.data?.daily_trend ?? []).find((d) => d.date?.slice(0, 10) === key);
-        return today?.sent ?? 0;
-    }, [dash.data]);
-    const pct = capacity > 0 ? Math.min(100, (sentToday / capacity) * 100) : 0;
+    // Sends: the plan's daily cap when there is one, otherwise the sum of the
+    // mailboxes' own daily caps. Contacts: the plan's contact limit.
+    const sendCap =
+        l?.limits.daily_campaign_limit ?? emails.reduce((sum, e) => sum + (e.campaign_limit ?? 50), 0);
+    const sentToday = l?.counts.emails_sent_today ?? 0;
+    const contactCap = l?.limits.max_contacts ?? null;
+    const contacts = l?.counts.total_contacts ?? 0;
 
-    // One line and a hairline meter under the profile: a glance at today's
-    // usage, nothing more. Clicking opens analytics.
     return (
         <Link
-            to="/app/analytics"
-            className="group block px-4 pt-2 pb-2.5 shrink-0 hover:bg-slate-50/80 transition-colors"
-            title="Open analytics"
+            to="/app/settings/billing"
+            className="group block px-4 pt-2 pb-2.5 shrink-0 space-y-2 hover:bg-slate-50/80 transition-colors"
+            title="Usage and limits"
         >
+            <LimitBar label="Sends today" used={sentToday} cap={sendCap} />
+            <LimitBar label="Contacts" used={contacts} cap={contactCap} />
+        </Link>
+    );
+}
+
+function LimitBar({ label, used, cap }: { label: string; used: number; cap: number | null }) {
+    const pct = cap && cap > 0 ? Math.min(100, (used / cap) * 100) : 0;
+    const hot = pct >= 90;
+    return (
+        <div>
             <div className="flex items-baseline justify-between gap-2 text-[10.5px] leading-none">
-                <span className="text-slate-500">Sent today</span>
+                <span className="text-slate-500">{label}</span>
                 <span className="tabular-nums text-slate-700">
-                    <span className="font-semibold text-slate-800">{sentToday.toLocaleString()}</span>
-                    {capacity > 0 && <span className="text-slate-400"> / {capacity.toLocaleString()}</span>}
+                    <span className="font-semibold text-slate-800">{used.toLocaleString()}</span>
+                    {cap != null && cap > 0 ? (
+                        <span className="text-slate-400"> / {cap.toLocaleString()}</span>
+                    ) : (
+                        <span className="text-slate-400"> · unlimited</span>
+                    )}
                 </span>
             </div>
-            <div className="mt-1.5 h-[3px] w-full rounded-full bg-slate-200/80 overflow-hidden">
+            <div className="mt-1.5 h-[3px] w-full bg-slate-200/80 overflow-hidden">
                 <div
-                    className="h-full rounded-full bg-sky-600 transition-[width] duration-300"
+                    className={cn("h-full transition-[width] duration-300", hot ? "bg-amber-500" : "bg-sky-600")}
                     style={{ width: `${pct}%` }}
                 />
             </div>
-        </Link>
+        </div>
     );
 }
 
