@@ -46,7 +46,13 @@ export function AppShell() {
     // Pages scroll this inner container, not the window, so nothing resets the
     // offset between routes: navigating from halfway down a long list used to
     // land mid-page on the next one. Reset before paint so it never flashes.
+    // Settings tabs share one page shell, so moving between them keeps the
+    // offset instead of jumping back to the top of the settings nav.
+    const prevPath = useRef(pathname);
     useLayoutEffect(() => {
+        const was = prevPath.current;
+        prevPath.current = pathname;
+        if (was.startsWith("/app/settings") && pathname.startsWith("/app/settings")) return;
         scrollRef.current?.scrollTo({ top: 0, left: 0 });
     }, [pathname]);
 

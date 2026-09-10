@@ -7,6 +7,12 @@ import type { AutosaveStatus } from "@/hooks/useAutosave";
 export default function SaveStatus({ status, onRetry }: { status: AutosaveStatus; onRetry?: () => void }) {
     return (
         <AnimatePresence mode="wait">
+            {status === "idle" && (
+                <Pill key="idle" className="text-slate-500">
+                    <CheckIcon className="w-3 h-3" />
+                    Saves automatically
+                </Pill>
+            )}
             {status === "saving" && (
                 <Pill key="saving" className="text-slate-500">
                     <Loader2Icon className="w-3 h-3 animate-spin" />
@@ -16,7 +22,7 @@ export default function SaveStatus({ status, onRetry }: { status: AutosaveStatus
             {status === "saved" && (
                 <Pill key="saved" className="text-emerald-600">
                     <CheckIcon className="w-3 h-3" />
-                    Saved
+                    Saved automatically
                 </Pill>
             )}
             {status === "error" && (

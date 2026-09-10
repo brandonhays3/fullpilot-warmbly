@@ -1497,6 +1497,7 @@ export default function AutomationFlow({
                     minZoom={0.2}
                     maxZoom={1.75}
                     fitView
+                    fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
                     proOptions={{ hideAttribution: true }}
                 >
                     <Background color="#e9eef5" gap={24} size={1} />
