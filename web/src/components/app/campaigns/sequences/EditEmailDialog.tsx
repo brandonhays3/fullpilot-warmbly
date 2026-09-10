@@ -62,6 +62,7 @@ const AUTOSAVE_MS = 800;
 // Samples survive closing and reopening the editor so a block is not re-billed.
 const AI_SAMPLE_CACHE: Record<string, string> = {};
 const AI_SAMPLE_INFLIGHT = new Set<string>();
+const AI_SAMPLE_LISTENERS = new Set<() => void>();
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function EditEmailDialog({
@@ -335,14 +336,24 @@ function DialogBody({
         (b: { id: string; cfg: AIVariableConfig }) => JSON.stringify([b.cfg.prompt, b.cfg.tone, b.cfg.web_search, previewContact?.id ?? ""]),
         [previewContact?.id],
     );
+    // Results land in the module cache and every mounted editor is told, so a
+    // request that finishes after this dialog closed still resolves the slug
+    // the next time it opens instead of spinning forever.
+    React.useEffect(() => {
+        const listener = () => setAiSamples({ ...AI_SAMPLE_CACHE });
+        AI_SAMPLE_LISTENERS.add(listener);
+        return () => {
+            AI_SAMPLE_LISTENERS.delete(listener);
+        };
+    }, []);
     React.useEffect(() => {
         for (const b of aiBlocks) {
             if (!b.cfg.prompt.trim()) continue;
             const key = aiKeyFor(b);
-            if (aiSamples[key] !== undefined || AI_SAMPLE_INFLIGHT.has(key)) continue;
+            if (AI_SAMPLE_CACHE[key] !== undefined || AI_SAMPLE_INFLIGHT.has(key)) continue;
             AI_SAMPLE_INFLIGHT.add(key);
-            genAI.mutate(
-                {
+            genAI
+                .mutateAsync({
                     mode: "instant",
                     prompt: b.cfg.prompt,
                     tone: b.cfg.tone || undefined,
@@ -350,19 +361,17 @@ function DialogBody({
                     context_before: b.before,
                     context_after: b.after,
                     ...(previewContact ? { contact_id: previewContact.id } : {}),
-                },
-                {
-                    onSuccess: (res) => {
-                        AI_SAMPLE_CACHE[key] = res.text;
-                        setAiSamples((m) => ({ ...m, [key]: res.text }));
-                    },
-                    onError: () => {
-                        AI_SAMPLE_CACHE[key] = "";
-                        setAiSamples((m) => ({ ...m, [key]: "" }));
-                    },
-                    onSettled: () => AI_SAMPLE_INFLIGHT.delete(key),
-                },
-            );
+                })
+                .then((res) => {
+                    AI_SAMPLE_CACHE[key] = res.text;
+                })
+                .catch(() => {
+                    AI_SAMPLE_CACHE[key] = "";
+                })
+                .finally(() => {
+                    AI_SAMPLE_INFLIGHT.delete(key);
+                    for (const l of AI_SAMPLE_LISTENERS) l();
+                });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [aiBlocks, aiKeyFor]);
