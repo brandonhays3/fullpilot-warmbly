@@ -94,6 +94,7 @@ func (w *WorkerService) HandleSendEmail(ctx context.Context, sendEmail models.Se
 			Str("task_id", sendEmail.TaskID.String()).
 			Str("message_id", result.MessageID).
 			Str("provider_msg_id", result.ProviderMsgID).
+			Str("transport", string(mail.Transport)).
 			Msg("Email sent successfully")
 
 		w.deleteTransportEmailBody(ctx, sendEmail.TaskID, sendEmail.BodyS3Key)
