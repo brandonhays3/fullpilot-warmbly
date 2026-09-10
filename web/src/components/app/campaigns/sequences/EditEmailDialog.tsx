@@ -20,8 +20,7 @@ import {
     SendIcon,
     XIcon,
     TrashIcon,
-    PauseIcon,
-    PlayIcon,
+    EyeOffIcon,
 } from "@/components/icons";
 import type Sequence from "@/lib/api/models/app/campaigns/sequences/Sequence";
 import type Contact from "@/lib/api/models/app/contacts/Contact";
@@ -469,6 +468,31 @@ function DialogBody({
                                                     className="h-6 min-w-[2ch] bg-transparent text-right text-[11px] tabular-nums text-slate-500 outline-none [field-sizing:content] focus:bg-slate-100 focus:text-slate-900"
                                                 />
                                                 <span className="-ml-2 text-[11px] text-slate-400">%</span>
+                                                {!a.isOriginal && variant && (
+                                                    <>
+                                                        <span className="mx-1 h-4 w-px bg-slate-200" />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => arms.togglePause(variant.id, !variant.is_active)}
+                                                            disabled={arms.busy}
+                                                            aria-label={variant.is_active ? "Disable this variant" : "Enable this variant"}
+                                                            title={variant.is_active ? "Disable: keeps the copy, sends none of the traffic" : "Enable"}
+                                                            className="inline-flex size-6 items-center justify-center text-slate-400 hover:text-slate-900"
+                                                        >
+                                                            {variant.is_active ? <EyeOffIcon className="w-3.5 h-3.5" /> : <EyeIcon className="w-3.5 h-3.5" />}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => arms.deleteArm(variant.id, () => onArmChange(ORIGINAL_ARM))}
+                                                            disabled={arms.busy}
+                                                            aria-label="Delete this variant"
+                                                            title="Delete this variant"
+                                                            className="inline-flex size-6 items-center justify-center text-slate-400 hover:text-rose-600"
+                                                        >
+                                                            <TrashIcon className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         ) : (
                                             <button
@@ -479,7 +503,7 @@ function DialogBody({
                                             >
                                                 {a.name}
                                                 <span className="tabular-nums text-[11px] text-slate-400">{arms.shareOf(a.active ? a.weight : 0)}%</span>
-                                                {!a.active && <span className="text-[10px]">paused</span>}
+                                                {!a.active && <span className="text-[10px]">off</span>}
                                             </button>
                                         ),
                                     )}
@@ -496,28 +520,6 @@ function DialogBody({
                                         </button>
                                     )}
                                 </div>
-                                {variant && (
-                                    <div className="flex items-center gap-2 px-3 py-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => arms.togglePause(variant.id, !variant.is_active)}
-                                            disabled={arms.busy}
-                                            className="h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-700 hover:bg-slate-50"
-                                        >
-                                            {variant.is_active ? <PauseIcon className="w-3.5 h-3.5" /> : <PlayIcon className="w-3.5 h-3.5" />}
-                                            {variant.is_active ? "Pause" : "Resume"}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => arms.deleteArm(variant.id, () => onArmChange(ORIGINAL_ARM))}
-                                            disabled={arms.busy}
-                                            className="h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-rose-600 hover:bg-rose-50"
-                                        >
-                                            <TrashIcon className="w-3.5 h-3.5" />
-                                            Delete variant
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                         ) : (
                             <div className="flex shrink-0 items-center gap-2 border-b border-slate-200 px-3 py-2">
