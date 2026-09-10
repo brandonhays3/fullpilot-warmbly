@@ -666,7 +666,7 @@ A `PreflightReport` object.
 
 Send a one-off test of a sequence step to a chosen recipient through a chosen mailbox. The message is assembled the way a real send is: merge fields and spintax resolve for the contact, the files that step sends are attached (the campaign's unscoped attachments plus that step's own), the mailbox signature and the campaign's opt-out footer are appended, and a plain-text campaign ships without an HTML part. The subject is prefixed with `[TEST]`. Opens and clicks on a test are never tracked, and its opt-out link names no contact, so clicking it suppresses nobody. Defaults to the first step when `step_id` is omitted. **Scope** `SEND_CAMPAIGNS` · **Org permission** `send_campaigns`.
 
-The mailbox may be any mailbox of the organization, not only one the caller connected, and it does not have to be in the campaign's sender pool. An API key with an `allowed_email_accounts` list can only test from those mailboxes. Passing `contact_id` additionally requires `READ_CONTACTS` (org permission `view_contacts`), since the rendered copy reads that contact's fields.
+The mailbox may be any active mailbox of the organization, not only one the caller connected, and it does not have to be in the campaign's sender pool or carry its tags. A paused or revoked mailbox is refused with `400`. An API key with an `allowed_email_accounts` list can only test from those mailboxes. Passing `contact_id` additionally requires `READ_CONTACTS` (org permission `view_contacts`), since the rendered copy reads that contact's fields.
 
 | Parameter | In | Type | Description |
 | --- | --- | --- | --- |
@@ -711,7 +711,7 @@ The mailbox may be any mailbox of the organization, not only one the caller conn
 | --- | --- | --- |
 | `404` | `not_found` | The campaign, step, mailbox or contact does not belong to the caller's organization. |
 | `403` | `forbidden` | `contact_id` given without contact read permission, or `account_id` outside the API key's allowed mailboxes. |
-| `400` | `bad_request` | The campaign has no steps. |
+| `400` | `bad_request` | The campaign has no steps, or the mailbox is not active. |
 
 ## Start a campaign
 
