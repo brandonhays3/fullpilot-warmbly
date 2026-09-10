@@ -12,7 +12,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { BracesIcon, GitBranchIcon, FunctionSquareIcon, ClipboardListIcon, LinkIcon } from "@/components/icons";
 import useCustomFieldKeys from "@/lib/api/hooks/app/contacts/useCustomFieldKeys";
 import { useForms } from "@/lib/api/hooks/app/forms";
-import { STANDARD_VARS, LINK_VARS, buildToken, buildFormLinkToken, cleanFieldName, isStandardKey } from "@/lib/templateVars";
+import {
+    STANDARD_VARS,
+    SENDER_VARS,
+    LINK_VARS,
+    buildToken,
+    cleanFieldName,
+    isStandardKey,
+} from "@/lib/templateVars";
 import { useAnchoredFloating, caretReference } from "@/hooks/useAnchoredFloating";
 
 type Group = "Fields" | "Links" | "Forms" | "Logic" | "Functions";
@@ -106,7 +113,7 @@ export default function EditorSuggest({ editor, links = [] }: { editor: Editor; 
 
     const candidates = React.useMemo<Item[]>(() => {
         const fields: Item[] = [
-            ...STANDARD_VARS.map((v) => ({
+            ...[...STANDARD_VARS, ...SENDER_VARS].map((v) => ({
                 id: `f:${v.key}`,
                 group: "Fields" as const,
                 label: v.label,

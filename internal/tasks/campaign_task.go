@@ -467,7 +467,8 @@ func (s *tasksService) HandleCampaignTask(task *proto.ProcessTask) *errx.Error {
 	if s.unsubLinks != nil && s.unsubLinks.Enabled() {
 		unsubscribeURL = s.unsubLinks.URL(orgID, campaign.ID, contact.ID, time.Now())
 	}
-	extra := map[string]string{UnsubscribeLinkVar: unsubscribeURL}
+	// The sender fields come from the mailbox this send goes out through.
+	extra := s.sendExtra(ctx, orgID, account, unsubscribeURL)
 
 	// STEP 10: Render email template with contact variables, then expand any
 	// {a|b|c} spintax per-recipient (only real |-groups; literal braces/CSS are

@@ -66,7 +66,8 @@ func (s *tasksService) PreviewEmail(ctx context.Context, orgID uuid.UUID, in Ema
 		textOnly = in.Campaign.TextOnly
 	}
 
-	out := &EmailPreview{TemplatePreview: previewTemplatesWith(in.Subject, in.BodyHTML, in.BodyPlain, in.Contact, unsubURL)}
+	// Sender fields read the chosen mailbox; without one they render blank.
+	out := &EmailPreview{TemplatePreview: previewTemplatesExtra(in.Subject, in.BodyHTML, in.BodyPlain, in.Contact, s.sendExtra(ctx, orgID, in.Account, unsubURL))}
 	out.BodyHTML, out.BodyPlain = finishBody(out.BodyHTML, out.BodyPlain, textOnly, in.Account, optOut, unsubURL)
 
 	if in.Account != nil {

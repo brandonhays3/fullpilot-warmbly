@@ -19,6 +19,7 @@ import useCustomFieldKeys from "@/lib/api/hooks/app/contacts/useCustomFieldKeys"
 import { useAnchoredFloating } from "@/hooks/useAnchoredFloating";
 import {
     STANDARD_VARS,
+    SENDER_VARS,
     buildToken,
     parseToken,
     tokenLabel,
@@ -233,7 +234,7 @@ function VariableChipEditor({
     }, [onClose]);
 
     const options = [
-        ...STANDARD_VARS.map((v) => ({ key: v.key, label: v.label })),
+        ...[...STANDARD_VARS, ...SENDER_VARS].map((v) => ({ key: v.key, label: v.label })),
         ...customKeys.filter((k) => !isStandardKey(k)).map((k) => ({ key: k, label: k })),
     ];
 

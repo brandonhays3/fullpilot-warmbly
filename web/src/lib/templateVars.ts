@@ -22,6 +22,16 @@ export const STANDARD_VARS: TemplateVar[] = [
     { token: "{{.Phone}}", key: "Phone", label: "Phone", desc: "The contact's phone number", sample: "+1 555-0100" },
 ];
 
+// The sending mailbox and its workspace, resolved per send (internal/tasks
+// sender_vars.go), so one step reads right from every mailbox in the pool.
+export const SENDER_VARS: TemplateVar[] = [
+    { token: "{{.SenderFirstName}}", key: "SenderFirstName", label: "Sender first name", desc: "The sending mailbox's first name", sample: "Sam" },
+    { token: "{{.SenderLastName}}", key: "SenderLastName", label: "Sender last name", desc: "The sending mailbox's last name", sample: "Taylor" },
+    { token: "{{.SenderName}}", key: "SenderName", label: "Sender full name", desc: "The sending mailbox's display name", sample: "Sam Taylor" },
+    { token: "{{.SenderEmail}}", key: "SenderEmail", label: "Sender email", desc: "The address the email is sent from", sample: "sam@yourcompany.com" },
+    { token: "{{.SenderCompany}}", key: "SenderCompany", label: "Sender company", desc: "Your workspace name", sample: "Your Company" },
+];
+
 // The recipient's opt-out link. Named because the editor treats it specially:
 // applied to a text selection it becomes that text's href, so the copy can say
 // what it likes and the signed URL never shows.
@@ -46,23 +56,23 @@ export const LINK_VARIABLES: string[] = LINK_VARS.map((v) => v.token);
 
 // Friendly metadata keyed by token, for pickers that render label + description.
 export const TOKEN_META: Record<string, { label: string; desc: string }> = Object.fromEntries(
-    [...STANDARD_VARS, ...LINK_VARS].map((v) => [v.token, { label: v.label, desc: v.desc }]),
+    [...STANDARD_VARS, ...SENDER_VARS, ...LINK_VARS].map((v) => [v.token, { label: v.label, desc: v.desc }]),
 );
 
 // Client-side preview sample context: standard fields plus a couple of common
 // custom-field examples so a {{.role}} in a preview resolves to something.
 export const SAMPLE: Record<string, string> = {
-    ...Object.fromEntries([...STANDARD_VARS, ...LINK_VARS].map((v) => [v.key, v.sample])),
+    ...Object.fromEntries([...STANDARD_VARS, ...SENDER_VARS, ...LINK_VARS].map((v) => [v.key, v.sample])),
     role: "Engineer",
     city: "Berlin",
 };
 
-const STANDARD_KEYS = new Set(STANDARD_VARS.map((v) => v.key.toLowerCase()));
+const STANDARD_KEYS = new Set([...STANDARD_VARS, ...SENDER_VARS].map((v) => v.key.toLowerCase()));
 
 // isStandardKey reports whether a (case-insensitive) key collides with a
-// standard field. The backend lets a standard field win a name collision
-// (template.go buildTemplateData), so the picker warns when a custom key shadows
-// one.
+// standard or sender field. The backend lets those win a name collision
+// (template.go buildTemplateData, RenderTemplateWith's extra), so the picker
+// warns when a custom key shadows one.
 export function isStandardKey(key: string): boolean {
     return STANDARD_KEYS.has(cleanFieldName(key).toLowerCase());
 }
@@ -88,13 +98,36 @@ export function buildToken(key: string, fallback?: string | null): string {
     return `{{.${k}}}`;
 }
 
+// buildFallbackToken is the personalization dialog's token: Go's native
+// {{or .Key "fallback"}}, which renders the fallback when the field is blank.
+// Quotes in the fallback are escaped for the template string literal. An
+// empty fallback is the plain token.
+export function buildFallbackToken(key: string, fallback?: string | null): string {
+    const k = cleanFieldName(key);
+    if (!k) return "";
+    const fb = (fallback ?? "").trim();
+    if (!fb) return `{{.${k}}}`;
+    return `{{or .${k} "${escapeTemplateString(fb)}"}}`;
+}
+
+export function escapeTemplateString(s: string): string {
+    return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+export function unescapeTemplateString(s: string): string {
+    return s.replace(/\\(["\\])/g, "$1");
+}
+
 // parseToken splits a merge token back into its key and fallback for display and
-// editing. Returns null when the string is not a plain field-access token (e.g.
-// a conditional or a token with helpers we do not model as a chip).
+// editing, accepting both fallback spellings: {{.Key | default "x"}} and
+// {{or .Key "x"}}. Returns null when the string is not a plain field-access
+// token (e.g. a conditional or a token with helpers we do not model as a chip).
 export function parseToken(token: string): { key: string; fallback: string | null } | null {
     const m = token.match(/^\{\{\s*\.([A-Za-z0-9_ -]+?)\s*(?:\|\s*default\s+"([^"]*)")?\s*\}\}$/);
-    if (!m) return null;
-    return { key: m[1].trim(), fallback: m[2] ?? null };
+    if (m) return { key: m[1].trim(), fallback: m[2] ?? null };
+    const o = token.match(/^\{\{\s*or\s+\.([A-Za-z0-9_ -]+?)\s+"((?:[^"\\]|\\.)*)"\s*\}\}$/);
+    if (o) return { key: o[1].trim(), fallback: unescapeTemplateString(o[2]) };
+    return null;
 }
 
 // tokenLabel is the friendly name shown on a chip: the standard field label when
@@ -122,10 +155,12 @@ export function parseFormLinkToken(token: string): string | null {
     return m ? m[1] : null;
 }
 
-// FIELD_TOKEN_RE matches a bare merge-field token (optionally with a default
-// fallback) but NOT control tokens like {{if .X}} / {{end}} / {{eq ...}}, so
-// legacy plain content can be upgraded to chips without disturbing conditionals.
-export const FIELD_TOKEN_RE = /\{\{\s*\.[A-Za-z0-9_ -]+?(?:\s*\|\s*default\s+"[^"]*")?\s*\}\}/g;
+// FIELD_TOKEN_RE matches a bare merge-field token (optionally with a fallback,
+// in either spelling) but NOT control tokens like {{if .X}} / {{end}} /
+// {{eq ...}}, so legacy plain content can be upgraded to chips without
+// disturbing conditionals.
+export const FIELD_TOKEN_RE =
+    /\{\{\s*(?:\.[A-Za-z0-9_ -]+?(?:\s*\|\s*default\s+"[^"]*")?|or\s+\.[A-Za-z0-9_ -]+?\s+"(?:[^"\\]|\\.)*")\s*\}\}/g;
 
 // upgradeVariableTokens wraps bare merge-field and form-link tokens in the
 // editor HTML with their chip spans (span[data-var] / span[data-form-link]) so

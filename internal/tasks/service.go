@@ -143,7 +143,9 @@ type tasksService struct {
 	campaignLogRepo      repository.CampaignLogRepository
 	// orgRiskRepo bars a restricted organization from the paid warmup pool.
 	// Optional/nil-safe.
-	orgRiskRepo     repository.OrgRiskRepository
+	orgRiskRepo repository.OrgRiskRepository
+	// orgRepo names the workspace for the SenderCompany merge field.
+	orgRepo         repository.OrganizationRepository
 	attachmentRepo  repository.AttachmentRepository
 	trackedLinkRepo repository.TrackedLinkRepository
 
