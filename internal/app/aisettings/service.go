@@ -28,7 +28,7 @@ import (
 
 // DefaultModel is the model an AI block runs on when neither the block nor the
 // workspace names one.
-const DefaultModel = "openai/gpt-4o-mini"
+const DefaultModel = "deepseek/deepseek-v4-flash-0731"
 
 var (
 	// ErrKeyMissing means the workspace has not saved an OpenRouter key.
