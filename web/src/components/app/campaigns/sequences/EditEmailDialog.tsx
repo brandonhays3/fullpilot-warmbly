@@ -20,6 +20,8 @@ import {
     SendIcon,
     XIcon,
     TrashIcon,
+    PauseIcon,
+    PlayIcon,
 } from "@/components/icons";
 import type Sequence from "@/lib/api/models/app/campaigns/sequences/Sequence";
 import type Contact from "@/lib/api/models/app/contacts/Contact";
@@ -27,7 +29,6 @@ import type Inbox from "@/lib/api/models/app/emails/Inbox";
 import type { TemplatePreview } from "@/lib/api/client/app/campaigns/previewTemplate";
 import { useTemplatePreview } from "@/lib/api/hooks/app/campaigns/useTemplatePreview";
 import { useCampaignAttachments } from "@/lib/api/hooks/app/campaigns/useCampaignAttachments";
-import { useUpdateABVariant } from "@/lib/api/hooks/app/campaigns/useCampaignABVariants";
 import useUpdateSequence from "@/lib/api/hooks/app/campaigns/sequences/useUpdateSequence";
 import useSendTestEmail from "@/lib/api/hooks/app/campaigns/useSendTestEmail";
 import useEmails from "@/lib/api/hooks/app/emails/useEmails";
@@ -52,6 +53,8 @@ import { PreviewContactPicker } from "./PreviewControls";
 import { SAMPLE_CONTACT_LABEL, contactLabel, useCampaignSenderInboxes } from "./previewContext";
 import { htmlToPlain, linkifyUnsubscribe, renderPreview } from "./emailPreview";
 import { ORIGINAL_ARM, type StepArms } from "./useStepArms";
+import StepSplitAllocator from "./StepSplitAllocator";
+import { useUpdateABVariant } from "@/lib/api/hooks/app/campaigns/useCampaignABVariants";
 
 type Draft = { subject: string; bodyHtml: string };
 const sameDraft = (a: Draft, b: Draft) => a.subject === b.subject && a.bodyHtml === b.bodyHtml;
@@ -307,6 +310,10 @@ function DialogBody({
     // ── Test send ─────────────────────────────────────────────────────────
     const [recipient, setRecipient] = React.useState(user.email ?? "");
     const [testOpen, setTestOpen] = React.useState(false);
+    const [variantName, setVariantName] = React.useState(variant?.name ?? "");
+    React.useEffect(() => {
+        setVariantName(variant?.name ?? "");
+    }, [variant?.id, variant?.name]);
     const send = useSendTestEmail(campaignId);
     const recipientOk = EMAIL_RE.test(recipient.trim());
     const testBlocked = variant
@@ -335,7 +342,6 @@ function DialogBody({
         );
     }
 
-    const armTabs = arms.arms;
     const saveState = saving ? "Saving…" : dirty ? "Unsaved changes" : "Saved";
 
     return createPortal(
@@ -406,49 +412,69 @@ function DialogBody({
                     <div
                         className={`${mobileTab === "edit" ? "flex" : "hidden"} min-h-0 flex-col overflow-y-auto md:flex md:border-r md:border-slate-200`}
                     >
-                        <div className="flex shrink-0 flex-wrap items-center gap-1 border-b border-slate-200 px-3 py-2">
-                            {armTabs.map((a) => (
-                                <div key={a.key} className="inline-flex items-center">
-                                    <button
-                                        type="button"
-                                        onClick={() => void switchArm(a.key)}
-                                        className={`h-7 px-2.5 inline-flex items-center gap-1.5 text-[12px] font-medium transition-colors ${
-                                            a.key === armKey
-                                                ? "bg-slate-900 text-white"
-                                                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                                        }`}
-                                    >
-                                        {a.name}
-                                        {!a.active && <span className="text-[10px] opacity-70">paused</span>}
-                                    </button>
-                                    {/* Only a selected variant carries its delete; the Original cannot go. */}
-                                    {a.key === armKey && a.key !== ORIGINAL_ARM && (
+                        {arms.variants.length > 0 ? (
+                            <div className="shrink-0 border-b border-slate-200">
+                                <StepSplitAllocator
+                                    arms={arms.arms}
+                                    selectedKey={armKey}
+                                    onSelect={(k) => void switchArm(k)}
+                                    onCommit={arms.commitWeights}
+                                    onAdd={() => void addVariant()}
+                                    onEven={arms.evenSplit}
+                                    canAdd={arms.canAdd}
+                                    adding={arms.adding}
+                                    busy={arms.busy}
+                                />
+                                {variant && (
+                                    <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 px-3 py-2">
+                                        <TextInput
+                                            value={variantName}
+                                            onChange={setVariantName}
+                                            placeholder="Variant name"
+                                            className="w-44"
+                                            onBlur={() => {
+                                                const name = variantName.trim();
+                                                if (name && name !== variant.name) void updateVariant.mutateAsync({ variantId: variant.id, input: { name } });
+                                            }}
+                                        />
                                         <button
                                             type="button"
-                                            onClick={() => arms.deleteArm(a.key, () => onArmChange(ORIGINAL_ARM))}
+                                            onClick={() => arms.togglePause(variant.id, !variant.is_active)}
                                             disabled={arms.busy}
-                                            aria-label={`Delete ${a.name}`}
-                                            title={`Delete ${a.name}`}
-                                            className="h-7 px-1.5 inline-flex items-center bg-slate-900 text-white/70 transition-colors hover:text-white disabled:opacity-60"
+                                            className="h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-700 hover:bg-slate-50"
+                                        >
+                                            {variant.is_active ? <PauseIcon className="w-3.5 h-3.5" /> : <PlayIcon className="w-3.5 h-3.5" />}
+                                            {variant.is_active ? "Pause" : "Resume"}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => arms.deleteArm(variant.id, () => onArmChange(ORIGINAL_ARM))}
+                                            disabled={arms.busy}
+                                            className="h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-rose-600 hover:bg-rose-50"
                                         >
                                             <TrashIcon className="w-3.5 h-3.5" />
+                                            Delete variant
                                         </button>
-                                    )}
-                                </div>
-                            ))}
-                            {arms.canAdd && (
-                                <button
-                                    type="button"
-                                    onClick={() => void addVariant()}
-                                    disabled={arms.adding}
-                                    title="Add an A/B variant of this email"
-                                    className="h-7 px-2 inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white text-[12px] font-medium text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-900 disabled:opacity-50"
-                                >
-                                    {arms.adding ? <Loader2Icon className="w-3.5 h-3.5 animate-spin" /> : <PlusIcon className="w-3.5 h-3.5" />}
-                                    {arms.variants.length === 0 ? "A/B test" : "Variant"}
-                                </button>
-                            )}
-                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="flex shrink-0 items-center gap-2 border-b border-slate-200 px-3 py-2">
+                                <span className="text-[12px] text-slate-500">One version of this email.</span>
+                                {arms.canAdd && (
+                                    <button
+                                        type="button"
+                                        onClick={() => void addVariant()}
+                                        disabled={arms.adding}
+                                        title="Split this step's traffic between two or more versions"
+                                        className="ml-auto h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-700 hover:bg-slate-50"
+                                    >
+                                        {arms.adding ? <Loader2Icon className="w-3.5 h-3.5 animate-spin" /> : <PlusIcon className="w-3.5 h-3.5" />}
+                                        A/B test
+                                    </button>
+                                )}
+                            </div>
+                        )}
                         <div className="space-y-4 p-4">
                             <EmailContentEditor
                                 key={armKey}
