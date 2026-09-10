@@ -434,106 +434,91 @@ function DialogBody({
                         {arms.variants.length > 0 ? (
                             <div className="shrink-0 border-b border-slate-200">
                                 {/* Neutral arm tabs: name and share, selected is dark. */}
-                                {/* Arms as one boxed segmented control, the app's switch
-                                    language: hairline box, divided segments, selected filled dark. */}
-                                <div className="px-3 pt-3">
-                                    <div className="inline-flex max-w-full items-stretch overflow-x-auto border border-slate-200 divide-x divide-slate-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                                        {arms.arms.map((a) =>
-                                            a.key === armKey ? (
-                                                <div
-                                                    key={a.key}
-                                                    className={`h-8 shrink-0 pl-2 pr-1.5 inline-flex items-center gap-1 bg-slate-900 text-white ${a.active ? "" : "opacity-60"}`}
-                                                >
-                                                    {/* Name and share edit in place; blur or Enter commits. */}
-                                                    {a.isOriginal ? (
-                                                        <span className="px-1 text-[12.5px] font-medium">{a.name}</span>
-                                                    ) : (
-                                                        <input
-                                                            value={variantName}
-                                                            onChange={(e) => setVariantName(e.target.value)}
-                                                            onBlur={commitVariantName}
-                                                            onKeyDown={(e) => {
-                                                                if (e.key === "Enter") e.currentTarget.blur();
-                                                            }}
-                                                            aria-label="Variant name"
-                                                            size={Math.max(6, variantName.length)}
-                                                            className="h-6 bg-transparent px-1 text-[12.5px] font-medium text-white outline-none placeholder:text-white/50 focus:bg-white/10"
-                                                        />
-                                                    )}
+                                {/* Tabs: hairline strip, each arm a tab; the selected one is white and
+                                    open at the bottom so it joins the editor. "+" is the last tab. */}
+                                <div className="flex items-end overflow-x-auto border-b border-slate-200 px-3 pt-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                                    {arms.arms.map((a) =>
+                                        a.key === armKey ? (
+                                            <div
+                                                key={a.key}
+                                                className={`-mb-px h-9 shrink-0 pl-2.5 pr-2 inline-flex items-center gap-1 border border-slate-200 border-b-white bg-white text-slate-900 ${a.active ? "" : "opacity-60"}`}
+                                            >
+                                                {a.isOriginal ? (
+                                                    <span className="px-1 text-[12.5px] font-medium">{a.name}</span>
+                                                ) : (
                                                     <input
-                                                        value={shareDraft}
-                                                        onChange={(e) => setShareDraft(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
-                                                        onBlur={() => commitShare(a.key)}
+                                                        value={variantName}
+                                                        onChange={(e) => setVariantName(e.target.value)}
+                                                        onBlur={commitVariantName}
                                                         onKeyDown={(e) => {
                                                             if (e.key === "Enter") e.currentTarget.blur();
                                                         }}
-                                                        inputMode="numeric"
-                                                        aria-label="Traffic share"
-                                                        className="h-6 w-8 bg-transparent text-right text-[11px] tabular-nums text-white/80 outline-none focus:bg-white/10 focus:text-white"
+                                                        aria-label="Variant name"
+                                                        size={Math.max(6, variantName.length)}
+                                                        className="h-6 bg-transparent px-1 text-[12.5px] font-medium text-slate-900 outline-none focus:bg-slate-100"
                                                     />
-                                                    <span className="text-[11px] text-white/60">%</span>
-                                                </div>
-                                            ) : (
-                                                <button
-                                                    key={a.key}
-                                                    type="button"
-                                                    onClick={() => void switchArm(a.key)}
-                                                    className={`h-8 shrink-0 px-3 inline-flex items-center gap-2 bg-white text-[12.5px] text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 ${a.active ? "" : "opacity-60"}`}
-                                                >
-                                                    {a.name}
-                                                    <span className="tabular-nums text-[11px] text-slate-400">{arms.shareOf(a.active ? a.weight : 0)}%</span>
-                                                    {!a.active && <span className="text-[10px]">paused</span>}
-                                                </button>
-                                            ),
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="flex flex-wrap items-center gap-2 px-3 py-2">
-                                    {variant ? (
-                                        <>
+                                                )}
+                                                <input
+                                                    value={shareDraft}
+                                                    onChange={(e) => setShareDraft(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
+                                                    onBlur={() => commitShare(a.key)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter") e.currentTarget.blur();
+                                                    }}
+                                                    inputMode="numeric"
+                                                    aria-label="Traffic share"
+                                                    className="h-6 w-7 bg-transparent text-right text-[11px] tabular-nums text-slate-500 outline-none focus:bg-slate-100 focus:text-slate-900"
+                                                />
+                                                <span className="text-[11px] text-slate-400">%</span>
+                                            </div>
+                                        ) : (
                                             <button
+                                                key={a.key}
                                                 type="button"
-                                                onClick={() => arms.togglePause(variant.id, !variant.is_active)}
-                                                disabled={arms.busy}
-                                                className="h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-700 hover:bg-slate-50"
+                                                onClick={() => void switchArm(a.key)}
+                                                className={`h-9 shrink-0 px-3.5 inline-flex items-center gap-2 border border-transparent bg-slate-50 text-[12.5px] text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 ${a.active ? "" : "opacity-60"}`}
                                             >
-                                                {variant.is_active ? <PauseIcon className="w-3.5 h-3.5" /> : <PlayIcon className="w-3.5 h-3.5" />}
-                                                {variant.is_active ? "Pause" : "Resume"}
+                                                {a.name}
+                                                <span className="tabular-nums text-[11px] text-slate-400">{arms.shareOf(a.active ? a.weight : 0)}%</span>
+                                                {!a.active && <span className="text-[10px]">paused</span>}
                                             </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => arms.deleteArm(variant.id, () => onArmChange(ORIGINAL_ARM))}
-                                                disabled={arms.busy}
-                                                className="h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-rose-600 hover:bg-rose-50"
-                                            >
-                                                <TrashIcon className="w-3.5 h-3.5" />
-                                                Delete
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <span className="text-[12px] text-slate-500">Original is the control.</span>
+                                        ),
                                     )}
-                                    <button
-                                        type="button"
-                                        onClick={arms.evenSplit}
-                                        disabled={arms.busy}
-                                        title="Split traffic evenly"
-                                        className="ml-auto h-7 px-2.5 inline-flex items-center text-[12px] font-medium text-slate-600 hover:text-slate-900"
-                                    >
-                                        Even split
-                                    </button>
                                     {arms.canAdd && (
                                         <button
                                             type="button"
                                             onClick={() => void addVariant()}
                                             disabled={arms.adding}
-                                            className="h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-700 hover:bg-slate-50"
+                                            aria-label="Add a variant"
+                                            title="Add a variant"
+                                            className="h-9 shrink-0 px-3 inline-flex items-center border border-transparent text-slate-500 transition-colors hover:text-slate-900 disabled:opacity-60"
                                         >
                                             {arms.adding ? <Loader2Icon className="w-3.5 h-3.5 animate-spin" /> : <PlusIcon className="w-3.5 h-3.5" />}
-                                            Variant
                                         </button>
                                     )}
                                 </div>
+                                {variant && (
+                                    <div className="flex items-center gap-2 px-3 py-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => arms.togglePause(variant.id, !variant.is_active)}
+                                            disabled={arms.busy}
+                                            className="h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-700 hover:bg-slate-50"
+                                        >
+                                            {variant.is_active ? <PauseIcon className="w-3.5 h-3.5" /> : <PlayIcon className="w-3.5 h-3.5" />}
+                                            {variant.is_active ? "Pause" : "Resume"}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => arms.deleteArm(variant.id, () => onArmChange(ORIGINAL_ARM))}
+                                            disabled={arms.busy}
+                                            className="h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-rose-600 hover:bg-rose-50"
+                                        >
+                                            <TrashIcon className="w-3.5 h-3.5" />
+                                            Delete variant
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="flex shrink-0 items-center gap-2 border-b border-slate-200 px-3 py-2">
