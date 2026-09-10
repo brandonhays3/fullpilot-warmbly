@@ -414,27 +414,31 @@ function DialogBody({
                         {arms.variants.length > 0 ? (
                             <div className="shrink-0 border-b border-slate-200">
                                 {/* Neutral arm tabs: name and share, selected is dark. */}
-                                {/* Folder tabs on a grey band: the selected arm is white and
-                                    joins the editor below it; actions live in the row beneath. */}
-                                <div className="flex items-end overflow-x-auto bg-slate-100 px-3 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                                    {arms.arms.map((a) => (
-                                        <button
-                                            key={a.key}
-                                            type="button"
-                                            onClick={() => void switchArm(a.key)}
-                                            className={`-mb-px h-9 shrink-0 px-3.5 inline-flex items-center gap-2 border text-[12.5px] transition-colors ${
-                                                a.key === armKey
-                                                    ? "border-slate-200 border-b-white bg-white font-medium text-slate-900"
-                                                    : "border-transparent text-slate-500 hover:text-slate-900"
-                                            } ${a.active ? "" : "opacity-60"}`}
-                                        >
-                                            {a.name}
-                                            <span className="tabular-nums text-[11px] text-slate-400">{arms.shareOf(a.active ? a.weight : 0)}%</span>
-                                            {!a.active && <span className="text-[10px]">paused</span>}
-                                        </button>
-                                    ))}
+                                {/* Arms as one boxed segmented control, the app's switch
+                                    language: hairline box, divided segments, selected filled dark. */}
+                                <div className="px-3 pt-3">
+                                    <div className="inline-flex max-w-full items-stretch overflow-x-auto border border-slate-200 divide-x divide-slate-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                                        {arms.arms.map((a) => (
+                                            <button
+                                                key={a.key}
+                                                type="button"
+                                                onClick={() => void switchArm(a.key)}
+                                                className={`h-8 shrink-0 px-3 inline-flex items-center gap-2 text-[12.5px] transition-colors ${
+                                                    a.key === armKey
+                                                        ? "bg-slate-900 text-white font-medium"
+                                                        : "bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                                                } ${a.active ? "" : "opacity-60"}`}
+                                            >
+                                                {a.name}
+                                                <span className={`tabular-nums text-[11px] ${a.key === armKey ? "text-white/70" : "text-slate-400"}`}>
+                                                    {arms.shareOf(a.active ? a.weight : 0)}%
+                                                </span>
+                                                {!a.active && <span className="text-[10px]">paused</span>}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-                                <div className="flex flex-wrap items-center gap-2 border-t border-slate-200 px-3 py-2">
+                                <div className="flex flex-wrap items-center gap-2 px-3 py-2">
                                     {variant ? (
                                         <>
                                             <TextInput
@@ -478,7 +482,7 @@ function DialogBody({
                                             </button>
                                         </>
                                     ) : (
-                                        <span className="text-[12px] text-slate-500">The Original is the control. Traffic splits by the shares on each tab.</span>
+                                        <span className="text-[12px] text-slate-500">Original is the control.</span>
                                     )}
                                     <button
                                         type="button"
