@@ -55,6 +55,7 @@ export default function EmailContentEditor({
     dirty = false,
     previewTab = true,
     bodyMinHeight,
+    toolbarEnd,
 }: {
     subject: string;
     onSubjectChange: (value: string) => void;
@@ -78,6 +79,8 @@ export default function EmailContentEditor({
     previewTab?: boolean;
     // Taller writing area, see RichTextEditor.
     bodyMinHeight?: number;
+    /** Right-aligned content on the templates row (the editor dialog puts its delete link here). */
+    toolbarEnd?: React.ReactNode;
 }) {
     const [tab, setTab] = React.useState<"edit" | "preview">("edit");
 
@@ -230,6 +233,7 @@ export default function EmailContentEditor({
                         </div>
                     </PopoverMenuContent>
                 </PopoverMenu>
+                {toolbarEnd && <div className="ml-auto flex items-center">{toolbarEnd}</div>}
             </div>
 
             <div>

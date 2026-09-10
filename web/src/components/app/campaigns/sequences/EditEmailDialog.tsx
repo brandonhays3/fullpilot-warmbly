@@ -551,23 +551,6 @@ function DialogBody({
                                 )}
                             </div>
                         )}
-                        {arms.variants.length > 0 && (
-                            <div className="flex justify-end px-4 pt-3 -mb-2">
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        armKey === ORIGINAL_ARM
-                                            ? arms.deleteOriginal(() => onArmChange(ORIGINAL_ARM))
-                                            : variant && arms.deleteArm(variant.id, () => onArmChange(ORIGINAL_ARM))
-                                    }
-                                    disabled={arms.busy}
-                                    className="h-7 -mr-2 px-2 inline-flex items-center gap-1.5 text-[11.5px] text-slate-500 hover:bg-rose-50 hover:text-rose-600"
-                                >
-                                    <TrashIcon className="w-3.5 h-3.5" />
-                                    Delete {arms.arms.find((a) => a.key === armKey)?.name ?? "this version"}
-                                </button>
-                            </div>
-                        )}
                         <div className="space-y-4 p-4">
                             <EmailContentEditor
                                 key={armKey}
@@ -580,6 +563,23 @@ function DialogBody({
                                 campaignId={campaignId}
                                 stepId={sequence.id}
                                 previewTab={false}
+                                toolbarEnd={
+                                    arms.variants.length > 0 ? (
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                armKey === ORIGINAL_ARM
+                                                    ? arms.deleteOriginal(() => onArmChange(ORIGINAL_ARM))
+                                                    : variant && arms.deleteArm(variant.id, () => onArmChange(ORIGINAL_ARM))
+                                            }
+                                            disabled={arms.busy}
+                                            className="h-8 px-2.5 inline-flex items-center gap-1.5 text-[12px] font-medium text-slate-500 hover:bg-rose-50 hover:text-rose-600"
+                                        >
+                                            <TrashIcon className="w-3.5 h-3.5" />
+                                            Delete {arms.arms.find((a) => a.key === armKey)?.name ?? "this version"}
+                                        </button>
+                                    ) : null
+                                }
                                 bodyMinHeight={360}
                             />
                             <StepAttachments campaignId={campaignId} sequenceId={sequence.id} />
