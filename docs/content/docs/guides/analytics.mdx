@@ -35,8 +35,13 @@ Live, scoped by `7d`, `30d`, or `90d` tabs.
 | Email performance | One metric per day (sent, opens, clicks, replies), for spotting the day something moved |
 | Breakdown | Raw window totals behind the rates |
 | Account health | Mailboxes counted as Healthy, At risk, Issues |
+| Send methods | Sent, open rate, reply rate and bounce rate for each way sends left the workspace in the window, see below |
 | Top campaigns | Best performers with sent, open rate, reply rate, and a status dot |
 | Recent activity | A live feed of individual sends, opens, clicks, replies, and bounces |
+
+### Send methods
+
+Every confirmed send records how it left: through the provider's API or its SMTP endpoint, from which provider, and from which worker placement (`smtp_google_cloud_run_worker`, `api_microsoft_cloud_vm`; the format is explained in the [mailboxes guide](/guides/mailboxes/#send-methods)). The dashboard and each campaign overview list every method seen with its sends and the share of them delivered (not bounced), opened, replied and bounced, so the two paths can be compared on the same campaigns and the same period. Sends confirmed before the method was recorded are listed as not recorded. The same numbers are on the API as `GET /analytics/send-methods?period=7d|30d|90d` and `GET /campaigns/:id/analytics/send-methods`.
 
 ## Per-campaign
 
@@ -45,6 +50,8 @@ Each campaign reports its own totals: contacts, sent, pending, unique opens and 
 **Per-step stats** break sent, opens, clicks, replies, and bounces down by sequence step, which is how you find the touch pulling replies and the follow-ups that are dead weight. Daily stats drive the trend chart, and hourly stats show when sends land and get engagement. Campaigns can also be compared side by side on the same metrics.
 
 **Who engaged, and from where** lists the countries, mail clients and devices people opened and clicked from, counting each contact once per bucket. Only human events feed it, so a security scanner's data centre never tops the country list.
+
+**Send methods** breaks the campaign's sends down by the path they took (provider API or SMTP, per provider and worker placement) with sent, open rate, reply rate and bounce rate for each; see [send methods](#send-methods) above.
 
 ### What is recorded per open and click
 

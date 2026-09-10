@@ -509,6 +509,9 @@ func Run(
 				campaigns.DELETE("/:id/attachments/:attachmentId", m.RequireOrganization(), m.RequireAccess(models.PermManageCampaigns, models.APIPermWriteCampaigns), h.DeleteCampaignAttachment)
 				campaigns.POST("/:id/preflight", m.RequireOrganization(), m.RequireAccess(models.PermSendCampaigns, models.APIPermSendCampaigns), h.RunCampaignPreflight)
 				campaigns.GET("/:id/ab-analysis", m.RequireOrganization(), m.RequireAccess(models.PermViewAnalytics, models.APIPermReadAnalytics), h.GetCampaignABAnalysis)
+				// How this campaign's sends performed by send method (API or
+				// SMTP, per provider and worker deployment).
+				campaigns.GET("/:id/analytics/send-methods", m.RequireOrganization(), m.RequireAccess(models.PermViewAnalytics, models.APIPermReadAnalytics), h.GetCampaignSendMethods)
 				campaigns.POST("/:id/test-email", m.RequireOrganization(), m.RequireAccess(models.PermSendCampaigns, models.APIPermSendCampaigns), h.SendTestEmail)
 
 				// Campaign start/stop
@@ -819,6 +822,7 @@ func Run(
 				analytics.GET("/accounts", h.GetAllAccountStatuses)
 				analytics.GET("/accounts/:id", h.GetAccountStatus)
 				analytics.GET("/usage", h.GetUsageOverview)
+				analytics.GET("/send-methods", m.RequireOrganization(), h.GetWorkspaceSendMethods)
 			}
 
 			// Audit logs

@@ -376,6 +376,10 @@ type ContactSentEmail struct {
 	ClickedAt *time.Time `json:"clicked_at,omitempty"`
 	RepliedAt *time.Time `json:"replied_at,omitempty"`
 	BouncedAt *time.Time `json:"bounced_at,omitempty"`
+
+	// SendMethod is how the worker sent it (SendMethodLabel); nil for a send
+	// that predates the stamp or has not been confirmed yet.
+	SendMethod *string `json:"send_method,omitempty"`
 }
 
 type ContactSentEmailsResult struct {

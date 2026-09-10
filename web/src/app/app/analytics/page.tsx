@@ -28,6 +28,8 @@ import { TONE_DOT } from "@/components/ui/tones";
 import type { DitherTone } from "@/components/ui/dither";
 import AnalyticsShareButton from "@/components/app/analytics/AnalyticsShareButton";
 import useDashboard from "@/lib/api/hooks/app/analytics/useDashboard";
+import useSendMethods from "@/lib/api/hooks/app/analytics/useSendMethods";
+import SendMethodRows from "@/components/app/analytics/SendMethodRows";
 
 const AUTO_OPENS_TIP = "Auto-opens: pixel fetches from privacy proxies (e.g. Apple Mail) or within seconds of sending, not a person reading";
 const AUTO_CLICKS_TIP = "Auto-clicks: links followed by a security gateway scanning the email, not a person; not counted as clicks";
@@ -61,6 +63,7 @@ export default function AnalyticsPage() {
     // Legend toggles: every metric charts together; hidden ones drop out.
     const [hiddenMetrics, setHiddenMetrics] = useState<Metric[]>([]);
     const dash = useDashboard(range);
+    const sendMethods = useSendMethods(range);
     const d = dash.data;
     const os = d?.overall_stats;
 
@@ -195,6 +198,16 @@ export default function AnalyticsPage() {
                                     </div>
                                 </>
                             )}
+                            {/* Sends by method (provider API or SMTP, per
+                                provider and worker placement) in the window. */}
+                            <div className="px-5 pt-3 pb-1 text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium">
+                                Send methods
+                            </div>
+                            <SendMethodRows
+                                methods={sendMethods.data?.methods}
+                                loading={sendMethods.isPending}
+                                rowClassName="h-8 px-5"
+                            />
                         </aside>
                     </div>
 

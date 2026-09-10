@@ -30,6 +30,12 @@ type AnalyticsService interface {
 	GetDashboardAnalytics(ctx context.Context, userID uuid.UUID, period string) (*models.DashboardAnalytics, *errx.Error)
 	GetCampaignHourlyStats(ctx context.Context, userID, campaignID uuid.UUID, date time.Time) ([]models.CampaignHourlyStats, *errx.Error)
 	CompareCampaigns(ctx context.Context, userID uuid.UUID, campaignIDs []uuid.UUID, from, to time.Time) (*models.CampaignComparison, *errx.Error)
+
+	// Send methods: how the sends made each way (provider API or SMTP, per
+	// provider and worker deployment) performed, for one campaign of the
+	// organization and for the whole organization over a period.
+	GetCampaignSendMethods(ctx context.Context, orgID, campaignID uuid.UUID) (*models.CampaignSendMethods, *errx.Error)
+	GetWorkspaceSendMethods(ctx context.Context, orgID uuid.UUID, period string) (*models.WorkspaceSendMethods, *errx.Error)
 }
 
 type analyticsService struct {
@@ -458,22 +464,47 @@ func (s *analyticsService) warmupTargetAndHold(ctx context.Context, email *model
 
 // Dashboard Analytics implementations
 
-func (s *analyticsService) GetDashboardAnalytics(ctx context.Context, orgID uuid.UUID, period string) (*models.DashboardAnalytics, *errx.Error) {
-	// Calculate date range from period
-	var from, to time.Time
+// periodRange resolves a dashboard period (7d, 30d, 90d; anything else is
+// 7d) to the window ending now.
+func periodRange(period string) (from, to time.Time, normalized string) {
 	to = time.Now()
-
 	switch period {
-	case "7d":
-		from = to.AddDate(0, 0, -7)
 	case "30d":
-		from = to.AddDate(0, 0, -30)
+		return to.AddDate(0, 0, -30), to, period
 	case "90d":
-		from = to.AddDate(0, 0, -90)
+		return to.AddDate(0, 0, -90), to, period
 	default:
-		from = to.AddDate(0, 0, -7) // Default to 7 days
-		period = "7d"
+		return to.AddDate(0, 0, -7), to, "7d"
 	}
+}
+
+func (s *analyticsService) GetCampaignSendMethods(ctx context.Context, orgID, campaignID uuid.UUID) (*models.CampaignSendMethods, *errx.Error) {
+	campaign, err := s.campaignRepo.GetByID(ctx, campaignID)
+	if err != nil || campaign == nil || campaign.OrganizationID == nil || *campaign.OrganizationID != orgID {
+		return nil, errx.ErrNotFound
+	}
+	methods, xerr := s.analyticsRepo.GetCampaignSendMethodStats(ctx, campaignID)
+	if xerr != nil {
+		return nil, xerr
+	}
+	return &models.CampaignSendMethods{CampaignID: campaignID, Methods: methods}, nil
+}
+
+func (s *analyticsService) GetWorkspaceSendMethods(ctx context.Context, orgID uuid.UUID, period string) (*models.WorkspaceSendMethods, *errx.Error) {
+	from, to, period := periodRange(period)
+	methods, xerr := s.analyticsRepo.GetWorkspaceSendMethodStats(ctx, orgID, from, to)
+	if xerr != nil {
+		return nil, xerr
+	}
+	return &models.WorkspaceSendMethods{
+		Period:    period,
+		DateRange: models.DateRange{From: from, To: to},
+		Methods:   methods,
+	}, nil
+}
+
+func (s *analyticsService) GetDashboardAnalytics(ctx context.Context, orgID uuid.UUID, period string) (*models.DashboardAnalytics, *errx.Error) {
+	from, to, period := periodRange(period)
 
 	// Get overall stats
 	overallStats, xerr := s.analyticsRepo.GetDashboardOverallStats(ctx, orgID, from, to)

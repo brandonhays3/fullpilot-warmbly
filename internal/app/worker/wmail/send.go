@@ -104,6 +104,11 @@ type SendResult struct {
 	ProviderMsgID string
 	SentAt        time.Time
 	Error         *errx.MailError
+	// Transport is the path the send took (or was attempted on), and
+	// Fallback whether it was the other one than the task was assigned,
+	// because the mailbox cannot use the assigned one.
+	Transport models.MailTransport
+	Fallback  bool
 }
 
 const maxSendRetries = 3
@@ -131,14 +136,31 @@ func (w *WMail) Send(ctx context.Context, req *SendRequest) *SendResult {
 		bodyHTML = ""
 	}
 
+	// The path is a property of the task (sendTransport), chosen once: every
+	// retry below takes the same one.
+	transport, fallback, ok := w.sendTransport(req.TaskID)
+	if !ok {
+		return &SendResult{
+			SentAt:    time.Now(),
+			Transport: transport,
+			Error: errx.MError(
+				errx.MailErrorCritical,
+				errx.MailErrorCodeAuthenticationFailed,
+				"no send client initialized for this mailbox",
+				errx.MailErrorResolveMethodReload,
+			),
+		}
+	}
+	if fallback {
+		log.Info().Str("email_id", w.ID.String()).Str("task_id", req.TaskID.String()).Str("transport", string(transport)).Msg("mailbox cannot use the assigned send transport; using the one it has")
+	}
+
 	var result *SendResult
 	for attempt := 0; attempt <= maxSendRetries; attempt++ {
 		result = &SendResult{Success: false, SentAt: time.Now()}
 
-		// The transport, not the provider, picks the path: an OAuth mailbox
-		// on the smtp transport submits through the provider's SMTP.
 		switch {
-		case w.UsesSmtpImap():
+		case transport == models.MailTransportSMTP:
 			result = w.sendViaSMTP(ctx, req, bodyHTML)
 		case w.EmailType == models.InboxProviderGoogle:
 			result = w.sendViaGmail(ctx, req, bodyHTML)
@@ -151,10 +173,11 @@ func (w *WMail) Send(ctx context.Context, req *SendRequest) *SendResult {
 				"Unsupported email provider",
 				errx.MailErrorResolveMethodNone,
 			)
-			return result
 		}
+		result.Transport = transport
+		result.Fallback = fallback
 
-		if result.Success {
+		if result.Success || result.Error == nil || result.Error.Code == errx.MailErrorCodeUnsupported {
 			return result
 		}
 

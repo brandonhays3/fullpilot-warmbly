@@ -397,3 +397,43 @@ func trim(s string) string {
 	}
 	return s[start:end]
 }
+
+// GetCampaignSendMethods returns how the sends of one campaign performed by
+// the method they were sent with (provider API or SMTP, per provider and
+// worker deployment).
+// GET /campaigns/:id/analytics/send-methods
+func (h *Handler) GetCampaignSendMethods(c *gin.Context) {
+	orgID := middleware.GetOrganizationID(c)
+	if orgID == nil {
+		errx.Handle(c, errx.New(errx.BadRequest, "no organization selected"))
+		return
+	}
+	campaignID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		errx.Handle(c, errx.ErrNotFound)
+		return
+	}
+	out, xerr := h.AnalyticsService.GetCampaignSendMethods(c.Request.Context(), *orgID, campaignID)
+	if xerr != nil {
+		errx.Handle(c, xerr)
+		return
+	}
+	c.JSON(http.StatusOK, out)
+}
+
+// GetWorkspaceSendMethods is the same breakdown over every campaign send of
+// the workspace in the period.
+// GET /analytics/send-methods?period=7d|30d|90d
+func (h *Handler) GetWorkspaceSendMethods(c *gin.Context) {
+	orgID := middleware.GetOrganizationID(c)
+	if orgID == nil {
+		errx.Handle(c, errx.New(errx.BadRequest, "no organization selected"))
+		return
+	}
+	out, xerr := h.AnalyticsService.GetWorkspaceSendMethods(c.Request.Context(), *orgID, c.DefaultQuery("period", "7d"))
+	if xerr != nil {
+		errx.Handle(c, xerr)
+		return
+	}
+	c.JSON(http.StatusOK, out)
+}

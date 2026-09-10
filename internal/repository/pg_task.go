@@ -31,12 +31,17 @@ type CampaignTask struct {
 	CampaignID *uuid.UUID
 	ContactID  *uuid.UUID
 	SequenceID *uuid.UUID
+	// SendMethod is how the worker sent it (models.SendMethodLabel), stamped
+	// by the consumer on EMAIL_SENT; nil until then.
+	SendMethod *string
 }
 
 // WarmupTask represents warmup-specific task data
 type WarmupTask struct {
 	TaskID          uuid.UUID
 	TargetAccountID *uuid.UUID
+	// SendMethod as on CampaignTask.
+	SendMethod *string
 }
 
 // EmailTask represents email-specific task data
@@ -144,6 +149,10 @@ type TaskRepository interface {
 	DirectPendingWarmupTask(ctx context.Context, accountID, targetAccountID uuid.UUID, at time.Time) (bool, error)
 	UpdateTaskStatusWithLock(ctx context.Context, taskID uuid.UUID, status string) error
 	UpdateTaskMessageID(ctx context.Context, taskID uuid.UUID, messageID string) error
+	// SetCampaignTaskSendMethod and SetWarmupTaskSendMethod record how the
+	// worker sent a task (models.SendMethodLabel) once the send is confirmed.
+	SetCampaignTaskSendMethod(ctx context.Context, taskID uuid.UUID, method string) error
+	SetWarmupTaskSendMethod(ctx context.Context, taskID uuid.UUID, method string) error
 
 	// Update campaign task with contact/sequence IDs (for tracking)
 	UpdateCampaignTaskTracking(ctx context.Context, taskID, contactID, sequenceID uuid.UUID) error
@@ -326,7 +335,7 @@ func (r *taskRepository) GetTaskByMessageID(ctx context.Context, messageID strin
 // GetCampaignTask retrieves campaign task data
 func (r *taskRepository) GetCampaignTask(ctx context.Context, taskID uuid.UUID) (*CampaignTask, error) {
 	query := `
-		SELECT task_id, campaign_id, contact_id, sequence_id
+		SELECT task_id, campaign_id, contact_id, sequence_id, send_method
 		FROM campaign_tasks
 		WHERE task_id = $1
 	`
@@ -337,6 +346,7 @@ func (r *taskRepository) GetCampaignTask(ctx context.Context, taskID uuid.UUID) 
 		&campaignTask.CampaignID,
 		&campaignTask.ContactID,
 		&campaignTask.SequenceID,
+		&campaignTask.SendMethod,
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
@@ -349,7 +359,7 @@ func (r *taskRepository) GetCampaignTask(ctx context.Context, taskID uuid.UUID) 
 // GetWarmupTask retrieves warmup task data
 func (r *taskRepository) GetWarmupTask(ctx context.Context, taskID uuid.UUID) (*WarmupTask, error) {
 	query := `
-		SELECT task_id, target_account_id
+		SELECT task_id, target_account_id, send_method
 		FROM warmup_tasks
 		WHERE task_id = $1
 	`
@@ -358,6 +368,7 @@ func (r *taskRepository) GetWarmupTask(ctx context.Context, taskID uuid.UUID) (*
 	err := r.db.QueryRow(ctx, query, taskID).Scan(
 		&warmupTask.TaskID,
 		&warmupTask.TargetAccountID,
+		&warmupTask.SendMethod,
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
@@ -909,6 +920,22 @@ func (r *taskRepository) UpdateTaskMessageID(ctx context.Context, taskID uuid.UU
 	_, err := r.db.Exec(ctx,
 		`UPDATE tasks SET message_id = $1, updated_at = NOW() WHERE id = $2`,
 		messageID, taskID)
+	return err
+}
+
+// SetCampaignTaskSendMethod stamps the method a confirmed campaign send took.
+func (r *taskRepository) SetCampaignTaskSendMethod(ctx context.Context, taskID uuid.UUID, method string) error {
+	_, err := r.db.Exec(ctx,
+		`UPDATE campaign_tasks SET send_method = $1 WHERE task_id = $2`,
+		method, taskID)
+	return err
+}
+
+// SetWarmupTaskSendMethod stamps the method a confirmed warmup send took.
+func (r *taskRepository) SetWarmupTaskSendMethod(ctx context.Context, taskID uuid.UUID, method string) error {
+	_, err := r.db.Exec(ctx,
+		`UPDATE warmup_tasks SET send_method = $1 WHERE task_id = $2`,
+		method, taskID)
 	return err
 }
 

@@ -45,6 +45,13 @@ type AnalyticsRepository interface {
 
 	// Campaign comparison
 	CompareCampaigns(ctx context.Context, userID uuid.UUID, campaignIDs []uuid.UUID, from, to time.Time) (*models.CampaignComparison, *errx.Error)
+
+	// Send method breakdowns: how the sends made each way performed, for one
+	// campaign and for every campaign of an organization over a window.
+	// Ordered by sends, most first. Sends confirmed before the method was
+	// recorded fall under the empty label.
+	GetCampaignSendMethodStats(ctx context.Context, campaignID uuid.UUID) ([]models.SendMethodStats, *errx.Error)
+	GetWorkspaceSendMethodStats(ctx context.Context, orgID uuid.UUID, from, to time.Time) ([]models.SendMethodStats, *errx.Error)
 }
 
 type analyticsRepository struct {

@@ -23,6 +23,12 @@ const (
 	WarmupMaxDefault      = 40
 	WarmupIncreaseDefault = 1
 
+	// SendTransportAPIPercentDefault is the share of an OAuth mailbox's sends
+	// that go through the provider API (Gmail API, Microsoft Graph) rather
+	// than its SMTP submission endpoint, when SEND_TRANSPORT_API_PERCENT is
+	// unset. Half and half is what has beaten either path alone.
+	SendTransportAPIPercentDefault = 50
+
 	// Net-new campaign send controls. The ramp mirrors the warmup ramp shape
 	// (start, +increment/day, ceiling) but is applied only via min() against
 	// the per-mailbox cold cap, so it can only lower effective volume.
