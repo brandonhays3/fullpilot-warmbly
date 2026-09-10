@@ -433,7 +433,7 @@ function fmtCompact(n: number): string {
 // RangeToggle switches the usage graph window (the backend serves 1-90 days).
 function RangeToggle({ range, onChange }: { range: RangeDays; onChange: (r: RangeDays) => void }) {
     return (
-        <div className="inline-flex items-center rounded-md border border-slate-200 bg-slate-50 p-0.5 text-[11px]">
+        <div className="inline-flex items-center border border-slate-200 text-[11px]">
             {([7, 30, 90] as RangeDays[]).map((r) => {
                 const active = range === r;
                 return (

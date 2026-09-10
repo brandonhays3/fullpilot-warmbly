@@ -161,13 +161,16 @@ export function DitherBarChart({
                     for (let y = Math.max(0, Math.floor(top)); y < H; y++) {
                         const rel = (y - top) / barH;
                         // Solid cap, then density fades toward the baseline.
-                        const a = hot ? 1 : y - top <= 1.5 * dpr ? 1 : 0.92 - 0.68 * rel;
-                        if (a < bayer(x, y, dpr)) continue;
+                        // Solid cap, then a colour wash with a faint rule every
+                        // third row that fades toward the baseline.
+                        const cap = y - top <= 1.5 * dpr;
+                        const wash = hot ? 1 : cap ? 1 : 0.55 - 0.3 * rel;
+                        const rule = !hot && !cap && y % 3 === 0 ? 0.12 * (1 - rel) * (1 - rel) : 0;
                         const o = (y * W + x) * 4;
                         buf[o] = cr;
                         buf[o + 1] = cg;
                         buf[o + 2] = cb;
-                        buf[o + 3] = hot ? 255 : FILL_ALPHA;
+                        buf[o + 3] = Math.round(255 * Math.min(1, wash + rule) * (hot ? 1 : FILL_ALPHA / 255));
                     }
                 }
             }
