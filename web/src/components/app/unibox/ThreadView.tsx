@@ -344,7 +344,10 @@ export function ThreadView({ threadId, emailId }: ThreadViewProps) {
   return (
     <div className="flex h-full min-h-0">
       <div className="flex-1 flex flex-col min-w-0 bg-white">
-      <div className="h-12 px-3 sm:px-5 border-b border-slate-200 flex items-center gap-2 sm:gap-3 shrink-0 bg-white min-w-0 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="shrink-0 bg-white border-b border-slate-200">
+      {/* Row 1: what this thread is. Row 2: everything you can do to it, in
+          one line, no scrolling. */}
+      <div className="h-11 px-3 sm:px-5 flex items-center gap-2 sm:gap-3 min-w-0">
         <span className="hidden sm:inline text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium shrink-0">
           Thread
         </span>
@@ -365,7 +368,9 @@ export function ThreadView({ threadId, emailId }: ThreadViewProps) {
           </span>
         )}
         <ResourceViewers resource={`thread:${threadId}`} className="shrink-0" />
-        <div className="ml-auto flex items-center gap-1">
+        </div>
+      <div className="h-10 px-3 sm:px-5 flex items-center gap-1 border-t border-slate-100">
+        <div className="flex items-center gap-1 flex-wrap">
           <button
             type="button"
             onClick={() => setCrmOpen((o) => !o)}
@@ -524,6 +529,7 @@ export function ThreadView({ threadId, emailId }: ThreadViewProps) {
         count={participants.size}
       />
 
+      </div>
       <div className="flex-1 overflow-y-auto divide-y divide-slate-200/60">
         {messages.map((email, i) => (
           <MessageBubble
@@ -602,9 +608,6 @@ export function ThreadView({ threadId, emailId }: ThreadViewProps) {
               <ForwardIcon className="w-3 h-3" />
               Forward
             </button>
-            <span className="ml-auto hidden md:inline text-[10.5px] text-slate-400">
-              Hover any message to reply to it directly.
-            </span>
           </motion.div>
         )}
       </AnimatePresence>

@@ -565,7 +565,7 @@ function FolderItem({
             active
               ? "bg-white/80 text-slate-700"
               : countTone === "accent"
-                ? "bg-sky-100 text-sky-700"
+                ? "bg-slate-200/70 text-slate-900 font-medium"
                 : "text-slate-400",
           )}
         >
@@ -652,9 +652,9 @@ function Item({
           className={cn(
             "shrink-0 font-mono tabular-nums text-[10.5px] px-1.5 h-4 rounded inline-flex items-center",
             active
-              ? "bg-white/80 text-sky-700"
+              ? "bg-white/80 text-slate-900 font-medium"
               : countTone === "accent"
-                ? "bg-sky-100 text-sky-700"
+                ? "bg-slate-200/70 text-slate-900 font-medium"
                 : "text-slate-400",
           )}
         >
