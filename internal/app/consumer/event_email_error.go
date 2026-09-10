@@ -16,6 +16,8 @@ func (s *JobsService) HandleEmailAuthError(ctx context.Context, event models.Ema
 		Str("error_code", event.ErrorCode).
 		Msg("Handling email auth error")
 
+	s.noteSendAuthFailure(ctx, event.EmailAccountID, event.WorkerID, event.ErrorCode)
+
 	emailAccountID, err := uuid.Parse(event.EmailAccountID)
 	if err != nil {
 		log.Error().Err(err).Str("email_account_id", event.EmailAccountID).Msg("Invalid email account ID")

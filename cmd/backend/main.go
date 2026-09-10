@@ -1621,6 +1621,19 @@ func main() {
 				reloader.WireAccountReloader(emailService)
 			}
 		}
+		// Send-side routing (SEND_ROUND_ROBIN): each send leaves from the
+		// next live worker of the mailbox's tier, which is handed the
+		// credentials for sending only; the sync owner stays pinned.
+		if config.SendRoundRobin() {
+			if router, ok := emailSender.(interface {
+				WireSendRouting(tasks.SendTargetLister, tasks.RoutingStore, tasks.SendOnlyLoader)
+			}); ok {
+				router.WireSendRouting(workerRepository, cache, emailService)
+				log.Printf("Send-side routing: round robin across live workers per send")
+			}
+		} else {
+			log.Printf("Send-side routing: off (SEND_ROUND_ROBIN=false); sends go to the mailbox's pinned worker")
+		}
 		tasksService = tasks.NewService(
 			tasksClient,
 			generationClient,

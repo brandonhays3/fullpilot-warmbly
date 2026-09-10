@@ -16,6 +16,7 @@ import (
 	"github.com/warmbly/warmbly/internal/infrastructure/pubsub"
 	"github.com/warmbly/warmbly/internal/models"
 	"github.com/warmbly/warmbly/internal/repository"
+	"github.com/warmbly/warmbly/internal/sendrouting"
 )
 
 // errSendResultEarly is returned when a worker result lands before the
@@ -132,6 +133,9 @@ func (s *JobsService) repairCampaignSendStamp(ctx context.Context, task *reposit
 // that completed while the send was in flight is reopened. Once the retry cap
 // is spent the lead is marked failed and routing drops it.
 func (s *JobsService) HandleEmailFailed(ctx context.Context, result models.SendEmailResult) error {
+	if result.Error != nil {
+		s.noteSendAuthFailure(ctx, result.EmailAccountID, result.WorkerID, result.Error.Code)
+	}
 	if s.TaskRepo == nil || result.TaskID == uuid.Nil {
 		return nil
 	}
@@ -403,6 +407,23 @@ func (s *JobsService) notifyUserSendFailed(ctx context.Context, task *repository
 	s.StreamingPublisher.PublishEmailError(ctx, account.UserID, account.ID, task.ID,
 		"Email could not be sent",
 		fmt.Sprintf("%s could not send your email: %s", account.Email, reason))
+}
+
+// noteSendAuthFailure marks that a worker could not authenticate a mailbox,
+// so send-side routing skips that worker for the mailbox for a while
+// (sendrouting.AuthFailureTTL) and the next tick's send takes the next one.
+// Only an authentication code counts; an older worker sends no ids and
+// marks nothing.
+func (s *JobsService) noteSendAuthFailure(ctx context.Context, emailAccountID, workerID, code string) {
+	if s.Cache == nil || emailAccountID == "" || workerID == "" || !sendrouting.IsAuthCode(code) {
+		return
+	}
+	key := sendrouting.AuthFailedKey(emailAccountID, workerID)
+	if err := s.Cache.Set(ctx, key, "1", sendrouting.AuthFailureTTL).Err(); err != nil {
+		log.Warn().Err(err).Str("email_account_id", emailAccountID).Str("worker_id", workerID).Msg("could not mark the worker as auth-failed for the mailbox")
+		return
+	}
+	log.Info().Str("email_account_id", emailAccountID).Str("worker_id", workerID).Str("code", code).Msg("worker marked auth-failed for the mailbox; sends route elsewhere")
 }
 
 // sendFailureReason picks the most useful human-readable reason and the

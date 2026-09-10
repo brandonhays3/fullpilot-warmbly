@@ -75,6 +75,9 @@ type emailSender struct {
 	publisher events.Publisher
 	liveness  WorkerLiveness
 	reloader  AccountReloader
+	// router picks the worker per send (send_routing.go); nil sends through
+	// the pinned worker.
+	router *sendRouter
 }
 
 // WireAccountReloader lets Send move a mailbox off a dead worker and retry
@@ -95,9 +98,15 @@ func NewEmailSender(emailRepo repository.EmailRepository, publisher events.Publi
 // heartbeating. Optional; without it Send trusts the assignment.
 func (s *emailSender) WireWorkerLiveness(l WorkerLiveness) {
 	s.liveness = l
+	if s.router != nil {
+		s.router.liveness = l
+	}
 }
 
-// Send publishes an email to the worker service for sending
+// Send publishes an email to a worker for sending. The mailbox's pinned
+// worker (its sync owner) is checked and re-placed if it is gone, then the
+// send is routed to the next live worker of the mailbox's tier when routing
+// is wired, falling back to the pinned worker.
 func (s *emailSender) Send(ctx context.Context, taskID uuid.UUID, msg EmailMessage, account models.Email) error {
 	// Get worker ID for this email account
 	workerID := account.WorkerID
@@ -133,6 +142,14 @@ func (s *emailSender) Send(ctx context.Context, taskID uuid.UUID, msg EmailMessa
 		return fmt.Errorf("email account %s has no organization", account.ID)
 	}
 
+	// Send-side routing: the target may differ from the sync owner.
+	target := *workerID
+	if s.router != nil {
+		if chosen, ok := s.router.choose(ctx, account, *workerID); ok {
+			target = chosen
+		}
+	}
+
 	// For warmup emails, only use plaintext (no HTML)
 	bodyHTML := msg.BodyHTML
 	if msg.IsWarmup {
@@ -164,7 +181,7 @@ func (s *emailSender) Send(ctx context.Context, taskID uuid.UUID, msg EmailMessa
 	}
 
 	// Publish send email event to worker
-	if err := s.publisher.PublishSendEmail(ctx, *workerID, params); err != nil {
+	if err := s.publisher.PublishSendEmail(ctx, target, params); err != nil {
 		return fmt.Errorf("%w: %v", ErrSendDispatchUnknown, err)
 	}
 

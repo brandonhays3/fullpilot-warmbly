@@ -215,6 +215,11 @@ type SendEmailResult struct {
 	// transport, provider and deployment, so methods can be compared later.
 	// Empty from a worker older than the field.
 	SendMethod string `json:"send_method,omitempty" avro:"send_method"`
+	// EmailAccountID and WorkerID name the mailbox and the worker that
+	// answered, so the control plane can stop routing that mailbox's sends
+	// to a worker that refused its credentials. Empty from an older worker.
+	EmailAccountID string `json:"email_account_id,omitempty" avro:"email_account_id"`
+	WorkerID       string `json:"worker_id,omitempty" avro:"worker_id"`
 }
 
 type AddWorkerEmailGoogleData struct {
@@ -293,6 +298,10 @@ type AddWorkerEmail struct {
 	// one mailbox at a time; empty means the API, which is what a publisher
 	// older than the field always meant. Ignored for smtp_imap.
 	Transport string `json:"transport,omitempty" avro:"transport"`
+	// SendOnly loads the mailbox for sending on a worker that is not its
+	// sync owner: the send clients are built, no sync loop runs, no sync or
+	// warmup state is relayed. Unset from a publisher older than the field.
+	SendOnly bool `json:"send_only,omitempty" avro:"send_only"`
 
 	Cfg oauth2.Config `json:"-" avro:"-"`
 	// TokenSource is set by the worker for brokered mailboxes.

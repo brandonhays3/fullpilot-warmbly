@@ -38,6 +38,12 @@ func (w *WorkerService) HandleWarmupAction(ctx context.Context, action models.Wa
 		log.Warn().Str("email_id", action.EmailID.String()).Msg("Email account not found for warmup action")
 		return nil
 	}
+	if mail.SendOnly {
+		// Mailbox state belongs to the sync owner; a send-only copy has no
+		// sync session to act through.
+		log.Warn().Str("email_id", action.EmailID.String()).Msg("warmup action reached a send-only copy of the mailbox; skipping")
+		return nil
+	}
 
 	// The action names the message the way the SYNC found it (a Gmail id, a
 	// Graph id, or an IMAP UID), so it runs on the sync transport even though

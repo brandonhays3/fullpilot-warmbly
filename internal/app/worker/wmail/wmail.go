@@ -84,6 +84,10 @@ type WMail struct {
 	// SendAPIPercent is the share of this mailbox's sends assigned to the
 	// provider API rather than SMTP (SEND_TRANSPORT_API_PERCENT).
 	SendAPIPercent int
+	// SendOnly: this worker holds the mailbox for sending only (send-side
+	// routing). No sync loop, no warmup actions, no IMAP session except the
+	// one an smtp_imap mailbox files its Sent copy through.
+	SendOnly bool
 
 	GoogleData   *GoogleData
 	GraphData    *GraphData
@@ -140,6 +144,7 @@ func NewWMail(
 		EmailType:      data.Type,
 		Transport:      data.MailTransport(),
 		SendAPIPercent: config.SendTransportAPIPercent(),
+		SendOnly:       data.SendOnly,
 		// Unset in the payload means yes; see AddWorkerEmail.SavesSentCopy.
 		// Only a plain smtp_imap mailbox needs the copy: Gmail and Exchange
 		// Online file their own for SMTP submissions too, so an OAuth mailbox
@@ -207,7 +212,9 @@ func NewWMail(
 		}
 		mail.SmtpImapData = &SmtpImapData{}
 
-		if data.ImapSync {
+		// A send-only copy opens IMAP only to file the Sent copy; the owner
+		// syncs. Everything else is the same client set.
+		if data.ImapSync && (!data.SendOnly || mail.SaveToSent) {
 			conn := &imap.Client{
 				Email:       data.Email,
 				AuthType:    models.AuthPlain,

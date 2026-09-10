@@ -73,4 +73,6 @@ type EmailErrorEvent struct {
 	UserMessage    string `json:"user_message,omitempty" avro:"user_message"`
 	ActionRequired string `json:"action_required,omitempty" avro:"action_required"`
 	Timestamp      int64  `json:"timestamp" avro:"timestamp"`
+	// WorkerID is the worker that hit the error; empty from an older worker.
+	WorkerID string `json:"worker_id,omitempty" avro:"worker_id"`
 }

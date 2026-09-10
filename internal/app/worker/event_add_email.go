@@ -16,35 +16,59 @@ func (w *WorkerService) HandleAddEmail(ctx context.Context, e *models.AddWorkerE
 		return nil
 	}
 
-	if w.mailManager.Has(e.ID) {
-		// Already loaded: keep the handler idempotent, but take a changed sync
-		// budget so an operator's settings change reaches this mailbox.
-		if mail := w.mailManager.Get(e.ID); mail != nil {
-			mail.ApplySyncPolicy(e.Sync)
+	if existing := w.mailManager.Get(e.ID); existing != nil {
+		if existing.SendOnly && !e.SendOnly {
+			// This worker becomes the sync owner of a mailbox it only sent
+			// from: rebuild it as a full load so the sync loop starts.
+			if existing.Cancel != nil {
+				existing.Cancel()
+			}
+			w.mailManager.Terminate(e.ID)
+		} else {
+			// Already loaded: keep the handler idempotent, but take a changed
+			// sync budget so an operator's settings change reaches this mailbox.
+			existing.ApplySyncPolicy(e.Sync)
+			return nil
 		}
-		return nil
 	}
 
 	if err := w.mailManager.AddWMail(ctx, e); err != nil {
+		if e.SendOnly {
+			// Not this worker's mailbox to judge: the owner reports credential
+			// problems. Remember the refusal so sends routed here are answered
+			// at once, and answer the ones already waiting.
+			log.Warn().Err(err).Str("email_id", e.ID.String()).Msg("send-only load refused; sends routed here are failed back to the control plane")
+			w.sends.refuse(e.ID, err)
+			w.failParkedSends(e.ID, err)
+			return nil
+		}
 		log.Error().Err(err).Str("email_id", e.ID.String()).Msg("failed to add email account to worker")
 		w.reportLoadAuthFailure(e, err)
 		return err
 	}
+	w.sends.clearRefusal(e.ID)
+
+	mail := w.mailManager.Get(e.ID)
+	if mail == nil {
+		return nil
+	}
+	if e.SendOnly {
+		log.Info().Str("email_id", e.ID.String()).Str("email", e.Email).Msg("email account loaded on worker for sending only")
+		w.releaseParkedSends(e.ID)
+		return nil
+	}
 
 	// Start the periodic mail sync worker. Uses the WMail's own context which is
 	// cancelled when the account is removed or terminates, so we don't leak goroutines.
-	mail := w.mailManager.Get(e.ID)
-	if mail != nil {
-		// Gmail (history) and Outlook/Graph (delta) always sync. Only generic
-		// SMTP/IMAP mailboxes are opt-in via ImapSync.
-		if e.Type == models.InboxProviderSMTPIMAP && !e.ImapSync {
-			log.Info().Str("email_id", e.ID.String()).Str("email", e.Email).Msg("email account added (no sync)")
-			return nil
-		}
+	// Gmail (history) and Outlook/Graph (delta) always sync. Only generic
+	// SMTP/IMAP mailboxes are opt-in via ImapSync.
+	if e.Type == models.InboxProviderSMTPIMAP && !e.ImapSync {
+		log.Info().Str("email_id", e.ID.String()).Str("email", e.Email).Msg("email account added (no sync)")
+	} else {
 		go mail.StartSyncWorker(mail.Ctx)
+		log.Info().Str("email_id", e.ID.String()).Str("email", e.Email).Str("transport", string(mail.Transport)).Msg("email account added to worker")
 	}
-
-	log.Info().Str("email_id", e.ID.String()).Str("email", e.Email).Str("transport", string(mail.Transport)).Msg("email account added to worker")
+	w.releaseParkedSends(e.ID)
 	return nil
 }
 
@@ -73,6 +97,7 @@ func (w *WorkerService) reportLoadAuthFailure(e *models.AddWorkerEmail, err erro
 		UserMessage:    userInfo.Message,
 		ActionRequired: userInfo.ActionRequired,
 		Timestamp:      time.Now().Unix(),
+		WorkerID:       w.ID,
 	}
 	if perr := w.Produce(models.JobEventTypeEmailAuthError, e.ID.String(), event); perr != nil {
 		log.Error().Err(perr).Str("email_id", e.ID.String()).Msg("failed to produce email auth error event")

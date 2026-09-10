@@ -9,6 +9,7 @@ import (
 	"github.com/warmbly/warmbly/internal/config"
 	"github.com/warmbly/warmbly/internal/models"
 	"github.com/warmbly/warmbly/internal/repository"
+	"github.com/warmbly/warmbly/internal/sendrouting"
 )
 
 // pendingDrain is a mailbox that has moved and whose old worker still holds
@@ -160,6 +161,11 @@ func (s *emailService) flushSmtpDrains(ctx context.Context, drains map[uuid.UUID
 			continue
 		}
 		delete(drains, accountID)
+		// The old worker is about to drop the mailbox, so send-side routing
+		// must hand it the credentials again before routing a send there.
+		if s.r != nil {
+			_ = s.r.Del(ctx, sendrouting.LoadedOnKey(accountID, d.oldWorkerID)).Err()
+		}
 		live, err := s.workerAssignment.IsWorkerLive(ctx, d.oldWorkerID)
 		if err != nil || !live {
 			continue

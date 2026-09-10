@@ -43,6 +43,9 @@ type WorkerService struct {
 	Deployment string
 
 	mailManager *mailmanager.MailManager
+	// sends parks a SEND_EMAIL that arrives before its mailbox is loaded and
+	// remembers send-only loads this worker refused (send_queue.go).
+	sends sendQueue
 
 	// HealthCounters tracks the per-window send-side telemetry the worker
 	// reports via JobEventTypeWorkerHealth. Lazily initialised by

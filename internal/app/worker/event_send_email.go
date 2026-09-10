@@ -30,13 +30,17 @@ func (w *WorkerService) HandleSendEmail(ctx context.Context, sendEmail models.Se
 	w.mailManager.RUnlock()
 
 	if !exists {
-		// The mailbox is not loaded here: it is still being added (its
-		// ADD_EMAIL is queued behind this send), or this worker restarted and
-		// the reconciler has not re-shipped it yet. Leave the send for
-		// redelivery a few times so a queued ADD_EMAIL gets processed first,
-		// then report the failure so the control plane retries the step.
-		err := fmt.Errorf("email account %s not found in worker", sendEmail.EmailID.String())
-		return w.failSend(ctx, sendEmail, err.Error(), true)
+		// The mailbox is not loaded here: its ADD_EMAIL is still on its way
+		// or being retried, or this worker restarted and the control plane
+		// has not re-shipped it yet. A load this worker refused just now is
+		// answered at once with that error; otherwise the send is parked
+		// until the mailbox loads or sendLoadWait runs out (send_queue.go).
+		if loadErr, refused := w.sends.refusal(sendEmail.EmailID); refused {
+			w.failSendWithError(sendEmail, loadErr)
+			return nil
+		}
+		w.parkSend(sendEmail)
+		return nil
 	}
 
 	// Decrypt subject
@@ -101,7 +105,7 @@ func (w *WorkerService) HandleSendEmail(ctx context.Context, sendEmail models.Se
 
 		w.deleteTransportEmailBody(ctx, sendEmail.TaskID, sendEmail.BodyS3Key)
 
-		w.sendEmailSuccess(sendEmail.TaskID, result.MessageID, result.ProviderMsgID, method)
+		w.sendEmailSuccess(sendEmail.TaskID, sendEmail.EmailID, result.MessageID, result.ProviderMsgID, method)
 	} else {
 		log.Error().
 			Str("task_id", sendEmail.TaskID.String()).
@@ -216,14 +220,16 @@ func (w *WorkerService) fetchAttachments(ctx context.Context, refs []emsg.Attach
 
 // sendEmailSuccess sends a success result back to the jobs service. method
 // is the send method label the consumer stamps on the task row.
-func (w *WorkerService) sendEmailSuccess(taskID uuid.UUID, messageID, providerMsgID, method string) {
+func (w *WorkerService) sendEmailSuccess(taskID, emailID uuid.UUID, messageID, providerMsgID, method string) {
 	result := models.SendEmailResult{
-		TaskID:        taskID,
-		Success:       true,
-		MessageID:     messageID,
-		ProviderMsgID: providerMsgID,
-		SentAt:        time.Now(),
-		SendMethod:    method,
+		TaskID:         taskID,
+		Success:        true,
+		MessageID:      messageID,
+		ProviderMsgID:  providerMsgID,
+		SentAt:         time.Now(),
+		SendMethod:     method,
+		EmailAccountID: emailID.String(),
+		WorkerID:       w.ID,
 	}
 
 	if err := w.Produce(models.JobEventTypeEmailSent, taskID.String(), result); err != nil {
@@ -259,20 +265,7 @@ func (w *WorkerService) sendEmailError(taskID uuid.UUID, emailID uuid.UUID, mail
 	// Determine the appropriate event type based on error
 	eventType := wmail.DetermineErrorEventType(mailErr)
 
-	// Convert to transport format
-	sendError := wmail.MailErrorToSendError(mailErr)
-
-	result := models.SendEmailResult{
-		TaskID:         taskID,
-		Success:        false,
-		Error:          sendError,
-		LegacyErrorMsg: mailErr.Message,
-		SentAt:         time.Now(),
-	}
-
-	if err := w.Produce(models.JobEventTypeEmailFailed, taskID.String(), result); err != nil {
-		log.Error().Err(err).Str("task_id", taskID.String()).Msg("Failed to produce email failed event")
-	}
+	w.produceSendFailed(taskID, emailID, mailErr)
 
 	// Account-level conditions also raise their typed event with full context
 	if eventType == models.JobEventTypeEmailAuthError ||
@@ -294,11 +287,30 @@ func (w *WorkerService) sendEmailError(taskID uuid.UUID, emailID uuid.UUID, mail
 			UserMessage:    userInfo.Message,
 			ActionRequired: userInfo.ActionRequired,
 			Timestamp:      time.Now().Unix(),
+			WorkerID:       w.ID,
 		}
 
 		if err := w.Produce(eventType, emailID.String(), errorEvent); err != nil {
 			log.Error().Err(err).Str("email_id", emailID.String()).Msg("Failed to produce email error event")
 		}
+	}
+}
+
+// produceSendFailed is the per-task EMAIL_FAILED for a MailError, stamped
+// with the mailbox and this worker so the control plane can route around a
+// worker the mailbox's credentials do not work on.
+func (w *WorkerService) produceSendFailed(taskID, emailID uuid.UUID, mailErr *errx.MailError) {
+	result := models.SendEmailResult{
+		TaskID:         taskID,
+		Success:        false,
+		Error:          wmail.MailErrorToSendError(mailErr),
+		LegacyErrorMsg: mailErr.Message,
+		SentAt:         time.Now(),
+		EmailAccountID: emailID.String(),
+		WorkerID:       w.ID,
+	}
+	if err := w.Produce(models.JobEventTypeEmailFailed, taskID.String(), result); err != nil {
+		log.Error().Err(err).Str("task_id", taskID.String()).Msg("Failed to produce email failed event")
 	}
 }
 
@@ -309,6 +321,8 @@ func (w *WorkerService) sendEmailFailure(taskID uuid.UUID, emailID uuid.UUID, ma
 		Success:        false,
 		LegacyErrorMsg: errorMsg,
 		SentAt:         time.Now(),
+		EmailAccountID: emailID.String(),
+		WorkerID:       w.ID,
 	}
 
 	if err := w.Produce(models.JobEventTypeEmailFailed, taskID.String(), result); err != nil {

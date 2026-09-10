@@ -114,6 +114,19 @@ Gmail and Outlook mailboxes send from the provider's IPs whatever worker drives 
 
 The mailbox drawer's sync card and `GET /emails/:id/sync` show the current worker's deployment; the admin workers list has a Deployment column.
 
+### Send-side routing
+
+Rotation moves where a mailbox lives. Send-side routing (`SEND_ROUND_ROBIN`, on by default) decides where each individual send leaves from, for every mailbox and both transports, so two sends from the same Gmail mailbox minutes apart leave from two different workers and two different egress IPs. It separates two roles that used to be one:
+
+- The sync owner is `email_accounts.worker_id`: the one worker that syncs the mailbox (IMAP, Gmail history or Graph delta), runs warmup actions on it, relays its `SYNC_STATE`, and gets the reconciler's republishes and the rotation moves. Nothing here changes it.
+- The send target is chosen per send in `emailSender.Send` (`internal/tasks/send_routing.go`). The backend reads the live shared workers of the owner's tier and risk pool ordered by worker id, `INCR`s a Redis cursor for that tier (`send:rr:<free|premium>[:<pool>]`) and takes the worker at that position, so consecutive sends across the whole fleet walk through every live worker in turn. A worker that has stopped heartbeating is passed over, as is one that reported an authentication failure for that mailbox in the last 10 minutes (`mailbox:<id>:auth_failed_on:<worker>`, written by the consumer from `EMAIL_AUTH_ERROR` and from an `EMAIL_FAILED` carrying an authentication code). An organization on a dedicated worker keeps every send on it. When the ring is empty, or Redis or the query fails, the send goes to the sync owner as before.
+
+A send target that is not the sync owner needs the credentials first. The backend claims `mailbox:<id>:loaded_on:<worker>` (`SETNX`, 4 minute TTL, the ephemeral liveness window) and, on the first claim, publishes the same `ADD_EMAIL` payload the owner gets with `send_only: true`; later sends to that worker publish nothing until the mark expires. A worker loading a send-only mailbox builds its send clients (the provider API client and the SMTP client, so `SEND_TRANSPORT_API_PERCENT` applies there too) and nothing else: no sync loop, no warmup actions, no sync state, and no IMAP session except the one an SMTP/IMAP mailbox files its Sent copy through. `REMOVE_EMAIL` drops a send-only copy like any other, and when the owner's own `ADD_EMAIL` reaches a worker that holds the mailbox send-only, the copy is replaced by a full load.
+
+Because the `ADD_EMAIL` and the `SEND_EMAIL` are published back to back and a worker processes its topic one message at a time, a send can reach a worker before its mailbox is loaded (a load being retried, a worker that just restarted). The worker parks such a send for up to 15 seconds and releases it the moment the mailbox loads; if the mailbox is still missing it answers `EMAIL_FAILED`, so the reservation is walked back and the next tick's retry takes the next worker in the ring. A send-only load the worker refused (bad credentials on that worker, a missing scope) fails the parked sends at once with the load error's code and answers later sends the same way for 10 minutes; it does not raise `EMAIL_AUTH_ERROR`, because judging the credentials is the owner's job.
+
+When a send target dies, nothing needs cleaning up: an ephemeral worker takes its in-memory copy with it, its loaded-on mark expires with the liveness window, and a send already routed to it is resolved by the stuck-send reclaimer like any other unanswered send. The `send_method` recorded on the task names the worker that actually sent (its own `WORKER_DEPLOYMENT`), so the breakdowns show the spread.
+
 ## Credentials and profiles
 
 Workers never carry hardcoded credentials. Two reusable entities in the admin dashboard:

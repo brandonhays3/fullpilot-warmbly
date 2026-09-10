@@ -175,7 +175,9 @@ func (w *WMail) initOAuthSmtp(ctx context.Context, data *models.AddWorkerEmail, 
 			Oauth2:    &models.Oauth2Service{Host: smtpHost, Port: smtpPort, Token: ts},
 		},
 	}
-	if w.Transport != models.MailTransportSMTP {
+	// A send-only copy never syncs, and the provider files the Sent copy of an
+	// SMTP submission itself, so it needs no IMAP session at all.
+	if w.Transport != models.MailTransportSMTP || w.SendOnly {
 		return nil
 	}
 

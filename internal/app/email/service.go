@@ -118,6 +118,9 @@ type EmailService interface {
 	// LoadAccountOntoWorker assigns a worker if needed and ships the mailbox
 	// to it (idempotent; the reconciler calls it too).
 	LoadAccountOntoWorker(ctx context.Context, accountID uuid.UUID) error
+	// LoadAccountForSending ships the mailbox to a worker that is not its
+	// sync owner, for sending only (send-side routing).
+	LoadAccountForSending(ctx context.Context, accountID, workerID uuid.UUID) error
 	// GetSyncState is the dashboard's view of a mailbox's sync: nil state when
 	// the worker has not reported yet.
 	GetSyncState(ctx context.Context, userID, emailID string) (*models.SyncState, models.SyncPolicy, *errx.Error)

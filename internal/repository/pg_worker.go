@@ -58,6 +58,18 @@ type SmtpRotationCandidate struct {
 	Provider string
 }
 
+// SendTargets is the set of workers a mailbox's sends may leave from, read
+// per send by the backend's send-side routing. Dedicated is true when the
+// mailbox's sync owner is a dedicated worker, which then stays the only
+// target. Live lists the live shared workers of the owner's tier and risk
+// pool ordered by id, so every backend walks the same ring.
+type SendTargets struct {
+	Dedicated bool
+	FreeTier  bool
+	RiskPool  models.WorkerRiskPool
+	Live      []uuid.UUID
+}
+
 // EmailAccountWorkerInfo contains worker info for an email account
 type EmailAccountWorkerInfo struct {
 	EmailAccountID uuid.UUID
@@ -110,6 +122,10 @@ type WorkerRepository interface {
 	// HasActiveSendTask reports whether a send tick for the mailbox is running
 	// right now, i.e. a SEND_EMAIL may be on its way to the current worker.
 	HasActiveSendTask(ctx context.Context, emailAccountID uuid.UUID) (bool, error)
+
+	// ListSendTargets is the ring of live workers a send from a mailbox
+	// pinned to pinnedWorkerID may be routed to (send-side routing).
+	ListSendTargets(ctx context.Context, pinnedWorkerID uuid.UUID) (*SendTargets, error)
 
 	// SSH-managed workers (admin-driven lifecycle)
 	CreateWorker(ctx context.Context, in CreateWorkerInput) error
@@ -592,6 +608,49 @@ func (r *workerRepository) HasActiveSendTask(ctx context.Context, emailAccountID
 		SELECT EXISTS(SELECT 1 FROM tasks WHERE email_account_id = $1 AND status = 'active')
 	`, emailAccountID).Scan(&busy)
 	return busy, err
+}
+
+// ListSendTargets reads the pinned worker's tier and pool, then every live,
+// healthy shared worker in them. Live is empty (and the caller sends through
+// the pinned worker) when the pinned row is gone or the worker is dedicated.
+func (r *workerRepository) ListSendTargets(ctx context.Context, pinnedWorkerID uuid.UUID) (*SendTargets, error) {
+	out := &SendTargets{}
+	var workerType models.WorkerType
+	err := r.db.QueryRow(ctx, `SELECT worker_type, free_tier, risk_pool FROM workers WHERE id = $1`, pinnedWorkerID).
+		Scan(&workerType, &out.FreeTier, &out.RiskPool)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return out, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	if workerType == models.WorkerTypeDedicated {
+		out.Dedicated = true
+		return out, nil
+	}
+
+	rows, err := r.db.Query(ctx, `
+		SELECT w.id
+		FROM workers w
+		WHERE w.worker_type = 'shared'
+		  AND w.free_tier = $1
+		  AND w.risk_pool = $2
+		  AND w.health_state IN ('healthy', 'watch')
+		  AND `+workerLiveSQL("w")+`
+		ORDER BY w.id ASC
+	`, out.FreeTier, out.RiskPool)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		out.Live = append(out.Live, id)
+	}
+	return out, rows.Err()
 }
 
 // UpdateEmailAccountWarmupPoolType writes the tier and moves the mailbox's pool membership to

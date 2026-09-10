@@ -2,6 +2,7 @@ package email
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
 
@@ -172,6 +173,34 @@ func (s *emailService) LoadAccountOntoWorker(ctx context.Context, accountID uuid
 	}
 	return s.publisher.PublishAddEmail(ctx, *workerID, payload)
 }
+
+// LoadAccountForSending ships an active mailbox's credentials to workerID
+// with send_only set: the worker builds its send clients and accepts
+// SEND_EMAIL for it, but never syncs it or claims it. The assignment is not
+// touched. The same payload builder as the owner's load, so the two never
+// drift.
+func (s *emailService) LoadAccountForSending(ctx context.Context, accountID, workerID uuid.UUID) error {
+	acc, xerr := s.emailRepository.GetByID(ctx, accountID)
+	if xerr != nil {
+		return xerr
+	}
+	if acc == nil || acc.Status != "active" {
+		return errSendOnlyLoadUnavailable
+	}
+	payload, err := s.buildAddWorkerEmail(ctx, acc)
+	if err != nil {
+		return err
+	}
+	if payload == nil {
+		return errSendOnlyLoadUnavailable
+	}
+	payload.SendOnly = true
+	return s.publisher.PublishAddEmail(ctx, workerID, payload)
+}
+
+// errSendOnlyLoadUnavailable: the mailbox is not active or has no loadable
+// credentials, so no worker can be handed it for sending.
+var errSendOnlyLoadUnavailable = errors.New("mailbox is not active or has no loadable credentials")
 
 // dropFromWorker tells the worker holding a mailbox to drop it from memory,
 // the same removal the consumer sends when a provider error deactivates one.
