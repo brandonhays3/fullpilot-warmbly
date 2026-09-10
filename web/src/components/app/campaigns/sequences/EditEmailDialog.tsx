@@ -51,12 +51,17 @@ import StepAttachments from "./StepAttachments";
 import { PreviewContactPicker } from "./PreviewControls";
 import { SAMPLE_CONTACT_LABEL, contactLabel, useCampaignSenderInboxes } from "./previewContext";
 import { htmlToPlain, linkifyUnsubscribe, renderPreview } from "./emailPreview";
+import { decodeConfig, type AIVariableConfig } from "@/lib/aiVariables";
+import useGenerateAIVariable from "@/lib/api/hooks/app/generation/useGenerateAIVariable";
 import { ORIGINAL_ARM, type StepArms } from "./useStepArms";
 import { useUpdateABVariant } from "@/lib/api/hooks/app/campaigns/useCampaignABVariants";
 
 type Draft = { subject: string; bodyHtml: string };
 const sameDraft = (a: Draft, b: Draft) => a.subject === b.subject && a.bodyHtml === b.bodyHtml;
 const AUTOSAVE_MS = 800;
+// Samples survive closing and reopening the editor so a block is not re-billed.
+const AI_SAMPLE_CACHE: Record<string, string> = {};
+const AI_SAMPLE_INFLIGHT = new Set<string>();
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function EditEmailDialog({
@@ -304,13 +309,72 @@ function DialogBody({
                   '<span class="pv-pending" aria-label="Resolving"><span class="pv-spin"></span></span>',
               )
             : html;
-    // AI blocks are written per recipient at send time; the preview shows where
-    // one goes rather than its raw token.
+    // AI blocks: the preview asks the model for a real sample per block for the
+    // preview contact, cached by block config + contact so it only regenerates
+    // when the prompt, tone or contact changes. Until it lands, a spinner slug.
+    const genAI = useGenerateAIVariable();
+    const [aiSamples, setAiSamples] = React.useState<Record<string, string>>(() => ({ ...AI_SAMPLE_CACHE }));
+    const aiBlocks = React.useMemo(() => {
+        const out: { id: string; cfg: AIVariableConfig; before: string; after: string }[] = [];
+        const re = /<span[^>]*data-ai-var="([^"]+)"[^>]*data-ai-config="([^"]*)"[^>]*>[^<]*<\/span>/g;
+        const plain = htmlToPlain(effective.bodyHtml ?? "");
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(effective.bodyHtml ?? "")) !== null) {
+            const cfg = decodeConfig(m[2]);
+            const at = plain.indexOf(`[[ai:${m[1]}]]`);
+            out.push({
+                id: m[1],
+                cfg,
+                before: at >= 0 ? plain.slice(Math.max(0, at - 400), at) : "",
+                after: at >= 0 ? plain.slice(at + m[1].length + 6, at + m[1].length + 406) : "",
+            });
+        }
+        return out;
+    }, [effective.bodyHtml]);
+    const aiKeyFor = React.useCallback(
+        (b: { id: string; cfg: AIVariableConfig }) => JSON.stringify([b.cfg.prompt, b.cfg.tone, b.cfg.web_search, previewContact?.id ?? ""]),
+        [previewContact?.id],
+    );
+    React.useEffect(() => {
+        for (const b of aiBlocks) {
+            if (!b.cfg.prompt.trim()) continue;
+            const key = aiKeyFor(b);
+            if (aiSamples[key] !== undefined || AI_SAMPLE_INFLIGHT.has(key)) continue;
+            AI_SAMPLE_INFLIGHT.add(key);
+            genAI.mutate(
+                {
+                    mode: "instant",
+                    prompt: b.cfg.prompt,
+                    tone: b.cfg.tone || undefined,
+                    web_search: b.cfg.web_search,
+                    context_before: b.before,
+                    context_after: b.after,
+                    ...(previewContact ? { contact_id: previewContact.id } : {}),
+                },
+                {
+                    onSuccess: (res) => {
+                        AI_SAMPLE_CACHE[key] = res.text;
+                        setAiSamples((m) => ({ ...m, [key]: res.text }));
+                    },
+                    onError: () => {
+                        AI_SAMPLE_CACHE[key] = "";
+                        setAiSamples((m) => ({ ...m, [key]: "" }));
+                    },
+                    onSettled: () => AI_SAMPLE_INFLIGHT.delete(key),
+                },
+            );
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [aiBlocks, aiKeyFor]);
     const aiPlaceholders = (html: string) =>
-        html.replace(
-            /\[\[ai:[^\]]*\]\]/g,
-            '<span class="pv-ai">AI writes a unique line here</span>',
-        );
+        html.replace(/\[\[ai:([^\]]*)\]\]/g, (_m, id: string) => {
+            const b = aiBlocks.find((x) => x.id === id);
+            if (!b || !b.cfg.prompt.trim()) return '<span class="pv-ai">AI writes a unique line here</span>';
+            const sample = aiSamples[aiKeyFor(b)];
+            if (sample === undefined) return '<span class="pv-pending pv-pending-wide" aria-label="Writing"><span class="pv-spin"></span></span>';
+            if (sample === "") return '<span class="pv-ai">AI writes a unique line here</span>';
+            return `<span class="pv-ai-text">${escapeHtml(sample)}</span>`;
+        });
     const shownSubject = (live?.subject ?? renderPreview(effective.subject, ctx)).replace(/\[\[ai:[^\]]*\]\]/g, "(AI line)");
     const shownBody = aiPlaceholders(live?.body_html ?? pendingChips(linkifyUnsubscribe(renderPreview(effective.bodyHtml, ctx))));
     const shownSubjectNode = live ? shownSubject : shownSubject.split(/(\{\{[^}]*\}\})/g).map((part, i) =>

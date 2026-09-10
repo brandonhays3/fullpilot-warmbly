@@ -677,3 +677,5 @@ button:not(:disabled), [role="button"]:not([aria-disabled="true"]), summary { cu
 @keyframes pv-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .pv-spin { animation: none; } }
 .pv-ai { display: inline-block; padding: 0 0.4em; margin: 0 0.1em; background: #eef4fd; color: #0a48a3; font-size: 0.85em; font-weight: 500; vertical-align: baseline; }
+.pv-ai-text { background: #eef4fd; padding: 0 0.15em; }
+.pv-pending-wide { min-width: 9em; }
