@@ -70,7 +70,7 @@ export function AppShell() {
                         corner is square; the left hairline shows only on >=md, where
                         the sidebar sits beside it; on mobile the panel is
                         full-bleed with just a top hairline. */}
-                    <main className="flex-1 min-w-0 bg-white overflow-hidden border-t border-slate-200/70 md:border-l">
+                    <main className="flex-1 min-w-0 bg-white overflow-hidden md:border-l md:border-slate-200">
                         <GlobalCursorsProvider scrollRef={scrollRef}>
                             <div ref={scrollRef} className="h-full overflow-auto">
                                 <RouteBoundary>

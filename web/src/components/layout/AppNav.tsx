@@ -241,12 +241,12 @@ function NavRow({ item }: { item: NavItem }) {
                 className={cn(
                     "w-[14px] h-[14px] shrink-0 transition-colors",
                     active
-                        ? "text-slate-900"
+                        ? "text-slate-900 [&_*]:[fill:currentColor] [&_*]:[fill-opacity:0.22]"
                         : locked
                             ? "text-slate-300 group-hover:text-slate-500"
                             : "text-slate-400 group-hover:text-slate-600",
                 )}
-                strokeWidth={active ? 2.4 : 1.6}
+                strokeWidth={1.6}
             />
             {/* min-w-0 lets the label shrink/truncate so the count cluster (and its
                 separator) is never pushed off the row — longer labels like
