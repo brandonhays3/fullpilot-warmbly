@@ -42,6 +42,34 @@
   --color-slate-900: #02101e;
   --color-slate-950: #02101e;
 
+  /* Status colours, muted: the same hue families the app is written in
+     (emerald, amber, rose, red, orange, violet, purple, indigo) desaturated
+     so badges, scores and labels read as tints, not highlighter. */
+  --color-emerald-50: #f1f6f3; --color-emerald-100: #dfebe5; --color-emerald-200: #bfd8ca;
+  --color-emerald-300: #93bba6; --color-emerald-400: #649b82; --color-emerald-500: #437f67;
+  --color-emerald-600: #346852; --color-emerald-700: #2a5342; --color-emerald-800: #213f33; --color-emerald-900: #182d25;
+  --color-amber-50: #f8f5ef; --color-amber-100: #efe8d8; --color-amber-200: #e1d2ae;
+  --color-amber-300: #ccb47f; --color-amber-400: #b39454; --color-amber-500: #987838;
+  --color-amber-600: #7e612c; --color-amber-700: #644c24; --color-amber-800: #4c3a1c; --color-amber-900: #362914;
+  --color-orange-50: #f9f4ef; --color-orange-100: #f0e4d8; --color-orange-200: #e2cab0;
+  --color-orange-300: #cea883; --color-orange-400: #b6865a; --color-orange-500: #9b6a3d;
+  --color-orange-600: #805531; --color-orange-700: #664328; --color-orange-800: #4d331f; --color-orange-900: #372416;
+  --color-rose-50: #f8f1f2; --color-rose-100: #f0dee1; --color-rose-200: #e2bfc5;
+  --color-rose-300: #cd97a0; --color-rose-400: #b46f7b; --color-rose-500: #974f5c;
+  --color-rose-600: #7d3f4a; --color-rose-700: #63323b; --color-rose-800: #4a262c; --color-rose-900: #341b1f;
+  --color-red-50: #f8f1f1; --color-red-100: #f0dedd; --color-red-200: #e2bfbd;
+  --color-red-300: #cd9793; --color-red-400: #b46f6a; --color-red-500: #984f4a;
+  --color-red-600: #7e3f3b; --color-red-700: #64322f; --color-red-800: #4b2624; --color-red-900: #351b19;
+  --color-violet-50: #f3f1f8; --color-violet-100: #e4dff0; --color-violet-200: #cac1e0;
+  --color-violet-300: #a99cc9; --color-violet-400: #8878b0; --color-violet-500: #6d5d98;
+  --color-violet-600: #594b7d; --color-violet-700: #473c63; --color-violet-800: #362e4b; --color-violet-900: #262035;
+  --color-purple-50: #f4f1f8; --color-purple-100: #e6dff0; --color-purple-200: #cdc1e0;
+  --color-purple-300: #ae9cc9; --color-purple-400: #8f78b0; --color-purple-500: #745d98;
+  --color-purple-600: #5f4b7d; --color-purple-700: #4b3c63; --color-purple-800: #392e4b; --color-purple-900: #282035;
+  --color-indigo-50: #f0f2f8; --color-indigo-100: #dee2f0; --color-indigo-200: #bfc7e0;
+  --color-indigo-300: #98a5c9; --color-indigo-400: #7484b0; --color-indigo-500: #5a6a98;
+  --color-indigo-600: #49567d; --color-indigo-700: #3a4463; --color-indigo-800: #2c344b; --color-indigo-900: #1f2435;
+
   /* Softer, shorter shadows than the shadcn defaults. */
   --shadow-2xs: 0 1px 1px 0 rgb(2 16 30 / 0.03);
   --shadow-xs: 0 1px 2px 0 rgb(2 16 30 / 0.04);
