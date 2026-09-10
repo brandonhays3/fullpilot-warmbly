@@ -289,27 +289,7 @@ func PreviewTemplates(subject, bodyHTML, bodyPlain string, contact models.Contac
 // previewTemplatesWith is PreviewTemplates with the unsubscribe link the
 // {{unsubscribe_link}} variable resolves to.
 func previewTemplatesWith(subject, bodyHTML, bodyPlain string, contact models.Contact, unsubscribeURL string) TemplatePreview {
-	extra := map[string]string{UnsubscribeLinkVar: unsubscribeURL}
-	p := TemplatePreview{
-		Subject:   expandSpintax(RenderTemplateWith(subject, contact, extra)),
-		BodyHTML:  expandSpintax(RenderTemplateWith(bodyHTML, contact, extra)),
-		BodyPlain: expandSpintax(RenderTemplateWith(bodyPlain, contact, extra)),
-	}
-	for _, f := range []struct{ name, raw string }{{"subject", subject}, {"body", bodyHTML}, {"plain text", bodyPlain}} {
-		if err := TemplateError(f.raw); err != nil {
-			p.Errors = append(p.Errors, f.name+": "+err.Error())
-		}
-	}
-	seen := map[string]bool{}
-	for _, out := range []string{p.Subject, p.BodyHTML, p.BodyPlain} {
-		for _, tok := range unresolvedToken.FindAllString(out, -1) {
-			if !seen[tok] {
-				seen[tok] = true
-				p.Unresolved = append(p.Unresolved, tok)
-			}
-		}
-	}
-	return p
+	return previewTemplatesExtra(subject, bodyHTML, bodyPlain, contact, map[string]string{UnsubscribeLinkVar: unsubscribeURL})
 }
 
 // AddSignature places the mailbox signature under the body. HTML gets its own

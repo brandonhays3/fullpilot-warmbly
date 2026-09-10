@@ -1641,6 +1641,10 @@ func main() {
 		if aware, ok := tasksService.(tasks.OrgRiskAware); ok {
 			aware.WireOrgRisk(orgRiskRepository)
 		}
+		// The {{.SenderCompany}} merge field is the workspace name.
+		if aware, ok := tasksService.(tasks.OrganizationAware); ok {
+			aware.WireOrganizations(organizationRepository)
+		}
 		// Campaign "ai" sequence steps run over the same provider + credit
 		// ledger as the automation AI nodes. Nil provider leaves them
 		// returning a clean "not available".

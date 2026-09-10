@@ -41,30 +41,22 @@ import { useAnchoredFloating } from "@/hooks/useAnchoredFloating";
 import RichTextAIEdit from "@/components/app/ai/RichTextAIEdit";
 import RichTextAICaret from "@/components/app/ai/RichTextAICaret";
 import { useForms } from "@/lib/api/hooks/app/forms";
-import { WEBSITE_URL } from "@/lib/information";
 import { VariableNode } from "./nodes/VariableNode";
 import { AIVariableNode } from "./nodes/AIVariableNode";
 import { ConditionalNode } from "./nodes/ConditionalNode";
 import { FormLinkNode } from "./nodes/FormLinkNode";
 import EditorSuggest from "./nodes/EditorSuggest";
-import {
-    TOKEN_META,
-    UNSUBSCRIBE_TOKEN,
-    cleanFieldName,
-    parseToken,
-    buildToken,
-    isStandardKey,
-    upgradeVariableTokens,
-} from "@/lib/templateVars";
-import useCustomFieldKeys from "@/lib/api/hooks/app/contacts/useCustomFieldKeys";
+import { UNSUBSCRIBE_TOKEN, parseToken, upgradeVariableTokens } from "@/lib/templateVars";
+import PersonalizationDialog from "./PersonalizationDialog";
 
-// A field token ({{.Company}}, or with a default fallback) becomes an atomic
-// chip; conditionals/spintax/other snippets insert as plain text.
+// A field token ({{.Company}}, or with a fallback) becomes an atomic chip; a
+// run of them (the dialog's Full name is two tokens) becomes one chip each;
+// conditionals/spintax/other snippets insert as plain text.
 function insertToken(editor: Editor, token: string) {
     if (parseToken(token)) {
         editor.chain().focus().insertVariable(token).run();
     } else {
-        editor.chain().focus().insertContent(token).run();
+        editor.chain().focus().insertContent(upgradeVariableTokens(token)).run();
     }
 }
 
@@ -362,228 +354,35 @@ function Divider() {
     return <span className="mx-0.5 h-4 w-px bg-slate-200" />;
 }
 
-// Shared variable inserter — a personalization menu that explains each field,
-// suggests the org's real custom fields, and can insert a custom field by name.
-// Flips horizontally so it never overflows the editor edge.
+// Shared variable inserter: the braces button that opens the two-step
+// personalization dialog. Both the subject field and the body toolbar use it
+// with the same onPick(token) contract.
 export function VariableMenu({
     onPick,
-    variables,
     links = [],
 }: {
     onPick: (token: string) => void;
+    // Kept for the callers' sake; the dialog carries its own catalogue.
     variables: string[];
     // Per-send link tokens (the recipient's unsubscribe link); body editors only.
     links?: string[];
 }) {
     const [open, setOpen] = React.useState(false);
-    const [custom, setCustom] = React.useState("");
-    const ref = React.useRef<HTMLDivElement>(null);
-    // Ignores clicks inside the portaled [data-floating] panel, so only a click
-    // truly outside the trigger+panel closes it.
-    useClickOutside(ref, () => setOpen(false));
-    // floating-ui keeps the panel glued to the trigger through scroll/resize.
-    const { setReference, setFloating, floatingStyle } = useAnchoredFloating(open, {
-        placement: "bottom-start",
-        gap: 6,
-        maxHeight: true,
-    });
-
-    const { data: customKeys = [] } = useCustomFieldKeys();
-    const customName = cleanFieldName(custom);
-    const insertCustom = () => {
-        if (!customName) return;
-        onPick(buildToken(customName));
-        setCustom("");
-        setOpen(false);
-    };
-    // Suggest the org's real custom-field keys, filtered by what's typed and
-    // excluding any that shadow a standard field (the backend resolves those to
-    // the standard value anyway).
-    const q = customName.toLowerCase();
-    const suggestions = customKeys
-        .filter((k) => !isStandardKey(k) && (!q || k.toLowerCase().includes(q)))
-        .slice(0, 8);
-    const shadowsStandard = customName !== "" && isStandardKey(customName);
-
+    const close = React.useCallback(() => setOpen(false), []);
     return (
-        <div ref={ref} className="relative">
+        <>
             <button
-                ref={(el) => setReference(el)}
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => setOpen((o) => !o)}
-                title="Insert a personalization variable"
+                onClick={() => setOpen(true)}
+                title="Insert a personalization"
                 className="h-7 px-1.5 inline-flex items-center gap-1 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
             >
                 <BracesIcon className="w-3.5 h-3.5" />
                 <ChevronDownIcon className="w-3 h-3" />
             </button>
-            {typeof document !== "undefined" &&
-                createPortal(
-                    <AnimatePresence>
-                        {open && (
-                            <motion.div
-                                ref={setFloating}
-                                data-floating=""
-                                style={floatingStyle}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.12 }}
-                                className="z-[200] w-[340px] max-w-[calc(100vw-24px)] overflow-y-auto rounded-md border border-slate-200 bg-white shadow-[0_12px_32px_-8px_rgba(15,23,42,0.18)]"
-                            >
-                        <div className="px-3 py-2 border-b border-slate-100">
-                            <p className="text-[12px] font-medium text-slate-800">Personalization</p>
-                            <p className="text-[10.5px] text-slate-400 mt-0.5">
-                                Replaced per contact on send · click to insert · hover for what each does
-                            </p>
-                        </div>
-
-                        {/* Contact fields — compact 2-column grid (description on hover). */}
-                        <div className="px-2 pt-2">
-                            <div className="px-1 pb-1 text-[10px] uppercase tracking-[0.14em] text-slate-400">
-                                Contact fields
-                            </div>
-                            <div className="grid grid-cols-2 gap-1">
-                                {variables.map((v) => {
-                                    const meta = TOKEN_META[v];
-                                    return (
-                                        <button
-                                            key={v}
-                                            type="button"
-                                            title={meta?.desc}
-                                            onMouseDown={(e) => e.preventDefault()}
-                                            onClick={() => {
-                                                onPick(v);
-                                                setOpen(false);
-                                            }}
-                                            className="flex min-w-0 flex-col items-start rounded-md border border-slate-200 px-2 py-1 text-left transition-colors hover:border-sky-300 hover:bg-sky-50/50"
-                                        >
-                                            <span className="w-full truncate text-[11.5px] text-slate-700">
-                                                {meta?.label ?? v}
-                                            </span>
-                                            <code className="w-full truncate font-mono text-[9.5px] text-slate-400">
-                                                {v}
-                                            </code>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-                        {links.length > 0 && (
-                            <div className="px-2 pt-2">
-                                <div className="px-1 pb-1 text-[10px] uppercase tracking-[0.14em] text-slate-400">
-                                    Links
-                                </div>
-                                <div className="grid grid-cols-2 gap-1">
-                                    {links.map((v) => {
-                                        const meta = TOKEN_META[v];
-                                        return (
-                                            <button
-                                                key={v}
-                                                type="button"
-                                                title={meta?.desc}
-                                                onMouseDown={(e) => e.preventDefault()}
-                                                onClick={() => {
-                                                    onPick(v);
-                                                    setOpen(false);
-                                                }}
-                                                className="flex min-w-0 flex-col items-start rounded-md border border-slate-200 px-2 py-1 text-left transition-colors hover:border-sky-300 hover:bg-sky-50/50"
-                                            >
-                                                <span className="w-full truncate text-[11.5px] text-slate-700">
-                                                    {meta?.label ?? v}
-                                                </span>
-                                                <code className="w-full truncate font-mono text-[9.5px] text-slate-400">
-                                                    {v}
-                                                </code>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="px-3 pt-2.5 pb-2">
-                            <div className="px-0 pb-1 text-[10px] uppercase tracking-[0.14em] text-slate-400">
-                                Custom field
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                                <input
-                                    value={custom}
-                                    onChange={(e) => setCustom(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter") {
-                                            e.preventDefault();
-                                            insertCustom();
-                                        }
-                                    }}
-                                    placeholder="field name (e.g. role)"
-                                    className="h-7 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-2 text-[12px] text-slate-900 placeholder:text-slate-400 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-                                />
-                                <button
-                                    type="button"
-                                    onMouseDown={(e) => e.preventDefault()}
-                                    onClick={insertCustom}
-                                    disabled={!customName}
-                                    className="h-7 shrink-0 rounded-md bg-sky-600 px-2.5 text-[11.5px] font-medium text-white transition-colors hover:bg-sky-700 disabled:opacity-50"
-                                >
-                                    Insert
-                                </button>
-                            </div>
-
-                            {/* Real custom-field keys the org actually uses. */}
-                            {suggestions.length > 0 && (
-                                <div className="mt-1.5 flex flex-wrap gap-1">
-                                    {suggestions.map((k) => (
-                                        <button
-                                            key={k}
-                                            type="button"
-                                            title={`Insert {{.${cleanFieldName(k)}}}`}
-                                            onMouseDown={(e) => e.preventDefault()}
-                                            onClick={() => {
-                                                onPick(buildToken(k));
-                                                setCustom("");
-                                                setOpen(false);
-                                            }}
-                                            className="inline-flex max-w-full items-center truncate rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] text-slate-600 transition-colors hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700"
-                                        >
-                                            {k}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-
-                            {shadowsStandard ? (
-                                <p className="mt-1 text-[10px] text-amber-600">
-                                    A contact field named <code className="font-mono">{customName}</code> is shadowed by
-                                    the standard field above and always uses that value.
-                                </p>
-                            ) : (
-                                <p className="mt-1 text-[10px] text-slate-400">
-                                    Inserts{" "}
-                                    <code className="font-mono text-slate-500">{`{{.${customName || "name"}}}`}</code> —
-                                    exact field name; blank if the contact lacks it.
-                                </p>
-                            )}
-                        </div>
-
-                        <a
-                            href={`${WEBSITE_URL}/learn/personalization`}
-                            target="_blank"
-                            rel="noreferrer"
-                            onMouseDown={(e) => e.preventDefault()}
-                            className="flex items-center justify-between gap-2 border-t border-slate-100 px-3 py-2 text-[11.5px] font-medium text-sky-600 transition-colors hover:bg-sky-50/60"
-                        >
-                            Full guide &amp; examples
-                            <span aria-hidden="true">↗</span>
-                        </a>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>,
-                    document.body,
-                )}
-        </div>
+            <PersonalizationDialog open={open} onClose={close} onPick={onPick} links={links} />
+        </>
     );
 }
 

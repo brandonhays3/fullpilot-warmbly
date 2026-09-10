@@ -60,7 +60,7 @@ func (s *tasksService) SendTestEmail(ctx context.Context, orgID uuid.UUID, accou
 		unsubscribeURL = s.unsubLinks.URL(orgID, campaign.ID, uuid.Nil, time.Now())
 	}
 
-	rendered := previewTemplatesWith(sequence.Subject, sequence.BodyHTML, sequence.BodyPlain, renderFor, unsubscribeURL)
+	rendered := previewTemplatesExtra(sequence.Subject, sequence.BodyHTML, sequence.BodyPlain, renderFor, s.sendExtra(ctx, orgID, account, unsubscribeURL))
 	bodyHTML, bodyPlain := finishBody(rendered.BodyHTML, rendered.BodyPlain, campaign.TextOnly, account, &optOut, unsubscribeURL)
 	subject := "[TEST] " + rendered.Subject
 

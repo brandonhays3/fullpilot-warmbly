@@ -6,7 +6,7 @@
 // The standard merge fields and their sample values live in one catalog
 // (@/lib/templateVars); imported for local use (renderPreview's default context)
 // and re-exported so existing imports keep working.
-import { VARIABLES, SAMPLE, HTML_CHUNK_RE } from "@/lib/templateVars";
+import { VARIABLES, SAMPLE, HTML_CHUNK_RE, STANDARD_VARS, SENDER_VARS, unescapeTemplateString } from "@/lib/templateVars";
 export { VARIABLES, SAMPLE };
 
 // Derive plain text from the editor HTML so both alternatives ship populated.
@@ -132,9 +132,46 @@ function renderConditionals(s: string, ctx: PreviewCtx): string {
     return renderConditionals(s.slice(0, start), ctx) + chosen + renderConditionals(s.slice(endIdx + endLen), ctx);
 }
 
+// Go template keywords and builtins a bare {{word}} must never be read as a
+// field name.
+const TEMPLATE_KEYWORDS = new Set([
+    "if", "else", "end", "range", "with", "or", "and", "not", "define", "template", "block",
+    "len", "print", "printf", "println", "nil", "true", "false",
+]);
+
+// Standard and sender fields by their bare spelling, case and underscores
+// folded: firstName, first_name, FIRSTNAME all mean .FirstName.
+const BARE_FIELD_ALIASES: Record<string, string> = Object.fromEntries([
+    ...[...STANDARD_VARS, ...SENDER_VARS].map((v) => [v.key.toLowerCase(), v.key]),
+    ["senderfullname", "SenderName"],
+]);
+
+// normalizeBareTokens rewrites a bare {{word}} to the dotted field the send
+// path resolves: a known field by any casing, otherwise a custom field of
+// that exact name. Control tokens and anything with a dot, quotes or
+// arguments are left alone.
+export function normalizeBareTokens(s: string): string {
+    if (!s.includes("{{")) return s;
+    return s.replace(/\{\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}\}/g, (whole, word: string) => {
+        if (TEMPLATE_KEYWORDS.has(word)) return whole;
+        const key = BARE_FIELD_ALIASES[word.toLowerCase().replace(/_/g, "")] ?? word;
+        return `{{.${key}}}`;
+    });
+}
+
+// A field token in any of its spellings: {{.Key}}, {{.Key | default "x"}} and
+// {{or .Key "x"}}. Keys may carry spaces or dashes (custom fields).
+const FIELD_WITH_FALLBACK_RE =
+    /\{\{\s*(?:\.([A-Za-z0-9_ -]+?)\s*(?:\|\s*default\s+"([^"]*)")?|or\s+\.([A-Za-z0-9_ -]+?)\s+"((?:[^"\\]|\\.)*)")\s*\}\}/g;
+
 export function renderPreview(s: string, ctx: PreviewCtx = SAMPLE): string {
-    let out = renderConditionals(s, ctx);
-    out = out.replace(/\{\{\s*\.([A-Za-z0-9_]+)\s*\}\}/g, (_, k: string) => ctx[k] ?? "");
+    let out = renderConditionals(normalizeBareTokens(s), ctx);
+    out = out.replace(FIELD_WITH_FALLBACK_RE, (_, k1?: string, fb1?: string, k2?: string, fb2?: string) => {
+        const key = (k1 ?? k2 ?? "").trim();
+        const fallback = fb1 ?? (fb2 !== undefined ? unescapeTemplateString(fb2) : undefined);
+        const v = ctx[key] ?? "";
+        return v === "" && fallback !== undefined ? fallback : v;
+    });
     out = out.replace(/\{([^{}|]+(?:\|[^{}]+)+)\}/g, (_, g: string) => g.split("|")[0]);
     return out;
 }

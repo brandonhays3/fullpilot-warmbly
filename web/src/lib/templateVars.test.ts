@@ -1,6 +1,53 @@
 import { describe, expect, it } from "vitest";
-import { UNSUBSCRIBE_TOKEN, upgradeVariableTokens } from "./templateVars";
-import { linkifyUnsubscribe } from "@/components/app/campaigns/sequences/emailPreview";
+import { UNSUBSCRIBE_TOKEN, buildFallbackToken, parseToken, upgradeVariableTokens } from "./templateVars";
+import { linkifyUnsubscribe, normalizeBareTokens, renderPreview } from "@/components/app/campaigns/sequences/emailPreview";
+
+describe("buildFallbackToken / parseToken", () => {
+    it("emits the or form and escapes quotes", () => {
+        expect(buildFallbackToken("FirstName", "there")).toBe('{{or .FirstName "there"}}');
+        expect(buildFallbackToken("FirstName", "")).toBe("{{.FirstName}}");
+        expect(buildFallbackToken("FirstName", "  ")).toBe("{{.FirstName}}");
+        expect(buildFallbackToken("Company", 'say "hi"')).toBe('{{or .Company "say \\"hi\\""}}');
+    });
+
+    it("parses both fallback spellings back to key and fallback", () => {
+        expect(parseToken('{{or .FirstName "there"}}')).toEqual({ key: "FirstName", fallback: "there" });
+        expect(parseToken('{{or .Company "say \\"hi\\""}}')).toEqual({ key: "Company", fallback: 'say "hi"' });
+        expect(parseToken('{{.FirstName | default "there"}}')).toEqual({ key: "FirstName", fallback: "there" });
+        expect(parseToken("{{.FirstName}}")).toEqual({ key: "FirstName", fallback: null });
+        expect(parseToken("{{if .FirstName}}")).toBeNull();
+    });
+
+    it("chips an or-fallback token on load", () => {
+        expect(upgradeVariableTokens('<p>Hi {{or .FirstName "there"}}</p>')).toBe(
+            '<p>Hi <span data-var="">{{or .FirstName "there"}}</span></p>',
+        );
+    });
+});
+
+describe("renderPreview", () => {
+    it("resolves fallbacks in both spellings", () => {
+        const ctx = { FirstName: "", Company: "Acme" };
+        expect(renderPreview('Hi {{or .FirstName "there"}} at {{or .Company "your company"}}', ctx)).toBe("Hi there at Acme");
+        expect(renderPreview('Hi {{.FirstName | default "friend"}}', ctx)).toBe("Hi friend");
+        expect(renderPreview('{{or .FirstName "say \\"hi\\""}}', ctx)).toBe('say "hi"');
+    });
+
+    it("renders the sender fields from the sample", () => {
+        expect(renderPreview("{{.SenderFirstName}} at {{.SenderCompany}}")).toBe("Sam at Your Company");
+    });
+
+    it("reads bare tokens as fields", () => {
+        expect(normalizeBareTokens("Hi {{firstName}}, {{ FirstName }}, {{first_name}}")).toBe(
+            "Hi {{.FirstName}}, {{.FirstName}}, {{.FirstName}}",
+        );
+        expect(normalizeBareTokens("{{senderFirstName}} {{sender_full_name}}")).toBe("{{.SenderFirstName}} {{.SenderName}}");
+        expect(normalizeBareTokens("{{role}}")).toBe("{{.role}}");
+        expect(normalizeBareTokens("{{if .X}}{{end}}{{else}}")).toBe("{{if .X}}{{end}}{{else}}");
+        expect(renderPreview("Hi {{firstName}} from {{senderCompany}}")).toBe("Hi Alex from Your Company");
+        expect(renderPreview("{{if .Company}}{{company}}{{end}}", { Company: "Acme" })).toBe("Acme");
+    });
+});
 
 describe("upgradeVariableTokens", () => {
     it("chips a token in text", () => {
