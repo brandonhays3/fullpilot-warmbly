@@ -19,6 +19,7 @@ export const CAMPAIGN_STATUS_LABEL: Record<string, string> = {
     paused_trial_expired: "trial expired",
     paused_guardrail: "auto-paused",
     paused_undeliverable: "needs verification",
+    paused_ai_key: "needs AI key",
     completed: "finished",
     draft: "draft",
 };
@@ -34,6 +35,7 @@ const CAMPAIGN_STATUS_TONE: Record<string, string> = {
     paused_trial_expired: "text-amber-600",
     paused_guardrail: "text-rose-600",
     paused_undeliverable: "text-amber-600",
+    paused_ai_key: "text-amber-600",
     draft: "text-slate-500",
 };
 

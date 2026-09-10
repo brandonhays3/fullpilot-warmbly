@@ -15,6 +15,8 @@ export interface AIVariableGenerateRequest {
     // the sentence it lands in (matches the send path).
     context_before?: string;
     context_after?: string;
+    // OpenRouter model id for this block; empty = the workspace default.
+    model?: string;
 }
 
 export type AIVariableGenerateResponse = WriteResponse;

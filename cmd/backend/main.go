@@ -25,6 +25,7 @@ import (
 	"github.com/warmbly/warmbly/internal/app/admin"
 	"github.com/warmbly/warmbly/internal/app/adminoutreach"
 	"github.com/warmbly/warmbly/internal/app/advanced"
+	"github.com/warmbly/warmbly/internal/app/aisettings"
 	"github.com/warmbly/warmbly/internal/app/unsublink"
 	"github.com/warmbly/warmbly/internal/observability/errs"
 
@@ -192,6 +193,7 @@ func main() {
 	var warmupContentService warmupcontent.Service
 	var creditRepository repository.CreditRepository
 	var aiSettingsRepository repository.AISettingsRepository
+	var orgAISettingsService aisettings.Service
 	var creditService credits.CreditService
 	var aiDraftRepo repository.AIDraftRepository
 	var writingGenerator generation.WritingGenerator
@@ -997,6 +999,12 @@ func main() {
 
 		cipherService = cipher.NewService(kms, cache, encryptedKeys)
 
+		// Workspace AI keys: each organization's own OpenRouter key, sealed
+		// with its DEK. Every user-facing generation call resolves through it;
+		// the platform's AI_* key is left to reply classification and the
+		// platform-side agent features.
+		orgAISettingsService = aisettings.New(repository.NewOrganizationAISettingsRepository(primaryDB), cipherService, aiSearch)
+
 		// Third-party integrations: OAuth connect flows + encrypted token
 		// storage (sealed with the connecting user's DEK) + event-driven actions.
 		integrationServiceForHandler = integration.NewService(integrationRepository, cipherService, integration.NewOAuthManager())
@@ -1470,6 +1478,12 @@ func main() {
 		if aware, ok := advancedService.(advanced.AttachmentAware); ok {
 			aware.WireAttachments(attachmentRepoForHandler)
 		}
+		// A campaign whose copy (or A/B arm) carries an AI block cannot start
+		// without the workspace's OpenRouter key; it would only park itself
+		// on the first send.
+		if aware, ok := campaignService.(campaign.AIGateAware); ok {
+			aware.WireAIGate(orgAISettingsService, advancedRepository)
+		}
 
 		// Shared AI tool registry: every tool calls a service-layer function as
 		// the invoking user, so the dashboard agent (M3) and MCP server (M8) can
@@ -1653,6 +1667,9 @@ func main() {
 		// Research-mode AI variables run a bounded web-research agent over the
 		// shared tool registry at send time.
 		tasksService.SetAITools(aiToolRegistry)
+		// AI blocks generate on the workspace's own OpenRouter key, never the
+		// platform's; without one the campaign parks at paused_ai_key.
+		tasksService.SetAISettings(orgAISettingsService)
 		// Warmup sends obey the same sending-domain authentication gate as cold
 		// sends, so an unauthenticated mailbox cannot keep warming against the
 		// shared pool's reputation.
@@ -2057,16 +2074,17 @@ func main() {
 		WarmupContentService: warmupContentService,
 
 		// AI writing assistant + credit ledger
-		CreditService:    creditService,
-		WritingGenerator: writingGenerator,
-		AIProvider:       aiProvider,
-		AISearch:         aiSearch,
-		AITools:          aiToolRegistry,
-		AIAgentService:   aiAgentService,
-		ResearchService:  researchService,
-		SkillsService:    skillsService,
-		MCPService:       mcpService,
-		AIDraftRepo:      aiDraftRepo,
+		CreditService:     creditService,
+		WritingGenerator:  writingGenerator,
+		AIProvider:        aiProvider,
+		AISearch:          aiSearch,
+		AISettingsService: orgAISettingsService,
+		AITools:           aiToolRegistry,
+		AIAgentService:    aiAgentService,
+		ResearchService:   researchService,
+		SkillsService:     skillsService,
+		MCPService:        mcpService,
+		AIDraftRepo:       aiDraftRepo,
 
 		// Pre-send email verification
 		EmailVerifyService: emailVerifyService,

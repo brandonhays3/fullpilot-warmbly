@@ -42,8 +42,9 @@ func (h *Handler) DraftCompose(c *gin.Context) {
 		errx.JSON(c, errx.New(errx.Unauthorized, "invalid user"))
 		return
 	}
-	if h.AIProvider == nil {
-		errx.JSON(c, errx.New(errx.ServiceUnavailable, "the AI assistant is not configured"))
+	// The workspace's own OpenRouter key, never the platform's.
+	ai, ok := h.orgAI(c, *orgID)
+	if !ok {
 		return
 	}
 	if allowed, xerr := h.FeatureGateService.CanUseUnibox(c.Request.Context(), *orgID); xerr != nil {
@@ -75,15 +76,14 @@ func (h *Handler) DraftCompose(c *gin.Context) {
 		historyBlock, historyCount = h.composeHistoryContext(c, address)
 	}
 
-	paid, _ := h.FeatureGateService.IsPaidOrganization(c.Request.Context(), *orgID)
-	model := h.AIProvider.ModelForTier(paid)
+	model := ai.Model
 	voice := h.orgVoice(c.Request.Context(), *orgID, "")
 	hasVoice := strings.TrimSpace(voice.ProductDescription) != "" ||
 		strings.TrimSpace(voice.ICPNotes) != "" ||
 		strings.TrimSpace(voice.VoiceProfile) != ""
 
 	idemKey := strings.TrimSpace(c.GetHeader("Idempotency-Key"))
-	local := h.AIProvider.IsLocal()
+	local := ai.Provider.IsLocal()
 	reqCtx := c.Request.Context()
 	{
 		meta := models.CreditMeta{Context: models.CreditContext{Detail: "compose draft to " + address}}
@@ -115,7 +115,7 @@ func (h *Handler) DraftCompose(c *gin.Context) {
 	}
 
 	prompt := buildComposePrompt(address, contactCtx, historyBlock, req.Subject, req.Instruction)
-	result, gerr := h.AIProvider.Complete(c.Request.Context(), generation.CompletionRequest{
+	result, gerr := ai.Provider.Complete(c.Request.Context(), generation.CompletionRequest{
 		System: system,
 		Prompt: prompt,
 		Model:  model,

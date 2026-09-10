@@ -423,7 +423,7 @@ func (s *campaignService) StartCampaign(ctx context.Context, orgID uuid.UUID, ca
 	// one just re-completes in enqueueCampaignWakeup with a clear message.
 	startable := map[string]bool{
 		"draft": true, "paused": true, "paused_no_accounts": true,
-		"paused_guardrail": true, "paused_undeliverable": true, "completed": true,
+		"paused_guardrail": true, "paused_undeliverable": true, "paused_ai_key": true, "completed": true,
 	}
 	if !startable[campaign.Status] {
 		return errx.New(errx.BadRequest, "campaign must be in draft, paused, or completed status to start")
@@ -477,6 +477,14 @@ func (s *campaignService) StartCampaign(ctx context.Context, orgID uuid.UUID, ca
 				}
 			}
 		}
+	}
+
+	// AI blocks are written with the workspace's own OpenRouter key at send
+	// time. Without one the first send would park the campaign, so refuse the
+	// start here with a code the dashboard links to Settings > AI. Step copy
+	// and per-step A/B arms are both checked.
+	if xerr := s.checkAIKeyForCampaign(ctx, orgID, cID); xerr != nil {
+		return xerr
 	}
 
 	// Refuse a launch whose list is known to be largely undeliverable. Only
@@ -829,6 +837,68 @@ func (s *campaignService) ResumeVerificationPaused(ctx context.Context, orgID uu
 	for _, id := range ids {
 		if xerr := s.StartCampaign(ctx, orgID, id.String(), models.StartCampaignOptions{Automatic: true}); xerr != nil {
 			log.Info().Str("campaign_id", id.String()).Str("reason", xerr.Message).Msg("campaign stays parked after verification")
+		}
+	}
+}
+
+// checkAIKeyForCampaign refuses a start when the campaign's copy carries an AI
+// block and the workspace has no OpenRouter key. Optional wiring: without an
+// AIKeyChecker nothing is gated here and the send path parks the campaign.
+func (s *campaignService) checkAIKeyForCampaign(ctx context.Context, orgID, campaignID uuid.UUID) *errx.Error {
+	if s.aiKeys == nil {
+		return nil
+	}
+	hasAI := false
+	if seqs, serr := s.campaignRepository.GetSequencesByCampaignID(ctx, campaignID); serr == nil {
+		for _, seq := range seqs {
+			if tasks.HasAIVariables(seq.BodyHTML) {
+				hasAI = true
+				break
+			}
+		}
+	}
+	if !hasAI && s.abVariants != nil {
+		if variants, verr := s.abVariants.ListABVariants(ctx, campaignID); verr == nil {
+			for _, v := range variants {
+				if v.IsActive && tasks.HasAIVariables(v.BodyHTML) {
+					hasAI = true
+					break
+				}
+			}
+		}
+	}
+	if !hasAI {
+		return nil
+	}
+	hasKey, kerr := s.aiKeys.HasKey(ctx, orgID)
+	if kerr != nil {
+		return errx.InternalError()
+	}
+	if !hasKey {
+		return errx.ErrCampaignAIKeyMissing
+	}
+	return nil
+}
+
+// ResumeAIKeyPaused restarts every campaign of the org parked at
+// paused_ai_key, called once a key is saved. Best effort: a campaign that
+// cannot start for another reason stays parked and says why in its feed.
+func (s *campaignService) ResumeAIKeyPaused(ctx context.Context, orgID uuid.UUID) {
+	ids, err := s.campaignRepository.ListIDsByStatus(ctx, orgID, tasks.CampaignStatusPausedAIKey)
+	if err != nil || len(ids) == 0 {
+		return
+	}
+	for _, id := range ids {
+		if xerr := s.StartCampaign(ctx, orgID, id.String(), models.StartCampaignOptions{Automatic: true}); xerr != nil {
+			log.Info().Str("campaign_id", id.String()).Str("reason", xerr.Message).Msg("campaign stays parked after an AI key was saved")
+			continue
+		}
+		if s.campaignLogRepo != nil {
+			s.campaignLogRepo.CreateLog(ctx, &repository.CampaignLogEntry{
+				CampaignID: id,
+				EventType:  "resumed",
+				Message:    "Campaign resumed: an OpenRouter key was saved under Settings > AI.",
+			})
 		}
 	}
 }

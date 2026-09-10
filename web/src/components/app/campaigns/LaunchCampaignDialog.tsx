@@ -29,6 +29,8 @@ import usePreflight from "@/lib/api/hooks/app/campaigns/usePreflight";
 import getSequences from "@/lib/api/client/app/campaigns/sequences/getSequences";
 import { preflightFailures } from "@/lib/api/models/app/campaigns/Preflight";
 import { isIdleCampaign } from "@/components/app/campaigns/status";
+import { Link } from "react-router-dom";
+import { AI_SETTINGS_PATH, CAMPAIGN_AI_KEY_MISSING } from "@/lib/api/models/app/organizations/AISettings";
 import type { StartCampaignResult } from "@/lib/api/client/app/campaigns/startCampaign";
 
 type Phase = "idle" | "launching" | "done";
@@ -99,6 +101,9 @@ export default function LaunchCampaignDialog({
     // The backend refused the launch on projected bounce rate. The member can
     // take the risk explicitly (a list verified elsewhere), once they read why.
     const [riskBlocked, setRiskBlocked] = React.useState(false);
+    // The start was refused because an AI block has no workspace key: the
+    // only way forward is Settings > AI, so link it under the error.
+    const [aiKeyBlocked, setAiKeyBlocked] = React.useState(false);
     // The start answered that the campaign is active but waiting for leads.
     const [waiting, setWaiting] = React.useState(false);
     const timer = React.useRef<number | null>(null);
@@ -164,6 +169,7 @@ export default function LaunchCampaignDialog({
             const err = e as unknown as AppError;
             setError(buildError(err));
             setRiskBlocked(err?.code === "list_bounce_risk");
+            setAiKeyBlocked(err?.code === CAMPAIGN_AI_KEY_MISSING);
             setPhase("idle");
         }
     }
@@ -339,6 +345,18 @@ export default function LaunchCampaignDialog({
                                             <AlertTriangleIcon className="w-3.5 h-3.5 text-rose-500 shrink-0 mt-0.5" />
                                             <p className="text-[12px] text-rose-700 leading-snug">
                                                 {error}
+                                                {aiKeyBlocked && (
+                                                    <>
+                                                        {" "}
+                                                        <Link
+                                                            to={AI_SETTINGS_PATH}
+                                                            onClick={onClose}
+                                                            className="font-medium underline underline-offset-2 hover:text-rose-900"
+                                                        >
+                                                            Open Settings, AI
+                                                        </Link>
+                                                    </>
+                                                )}
                                             </p>
                                         </div>
                                     )}

@@ -6,6 +6,7 @@ import (
 	"github.com/warmbly/warmbly/internal/app/advanced"
 	"github.com/warmbly/warmbly/internal/app/advisor"
 	"github.com/warmbly/warmbly/internal/app/aiagent"
+	"github.com/warmbly/warmbly/internal/app/aisettings"
 	"github.com/warmbly/warmbly/internal/app/aitools"
 	"github.com/warmbly/warmbly/internal/app/analytics"
 	"github.com/warmbly/warmbly/internal/app/apikey"
@@ -209,6 +210,12 @@ type Handler struct {
 	// inbox agent. Nil when no LLM provider is configured.
 	AIProvider generation.Provider
 	AISearch   generation.SearchClient
+
+	// AISettingsService resolves each workspace's own OpenRouter key and
+	// default model. Every user-facing generation handler goes through it
+	// (orgAI) instead of AIProvider / WritingGenerator, which stay for the
+	// platform-side features (agent, research, classification).
+	AISettingsService aisettings.Service
 
 	// AITools is the shared tool registry the dashboard agent and MCP server
 	// run on. Handlers bound to the invoking user's permissions.

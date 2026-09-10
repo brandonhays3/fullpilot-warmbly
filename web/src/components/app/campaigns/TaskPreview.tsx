@@ -10,6 +10,7 @@ import {
 } from "@/components/icons";
 import { useCampaignChannel, type ActivityItem } from "@/hooks/useCampaignChannel";
 import useCampaignLogs from "@/lib/api/hooks/app/campaigns/useCampaignLogs";
+import { campaignStatusLabel } from "@/components/app/campaigns/status";
 import { DitherMeter } from "@/components/ui/dither";
 
 interface TaskPreviewProps {
@@ -23,6 +24,9 @@ interface TaskPreviewProps {
 const STATUS_TONE: Record<string, string> = {
     active: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
     paused: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
+    paused_no_accounts: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
+    paused_undeliverable: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
+    paused_ai_key: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
     completed: "bg-sky-50 text-sky-700 ring-1 ring-sky-200",
     draft: "bg-slate-100 text-slate-600 ring-1 ring-slate-200",
     idle: "bg-sky-50 text-sky-700 ring-1 ring-sky-200",
@@ -38,8 +42,10 @@ const ACTIVITY_META: Record<ActivityItem["type"], { icon: LucideIcon; tone: stri
     failed: { icon: XCircleIcon, tone: "text-rose-600" },
 };
 
+// Words, not the raw enum: "Needs AI key" rather than "Paused_ai_key".
 function statusLabel(s: string): string {
-    return s.charAt(0).toUpperCase() + s.slice(1);
+    const label = campaignStatusLabel(s);
+    return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 function initials(name?: string, email?: string): string {

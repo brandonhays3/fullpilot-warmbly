@@ -43,6 +43,9 @@ type CampaignService interface {
 	// paused_undeliverable. Called after verification verdicts change; a
 	// campaign that still has nothing to send parks itself again.
 	ResumeVerificationPaused(ctx context.Context, orgID uuid.UUID)
+	// ResumeAIKeyPaused restarts the org's campaigns parked at paused_ai_key.
+	// Called once an OpenRouter key is saved under Settings > AI.
+	ResumeAIKeyPaused(ctx context.Context, orgID uuid.UUID)
 	StopCampaign(ctx context.Context, orgID uuid.UUID, campaignID string) *errx.Error
 
 	// Logs
@@ -93,6 +96,32 @@ type campaignService struct {
 	// segments counts an audience for Estimate. Optional: without it an
 	// estimate reports zero recipients.
 	segments SegmentCounter
+	// aiKeys answers whether the workspace has an OpenRouter key, which a
+	// campaign with AI blocks needs before it may start. Optional/nil-safe.
+	aiKeys AIKeyChecker
+	// abVariants lists a campaign's A/B arms so their copy is gated too.
+	abVariants ABVariantLister
+}
+
+// AIKeyChecker is the slice of the AI settings service the start gate needs.
+type AIKeyChecker interface {
+	HasKey(ctx context.Context, orgID uuid.UUID) (bool, error)
+}
+
+// ABVariantLister is the slice of the advanced-outreach repository the start
+// gate needs to inspect A/B arm copy.
+type ABVariantLister interface {
+	ListABVariants(ctx context.Context, campaignID uuid.UUID) ([]models.CampaignABVariant, error)
+}
+
+// AIGateAware lets main hand the campaign service the AI key gate.
+type AIGateAware interface {
+	WireAIGate(keys AIKeyChecker, variants ABVariantLister)
+}
+
+func (s *campaignService) WireAIGate(keys AIKeyChecker, variants ABVariantLister) {
+	s.aiKeys = keys
+	s.abVariants = variants
 }
 
 // SegmentCounter is the slice of the segment service Estimate needs.

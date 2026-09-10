@@ -10,11 +10,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
+	"github.com/warmbly/warmbly/internal/app/aisettings"
 	"github.com/warmbly/warmbly/internal/config"
 	"github.com/warmbly/warmbly/internal/errx"
 	"github.com/warmbly/warmbly/internal/infrastructure/pubsub"
 	"github.com/warmbly/warmbly/internal/models"
 	"github.com/warmbly/warmbly/internal/observability/errs"
+	"github.com/warmbly/warmbly/internal/pkg/generation"
 	"github.com/warmbly/warmbly/internal/repository"
 	"github.com/warmbly/warmbly/internal/scheduler"
 	"github.com/warmbly/warmbly/internal/tasks/proto"
@@ -507,10 +509,20 @@ func (s *tasksService) HandleCampaignTask(task *proto.ProcessTask) *errx.Error {
 	// zero-cost no-op when the body has no AI blocks. A generation failure fails
 	// the send (recorded like other send failures) so the task retries with the
 	// same cached output.
-	if s.aiProvider != nil && s.aiCredits != nil {
+	if s.aiCredits != nil {
 		var aerr error
 		subject, bodyHTML, bodyPlain, aerr = s.resolveAIVariables(ctx, campaign, contact, sequence.ID, subject, bodyHTML, bodyPlain)
 		if aerr != nil {
+			// No workspace key, or a key OpenRouter refuses: retrying cannot
+			// help, so park the campaign where the owner can fix it. Nothing
+			// is reserved yet at this step, so there is nothing to release.
+			if errors.Is(aerr, aisettings.ErrKeyMissing) || errors.Is(aerr, generation.ErrProviderAuth) {
+				s.autoPauseCampaignAs(ctx, campaign, taskID, CampaignStatusPausedAIKey, AIKeyPauseReason(aerr), map[string]interface{}{
+					"level": "error", "code": "ai_key_missing", "contact_id": contact.ID.String(), "sequence_id": sequence.ID.String(),
+				})
+				executionStatus = "completed"
+				return nil
+			}
 			s.taskRepo.RecordTaskFailure(ctx, taskID, "AI variable resolution failed", aerr.Error())
 			if s.campaignLogRepo != nil {
 				s.campaignLogRepo.CreateLog(ctx, &repository.CampaignLogEntry{
@@ -1013,6 +1025,47 @@ func (s *tasksService) autoPauseCampaign(ctx context.Context, campaignID, taskID
 			CampaignID: campaignID,
 			EventType:  "auto_paused",
 			Message:    reason,
+		})
+	}
+}
+
+// CampaignStatusPausedAIKey parks a campaign whose copy carries an AI block
+// the workspace cannot generate: no OpenRouter key, or one the provider
+// refuses. Saving a key under Settings > AI resumes it.
+const CampaignStatusPausedAIKey = "paused_ai_key"
+
+// AIKeyPauseReason is the activity-log line for an AI-key pause. The two
+// causes need different fixes (add a key, replace a key), so they are told apart.
+func AIKeyPauseReason(err error) string {
+	if errors.Is(err, generation.ErrProviderAuth) {
+		return "Campaign paused: OpenRouter rejected the workspace's API key, so its AI blocks cannot be written. Replace the key under Settings > AI."
+	}
+	return "Campaign paused: AI blocks need an OpenRouter key. Add one under Settings > AI."
+}
+
+// autoPauseCampaignAs is autoPauseCampaign with the parked status chosen by
+// the caller, for pauses whose fix is not a mailbox. The status change is
+// broadcast so open dashboards move the campaign to its new state at once.
+func (s *tasksService) autoPauseCampaignAs(ctx context.Context, campaign *models.Campaign, taskID uuid.UUID, status, reason string, metadata map[string]interface{}) {
+	s.campaignRepo.UpdateStatusWithLock(ctx, campaign.ID, status)
+	if taskID != uuid.Nil {
+		s.taskRepo.UpdateTaskStatus(ctx, taskID, "completed")
+	}
+	if s.campaignLogRepo != nil {
+		s.campaignLogRepo.CreateLog(ctx, &repository.CampaignLogEntry{
+			CampaignID: campaign.ID,
+			EventType:  "auto_paused",
+			Message:    reason,
+			Metadata:   metadata,
+		})
+	}
+	if s.streamingPublisher != nil {
+		s.streamingPublisher.PublishCampaignEvent(ctx, &pubsub.CampaignEvent{
+			BaseEvent:  pubsub.BaseEvent{EventType: pubsub.EventCampaignCompleted, UserID: campaign.UserID},
+			OrgID:      campaignOrgID(campaign),
+			CampaignID: campaign.ID.String(),
+			Name:       campaign.Name,
+			Status:     status,
 		})
 	}
 }

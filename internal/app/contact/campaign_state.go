@@ -136,6 +136,8 @@ func constraintCopy(c scheduler.ContactSendConstraint, st *models.ContactCampaig
 			return "Campaign was auto-paused by a guardrail"
 		case "paused_undeliverable":
 			return "Campaign is paused: verification refused its remaining leads"
+		case "paused_ai_key":
+			return "Campaign is paused: its AI blocks need an OpenRouter key under Settings > AI"
 		}
 		return "Campaign is paused"
 	case scheduler.ConstraintNoMailbox:

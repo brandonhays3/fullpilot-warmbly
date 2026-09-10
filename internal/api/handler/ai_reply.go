@@ -36,8 +36,9 @@ func (h *Handler) DraftReply(c *gin.Context) {
 		errx.JSON(c, errx.New(errx.Unauthorized, "invalid user"))
 		return
 	}
-	if h.AIProvider == nil {
-		errx.JSON(c, errx.New(errx.ServiceUnavailable, "the AI assistant is not configured"))
+	// The workspace's own OpenRouter key, never the platform's.
+	ai, ok := h.orgAI(c, *orgID)
+	if !ok {
 		return
 	}
 
@@ -77,14 +78,13 @@ func (h *Handler) DraftReply(c *gin.Context) {
 	contactCtx := h.contactContext(c, userID, *orgID, counterpart)
 
 	// Model tier + voice.
-	paid, _ := h.FeatureGateService.IsPaidOrganization(c.Request.Context(), *orgID)
-	model := h.AIProvider.ModelForTier(paid)
+	model := ai.Model
 	voice := h.orgVoice(c.Request.Context(), *orgID, "")
 
 	// Charge 2 credits up front (idempotent on the client's key); refund on
 	// provider failure. A free/local model (AI_FREE) runs un-metered.
 	idemKey := strings.TrimSpace(c.GetHeader("Idempotency-Key"))
-	local := h.AIProvider != nil && h.AIProvider.IsLocal()
+	local := ai.Provider.IsLocal()
 	// Attribute the charge to the teammate + the thread the draft is for.
 	reqCtx := c.Request.Context()
 	{
@@ -116,7 +116,7 @@ func (h *Handler) DraftReply(c *gin.Context) {
 		}
 	}
 	prompt := buildReplyPrompt(history, contactCtx, req.Instruction)
-	result, gerr := h.AIProvider.Complete(c.Request.Context(), generation.CompletionRequest{
+	result, gerr := ai.Provider.Complete(c.Request.Context(), generation.CompletionRequest{
 		System: system,
 		Prompt: prompt,
 		Model:  model,
