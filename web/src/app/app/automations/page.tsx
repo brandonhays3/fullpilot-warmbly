@@ -114,7 +114,7 @@ export default function AutomationsPage() {
                         }
                     />
                 ) : (
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-slate-200/60 border-b border-slate-200/60">
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 [&>*]:border-r [&>*]:border-b [&>*]:border-slate-200/60">
                         {automations.map((a, i) => (
                             <AutomationCard key={a.id} index={i} automation={a} onOpen={() => navigate(`/app/automations/${a.id}`)} />
                         ))}
@@ -133,7 +133,7 @@ export default function AutomationsPage() {
 // TemplateGallery — one-click prebuilt automations (start points the user tweaks).
 function TemplateGallery({ onPick, busy }: { onPick: (t: AutomationTemplate) => void; busy: boolean }) {
     return (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-slate-200/60 border-b border-slate-200/60">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 [&>*]:border-r [&>*]:border-b [&>*]:border-slate-200/60">
             {AUTOMATION_TEMPLATES.map((t) => (
                 <button
                     key={t.id}

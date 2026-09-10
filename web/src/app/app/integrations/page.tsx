@@ -138,7 +138,7 @@ export default function IntegrationsPage() {
                 {connections.length > 0 && (
                     <section>
                         <SectionBar label="Your connections" count={connections.length} />
-                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-slate-200/60 border-b border-slate-200/60">
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 [&>*]:border-r [&>*]:border-b [&>*]:border-slate-200/60">
                             {connections.map((c, i) => (
                                 <ConnectionCard
                                     key={c.id}
@@ -159,7 +159,7 @@ export default function IntegrationsPage() {
                     return (
                         <section key={category}>
                             <SectionBar label={CATEGORY_LABELS[category]} count={entries.length} />
-                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-slate-200/60 border-b border-slate-200/60">
+                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 [&>*]:border-r [&>*]:border-b [&>*]:border-slate-200/60">
                                 {entries.map((entry, i) => (
                                     <CatalogCard
                                         key={entry.provider}

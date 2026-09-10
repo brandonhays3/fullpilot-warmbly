@@ -91,7 +91,7 @@ export default function CampaignOverview() {
     if (!campaign) {
         return (
             <div className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-px bg-slate-200 rounded-md overflow-hidden">
+                <div className="grid grid-cols-2 md:grid-cols-5 [&>*]:border-r [&>*]:border-b [&>*]:border-slate-200/60 rounded-md overflow-hidden">
                     {[...Array(5)].map((_, i) => (
                         <div key={i} className="h-20 bg-white animate-pulse" />
                     ))}

@@ -52,7 +52,7 @@ export default function SubscriptionLockedScreen({ feature }: { feature: string 
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-px bg-slate-200/70 border-y border-slate-200/70">
+                <div className="grid md:grid-cols-3 [&>*]:border-r [&>*]:border-b [&>*]:border-slate-200/60 border-y border-slate-200/70">
                     <Path
                         icon={InboxIcon}
                         eyebrow="Included"
