@@ -42,6 +42,7 @@ import {
     XIcon,
     ZapIcon,
     FlameIcon,
+    MailIcon,
 } from "@/components/icons";
 import { SearchInput } from "@/components/ui/field";
 import AnimatedNumber from "@/components/ui/AnimatedNumber";
@@ -86,6 +87,7 @@ function healthTone(status?: AccountStatus): { dot: string; text: string; label:
 
 import AdvisorRowFlag from "@/components/app/advisor/AdvisorRowFlag";
 import AdvisorSummaryBar from "@/components/app/advisor/AdvisorSummaryBar";
+import { ProviderLogo, PROVIDER_LABELS } from "@/components/app/emails/ProviderLogo";
 import { useAdvisorEntityIndex } from "@/lib/api/hooks/app/advisor/useAdvisor";
 import type { AdvisorFinding } from "@/lib/api/models/app/advisor/Advisor";
 
@@ -287,14 +289,32 @@ export default function AddressesPage() {
                 <PopoverMenu align="end">
                     <PopoverMenuTrigger asChild>
                         <SelectButton
+                            icon={<ProviderLogo provider={provider || undefined} className="w-3.5 h-3.5" />}
+                            label={provider ? PROVIDER_LABELS[provider] ?? provider : "All types"}
+                        />
+                    </PopoverMenuTrigger>
+                    <PopoverMenuContent minWidth={180}>
+                        <PopoverMenuLabel>Mailbox type</PopoverMenuLabel>
+                        <PopoverMenuItem onSelect={() => setProvider("")} selected={!provider} icon={<MailIcon className="w-3.5 h-3.5" />}>
+                            All types
+                        </PopoverMenuItem>
+                        {(["gmail", "outlook", "smtp_imap"] as const).map((value) => (
+                            <PopoverMenuItem
+                                key={value}
+                                onSelect={() => setProvider(value)}
+                                selected={provider === value}
+                                icon={<ProviderLogo provider={value} className="w-3.5 h-3.5" />}
+                            >
+                                {PROVIDER_LABELS[value]}
+                            </PopoverMenuItem>
+                        ))}
+                    </PopoverMenuContent>
+                </PopoverMenu>
+                <PopoverMenu align="end">
+                    <PopoverMenuTrigger asChild>
+                        <SelectButton
                             icon={<FilterIcon className="w-3.5 h-3.5" />}
-                            label={
-                                provider
-                                    ? `${stag.title} · ${
-                                          { gmail: "Google", outlook: "Microsoft", smtp_imap: "SMTP / IMAP" }[provider] ?? provider
-                                      }`
-                                    : stag.title
-                            }
+                            label={stag.title}
                         />
                     </PopoverMenuTrigger>
                     <PopoverMenuContent minWidth={200}>
@@ -313,22 +333,6 @@ export default function AddressesPage() {
                                 selected={tag === t.id}
                             >
                                 {t.title}
-                            </PopoverMenuItem>
-                        ))}
-                        <PopoverMenuSeparator />
-                        <PopoverMenuLabel>Mailbox type</PopoverMenuLabel>
-                        {[
-                            ["", "All types"],
-                            ["gmail", "Google"],
-                            ["outlook", "Microsoft"],
-                            ["smtp_imap", "SMTP / IMAP"],
-                        ].map(([value, label]) => (
-                            <PopoverMenuItem
-                                key={value || "all"}
-                                onSelect={() => setProvider(value)}
-                                selected={provider === value}
-                            >
-                                {label}
                             </PopoverMenuItem>
                         ))}
                         <PopoverMenuSeparator />
