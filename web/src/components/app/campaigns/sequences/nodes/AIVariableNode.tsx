@@ -16,7 +16,7 @@ import React from "react";
 import { createPortal } from "react-dom";
 import { Node as TiptapNode, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer, NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { SparklesIcon, GlobeIcon, TrashIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import type { AppError } from "@/lib/api/client/normalizeError";
@@ -367,44 +367,31 @@ function AIVariableConfigBody({
                 </span>
 
                 <div className="mt-3 min-h-0 flex-1 overflow-y-auto">
-                    <AnimatePresence mode="wait">
-                        {gen.isPending && !preview ? (
-                            <motion.div
-                                key="busy"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="flex items-center gap-2"
-                            >
-                                <SparklesIcon className="h-3.5 w-3.5 shrink-0 animate-pulse text-sky-500" />
-                                <span className="ai-shimmer-text text-[12px] font-medium">Writing a sample…</span>
-                            </motion.div>
-                        ) : preview ? (
-                            // Show the WHOLE message with the generated fragment in place, so
-                            // you can see it actually fits. Surrounding text renders with the
-                            // sample contact's values; the AI part is highlighted.
-                            <motion.p
-                                key="text"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="whitespace-pre-wrap text-[13px] leading-relaxed text-slate-700"
-                            >
-                                {ctx.before || ctx.after ? (
-                                    <>
-                                        {renderPreview(ctx.before, SAMPLE)}
-                                        {ctx.before ? " " : ""}
-                                        <mark className="rounded bg-sky-100 px-0.5 text-slate-900">{preview}</mark>
-                                        {ctx.after ? " " : ""}
-                                        {renderPreview(ctx.after, SAMPLE)}
-                                    </>
-                                ) : (
-                                    preview
-                                )}
-                            </motion.p>
-                        ) : (
-                            <p className="text-[12.5px] leading-relaxed text-slate-400">Your snippet appears here.</p>
-                        )}
-                    </AnimatePresence>
+                    {gen.isPending && !preview ? (
+                        <div className="flex items-center gap-2">
+                            <SparklesIcon className="h-3.5 w-3.5 shrink-0 animate-pulse text-sky-500" />
+                            <span className="ai-shimmer-text text-[12px] font-medium">Writing a sample…</span>
+                        </div>
+                    ) : preview ? (
+                        // Show the WHOLE message with the generated fragment in place, so
+                        // you can see it actually fits. Surrounding text renders with the
+                        // sample contact's values; the AI part is highlighted.
+                        <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-slate-700">
+                            {ctx.before || ctx.after ? (
+                                <>
+                                    {renderPreview(ctx.before, SAMPLE)}
+                                    {ctx.before ? " " : ""}
+                                    <mark className="bg-sky-100 px-0.5 text-slate-900">{preview}</mark>
+                                    {ctx.after ? " " : ""}
+                                    {renderPreview(ctx.after, SAMPLE)}
+                                </>
+                            ) : (
+                                preview
+                            )}
+                        </p>
+                    ) : (
+                        <p className="text-[12.5px] leading-relaxed text-slate-400">Your snippet appears here.</p>
+                    )}
                     {usage && preview && formatUsage(usage.charged, usage.tokens) && (
                         <p className="mt-2 text-[10px] text-slate-400">{formatUsage(usage.charged, usage.tokens)}</p>
                     )}
