@@ -237,14 +237,14 @@ export default function EmailContentEditor({
                     <Label className="mb-0">Subject</Label>
                     <VariableMenu variables={VARIABLES} onPick={(v) => onSubjectChange(subject + v)} />
                 </div>
-                <TextInput value={subject} onChange={onSubjectChange} placeholder={subjectPlaceholder} />
+                <TextInput value={subject} onChange={onSubjectChange} placeholder={subjectPlaceholder} className="w-full" />
             </div>
 
             <div>
                 <div className="flex items-center justify-between gap-2 mb-1.5">
                     <Label className="mb-0">Body</Label>
                     {previewTab && (
-                        <div className="inline-flex items-center gap-0.5 rounded-md bg-slate-100 p-0.5">
+                        <div className="inline-flex items-center gap-0.5 border border-slate-200">
                             <TabBtn active={tab === "edit"} onClick={() => setTab("edit")} icon={<PencilLineIcon className="w-3 h-3" />}>
                                 Edit
                             </TabBtn>
