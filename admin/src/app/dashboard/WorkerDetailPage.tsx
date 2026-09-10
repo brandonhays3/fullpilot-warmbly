@@ -486,6 +486,8 @@ export default function WorkerDetailPage() {
                         />
                         <KV label="Load score" value={w.load_score.toFixed(2)} />
                         <KV label="Mailboxes" value={String(w.account_count)} />
+                        <KV label="Deployment" value={w.deployment ? (w.deployment === "cloud_run_worker" ? "ephemeral (cloud_run_worker)" : w.deployment) : "—"} mono />
+                        <KV label="Started" value={w.started_at ? new Date(w.started_at).toLocaleString() : "—"} />
                         <KV label="Image" value={w.image_version || "—"} mono />
                         {w.tags && w.tags.length > 0 && (
                             <div className="pt-1 flex flex-wrap gap-1">

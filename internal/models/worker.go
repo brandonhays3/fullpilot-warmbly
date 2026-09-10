@@ -51,6 +51,25 @@ const (
 	WorkerHealthBlocked     WorkerHealthState = "blocked"
 )
 
+// WorkerDeployment is where a worker process runs, reported on every
+// heartbeat from WORKER_DEPLOYMENT. It decides whether a worker is ephemeral:
+// a Cloud Run job task lives a few minutes and gets a fresh egress IP per
+// run, so SMTP/IMAP mailboxes are rotated across those; a VM worker is
+// persistent and is the fallback when no ephemeral worker is live.
+type WorkerDeployment string
+
+const (
+	WorkerDeploymentCloudRun WorkerDeployment = "cloud_run_worker"
+	WorkerDeploymentCloudVM  WorkerDeployment = "cloud_vm"
+	WorkerDeploymentCloudDev WorkerDeployment = "cloud_dev"
+)
+
+// IsEphemeral reports whether the worker is expected to exit within minutes.
+// An unset deployment (an older build) is treated as persistent.
+func (d WorkerDeployment) IsEphemeral() bool {
+	return d == WorkerDeploymentCloudRun
+}
+
 type Worker struct {
 	ID           uuid.UUID         `json:"id"`
 	Name         string            `json:"name"`
@@ -64,6 +83,10 @@ type Worker struct {
 	EgressKind   WorkerEgressKind  `json:"egress_kind"`
 	HealthState  WorkerHealthState `json:"health_state"`
 	LoadScore    float64           `json:"load_score"`
+	// Deployment is the WORKER_DEPLOYMENT the worker reported; empty for a
+	// build that predates it. StartedAt is when the current process booted.
+	Deployment WorkerDeployment `json:"deployment"`
+	StartedAt  *time.Time       `json:"started_at,omitempty"`
 
 	// SSH management (none of these expose secret material — the encrypted
 	// private key is fetched separately via GetWorkerSSHCredentials).

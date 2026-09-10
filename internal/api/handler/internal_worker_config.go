@@ -108,6 +108,10 @@ type HeartbeatPayload struct {
 	BindIP     string `json:"bind_ip"`
 	Tier       string `json:"tier,omitempty"`        // shared_free | shared_premium (dedicated is rejected; allocated by the control plane)
 	EgressKind string `json:"egress_kind,omitempty"` // cold_smtp | oauth_api | warmup_only
+	// Deployment is WORKER_DEPLOYMENT: cloud_run_worker (ephemeral, fresh
+	// egress IP per run), cloud_vm (persistent) or cloud_dev. Empty from an
+	// older build, which keeps whatever the row already says.
+	Deployment string `json:"deployment,omitempty"`
 	// Stopping is set on the farewell beat a worker sends as it shuts down, so
 	// the row goes inactive at once instead of staying selectable until its
 	// heartbeat ages out. Placement would otherwise keep handing work to a
@@ -163,7 +167,13 @@ func (h *Handler) InternalWorkerHeartbeat(c *gin.Context) {
 		c.Status(http.StatusNoContent)
 		return
 	}
-	if err := h.WorkerRepo.UpsertOnHeartbeat(c.Request.Context(), id, p.BindIP, p.Tier, p.EgressKind); err != nil {
+	if err := h.WorkerRepo.UpsertOnHeartbeat(c.Request.Context(), id, repository.WorkerHeartbeat{
+		IPAddr:     p.BindIP,
+		Tier:       p.Tier,
+		EgressKind: p.EgressKind,
+		Deployment: p.Deployment,
+		Booted:     p.Booted,
+	}); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,6 +22,38 @@ import (
 // fresh UUID on every boot, so each container recreate leaves another dead row
 // behind.
 const WorkerLivenessWindow = "10 minutes"
+
+// EphemeralWorkerLivenessWindow is the tighter window for a cloud_run_worker.
+// Those beat every 90 seconds and live about five minutes, and the next run
+// is a different process on a different IP, so a beat older than this is a
+// worker that has exited (or been killed before its farewell beat) rather
+// than one that is slow. Waiting the full ten minutes would leave every
+// SMTP mailbox on it stranded for the rest of that window.
+const EphemeralWorkerLivenessWindow = "4 minutes"
+
+// workerLiveSQL is the liveness predicate for the workers row aliased as
+// alias: active and heartbeating inside the window for its deployment. The
+// intervals are compile-time constants, which is why they are inlined rather
+// than bound.
+func workerLiveSQL(alias string) string {
+	return fmt.Sprintf(`(%[1]s.active = true AND %[1]s.last_seen_at > now() - (CASE WHEN %[1]s.deployment = '%[2]s' THEN '%[3]s' ELSE '%[4]s' END)::interval)`,
+		alias, models.WorkerDeploymentCloudRun, EphemeralWorkerLivenessWindow, WorkerLivenessWindow)
+}
+
+// SmtpRotationCandidate is one active SMTP/IMAP mailbox with where it sits
+// now, read by the rotation reconciler. Worker fields are zero when the
+// mailbox has no worker; WorkerLive is false for a missing or stale one.
+type SmtpRotationCandidate struct {
+	AccountID        uuid.UUID
+	OrganizationID   uuid.UUID
+	UserID           uuid.UUID
+	WorkerID         *uuid.UUID
+	WorkerAssignedAt *time.Time
+	WorkerType       models.WorkerType
+	WorkerFreeTier   bool
+	WorkerDeployment models.WorkerDeployment
+	WorkerLive       bool
+}
 
 // EmailAccountWorkerInfo contains worker info for an email account
 type EmailAccountWorkerInfo struct {
@@ -69,6 +102,12 @@ type WorkerRepository interface {
 	ClearEmailAccountWorker(ctx context.Context, emailAccountID uuid.UUID) error
 	UpdateEmailAccountWarmupPoolType(ctx context.Context, emailAccountID uuid.UUID, poolType string) error
 
+	// SMTP rotation across ephemeral workers
+	ListSmtpRotationCandidates(ctx context.Context) ([]SmtpRotationCandidate, error)
+	// HasActiveSendTask reports whether a send tick for the mailbox is running
+	// right now, i.e. a SEND_EMAIL may be on its way to the current worker.
+	HasActiveSendTask(ctx context.Context, emailAccountID uuid.UUID) (bool, error)
+
 	// SSH-managed workers (admin-driven lifecycle)
 	CreateWorker(ctx context.Context, in CreateWorkerInput) error
 	GetWorkerDetail(ctx context.Context, id uuid.UUID) (*models.Worker, error)
@@ -101,7 +140,7 @@ type WorkerRepository interface {
 	HydrateWorkerTags(ctx context.Context, workers []*models.Worker) error
 
 	// Heartbeat (auto-registers new workers on first contact)
-	UpsertOnHeartbeat(ctx context.Context, id uuid.UUID, ipAddr, tier, egressKind string) error
+	UpsertOnHeartbeat(ctx context.Context, id uuid.UUID, hb WorkerHeartbeat) error
 	DeactivateWorker(ctx context.Context, id uuid.UUID) error
 
 	// Health and capacity
@@ -153,14 +192,13 @@ func (r *workerRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.W
 func (r *workerRepository) IsWorkerLive(ctx context.Context, id uuid.UUID) (bool, error) {
 	query := `
 		SELECT EXISTS(
-			SELECT 1 FROM workers
-			WHERE id = $1
-			  AND active = true
-			  AND last_seen_at > now() - $2::interval
+			SELECT 1 FROM workers w
+			WHERE w.id = $1
+			  AND ` + workerLiveSQL("w") + `
 		)
 	`
 	var live bool
-	if err := r.db.QueryRow(ctx, query, id, WorkerLivenessWindow).Scan(&live); err != nil {
+	if err := r.db.QueryRow(ctx, query, id).Scan(&live); err != nil {
 		return false, err
 	}
 	return live, nil
@@ -168,16 +206,15 @@ func (r *workerRepository) IsWorkerLive(ctx context.Context, id uuid.UUID) (bool
 
 func (r *workerRepository) GetSharedWorkersByTier(ctx context.Context, freeTier bool) ([]models.Worker, error) {
 	query := `
-		SELECT id, ip_addr, active, free_tier, worker_type, account_count, created_at, updated_at
-		FROM workers
-		WHERE worker_type = 'shared'
-		  AND active = true
-		  AND free_tier = $1
-		  AND last_seen_at > now() - $2::interval
-		ORDER BY account_count ASC
+		SELECT w.id, w.ip_addr, w.active, w.free_tier, w.worker_type, w.account_count, w.created_at, w.updated_at
+		FROM workers w
+		WHERE w.worker_type = 'shared'
+		  AND w.free_tier = $1
+		  AND ` + workerLiveSQL("w") + `
+		ORDER BY w.account_count ASC
 	`
 
-	rows, err := r.db.Query(ctx, query, freeTier, WorkerLivenessWindow)
+	rows, err := r.db.Query(ctx, query, freeTier)
 	if err != nil {
 		return nil, err
 	}
@@ -479,18 +516,75 @@ func (r *workerRepository) GetEmailAccountsByOrganizationID(ctx context.Context,
 	return ids, rows.Err()
 }
 
-// UpdateEmailAccountWorker assigns a worker to an email account
+// UpdateEmailAccountWorker assigns a worker to an email account. The dwell
+// clock (worker_assigned_at) restarts only when the worker actually changes,
+// so a republish onto the same worker does not postpone rotation.
 func (r *workerRepository) UpdateEmailAccountWorker(ctx context.Context, emailAccountID, workerID uuid.UUID) error {
-	query := `UPDATE email_accounts SET worker_id = $1, updated_at = NOW() WHERE id = $2`
+	query := `
+		UPDATE email_accounts
+		SET worker_id = $1,
+		    worker_assigned_at = CASE WHEN worker_id IS DISTINCT FROM $1 THEN NOW() ELSE COALESCE(worker_assigned_at, NOW()) END,
+		    updated_at = NOW()
+		WHERE id = $2`
 	_, err := r.db.Exec(ctx, query, workerID, emailAccountID)
 	return err
 }
 
 // ClearEmailAccountWorker removes worker assignment from an email account
 func (r *workerRepository) ClearEmailAccountWorker(ctx context.Context, emailAccountID uuid.UUID) error {
-	query := `UPDATE email_accounts SET worker_id = NULL, updated_at = NOW() WHERE id = $1`
+	query := `UPDATE email_accounts SET worker_id = NULL, worker_assigned_at = NULL, updated_at = NOW() WHERE id = $1`
 	_, err := r.db.Exec(ctx, query, emailAccountID)
 	return err
+}
+
+// ListSmtpRotationCandidates returns every active SMTP/IMAP mailbox that
+// belongs to an organization, with its current placement. Only smtp_imap
+// mailboxes rotate: the customer's own domain carries the sending IP's
+// reputation, whereas Gmail and Outlook mail leaves from the provider's IPs
+// whatever worker drives them.
+func (r *workerRepository) ListSmtpRotationCandidates(ctx context.Context) ([]SmtpRotationCandidate, error) {
+	query := `
+		SELECT ea.id, ea.organization_id, ea.user_id, ea.worker_id, ea.worker_assigned_at,
+		       COALESCE(w.worker_type, 'shared'), COALESCE(w.free_tier, false),
+		       COALESCE(w.deployment, ''),
+		       (w.id IS NOT NULL AND ` + workerLiveSQL("w") + `) AS worker_live
+		FROM email_accounts ea
+		LEFT JOIN workers w ON w.id = ea.worker_id
+		WHERE ea.status = 'active'
+		  AND ea.provider = 'smtp_imap'
+		  AND ea.organization_id IS NOT NULL
+		ORDER BY ea.worker_assigned_at ASC NULLS FIRST, ea.id ASC
+	`
+	rows, err := r.db.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []SmtpRotationCandidate
+	for rows.Next() {
+		var c SmtpRotationCandidate
+		if err := rows.Scan(
+			&c.AccountID, &c.OrganizationID, &c.UserID, &c.WorkerID, &c.WorkerAssignedAt,
+			&c.WorkerType, &c.WorkerFreeTier, &c.WorkerDeployment, &c.WorkerLive,
+		); err != nil {
+			return nil, err
+		}
+		out = append(out, c)
+	}
+	return out, rows.Err()
+}
+
+// HasActiveSendTask reports whether a task for the mailbox is mid-tick. A
+// campaign or user-email tick holds status 'active' from claim to completion,
+// and the SEND_EMAIL it dispatches goes to whichever worker the row named
+// when the tick read it.
+func (r *workerRepository) HasActiveSendTask(ctx context.Context, emailAccountID uuid.UUID) (bool, error) {
+	var busy bool
+	err := r.db.QueryRow(ctx, `
+		SELECT EXISTS(SELECT 1 FROM tasks WHERE email_account_id = $1 AND status = 'active')
+	`, emailAccountID).Scan(&busy)
+	return busy, err
 }
 
 // UpdateEmailAccountWarmupPoolType writes the tier and moves the mailbox's pool membership to

@@ -1754,6 +1754,11 @@ func main() {
 		// freshly onboarded account send/sync and re-seeds a restarted worker.
 		go emailService.StartWorkerReconciler(ctx, 60*time.Second)
 
+		// SMTP rotation: keep SMTP/IMAP mailboxes on live ephemeral workers
+		// (a fresh egress IP per Cloud Run run) and rotate them between those
+		// after SMTP_ROTATE_AFTER_SECONDS. Gmail and Outlook stay put.
+		go emailService.StartSmtpRotationReconciler(ctx, 60*time.Second)
+
 		// Unified Inbox search backfill: record the searchable text of messages synced
 		// before bodies were indexed, so search covers the whole archive and not
 		// just new mail. Walks the table once, then returns.

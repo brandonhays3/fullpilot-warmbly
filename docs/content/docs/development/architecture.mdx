@@ -100,6 +100,20 @@ Worker UUID is `UUIDv5(URL_namespace, public_ipv4)`. Properties:
 - new IP → new worker (fresh identity, no inherited history)
 - deterministic, no state needed at the control plane to recover it
 
+### SMTP mailboxes rotate across ephemeral workers
+
+A worker reports where it runs on every heartbeat (`WORKER_DEPLOYMENT`, stored as `workers.deployment` with `workers.started_at` for the current process). `cloud_run_worker` marks an ephemeral worker: a Cloud Run job task that lives a few minutes and gets a fresh egress IP every run. `cloud_vm` and an unset value are persistent.
+
+SMTP/IMAP mailboxes send through the worker's own egress IP, so the control plane keeps them on ephemeral workers and moves them between those:
+
+- Placement prefers a live ephemeral worker of the mailbox's tier (free or premium, unchanged) that has headroom under the usual capacity caps. Among several, the most recently started wins, but never one that is already a full mailbox ahead of the least-loaded live instance, so a batch spreads round-robin from the newest. The persistent shared pool is the fallback only when no ephemeral worker is live. Dedicated placement and the risky and quarantine pools are untouched.
+- A rotation pass runs every 60 seconds next to the worker reconciler. It re-places a mailbox whose worker is gone at once (an ephemeral worker counts as gone 4 minutes after its last heartbeat, a persistent one after 10), moves a mailbox off a persistent worker as soon as an ephemeral one is live, and moves a mailbox off an ephemeral worker once it has sat there for `SMTP_ROTATE_AFTER_SECONDS` (default 600) and another live ephemeral worker has room. A mailbox is left alone while a send tick for it is running.
+- A move ships `ADD_EMAIL` to the new worker first, then switches `email_accounts.worker_id` (and `worker_assigned_at`, the dwell clock). The old worker keeps the mailbox for 60 more seconds before it gets `REMOVE_EMAIL`, so a send routed to it just before the switch is delivered and answered normally; a reservation is never left without a worker to resolve it.
+
+Gmail and Outlook mailboxes send from the provider's IPs whatever worker drives them, so none of this applies to them: they stay wherever assignment put them.
+
+The mailbox drawer's sync card and `GET /emails/:id/sync` show the current worker's deployment; the admin workers list has a Deployment column.
+
 ## Credentials and profiles
 
 Workers never carry hardcoded credentials. Two reusable entities in the admin dashboard:

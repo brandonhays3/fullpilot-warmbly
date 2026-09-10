@@ -257,6 +257,9 @@ func runInternalHeartbeat(ctx context.Context, workerID uuid.UUID, bindIP string
 			"bind_ip":     reportedIP,
 			"tier":        os.Getenv("WORKER_TIER"),
 			"egress_kind": os.Getenv("WORKER_EGRESS_KIND"),
+			// Where this process runs (cloud_run_worker, cloud_vm, cloud_dev),
+			// so the control plane knows whether it is ephemeral.
+			"deployment": os.Getenv("WORKER_DEPLOYMENT"),
 		}
 		if booted {
 			// Mailboxes live in memory only, so a fresh process holds none.

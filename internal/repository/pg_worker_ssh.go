@@ -67,6 +67,7 @@ const workerDetailColumns = `
 	install_state, last_seen_at, COALESCE(last_error,''),
 	profile_id, config_applied_at, COALESCE(image_version,''),
 	risk_pool, egress_kind, health_state, load_score,
+	COALESCE(deployment,''), started_at,
 	created_at, updated_at
 `
 
@@ -80,6 +81,7 @@ func scanWorkerDetail(row pgx.Row) (*models.Worker, error) {
 		&w.InstallState, &w.LastSeenAt, &w.LastError,
 		&w.ProfileID, &w.ConfigAppliedAt, &w.ImageVersion,
 		&w.RiskPool, &w.EgressKind, &w.HealthState, &w.LoadScore,
+		&w.Deployment, &w.StartedAt,
 		&w.CreatedAt, &w.UpdatedAt,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
