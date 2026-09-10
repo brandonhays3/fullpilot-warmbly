@@ -128,7 +128,7 @@ export default function AnalyticsPage() {
                     <div className="grid lg:grid-cols-[1fr_300px] min-h-0 flex-1">
                         <section className="flex flex-col min-h-0 lg:border-r lg:border-slate-200">
                             <SectionBar label="Email performance">
-                                <div className="inline-flex items-center gap-0.5 rounded-md bg-slate-100 p-0.5 max-w-full overflow-x-auto">
+                                <div className="inline-flex items-center gap-1 max-w-full overflow-x-auto">
                                     {METRICS.map((m) => {
                                         const visible = !hiddenMetrics.includes(m.key);
                                         return (
@@ -137,7 +137,7 @@ export default function AnalyticsPage() {
                                                 onClick={() => toggleMetric(m.key)}
                                                 className={`h-6 px-2 rounded text-[11px] font-medium transition-colors inline-flex items-center gap-1.5 ${
                                                     visible
-                                                        ? "bg-white text-slate-900 shadow-sm"
+                                                        ? "text-slate-800"
                                                         : "text-slate-400 hover:text-slate-600"
                                                 }`}
                                             >
@@ -309,13 +309,13 @@ function ActivityRow({ a }: { a: { type: string; campaign_name: string; contact_
 function RangeTabs({ value, onChange }: { value: Range; onChange: (v: Range) => void }) {
     const opts: Range[] = ["7d", "30d", "90d"];
     return (
-        <div className="inline-flex items-center gap-0.5 rounded-md bg-slate-100 p-0.5">
+        <div className="inline-flex items-center gap-0.5 border border-slate-200">
             {opts.map((o) => (
                 <button
                     key={o}
                     onClick={() => onChange(o)}
                     className={`h-7 px-2.5 rounded text-[12px] font-medium transition-colors ${
-                        value === o ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"
+                        value === o ? "bg-slate-900 text-white" : "text-slate-500 hover:text-slate-900"
                     }`}
                 >
                     {o}

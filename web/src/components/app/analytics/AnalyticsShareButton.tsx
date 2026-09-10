@@ -109,7 +109,7 @@ export default function AnalyticsShareButton({
                 type="button"
                 onClick={() => setOpen(true)}
                 aria-label={label}
-                className="h-7 px-2.5 rounded-md border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 bg-white text-[12px] font-medium inline-flex items-center gap-1.5 transition-colors"
+                className="h-7 px-2 text-slate-500 hover:text-slate-900 text-[12px] font-medium inline-flex items-center gap-1.5 transition-colors"
             >
                 <ImageIcon className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">{label}</span>

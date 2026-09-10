@@ -289,15 +289,6 @@ export const AREA_PAD_BOTTOM = 1;
 const CELL = 2;
 const MAX_COLS = 520;
 const MAX_ROWS = 200;
-// 4x4 thresholds are the right coarseness at cell scale (8x8 is for the
-// fine-grained device-px surfaces: bars, meters, rings).
-const BAYER4 = [
-    [0, 8, 2, 10],
-    [12, 4, 14, 6],
-    [3, 11, 1, 9],
-    [15, 7, 13, 5],
-].map((row) => row.map((v) => (v + 0.5) / 16));
-
 function sizeCellCanvas(el: HTMLCanvasElement, w: number, h: number) {
     const cols = Math.min(MAX_COLS, Math.max(8, Math.round(w / CELL)));
     const rows = Math.min(MAX_ROWS, Math.max(8, Math.round(h / CELL)));
@@ -331,8 +322,8 @@ function paintAreaColumn(
         const density = 1 - (y - t) / depth;
         // Hover lift: slightly more dots, slightly brighter — the fill leans
         // in while the pointer is over the chart.
-        const lit = density > BAYER4[y & 3][x & 3] + sparse - 0.1 * lift;
-        const k = (0.05 + 0.27 * density) * (1 + 0.22 * lift);
+        const lit = (y & 3) < Math.ceil((density - sparse + 0.1 * lift) * 3);
+        const k = (0.08 + 0.3 * density) * (1 + 0.22 * lift);
         ctx.fillStyle = `rgba(${r},${g},${b},${(lit ? k : k * 0.3).toFixed(3)})`;
         ctx.fillRect(x, y, 1, 1);
     }
@@ -376,7 +367,7 @@ function paintBlendedColumn(
         if (wSum <= 0) continue;
         // Stacked coverage deepens the wash, capped so it stays airy.
         const A = Math.min(0.5, 1 - trans);
-        const lit = dMax > BAYER4[y & 3][x & 3] - 0.1 * lift;
+        const lit = (y & 3) < Math.ceil((dMax + 0.1 * lift) * 3);
         ctx.fillStyle = `rgba(${Math.round(r / wSum)},${Math.round(g / wSum)},${Math.round(
             b / wSum,
         )},${(lit ? A : A * 0.3).toFixed(3)})`;
@@ -654,7 +645,7 @@ export function DitherAreaChart({
     }, [paint]);
 
     const tones = React.useMemo(() => [TONES[tone]] as const, [tone]);
-    useSparkles(starRef, geomRef, tones, reveal, intensity, reduced);
+    useSparkles(starRef, geomRef, tones, reveal, intensity, true);
 
     const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
         if (data.length === 0 || w <= 0) return;
@@ -806,7 +797,7 @@ export function DitherMultiAreaChart({
     }, [paint]);
 
     const tones = React.useMemo(() => series.map((s) => TONES[s.tone]), [series]);
-    useSparkles(starRef, geomRef, tones, reveal, intensity, reduced);
+    useSparkles(starRef, geomRef, tones, reveal, intensity, true);
 
     const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
         if (labels.length === 0 || w <= 0) return;

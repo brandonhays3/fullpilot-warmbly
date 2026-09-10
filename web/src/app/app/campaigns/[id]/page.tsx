@@ -164,7 +164,7 @@ export default function CampaignOverview() {
                     ) : (
                         <div className="rounded-md border border-slate-200 overflow-hidden bg-white">
                             <SectionBar label="Daily performance">
-                                <div className="inline-flex items-center gap-0.5 rounded-md bg-slate-100 p-0.5">
+                                <div className="inline-flex items-center gap-1">
                                     {METRICS.map((m) => {
                                         const visible = !hiddenMetrics.includes(m.key);
                                         return (
@@ -172,10 +172,10 @@ export default function CampaignOverview() {
                                                 key={m.key}
                                                 type="button"
                                                 onClick={() => toggleMetric(m.key)}
-                                                className={`h-6 px-2 rounded text-[11px] font-medium transition-colors inline-flex items-center gap-1.5 ${
+                                                className={`h-6 px-1.5 text-[11px] font-medium transition-colors inline-flex items-center gap-1.5 ${
                                                     visible
-                                                        ? "bg-white text-slate-900 shadow-sm"
-                                                        : "text-slate-400 hover:text-slate-600"
+                                                        ? "text-slate-800"
+                                                        : "text-slate-400 hover:text-slate-600 line-through decoration-slate-300"
                                                 }`}
                                             >
                                                 <span className={`size-1.5 rounded-full ${visible ? TONE_DOT[m.tone] : "bg-slate-300"}`} />

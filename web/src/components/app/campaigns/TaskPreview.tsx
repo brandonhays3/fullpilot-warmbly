@@ -77,7 +77,7 @@ function ActivityRow({ activity }: { activity: ActivityItem }) {
 }
 
 export default function TaskPreview({ campaignId, campaignStatus: initialStatus, idle }: TaskPreviewProps) {
-    const { isConnected, channelState, campaignStatus: realtimeStatus, taskProgress, activities } =
+    const { campaignStatus: realtimeStatus, taskProgress, activities } =
         useCampaignChannel(campaignId);
 
     // Durable log tail — best effort; never breaks the live panel if it errors.
@@ -87,11 +87,6 @@ export default function TaskPreview({ campaignId, campaignStatus: initialStatus,
     const isActive = currentStatus === "active";
     const isIdle = isActive && !!idle;
 
-    const connectionLabel = isConnected
-        ? "Connected"
-        : channelState === "joining"
-          ? "Connecting…"
-          : "Disconnected";
 
     const showNowSending = !!taskProgress && isActive && taskProgress.status === "active";
 
@@ -139,19 +134,6 @@ export default function TaskPreview({ campaignId, campaignStatus: initialStatus,
                 >
                     {isIdle ? "Waiting for leads" : statusLabel(currentStatus)}
                 </span>
-                <div className="ml-auto flex items-center gap-1.5">
-                    <span className="relative flex size-2">
-                        {isConnected && (
-                            <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-                        )}
-                        <span
-                            className={`relative inline-flex rounded-full size-2 ${
-                                isConnected ? "bg-emerald-500" : "bg-slate-300"
-                            }`}
-                        />
-                    </span>
-                    <span className="text-[11px] text-slate-500 tabular-nums">{connectionLabel}</span>
-                </div>
             </div>
 
             {/* ── Now sending ────────────────────────────────────────── */}
