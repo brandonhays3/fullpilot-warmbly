@@ -125,8 +125,8 @@ export default function AnalyticsPage() {
                 </PageBody>
             ) : (
                 <>
-                    <div className="grid lg:grid-cols-[1fr_300px] min-h-0 flex-1">
-                        <section className="flex flex-col min-h-0 lg:border-r lg:border-slate-200">
+                    <div className="grid lg:grid-cols-4 min-h-0 flex-1">
+                        <section className="flex flex-col min-h-0 lg:col-span-3 lg:border-r lg:border-slate-200">
                             <SectionBar label="Email performance">
                                 <div className="inline-flex items-center gap-1 max-w-full overflow-x-auto">
                                     {METRICS.map((m) => {
@@ -162,11 +162,11 @@ export default function AnalyticsPage() {
                             </div>
                         </section>
 
-                        <aside className="flex flex-col min-h-0 bg-slate-50/40">
+                        <aside className="flex flex-col min-h-0">
                             <SectionBar label="Breakdown" />
-                            <div className="divide-y divide-slate-200/60">
+                            <div className="px-5 py-2">
                                 {breakdown.map((q) => (
-                                    <div key={q.label} className="h-9 px-4 flex items-center gap-2">
+                                    <div key={q.label} className="h-8 flex items-center gap-2">
                                         <span className={`size-1.5 rounded-full ${q.dot}`} />
                                         <span className="text-[12px] text-slate-700">{q.label}</span>
                                         {"note" in q && q.note && (
@@ -185,8 +185,10 @@ export default function AnalyticsPage() {
                             </div>
                             {d?.account_health && (
                                 <>
-                                    <SectionBar label="Account health" />
-                                    <div className="px-4 py-3 grid grid-cols-3 gap-2 text-center">
+                                    <div className="px-5 pt-3 pb-1 text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium">
+                                        Account health
+                                    </div>
+                                    <div className="px-5 pb-4 grid grid-cols-3 gap-2 text-left">
                                         <HealthCell n={d.account_health.healthy_accounts} label="Healthy" tone="text-emerald-600" />
                                         <HealthCell n={d.account_health.warning_accounts} label="At risk" tone="text-amber-600" />
                                         <HealthCell n={d.account_health.error_accounts} label="Issues" tone="text-rose-600" />
