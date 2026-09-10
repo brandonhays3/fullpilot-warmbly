@@ -1,15 +1,12 @@
 package smtp
 
 import (
-	"os"
-
 	"bytes"
 	"context"
 	"crypto/tls"
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/warmbly/warmbly/internal/pkg/maildomain"
 	"io"
 	"mime"
 	"mime/multipart"
@@ -36,25 +33,11 @@ const sendTimeout = 90 * time.Second
 
 // ehloName is the domain to announce in EHLO, taken from the sender's own
 // address. Empty leaves net/smtp's default in place.
-// ehloName is what the worker announces in EHLO. SMTP_EHLO_NAME wins when
-// set; otherwise a mailbox on a public provider (gmail.com, outlook.com, ...)
-// announces the machine's hostname rather than the provider's own domain, and
-// a custom domain announces itself. Never "localhost", which relays read as a
-// spam signal.
 func ehloName(address string) string {
-	if v := strings.TrimSpace(os.Getenv("SMTP_EHLO_NAME")); v != "" {
-		return v
-	}
-	domain := ""
 	if at := strings.LastIndex(address, "@"); at >= 0 && at+1 < len(address) {
-		domain = address[at+1:]
+		return address[at+1:]
 	}
-	if domain == "" || maildomain.PublicMailDomain(domain) {
-		if h, err := os.Hostname(); err == nil && h != "" && h != "localhost" {
-			return h
-		}
-	}
-	return domain
+	return ""
 }
 
 type Client struct {
