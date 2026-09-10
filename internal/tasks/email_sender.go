@@ -64,10 +64,23 @@ var ErrWorkerOffline = errors.New("the mailbox's sending worker is offline")
 // being offered again.
 var ErrSendDispatchUnknown = errors.New("the send was not confirmed as queued and may already be on its way to a worker")
 
+// AccountReloader re-places a mailbox onto a live worker. Satisfied by the
+// email service's LoadAccountOntoWorker.
+type AccountReloader interface {
+	LoadAccountOntoWorker(ctx context.Context, accountID uuid.UUID) error
+}
+
 type emailSender struct {
 	emailRepo repository.EmailRepository
 	publisher events.Publisher
 	liveness  WorkerLiveness
+	reloader  AccountReloader
+}
+
+// WireAccountReloader lets Send move a mailbox off a dead worker and retry
+// once, instead of failing the send because the last worker finished its run.
+func (s *emailSender) WireAccountReloader(r AccountReloader) {
+	s.reloader = r
 }
 
 // NewEmailSender creates a new email sender
@@ -95,6 +108,19 @@ func (s *emailSender) Send(ctx context.Context, taskID uuid.UUID, msg EmailMessa
 		live, err := s.liveness.IsWorkerLive(ctx, *workerID)
 		if err != nil {
 			return fmt.Errorf("check worker %s liveness: %w", workerID, err)
+		}
+		if !live && s.reloader != nil {
+			// The worker finished its run (ephemeral) or died: place the
+			// mailbox again and send through the new worker.
+			if rerr := s.reloader.LoadAccountOntoWorker(ctx, account.ID); rerr == nil {
+				if fresh, gerr := s.emailRepo.GetByID(ctx, account.ID); gerr == nil && fresh != nil && fresh.WorkerID != nil {
+					if again, lerr := s.liveness.IsWorkerLive(ctx, *fresh.WorkerID); lerr == nil && again {
+						account.WorkerID = fresh.WorkerID
+						workerID = fresh.WorkerID
+						live = true
+					}
+				}
+			}
 		}
 		if !live {
 			return fmt.Errorf("%w (worker %s, mailbox %s)", ErrWorkerOffline, workerID, account.Email)

@@ -321,6 +321,7 @@ func (s *workerAssignmentService) selectSharedWorkerForWeight(ctx context.Contex
 		WorkerID    uuid.UUID
 		Utilization float64
 		Headroom    float64
+		Ephemeral   bool
 	}
 	candidates := make([]scored, 0, len(rows))
 	for _, row := range rows {
@@ -349,7 +350,20 @@ func (s *workerAssignmentService) selectSharedWorkerForWeight(ctx context.Contex
 			WorkerID:    row.WorkerID,
 			Utilization: cap.Utilization,
 			Headroom:    headroom,
+			Ephemeral:   row.Deployment.IsEphemeral(),
 		})
+	}
+	// This path places mailboxes that do not rotate (Gmail, Outlook). An
+	// ephemeral worker dies within minutes and strands them, so a persistent
+	// worker wins whenever one has room; ephemeral ones are the fallback.
+	persistent := candidates[:0:0]
+	for _, c := range candidates {
+		if !c.Ephemeral {
+			persistent = append(persistent, c)
+		}
+	}
+	if len(persistent) > 0 {
+		candidates = persistent
 	}
 	if len(candidates) == 0 {
 		// Every healthy worker is full. The legacy path will at least

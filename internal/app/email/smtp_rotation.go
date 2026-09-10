@@ -84,6 +84,11 @@ func (s *emailService) rotateSmtpMailboxes(ctx context.Context, drains map[uuid.
 			replaced++
 			continue
 		}
+		// Only SMTP/IMAP mailboxes rotate; anything else was listed solely
+		// because its worker was gone, which is handled above.
+		if c.Provider != "smtp_imap" {
+			continue
+		}
 		target, err := s.workerAssignment.PlanSmtpRotation(ctx, c, now, rotateAfter)
 		if err != nil {
 			log.Warn().Err(err).Str("email_id", c.AccountID.String()).Msg("smtp rotation: planning failed")

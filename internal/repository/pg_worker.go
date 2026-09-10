@@ -53,6 +53,9 @@ type SmtpRotationCandidate struct {
 	WorkerFreeTier   bool
 	WorkerDeployment models.WorkerDeployment
 	WorkerLive       bool
+	// Provider of the mailbox: only smtp_imap rotates, but any provider is
+	// listed when its worker is gone so it can be re-placed.
+	Provider string
 }
 
 // EmailAccountWorkerInfo contains worker info for an email account
@@ -547,12 +550,16 @@ func (r *workerRepository) ListSmtpRotationCandidates(ctx context.Context) ([]Sm
 		SELECT ea.id, ea.organization_id, ea.user_id, ea.worker_id, ea.worker_assigned_at,
 		       COALESCE(w.worker_type, 'shared'), COALESCE(w.free_tier, false),
 		       COALESCE(w.deployment, ''),
-		       (w.id IS NOT NULL AND ` + workerLiveSQL("w") + `) AS worker_live
+		       (w.id IS NOT NULL AND ` + workerLiveSQL("w") + `) AS worker_live,
+		       ea.provider
 		FROM email_accounts ea
 		LEFT JOIN workers w ON w.id = ea.worker_id
 		WHERE ea.status = 'active'
-		  AND ea.provider = 'smtp_imap'
 		  AND ea.organization_id IS NOT NULL
+		  AND (ea.provider = 'smtp_imap'
+		       OR ea.worker_id IS NULL
+		       OR w.id IS NULL
+		       OR NOT (` + workerLiveSQL("w") + `))
 		ORDER BY ea.worker_assigned_at ASC NULLS FIRST, ea.id ASC
 	`
 	rows, err := r.db.Query(ctx, query)
@@ -566,7 +573,7 @@ func (r *workerRepository) ListSmtpRotationCandidates(ctx context.Context) ([]Sm
 		var c SmtpRotationCandidate
 		if err := rows.Scan(
 			&c.AccountID, &c.OrganizationID, &c.UserID, &c.WorkerID, &c.WorkerAssignedAt,
-			&c.WorkerType, &c.WorkerFreeTier, &c.WorkerDeployment, &c.WorkerLive,
+			&c.WorkerType, &c.WorkerFreeTier, &c.WorkerDeployment, &c.WorkerLive, &c.Provider,
 		); err != nil {
 			return nil, err
 		}

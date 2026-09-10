@@ -1617,6 +1617,9 @@ func main() {
 		// the dead-letter retry replays the task once it has.
 		if liveness, ok := emailSender.(interface{ WireWorkerLiveness(tasks.WorkerLiveness) }); ok {
 			liveness.WireWorkerLiveness(tasks.NewWorkerLiveness(workerRepository, cache))
+			if reloader, ok := emailSender.(interface{ WireAccountReloader(tasks.AccountReloader) }); ok {
+				reloader.WireAccountReloader(emailService)
+			}
 		}
 		tasksService = tasks.NewService(
 			tasksClient,
