@@ -977,7 +977,7 @@ function EventRow({
                     />
                 </div>
                 {event.content && !open && (
-                    <div className="text-[11.5px] text-slate-700 mt-1.5 ml-6 whitespace-pre-wrap break-words border-l-2 border-slate-100 pl-2 line-clamp-3">
+                    <div className="text-[11.5px] text-slate-700 mt-1.5 ml-6 whitespace-pre-wrap break-words pl-2 line-clamp-3">
                         <Highlight text={event.content} q={highlight} />
                     </div>
                 )}

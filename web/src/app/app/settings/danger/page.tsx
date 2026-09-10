@@ -149,7 +149,7 @@ function DangerRow({
     disabledReason?: string;
 }) {
     return (
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center border-l-2 border-red-200 pl-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center pl-0">
             <div className="min-w-0 flex-1">
                 <div className="text-[12.5px] font-medium text-red-700 leading-tight flex items-center gap-1.5">
                     <TrashIcon className="w-3 h-3" />

@@ -137,8 +137,8 @@ export function NotificationBell() {
     };
 
     const rowClass = (n: AppNotification) =>
-        `block w-full text-left px-3 py-2 border-l-2 transition-colors hover:bg-slate-50 ${
-            n.read_at ? "border-l-transparent" : "border-l-sky-500 bg-sky-50/40"
+        `block w-full text-left px-3 py-2 transition-colors hover:bg-slate-50 ${
+            n.read_at ? "" : "bg-sky-50/40"
         }`;
 
     const emptyState = (

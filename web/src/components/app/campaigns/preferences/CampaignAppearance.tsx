@@ -208,7 +208,7 @@ export function UTMFields({
     setNewCampaign: SetCampaign;
 }) {
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pl-0 sm:pl-4 sm:border-l-2 sm:border-slate-100">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pl-0">
             <div>
                 <Label>utm_source</Label>
                 <TextInput
