@@ -324,7 +324,7 @@ function paintAreaColumn(
         // in while the pointer is over the chart.
         const lit = y % 3 === 0 && density - sparse + 0.1 * lift > 0.05;
         const k = (0.10 + 0.26 * density) * (1 + 0.15 * lift);
-        ctx.fillStyle = `rgba(${r},${g},${b},${(lit ? k * 1.3 : k).toFixed(3)})`;
+        ctx.fillStyle = `rgba(${r},${g},${b},${(lit ? k * (1 + 0.45 * density) : k).toFixed(3)})`;
         ctx.fillRect(x, y, 1, 1);
     }
 }
@@ -370,7 +370,7 @@ function paintBlendedColumn(
         const lit = y % 3 === 0 && dMax + 0.1 * lift > 0.05;
         ctx.fillStyle = `rgba(${Math.round(r / wSum)},${Math.round(g / wSum)},${Math.round(
             b / wSum,
-        )},${(lit ? A * 1.3 : A).toFixed(3)})`;
+        )},${(lit ? A * (1 + 0.45 * dMax) : A).toFixed(3)})`;
         ctx.fillRect(x, y, 1, 1);
     }
 }
