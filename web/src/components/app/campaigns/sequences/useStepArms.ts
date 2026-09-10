@@ -49,6 +49,7 @@ export interface StepArms {
     evenSplit: () => void;
     togglePause: (variantId: string, active: boolean) => void;
     toggleOriginal: (active: boolean) => void;
+    renameOriginal: (name: string) => void;
     deleteOriginal: (after?: () => void) => void;
     deleteArm: (variantId: string, after?: () => void) => void;
     // Resolves to the new variant's id, or null when creation failed.
@@ -79,7 +80,7 @@ export default function useStepArms(campaignId: string, sequence: Sequence): Ste
 
     const originalWeight = controlRow ? controlRow.weight : CONTROL_WEIGHT;
     const arms: SplitArm[] = [
-        { key: ORIGINAL_ARM, name: "Original", weight: originalWeight, active: controlRow ? controlRow.is_active : true, isOriginal: true },
+        { key: ORIGINAL_ARM, name: controlRow?.name?.trim() || "Original", weight: originalWeight, active: controlRow ? controlRow.is_active : true, isOriginal: true },
         ...variants.map((v, i) => ({
             key: v.id,
             name: variantLabel(v, i),
@@ -172,6 +173,20 @@ export default function useStepArms(campaignId: string, sequence: Sequence): Ste
         );
     };
 
+    // The Original's name lives on its control row, created on demand.
+    const renameOriginal = (name: string) => {
+        const clean = name.trim();
+        if (!clean) return;
+        if (controlRow) {
+            if (clean !== controlRow.name) update.mutate({ variantId: controlRow.id, input: { name: clean } }, { onError: err });
+        } else if (clean !== "Original") {
+            create.mutate(
+                { name: clean, step_id: sequence.id, weight: CONTROL_WEIGHT, is_control: true, is_active: true },
+                { onError: err },
+            );
+        }
+    };
+
     // Deleting the Original promotes a variant: its copy becomes the step's own
     // content and the variant row goes away.
     const deleteOriginal = (after?: () => void) => {
@@ -244,6 +259,7 @@ export default function useStepArms(campaignId: string, sequence: Sequence): Ste
         evenSplit,
         togglePause,
         toggleOriginal,
+        renameOriginal,
         deleteOriginal,
         deleteArm,
         addVariant,

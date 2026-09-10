@@ -312,6 +312,11 @@ function DialogBody({
     React.useEffect(() => {
         setVariantName(variant?.name ?? "");
     }, [variant?.id, variant?.name]);
+    const originalArm = arms.arms.find((a) => a.isOriginal);
+    const [originalName, setOriginalName] = React.useState(originalArm?.name ?? "Original");
+    React.useEffect(() => {
+        setOriginalName(originalArm?.name ?? "Original");
+    }, [originalArm?.name]);
     const commitVariantName = () => {
         const name = variantName.trim();
         if (variant && name && name !== variant.name) void updateVariant.mutateAsync({ variantId: variant.id, input: { name } });
@@ -446,7 +451,20 @@ function DialogBody({
                                                     <span className="h-5 px-1.5 inline-flex items-center bg-slate-900 text-[10px] font-medium uppercase tracking-[0.1em] text-white">Off</span>
                                                 )}
                                                 {a.isOriginal ? (
-                                                    <span className={`text-[12.5px] font-medium ${a.active ? "" : "line-through text-slate-400"}`}>{a.name}</span>
+                                                    <input
+                                                        value={originalName}
+                                                        onChange={(e) => setOriginalName(e.target.value)}
+                                                        onBlur={() => {
+                                                            const n = originalName.trim();
+                                                            if (n && n !== a.name) arms.renameOriginal(n);
+                                                            else setOriginalName(a.name);
+                                                        }}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === "Enter") e.currentTarget.blur();
+                                                        }}
+                                                        aria-label="Original name"
+                                                        className={`h-6 min-w-[3ch] bg-transparent text-[12.5px] font-medium outline-none [field-sizing:content] focus:bg-slate-100 ${a.active ? "text-slate-900" : "line-through text-slate-400"}`}
+                                                    />
                                                 ) : (
                                                     <input
                                                         value={variantName}
