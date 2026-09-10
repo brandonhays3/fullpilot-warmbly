@@ -1,7 +1,8 @@
 import Request from "../../Request";
 
 export interface SendTestEmailInput {
-    // Sending mailbox; any mailbox of the organization.
+    // Sending mailbox; any active mailbox of the organization, in the
+    // campaign's sender pool or not.
     account_id: string;
     recipient: string;
     // Step to send; omitted = the first step.

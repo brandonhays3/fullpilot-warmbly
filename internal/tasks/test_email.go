@@ -32,12 +32,18 @@ func testContact(recipient string) models.Contact {
 // message carries the campaign's attachments, the mailbox signature and the
 // opt-out footer, so what lands in the tester's inbox is what a lead gets.
 func (s *tasksService) SendTestEmail(ctx context.Context, orgID uuid.UUID, accountID uuid.UUID, recipient string, campaign *models.Campaign, sequence *models.Sequence, contact *models.Contact) *errx.Error {
-	// Any member allowed to send may test from any of the organization's
-	// mailboxes, not only the ones they connected. GetByID is the full row
-	// (the org-scoped Get omits worker_id, which the send needs).
+	// Any member allowed to send may test from any active mailbox of the
+	// organization: not only the ones they connected, and not only the
+	// campaign's own sender pool. GetByID is the full row (the org-scoped Get
+	// omits worker_id, which the send needs).
 	account, err := s.emailRepo.GetByID(ctx, accountID)
 	if err != nil || account == nil || account.OrganizationID == nil || *account.OrganizationID != orgID {
 		return errx.New(errx.NotFound, "email account not found")
+	}
+	// A paused or revoked mailbox has no worker to send through; say so
+	// instead of failing the dispatch.
+	if account.Status != "active" {
+		return errx.New(errx.BadRequest, "email account is not active")
 	}
 
 	renderFor := testContact(recipient)

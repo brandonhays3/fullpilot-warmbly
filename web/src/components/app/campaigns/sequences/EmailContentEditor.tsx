@@ -53,6 +53,8 @@ export default function EmailContentEditor({
     stepId,
     canSendTest = false,
     dirty = false,
+    previewTab = true,
+    bodyMinHeight,
 }: {
     subject: string;
     onSubjectChange: (value: string) => void;
@@ -71,6 +73,11 @@ export default function EmailContentEditor({
     canSendTest?: boolean;
     // Unsaved edits: the test send mails the saved step, so it waits for a save.
     dirty?: boolean;
+    // Off when the surface around this editor renders its own live preview
+    // (the email dialog): no Edit/Preview toggle, the body is always editable.
+    previewTab?: boolean;
+    // Taller writing area, see RichTextEditor.
+    bodyMinHeight?: number;
 }) {
     const [tab, setTab] = React.useState<"edit" | "preview">("edit");
 
@@ -236,22 +243,25 @@ export default function EmailContentEditor({
             <div>
                 <div className="flex items-center justify-between gap-2 mb-1.5">
                     <Label className="mb-0">Body</Label>
-                    <div className="inline-flex items-center gap-0.5 rounded-md bg-slate-100 p-0.5">
-                        <TabBtn active={tab === "edit"} onClick={() => setTab("edit")} icon={<PencilLineIcon className="w-3 h-3" />}>
-                            Edit
-                        </TabBtn>
-                        <TabBtn active={tab === "preview"} onClick={() => setTab("preview")} icon={<EyeIcon className="w-3 h-3" />}>
-                            Preview
-                        </TabBtn>
-                    </div>
+                    {previewTab && (
+                        <div className="inline-flex items-center gap-0.5 rounded-md bg-slate-100 p-0.5">
+                            <TabBtn active={tab === "edit"} onClick={() => setTab("edit")} icon={<PencilLineIcon className="w-3 h-3" />}>
+                                Edit
+                            </TabBtn>
+                            <TabBtn active={tab === "preview"} onClick={() => setTab("preview")} icon={<EyeIcon className="w-3 h-3" />}>
+                                Preview
+                            </TabBtn>
+                        </div>
+                    )}
                 </div>
-                {tab === "edit" ? (
+                {tab === "edit" || !previewTab ? (
                     <RichTextEditor
                         html={bodyHtml}
                         onChange={(html) => onBodyChange(html, htmlToPlain(html))}
                         variables={VARIABLES}
                         links={LINK_VARIABLES}
                         placeholder={bodyPlaceholder}
+                        bodyMinHeight={bodyMinHeight}
                     />
                 ) : (
                     <div className="rounded-md border border-slate-200 bg-white">

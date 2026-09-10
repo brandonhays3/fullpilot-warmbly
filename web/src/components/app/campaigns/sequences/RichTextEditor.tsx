@@ -86,6 +86,7 @@ export default function RichTextEditor({
     links = [],
     placeholder,
     minimal = false,
+    bodyMinHeight,
 }: {
     html: string;
     onChange: (html: string) => void;
@@ -98,6 +99,9 @@ export default function RichTextEditor({
     // formatting, no AI carets, and a short body. Chips, the {{ type-ahead, and
     // conditionals behave exactly as in the full editor.
     minimal?: boolean;
+    // Taller writing area in pixels, for a surface with room to spare (the
+    // email dialog). Overrides the default minimum.
+    bodyMinHeight?: number;
 }) {
     const editor = useEditor({
         extensions: [
@@ -124,6 +128,7 @@ export default function RichTextEditor({
                 class: `tiptap-body ${
                     minimal ? "min-h-[68px] text-[13px]" : "min-h-[260px] px-3 py-2.5 text-[13px]"
                 } leading-relaxed text-slate-800 focus:outline-none`,
+                ...(bodyMinHeight ? { style: `min-height:${bodyMinHeight}px` } : {}),
             },
         },
         onUpdate: ({ editor }) => onChange(editor.getHTML()),

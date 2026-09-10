@@ -1,41 +1,26 @@
-// The step's email editor with its A/B arms. The Original (the step's own
-// email, the control) and every variant are first-class siblings, split by
-// weight at send time (see internal/app/advanced SelectVariant). The traffic
-// split — the Original's own share included — is one compact bar at the top:
-// drag a divider or click a segment to edit that arm below. The Original's
-// weight is persisted as an is_control variant row, created lazily the first
-// time you move its share off the default. With no variants yet, the composer
-// shows an inline "A/B test" entry in its header.
+// The email section of the step pane. The copy itself is not edited here:
+// the pane shows the split between the step's A/B arms, the selected arm's
+// settings (name; pause, delete and results for a variant), and a compact
+// summary of its email, with "Edit email" opening the full two-column dialog
+// (EditEmailDialog). The Original is the step's own email, the control; its
+// weight persists as an is_control variant row, created lazily.
 
 import React from "react";
-import { Loader2Icon, Trash2Icon, TrophyIcon, PauseIcon, PlayIcon, SplitIcon } from "@/components/icons";
+import { GitBranchIcon, Loader2Icon, MailIcon, PaperclipIcon, PauseIcon, PlayIcon, SplitIcon, Trash2Icon, TrophyIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import type Sequence from "@/lib/api/models/app/campaigns/sequences/Sequence";
 import type ABVariant from "@/lib/api/models/app/campaigns/ABVariant";
 import type { ABVariantStats } from "@/lib/api/models/app/campaigns/ABVariant";
 import { Label, TextInput } from "@/components/ui/field";
-import EmailContentEditor from "./EmailContentEditor";
+import StepSplitAllocator from "./StepSplitAllocator";
+import EditEmailDialog from "./EditEmailDialog";
+import useStepArms, { ORIGINAL_ARM, variantLabel } from "./useStepArms";
 import { htmlToPlain } from "./emailPreview";
-import SequenceView from "./SequenceView";
-import StepSplitAllocator, { type SplitArm } from "./StepSplitAllocator";
-import {
-    useCampaignABVariants,
-    useCampaignABAnalysis,
-    useCreateABVariant,
-    useUpdateABVariant,
-    useDeleteABVariant,
-} from "@/lib/api/hooks/app/campaigns/useCampaignABVariants";
-import { useConfirm } from "@/hooks/context/confirm";
+import { useCampaignAttachments } from "@/lib/api/hooks/app/campaigns/useCampaignAttachments";
+import { useUpdateABVariant } from "@/lib/api/hooks/app/campaigns/useCampaignABVariants";
+import useUpdateSequence from "@/lib/api/hooks/app/campaigns/sequences/useUpdateSequence";
 import type { AppError } from "@/lib/api/client/normalizeError";
 import buildError from "@/lib/helper/buildError";
-
-const LETTERS = ["B", "C", "D", "E", "F"];
-// Must match abControlWeight in internal/app/advanced/service.go.
-const CONTROL_WEIGHT = 100;
-const MAX_VARIANTS = 5;
-
-const clampW = (w: number) => Math.min(100, Math.max(1, Math.round(w)));
-const err = (e: unknown) => toast.error(buildError(e as unknown as AppError));
 
 export default function StepEmailArms({
     campaignId,
@@ -46,239 +31,207 @@ export default function StepEmailArms({
     sequence: Sequence;
     index: number;
 }) {
-    const { data: all } = useCampaignABVariants(campaignId);
-    const stepRows = (all ?? []).filter((v) => v.step_id === sequence.id);
-    const controlRow = stepRows.find((v) => v.is_control) ?? null;
-    const variants = stepRows.filter((v) => !v.is_control);
+    const arms = useStepArms(campaignId, sequence);
+    const { variants } = arms;
 
-    const create = useCreateABVariant(campaignId);
-    const update = useUpdateABVariant(campaignId);
-    const del = useDeleteABVariant(campaignId);
-    const confirm = useConfirm();
-    const busy = create.isPending || update.isPending || del.isPending;
-
-    const { data: analysis } = useCampaignABAnalysis(campaignId, (all ?? []).length > 0);
-    const statsById = React.useMemo(() => {
-        const m = new Map<string, ABVariantStats>();
-        for (const s of analysis?.variants ?? []) m.set(s.variant_id, s);
-        return m;
-    }, [analysis]);
-    const winnerId = analysis?.winner_id ?? null;
-
-    const [selected, setSelected] = React.useState<string>("original");
+    const [selected, setSelected] = React.useState<string>(ORIGINAL_ARM);
     React.useEffect(() => {
-        if (selected !== "original" && !variants.some((v) => v.id === selected)) {
-            setSelected("original");
-        }
+        if (selected !== ORIGINAL_ARM && !variants.some((v) => v.id === selected)) setSelected(ORIGINAL_ARM);
     }, [variants, selected]);
+    const [editing, setEditing] = React.useState(false);
 
-    const originalWeight = controlRow ? controlRow.weight : CONTROL_WEIGHT;
-    const arms: SplitArm[] = [
-        { key: "original", name: "Original", weight: originalWeight, active: true, isOriginal: true },
-        ...variants.map((v, i) => ({
-            key: v.id,
-            name: v.name || `Variant ${LETTERS[i] ?? i + 1}`,
-            weight: v.weight,
-            active: v.is_active,
-            isOriginal: false,
-            winner: winnerId === v.id,
-        })),
-    ];
+    const variantIndex = variants.findIndex((v) => v.id === selected);
+    const variant = variantIndex >= 0 ? variants[variantIndex] : null;
 
-    // Approximate share of the active split, for the editor chip.
-    const activeWeightSum = arms.filter((a) => a.active).reduce((s, a) => s + Math.max(a.weight, 1), 0);
-    const shareOf = (w: number) => (activeWeightSum > 0 ? Math.round((Math.max(w, 1) / activeWeightSum) * 100) : 0);
+    const { data: allAttachments } = useCampaignAttachments(campaignId);
+    const attachmentCount = (allAttachments ?? []).filter((a) => !a.step_id || a.step_id === sequence.id).length;
 
-    // Persist a new split: the Original maps to its control row (created lazily),
-    // each variant to its own weight. Only changed arms are written.
-    const commitWeights = (next: Record<string, number>) => {
-        const tasks: Promise<unknown>[] = [];
-        if (next.original != null) {
-            const ow = clampW(next.original);
-            if (controlRow) {
-                if (controlRow.weight !== ow) {
-                    tasks.push(update.mutateAsync({ variantId: controlRow.id, input: { weight: ow } }));
-                }
-            } else if (ow !== CONTROL_WEIGHT) {
-                tasks.push(
-                    create.mutateAsync({
-                        name: "Original",
-                        step_id: sequence.id,
-                        weight: ow,
-                        is_control: true,
-                        is_active: true,
-                    }),
-                );
-            }
-        }
-        for (const v of variants) {
-            const raw = next[v.id];
-            if (raw == null) continue;
-            const w = clampW(raw);
-            if (w !== v.weight) tasks.push(update.mutateAsync({ variantId: v.id, input: { weight: w } }));
-        }
-        if (tasks.length) Promise.all(tasks).catch(err);
-    };
-
-    const evenSplit = () => {
-        const keys = ["original", ...variants.filter((v) => v.is_active).map((v) => v.id)];
-        const n = keys.length;
-        if (n < 2) return;
-        const base = Math.floor(100 / n);
-        const rem = 100 - base * n;
-        const next: Record<string, number> = {};
-        keys.forEach((k, i) => (next[k] = base + (i < rem ? 1 : 0)));
-        commitWeights(next);
-    };
-
-    const togglePause = (variantId: string, active: boolean) => {
-        update.mutate({ variantId, input: { is_active: active } }, { onError: err });
-    };
-
-    const deleteArm = (variantId: string) => {
-        const v = variants.find((x) => x.id === variantId);
-        if (!v) return;
-        confirm.show(`Delete "${v.name}"? Its content will be removed from this step.`, async () => {
-            await del.mutateAsync(v.id);
-            // Removing the last variant reverts the step to a single arm: drop the
-            // control row too so the step stops A/B splitting entirely.
-            if (variants.length === 1 && controlRow) {
-                try {
-                    await del.mutateAsync(controlRow.id);
-                } catch {
-                    /* harmless: a lone control row still sends the original */
-                }
-            }
-            if (selected === v.id) setSelected("original");
-            toast.success("Variant removed.");
-        });
-    };
+    const updateSequence = useUpdateSequence(campaignId, sequence.id);
+    const updateVariant = useUpdateABVariant(campaignId);
 
     const addVariant = async () => {
-        try {
-            const v = await create.mutateAsync({
-                name: `Variant ${LETTERS[variants.length] ?? variants.length + 1}`,
-                step_id: sequence.id,
-                weight: CONTROL_WEIGHT,
-                is_active: true,
-                subject: sequence.subject,
-                body_html: sequence.body_html,
-                body_plain: htmlToPlain(sequence.body_html ?? ""),
-            });
-            if (v?.id) setSelected(v.id);
-        } catch (e) {
-            err(e);
-        }
+        const id = await arms.addVariant();
+        if (id) setSelected(id);
     };
 
-    const selectedVariant = variants.find((v) => v.id === selected) ?? null;
+    const subject = variant ? variant.subject : sequence.subject;
+    const bodyPlain = htmlToPlain(variant ? variant.body_html : sequence.body_html).replace(/\s+/g, " ").trim();
 
     return (
         <div className="rounded-md border border-slate-200 bg-white">
             {variants.length > 0 && (
                 <StepSplitAllocator
-                    arms={arms}
+                    arms={arms.arms}
                     selectedKey={selected}
                     onSelect={setSelected}
-                    onCommit={commitWeights}
-                    onAdd={addVariant}
-                    onEven={evenSplit}
-                    canAdd={variants.length < MAX_VARIANTS}
-                    adding={create.isPending}
-                    busy={busy}
+                    onCommit={arms.commitWeights}
+                    onAdd={() => void addVariant()}
+                    onEven={arms.evenSplit}
+                    canAdd={arms.canAdd}
+                    adding={arms.adding}
+                    busy={arms.busy}
                 />
             )}
-            {selected === "original" || !selectedVariant ? (
-                <SequenceView
-                    embedded
-                    campaignId={campaignId}
-                    sequence={sequence}
-                    index={index}
-                    headerExtra={
-                        variants.length === 0 ? (
-                            <button
-                                type="button"
-                                onClick={addVariant}
-                                disabled={create.isPending}
-                                className="h-7 px-2.5 inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white text-[12px] font-medium text-slate-600 transition-colors hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 disabled:opacity-50"
-                            >
-                                {create.isPending ? (
-                                    <Loader2Icon className="w-3.5 h-3.5 animate-spin" />
-                                ) : (
-                                    <SplitIcon className="w-3.5 h-3.5" />
-                                )}
-                                A/B test
-                            </button>
-                        ) : undefined
-                    }
-                />
-            ) : (
-                <VariantEditor
-                    key={selectedVariant.id}
-                    campaignId={campaignId}
-                    variant={selectedVariant}
-                    stats={statsById.get(selectedVariant.id)}
-                    isWinner={winnerId === selectedVariant.id}
-                    sharePct={selectedVariant.is_active ? shareOf(selectedVariant.weight) : 0}
-                    onTogglePause={(active) => togglePause(selectedVariant.id, active)}
-                    onDelete={() => deleteArm(selectedVariant.id)}
-                />
-            )}
+
+            <div className="space-y-3 p-3">
+                {variant ? (
+                    <VariantSettings
+                        variant={variant}
+                        label={variantLabel(variant, variantIndex)}
+                        stats={arms.statsById.get(variant.id)}
+                        isWinner={arms.winnerId === variant.id}
+                        sharePct={variant.is_active ? arms.shareOf(variant.weight) : 0}
+                        onRename={(name) => updateVariant.mutateAsync({ variantId: variant.id, input: { name } })}
+                        onTogglePause={(active) => arms.togglePause(variant.id, active)}
+                        onDelete={() => arms.deleteArm(variant.id, () => setSelected(ORIGINAL_ARM))}
+                    />
+                ) : (
+                    <div>
+                        <Label>Step name</Label>
+                        <NameField
+                            key={sequence.id}
+                            value={sequence.name}
+                            placeholder={`Step ${index + 1}`}
+                            onCommit={(name) => updateSequence.mutateAsync({ name })}
+                        />
+                        <p className="mt-1.5 text-[10.5px] text-slate-400">Internal label only. Recipients never see it.</p>
+                    </div>
+                )}
+
+                <div className="rounded-md border border-slate-200 bg-slate-50/60 px-3 py-2.5">
+                    <div className="flex items-center gap-1.5">
+                        <MailIcon className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-[10px] uppercase tracking-[0.14em] text-slate-400 font-medium">
+                            {variant ? variantLabel(variant, variantIndex) : variants.length > 0 ? "Original" : "Email"}
+                        </span>
+                    </div>
+                    <div className={`mt-1.5 truncate text-[12.5px] font-medium ${subject ? "text-slate-900" : "text-slate-400"}`}>
+                        {subject || (variant ? "Reuses the step's subject" : "No subject yet")}
+                    </div>
+                    <p className={`mt-1 line-clamp-2 text-[12px] leading-relaxed ${bodyPlain ? "text-slate-600" : "text-slate-400"}`}>
+                        {bodyPlain || (variant ? "Reuses the step's body." : "Nothing written yet.")}
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-500">
+                        <span className="inline-flex items-center gap-1">
+                            <PaperclipIcon className="w-3 h-3 text-slate-400" />
+                            {attachmentCount === 0 ? "No attachments" : `${attachmentCount} attachment${attachmentCount === 1 ? "" : "s"}`}
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                            <SplitIcon className="w-3 h-3 text-slate-400" />
+                            {variants.length === 0 ? "No A/B test" : `${arms.arms.length} arms`}
+                        </span>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setEditing(true)}
+                        className="h-8 flex-1 px-3 inline-flex items-center justify-center gap-1.5 rounded-md bg-sky-600 text-[12.5px] font-medium text-white transition-colors hover:bg-sky-700"
+                    >
+                        <MailIcon className="w-4 h-4" />
+                        Edit email
+                    </button>
+                    {variants.length === 0 && (
+                        <button
+                            type="button"
+                            onClick={() => void addVariant()}
+                            disabled={arms.adding}
+                            title="Split this step's traffic between two or more versions"
+                            className="h-8 px-2.5 inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white text-[12px] font-medium text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-900 disabled:opacity-50"
+                        >
+                            {arms.adding ? <Loader2Icon className="w-3.5 h-3.5 animate-spin" /> : <SplitIcon className="w-3.5 h-3.5" />}
+                            A/B test
+                        </button>
+                    )}
+                </div>
+
+                {index > 0 && (
+                    <div className="flex items-start gap-2 rounded-md border border-slate-200 bg-slate-50/60 px-3 py-2.5">
+                        <GitBranchIcon className="mt-0.5 w-3.5 h-3.5 shrink-0 text-slate-400" />
+                        <p className="text-[11px] leading-relaxed text-slate-500">
+                            Follow-ups thread on the previous step&apos;s subject. Change this subject and the follow-up
+                            starts a new thread instead of replying in the existing one.
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            <EditEmailDialog
+                open={editing}
+                onClose={() => setEditing(false)}
+                campaignId={campaignId}
+                sequence={sequence}
+                index={index}
+                arms={arms}
+                armKey={selected}
+                onArmChange={setSelected}
+            />
         </div>
     );
 }
 
-function VariantEditor({
-    campaignId,
+// A text field that writes on blur (or Enter) when its value changed.
+function NameField({
+    value,
+    placeholder,
+    onCommit,
+}: {
+    value: string;
+    placeholder?: string;
+    onCommit: (v: string) => Promise<unknown>;
+}) {
+    const [draft, setDraft] = React.useState(value);
+    React.useEffect(() => setDraft(value), [value]);
+    const commit = () => {
+        const next = draft.trim();
+        if (next === value) return;
+        onCommit(next).catch((e) => {
+            toast.error(buildError(e as AppError));
+            setDraft(value);
+        });
+    };
+    return (
+        <TextInput
+            value={draft}
+            onChange={setDraft}
+            placeholder={placeholder}
+            onBlur={commit}
+            onKeyDown={(e) => {
+                if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+            }}
+        />
+    );
+}
+
+function VariantSettings({
     variant,
+    label,
     stats,
     isWinner,
     sharePct,
+    onRename,
     onTogglePause,
     onDelete,
 }: {
-    campaignId: string;
     variant: ABVariant;
+    label: string;
     stats?: ABVariantStats;
-    isWinner?: boolean;
+    isWinner: boolean;
     sharePct: number;
+    onRename: (name: string) => Promise<unknown>;
     onTogglePause: (active: boolean) => void;
     onDelete: () => void;
 }) {
-    const update = useUpdateABVariant(campaignId);
-
-    const [name, setName] = React.useState(variant.name);
-    const [subject, setSubject] = React.useState(variant.subject);
-    const [bodyHtml, setBodyHtml] = React.useState(variant.body_html);
-
-    React.useEffect(() => {
-        setName(variant.name);
-        setSubject(variant.subject);
-        setBodyHtml(variant.body_html);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [variant.id, variant.updated_at]);
-
-    const dirty = name !== variant.name || subject !== variant.subject || bodyHtml !== variant.body_html;
-
-    const save = () => {
-        update.mutate(
-            { variantId: variant.id, input: { name, subject, body_html: bodyHtml, body_plain: htmlToPlain(bodyHtml) } },
-            {
-                onSuccess: () => toast.success("Variant saved."),
-                onError: err,
-            },
-        );
-    };
-
     return (
-        <div className={`space-y-3 p-3 ${isWinner ? "bg-amber-50/30" : ""}`}>
-            <div className="flex items-center gap-2">
+        <div className="space-y-2">
+            <div className="flex items-end gap-2">
                 <div className="min-w-0 flex-1">
                     <Label>Variant name</Label>
-                    <TextInput value={name} onChange={setName} placeholder="Variant B" />
+                    <NameField key={variant.id} value={variant.name} placeholder={label} onCommit={onRename} />
                 </div>
                 <span
-                    className={`mt-4 h-7 shrink-0 inline-flex items-center rounded-md px-2 text-[11px] font-medium tabular-nums ${
+                    className={`h-7 shrink-0 inline-flex items-center rounded-md px-2 text-[11px] font-medium tabular-nums ${
                         variant.is_active ? "bg-sky-50 text-sky-700" : "bg-slate-100 text-slate-400"
                     }`}
                 >
@@ -288,7 +241,7 @@ function VariantEditor({
                     type="button"
                     onClick={() => onTogglePause(!variant.is_active)}
                     title={variant.is_active ? "Pause this variant" : "Resume this variant"}
-                    className="mt-4 size-7 shrink-0 inline-flex items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+                    className="size-7 shrink-0 inline-flex items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
                 >
                     {variant.is_active ? <PauseIcon className="w-3.5 h-3.5" /> : <PlayIcon className="w-3.5 h-3.5" />}
                 </button>
@@ -296,21 +249,11 @@ function VariantEditor({
                     type="button"
                     onClick={onDelete}
                     title="Delete variant"
-                    className="mt-4 size-7 shrink-0 inline-flex items-center justify-center rounded-md text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                    className="size-7 shrink-0 inline-flex items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
                 >
                     <Trash2Icon className="w-3.5 h-3.5" />
                 </button>
-                <button
-                    type="button"
-                    onClick={save}
-                    disabled={!dirty || update.isPending}
-                    className="mt-4 h-7 shrink-0 px-3 rounded-md bg-sky-600 text-[12px] font-medium text-white hover:bg-sky-700 inline-flex items-center gap-1.5 disabled:opacity-40"
-                >
-                    {update.isPending && <Loader2Icon className="w-3 h-3 animate-spin" />}
-                    Save
-                </button>
             </div>
-
             {stats && stats.total_sent > 0 && (
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md bg-slate-50 px-2.5 py-1.5 text-[11px]">
                     {isWinner && (
@@ -324,17 +267,6 @@ function VariantEditor({
                     <Metric label="Bounce" value={`${stats.bounce_rate.toFixed(1)}%`} tone="text-rose-600" />
                 </div>
             )}
-
-            <EmailContentEditor
-                subject={subject}
-                onSubjectChange={setSubject}
-                bodyHtml={bodyHtml}
-                onBodyChange={(html) => setBodyHtml(html)}
-                subjectPlaceholder="Leave blank to reuse the step's subject"
-                bodyPlaceholder="Leave blank to reuse the step's body"
-                campaignId={campaignId}
-                stepId={variant.step_id ?? undefined}
-            />
         </div>
     );
 }
