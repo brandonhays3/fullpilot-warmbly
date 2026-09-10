@@ -34,7 +34,7 @@ import useSendTestEmail from "@/lib/api/hooks/app/campaigns/useSendTestEmail";
 import useEmails from "@/lib/api/hooks/app/emails/useEmails";
 import { useUserProfile } from "@/hooks/context/user";
 import { useConfirm } from "@/hooks/context/confirm";
-import { NumberInput, TextInput } from "@/components/ui/field";
+import { TextInput } from "@/components/ui/field";
 import {
     PopoverMenu,
     PopoverMenuContent,
@@ -313,6 +313,26 @@ function DialogBody({
     React.useEffect(() => {
         setVariantName(variant?.name ?? "");
     }, [variant?.id, variant?.name]);
+    const commitVariantName = () => {
+        const name = variantName.trim();
+        if (variant && name && name !== variant.name) void updateVariant.mutateAsync({ variantId: variant.id, input: { name } });
+        else if (variant) setVariantName(variant.name);
+    };
+    // The selected arm's share as typed; committed as a weight on blur.
+    const selectedArm = arms.arms.find((a) => a.key === armKey);
+    const [shareDraft, setShareDraft] = React.useState(String(selectedArm ? arms.shareOf(selectedArm.weight) : 0));
+    React.useEffect(() => {
+        setShareDraft(String(selectedArm ? arms.shareOf(selectedArm.weight) : 0));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [armKey, selectedArm?.weight, arms.arms.length]);
+    const commitShare = (key: string) => {
+        const pct = Math.max(1, Math.min(100, Number(shareDraft) || 0));
+        if (!selectedArm || pct === arms.shareOf(selectedArm.weight)) {
+            setShareDraft(String(selectedArm ? arms.shareOf(selectedArm.weight) : 0));
+            return;
+        }
+        arms.commitWeights({ [key]: pct });
+    };
     const send = useSendTestEmail(campaignId);
     const recipientOk = EMAIL_RE.test(recipient.trim());
     const testBlocked = variant
@@ -418,50 +438,59 @@ function DialogBody({
                                     language: hairline box, divided segments, selected filled dark. */}
                                 <div className="px-3 pt-3">
                                     <div className="inline-flex max-w-full items-stretch overflow-x-auto border border-slate-200 divide-x divide-slate-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                                        {arms.arms.map((a) => (
-                                            <button
-                                                key={a.key}
-                                                type="button"
-                                                onClick={() => void switchArm(a.key)}
-                                                className={`h-8 shrink-0 px-3 inline-flex items-center gap-2 text-[12.5px] transition-colors ${
-                                                    a.key === armKey
-                                                        ? "bg-slate-900 text-white font-medium"
-                                                        : "bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                                                } ${a.active ? "" : "opacity-60"}`}
-                                            >
-                                                {a.name}
-                                                <span className={`tabular-nums text-[11px] ${a.key === armKey ? "text-white/70" : "text-slate-400"}`}>
-                                                    {arms.shareOf(a.active ? a.weight : 0)}%
-                                                </span>
-                                                {!a.active && <span className="text-[10px]">paused</span>}
-                                            </button>
-                                        ))}
+                                        {arms.arms.map((a) =>
+                                            a.key === armKey ? (
+                                                <div
+                                                    key={a.key}
+                                                    className={`h-8 shrink-0 pl-2 pr-1.5 inline-flex items-center gap-1 bg-slate-900 text-white ${a.active ? "" : "opacity-60"}`}
+                                                >
+                                                    {/* Name and share edit in place; blur or Enter commits. */}
+                                                    {a.isOriginal ? (
+                                                        <span className="px-1 text-[12.5px] font-medium">{a.name}</span>
+                                                    ) : (
+                                                        <input
+                                                            value={variantName}
+                                                            onChange={(e) => setVariantName(e.target.value)}
+                                                            onBlur={commitVariantName}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === "Enter") e.currentTarget.blur();
+                                                            }}
+                                                            aria-label="Variant name"
+                                                            size={Math.max(6, variantName.length)}
+                                                            className="h-6 bg-transparent px-1 text-[12.5px] font-medium text-white outline-none placeholder:text-white/50 focus:bg-white/10"
+                                                        />
+                                                    )}
+                                                    <input
+                                                        value={shareDraft}
+                                                        onChange={(e) => setShareDraft(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
+                                                        onBlur={() => commitShare(a.key)}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === "Enter") e.currentTarget.blur();
+                                                        }}
+                                                        inputMode="numeric"
+                                                        aria-label="Traffic share"
+                                                        className="h-6 w-8 bg-transparent text-right text-[11px] tabular-nums text-white/80 outline-none focus:bg-white/10 focus:text-white"
+                                                    />
+                                                    <span className="text-[11px] text-white/60">%</span>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    key={a.key}
+                                                    type="button"
+                                                    onClick={() => void switchArm(a.key)}
+                                                    className={`h-8 shrink-0 px-3 inline-flex items-center gap-2 bg-white text-[12.5px] text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 ${a.active ? "" : "opacity-60"}`}
+                                                >
+                                                    {a.name}
+                                                    <span className="tabular-nums text-[11px] text-slate-400">{arms.shareOf(a.active ? a.weight : 0)}%</span>
+                                                    {!a.active && <span className="text-[10px]">paused</span>}
+                                                </button>
+                                            ),
+                                        )}
                                     </div>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-2 px-3 py-2">
                                     {variant ? (
                                         <>
-                                            <TextInput
-                                                value={variantName}
-                                                onChange={setVariantName}
-                                                placeholder="Variant name"
-                                                className="w-44"
-                                                onBlur={() => {
-                                                    const name = variantName.trim();
-                                                    if (name && name !== variant.name) void updateVariant.mutateAsync({ variantId: variant.id, input: { name } });
-                                                }}
-                                            />
-                                            <label className="inline-flex items-center gap-1.5 text-[12px] text-slate-600">
-                                                Share
-                                                <NumberInput
-                                                    value={variant.weight}
-                                                    min={1}
-                                                    max={100}
-                                                    onChange={(v) => arms.commitWeights({ [variant.id]: Math.max(1, Math.min(100, v ?? 1)) })}
-                                                    className="w-20"
-                                                />
-                                                %
-                                            </label>
                                             <button
                                                 type="button"
                                                 onClick={() => arms.togglePause(variant.id, !variant.is_active)}
