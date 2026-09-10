@@ -333,11 +333,12 @@ func (s *emailService) buildAddWorkerEmail(ctx context.Context, acc *models.Emai
 	return out, nil
 }
 
-// applyOAuthTransport stamps the transport an OAuth mailbox is driven with
-// (OAUTH_MAILBOX_TRANSPORT). On the smtp transport the worker syncs over IMAP,
-// so the payload also carries the saved folder cursors an smtp_imap mailbox
-// gets. Stamped per mailbox so a later per-mailbox switch only changes what
-// is resolved here.
+// applyOAuthTransport stamps the transport an OAuth mailbox is SYNCED with
+// (OAUTH_MAILBOX_TRANSPORT); sends are split per send on the worker
+// regardless. On the smtp transport the worker syncs over IMAP, so the
+// payload also carries the saved folder cursors an smtp_imap mailbox gets.
+// Stamped per mailbox so a later per-mailbox switch only changes what is
+// resolved here.
 func (s *emailService) applyOAuthTransport(ctx context.Context, out *models.AddWorkerEmail, userID uuid.UUID, acc *models.Email) {
 	transport := models.ParseMailTransport(config.OAuthMailboxTransport())
 	out.Transport = string(transport)

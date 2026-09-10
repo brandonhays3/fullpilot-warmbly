@@ -10,6 +10,8 @@ import { useCampaign } from "@/hooks/context/campaign";
 import useCampaignAnalytics from "@/lib/api/hooks/app/analytics/useCampaignAnalytics";
 import type { CampaignEngagementBreakdown, EngagementBucket } from "@/lib/api/models/app/analytics/CampaignAnalytics";
 import useCampaignDailyStats from "@/lib/api/hooks/app/analytics/useCampaignDailyStats";
+import useCampaignSendMethods from "@/lib/api/hooks/app/analytics/useCampaignSendMethods";
+import SendMethodRows from "@/components/app/analytics/SendMethodRows";
 import { SectionBar, Stat, StatStrip } from "@/components/layout/Page";
 import { MultiTrend, type TrendSeries } from "@/components/ui/charts";
 import { TONE_DOT } from "@/components/ui/tones";
@@ -47,6 +49,7 @@ export default function CampaignOverview() {
 
     const analytics = useCampaignAnalytics(id);
     const daily = useCampaignDailyStats(id);
+    const sendMethods = useCampaignSendMethods(id);
 
     // Legend toggles: every metric charts together; hidden ones drop out.
     const [hiddenMetrics, setHiddenMetrics] = useState<Metric[]>([]);
@@ -317,6 +320,13 @@ export default function CampaignOverview() {
                                 </div>
                             ))}
                         </div>
+                    </div>
+
+                    {/* How the sends made each way (provider API or SMTP, per
+                        provider and worker placement) performed. */}
+                    <div className="rounded-md border border-slate-200 overflow-hidden bg-white">
+                        <SectionBar label="Send methods" />
+                        <SendMethodRows methods={sendMethods.data?.methods} loading={sendMethods.isPending} />
                     </div>
                 </aside>
             </div>

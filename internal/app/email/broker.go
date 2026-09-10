@@ -35,7 +35,7 @@ func (s *emailService) OAuthConnectWithCode(ctx context.Context, userID string, 
 	if xerr != nil {
 		return nil, xerr
 	}
-	tok, err := cfg.Exchange(ctx, code)
+	tok, err := exchangeCode(ctx, provider, cfg, code)
 	if err != nil {
 		return nil, errx.ErrEmailOnboardExchange
 	}

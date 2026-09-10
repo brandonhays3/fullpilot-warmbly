@@ -152,7 +152,7 @@ func (s *emailService) OAuthFinish(ctx context.Context, userID, code, state stri
 		return nil, false, xerr
 	}
 
-	tok, err := cfg.Exchange(ctx, code)
+	tok, err := exchangeCode(ctx, provider, cfg, code)
 	if err != nil {
 		return nil, false, errx.ErrEmailOnboardExchange
 	}
@@ -327,6 +327,18 @@ func (s *emailService) resolveOAuthClient(provider models.InboxProvider, client 
 		}
 	}
 	return client
+}
+
+// exchangeCode redeems an authorization code. A Microsoft consent spans two
+// resources (Graph and outlook.office.com) and Entra refuses a token request
+// that names both, so the code is redeemed for the Graph token explicitly;
+// the worker mints outlook.office.com tokens from the refresh token as it
+// needs them. Google issues one token for every scope consented.
+func exchangeCode(ctx context.Context, provider models.InboxProvider, cfg *oauth2.Config, code string) (*oauth2.Token, error) {
+	if provider == models.InboxProviderOutlook {
+		return cfg.Exchange(ctx, code, oauth2.SetAuthURLParam("scope", strings.Join(config.OutlookGraphTokenScopes(), " ")))
+	}
+	return cfg.Exchange(ctx, code)
 }
 
 func (s *emailService) oauthConfigFor(provider models.InboxProvider, client string) (*oauth2.Config, *errx.Error) {

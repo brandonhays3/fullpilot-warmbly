@@ -11,11 +11,11 @@ Open **Accounts** and choose **Add account**.
 
 | Provider | Method | Notes |
 |----------|--------|-------|
-| Gmail / Google Workspace | OAuth (`gmail`) | Recommended. No password stored. Sends through Gmail's SMTP and syncs over its IMAP with the OAuth token, or over the Gmail API, depending on how the instance is configured |
-| Outlook / Microsoft 365 | OAuth (`outlook`) | Recommended. No password stored. Sends through Exchange Online's SMTP and syncs over its IMAP with the OAuth token, or over Microsoft Graph, depending on how the instance is configured |
+| Gmail / Google Workspace | OAuth (`gmail`) | Recommended. No password stored. Sends through Gmail's SMTP and through the Gmail API, split per send (see [send methods](#send-methods)); syncs over IMAP or the Gmail API depending on how the instance is configured |
+| Outlook / Microsoft 365 | OAuth (`outlook`) | Recommended. No password stored. Sends through Exchange Online's SMTP and through Microsoft Graph, split per send; syncs over IMAP or Graph depending on how the instance is configured |
 | Any other server | IMAP + SMTP (`smtp_imap`) | Custom domains, self-hosted, or providers without OAuth. Any IMAP server works, including Outlook.com, Microsoft 365 over IMAP, Yahoo, Fastmail, Zoho, cPanel and self-hosted Dovecot |
 
-**OAuth** sends you to your provider's consent screen and returns a token instead of a password. Consent asks to send mail and to read and organize your mailbox, plus your name and address so the mailbox is named after you (first and last name as the provider has them; you can rename it afterwards). It needs no app passwords or server settings. Which endpoints the token is used against, the provider's IMAP and SMTP or its API, is an instance setting ([`OAUTH_MAILBOX_TRANSPORT`](/development/configuration/#mailbox-connections)); switching it means [re-authorizing](#reconnecting-an-account) mailboxes consented under the other one, and a reconnect also refreshes a mailbox name that was derived from the address. Note that Google revokes Gmail tokens when the account's password changes, so a password change there means re-authorizing the mailbox once.
+**OAuth** sends you to your provider's consent screen and returns a token instead of a password. Consent asks to send mail and to read and organize your mailbox, over the provider's API and over its IMAP and SMTP endpoints alike, plus your name and address so the mailbox is named after you (first and last name as the provider has them; you can rename it afterwards). It needs no app passwords or server settings. Which endpoint syncs the mailbox, the provider's IMAP or its API, is an instance setting ([`OAUTH_MAILBOX_TRANSPORT`](/development/configuration/#mailbox-connections)); how each message is sent is decided per send, see [send methods](#send-methods). A mailbox connected before consent covered both paths keeps working on the path it has and gets the other one after a [re-authorization](#reconnecting-an-account), which also refreshes a mailbox name that was derived from the address. Note that Google revokes Gmail tokens when the account's password changes, so a password change there means re-authorizing the mailbox once.
 
 **IMAP / SMTP** needs host, port, username, and password for each direction:
 
@@ -196,6 +196,22 @@ A provider that flattens `CNAME` records (ALIAS records, apex flattening, proxie
 Press **Check again** any time to re-resolve without changing the value. Warmbly also re-checks every custom tracking domain on its own, hourly, so a record that finishes propagating after you saved starts being used without you doing anything, and one that later stops pointing at the tracking host stops being used instead of quietly breaking every link.
 
 Until it verifies, tracking falls back to the shared host, so an unverified domain never breaks sending: links keep working, they just are not on your name yet. Links already sent keep working after a change; new sends pick up the new domain.
+
+## Send methods
+
+A Gmail or Outlook mailbox can hand a message to its provider two ways: through the provider's API (the Gmail API, Microsoft Graph) or through its SMTP submission endpoint with the same OAuth sign-in. The two paths leave the provider's infrastructure differently, and running both side by side has beaten either one alone, so by default half of a mailbox's sends go each way.
+
+The split is per send, not per mailbox. Each send is assigned a path from a hash of its task id, so a send that is retried takes the same path as its first attempt and the share holds across every worker without coordination. Warmup sends follow the same split as campaign sends. The share is an instance setting, [`SEND_TRANSPORT_API_PERCENT`](/development/configuration/#workers), `50` by default; `0` sends everything over SMTP and `100` everything over the API. A plain SMTP/IMAP mailbox has only SMTP. A mailbox whose consent covers only one path (one connected before consent asked for both, or one signed in through Warmbly Cloud) sends over the path it has; the worker logs the fallback, and the mailbox gets both after a [re-authorization](#reconnecting-an-account).
+
+Every confirmed send records the method it took, as `<transport>_<provider>_<deployment>`:
+
+| Segment | Values |
+|---------|--------|
+| transport | `api` (Gmail API or Microsoft Graph) or `smtp` (the provider's SMTP submission endpoint) |
+| provider | `google`, `microsoft` or `smtpimap` |
+| deployment | Where the worker that sent it runs, from its [`WORKER_DEPLOYMENT`](/development/configuration/#workers): `cloud_run_worker` for a rotating Cloud Run worker, `cloud_vm` for the persistent worker on the control-plane VM, `unknown` when unset |
+
+So `smtp_google_cloud_run_worker` is a Gmail mailbox sending over SMTP from a Cloud Run worker and `api_microsoft_cloud_vm` an Outlook mailbox sending over Graph from the VM. The method is on each send in a contact's sent-email list (`send_method`), and the campaign overview and the [analytics dashboard](/guides/analytics/#send-methods) break sent, open, reply and bounce rates down by it, which is how you tell whether a path, a provider or a placement is pulling its weight. Sends made before the method was recorded show as not recorded.
 
 ## Warmup
 

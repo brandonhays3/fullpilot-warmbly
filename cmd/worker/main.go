@@ -183,7 +183,9 @@ func main() {
 		SyncContextRepository:     syncContextRepo,
 		OauthInbox:                &oauthInbox,
 		TokenBroker:               tokenBroker,
+		Deployment:                config.WorkerDeployment(),
 	}
+	log.Printf("Deployment: %s, API share of sends: %d%%", config.WorkerDeployment(), config.SendTransportAPIPercent())
 
 	if err := workerService.Init(); err != nil {
 		log.Fatal("failed to init worker service:", err)

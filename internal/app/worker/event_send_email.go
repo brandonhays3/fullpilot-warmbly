@@ -90,21 +90,24 @@ func (w *WorkerService) HandleSendEmail(ctx context.Context, sendEmail models.Se
 	w.recordSendOutcome(result)
 
 	if result.Success {
+		method := models.SendMethodLabel(result.Transport, mail.EmailType, w.Deployment)
 		log.Info().
 			Str("task_id", sendEmail.TaskID.String()).
 			Str("message_id", result.MessageID).
 			Str("provider_msg_id", result.ProviderMsgID).
-			Str("transport", string(mail.Transport)).
+			Str("send_method", method).
+			Bool("transport_fallback", result.Fallback).
 			Msg("Email sent successfully")
 
 		w.deleteTransportEmailBody(ctx, sendEmail.TaskID, sendEmail.BodyS3Key)
 
-		w.sendEmailSuccess(sendEmail.TaskID, result.MessageID, result.ProviderMsgID)
+		w.sendEmailSuccess(sendEmail.TaskID, result.MessageID, result.ProviderMsgID, method)
 	} else {
 		log.Error().
 			Str("task_id", sendEmail.TaskID.String()).
 			Str("error_code", string(result.Error.Code)).
 			Str("error_message", result.Error.Message).
+			Str("transport", string(result.Transport)).
 			Msg("Email send failed")
 
 		w.sendEmailError(sendEmail.TaskID, sendEmail.EmailID, mail, result.Error)
@@ -211,14 +214,16 @@ func (w *WorkerService) fetchAttachments(ctx context.Context, refs []emsg.Attach
 	return out, nil
 }
 
-// sendEmailSuccess sends a success result back to the jobs service
-func (w *WorkerService) sendEmailSuccess(taskID uuid.UUID, messageID, providerMsgID string) {
+// sendEmailSuccess sends a success result back to the jobs service. method
+// is the send method label the consumer stamps on the task row.
+func (w *WorkerService) sendEmailSuccess(taskID uuid.UUID, messageID, providerMsgID, method string) {
 	result := models.SendEmailResult{
 		TaskID:        taskID,
 		Success:       true,
 		MessageID:     messageID,
 		ProviderMsgID: providerMsgID,
 		SentAt:        time.Now(),
+		SendMethod:    method,
 	}
 
 	if err := w.Produce(models.JobEventTypeEmailSent, taskID.String(), result); err != nil {

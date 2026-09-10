@@ -2907,7 +2907,8 @@ func (r *contactRepository) ListSentEmails(ctx context.Context, userID, contactI
 			cam.id, cam.name,
 			seq.id, seq.name,
 			COALESCE(et.subject, seq.subject, '') AS subject,
-			ccp.opened_at, ccp.clicked_at, ccp.replied_at, ccp.bounced_at
+			ccp.opened_at, ccp.clicked_at, ccp.replied_at, ccp.bounced_at,
+			ct.send_method
 		FROM tasks t
 		JOIN campaign_tasks ct ON ct.task_id = t.id
 		LEFT JOIN email_accounts ea ON ea.id = t.email_account_id
@@ -2942,6 +2943,7 @@ func (r *contactRepository) ListSentEmails(ctx context.Context, userID, contactI
 			&e.SequenceID, &e.SequenceName,
 			&e.Subject,
 			&e.OpenedAt, &e.ClickedAt, &e.RepliedAt, &e.BouncedAt,
+			&e.SendMethod,
 		); err != nil {
 			db.CaptureError(err, "", nil, "ListSentEmails scan")
 			return nil, errx.InternalError()

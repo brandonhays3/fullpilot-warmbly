@@ -188,6 +188,10 @@ type SendEmailResult struct {
 	SentAt         time.Time       `json:"sent_at,omitempty" avro:"sent_at"`
 	Error          *EmailSendError `json:"error,omitempty" avro:"error"`
 	LegacyErrorMsg string          `json:"legacy_error,omitempty" avro:"legacy_error"` // Deprecated: use Error instead
+	// SendMethod is how a successful send left the worker (SendMethodLabel):
+	// transport, provider and deployment, so methods can be compared later.
+	// Empty from a worker older than the field.
+	SendMethod string `json:"send_method,omitempty" avro:"send_method"`
 }
 
 type AddWorkerEmailGoogleData struct {

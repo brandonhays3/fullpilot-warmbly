@@ -39,9 +39,11 @@ func (s *JobsService) HandleEmailSent(ctx context.Context, result models.SendEma
 		return err
 	}
 	if task == nil {
-		log.Warn().Str("task_id", result.TaskID.String()).Msg("email sent result for unknown task")
+		// A test send has no task row, so its method is only ever logged.
+		log.Warn().Str("task_id", result.TaskID.String()).Str("send_method", result.SendMethod).Msg("email sent result for unknown task")
 		return nil
 	}
+	s.recordSendMethod(ctx, task, result.SendMethod)
 	// The worker reports the Message-ID the provider put on the wire, which is
 	// not always the one the control plane minted: Graph re-stamps it. Take the
 	// worker's answer whenever it differs, because everything that matches a
@@ -74,6 +76,27 @@ func (s *JobsService) HandleEmailSent(ctx context.Context, result models.SendEma
 		}
 	}
 	return nil
+}
+
+// recordSendMethod keeps how the worker sent the task (transport, provider,
+// deployment) on the task's own row, which is what the send-method
+// breakdowns compare. Best effort: the send itself is already confirmed.
+func (s *JobsService) recordSendMethod(ctx context.Context, task *repository.Task, method string) {
+	if method == "" {
+		return
+	}
+	var err error
+	switch task.TaskType {
+	case "campaign":
+		err = s.TaskRepo.SetCampaignTaskSendMethod(ctx, task.ID, method)
+	case "warmup":
+		err = s.TaskRepo.SetWarmupTaskSendMethod(ctx, task.ID, method)
+	default:
+		return
+	}
+	if err != nil {
+		log.Warn().Err(err).Str("task_id", task.ID.String()).Str("send_method", method).Msg("could not record the send method")
+	}
 }
 
 // repairCampaignSendStamp completes a reserved campaign step the control plane

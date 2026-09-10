@@ -70,6 +70,49 @@ type CampaignEngagementBreakdown struct {
 	Devices   []EngagementBucket `json:"devices"`
 }
 
+// SendMethodStats is how sends made one way performed: the method label
+// (SendMethodLabel), the counts, and each as a share of Sent. Delivered is
+// sent minus bounced. The empty label groups sends made before the method
+// was recorded.
+type SendMethodStats struct {
+	SendMethod string `json:"send_method"`
+	Sent       int    `json:"sent"`
+	Delivered  int    `json:"delivered"`
+	Opened     int    `json:"opened"`
+	Replied    int    `json:"replied"`
+	Bounced    int    `json:"bounced"`
+
+	DeliveryRate float64 `json:"delivery_rate"` // percentage
+	OpenRate     float64 `json:"open_rate"`     // percentage
+	ReplyRate    float64 `json:"reply_rate"`    // percentage
+	BounceRate   float64 `json:"bounce_rate"`   // percentage
+}
+
+// FillRates derives the four rates from the counts.
+func (s *SendMethodStats) FillRates() {
+	if s.Sent <= 0 {
+		return
+	}
+	s.DeliveryRate = float64(s.Delivered) / float64(s.Sent) * 100
+	s.OpenRate = float64(s.Opened) / float64(s.Sent) * 100
+	s.ReplyRate = float64(s.Replied) / float64(s.Sent) * 100
+	s.BounceRate = float64(s.Bounced) / float64(s.Sent) * 100
+}
+
+// CampaignSendMethods is GET /campaigns/:id/analytics/send-methods.
+type CampaignSendMethods struct {
+	CampaignID uuid.UUID         `json:"campaign_id"`
+	Methods    []SendMethodStats `json:"methods"`
+}
+
+// WorkspaceSendMethods is GET /analytics/send-methods: every campaign send
+// in the workspace over the period, by method.
+type WorkspaceSendMethods struct {
+	Period    string            `json:"period"` // 7d, 30d, 90d
+	DateRange DateRange         `json:"date_range"`
+	Methods   []SendMethodStats `json:"methods"`
+}
+
 type CampaignSummary struct {
 	TotalContacts int `json:"total_contacts"`
 	EmailsSent    int `json:"emails_sent"`

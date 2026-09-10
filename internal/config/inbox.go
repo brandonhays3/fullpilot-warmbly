@@ -45,12 +45,13 @@ const (
 	OAuthTransportSMTP = "smtp"
 )
 
-// OAuthMailboxTransport is how OAuth mailboxes are driven, from
-// OAUTH_MAILBOX_TRANSPORT. The default is smtp for now, so provider SMTP is
-// what campaigns and replies go through; set api to return to the Gmail API
-// and Microsoft Graph. It decides two things at once: the scopes a new
-// consent asks for (below), and the transport the control plane ships to the
-// worker for each OAuth mailbox (email.buildAddWorkerEmail).
+// OAuthMailboxTransport is how OAuth mailboxes are SYNCED, from
+// OAUTH_MAILBOX_TRANSPORT: smtp (the default) follows the mailbox over the
+// provider's IMAP endpoint, api over the Gmail API or Microsoft Graph. It is
+// shipped to the worker per mailbox (email.buildAddWorkerEmail). Sends no
+// longer follow it: every OAuth mailbox holds both an API and an SMTP client
+// and each send picks one by SEND_TRANSPORT_API_PERCENT, which is why every
+// consent below asks for the scopes of both paths.
 func OAuthMailboxTransport() string {
 	switch strings.ToLower(strings.TrimSpace(os.Getenv("OAUTH_MAILBOX_TRANSPORT"))) {
 	case OAuthTransportAPI:
@@ -76,9 +77,11 @@ const (
 	OutlookIMAPPort = 993
 )
 
-// Microsoft scopes. Entra issues one access token per resource, so a
-// consent must not mix graph.microsoft.com and outlook.office.com scopes:
-// the token would carry the first resource and the second would refuse it.
+// Microsoft scopes. Entra issues one access token per resource. A consent
+// may ask for both resource families at once (the user approves them on one
+// screen), but every token request has to name one resource: the code is
+// redeemed for a Graph token (OutlookGraphTokenScopes) and the refresh token
+// then mints outlook.office.com tokens on demand (OutlookMailTokenScopes).
 const (
 	GraphUserReadScope      = "https://graph.microsoft.com/User.Read"
 	GraphMailSendScope      = "https://graph.microsoft.com/Mail.Send"
@@ -103,22 +106,19 @@ func redirectOverride(envKey, fallback string) string {
 }
 
 // googleScopes are the Gmail scopes for the web client: the granular gmail.*
-// set the API transport needs, plus the full mail scope on the smtp
-// transport, which is the only Gmail scope IMAP and SMTP accept.
+// set the Gmail API needs, plus the full mail scope, which is the only Gmail
+// scope IMAP and SMTP accept. Both always, since a send may take either path.
 func googleScopes() []string {
 	scopes := append([]string{}, identityScopes...)
-	scopes = append(scopes,
+	return append(scopes,
 		gmail.GmailComposeScope,
 		gmail.GmailMetadataScope,
 		gmail.GmailModifyScope,
 		gmail.GmailSendScope,
 		gmail.GmailSettingsBasicScope,
 		gmail.GmailReadonlyScope,
+		gmail.MailGoogleComScope,
 	)
-	if OAuthMailboxTransport() == OAuthTransportSMTP {
-		scopes = append(scopes, gmail.MailGoogleComScope)
-	}
-	return scopes
 }
 
 func GoogleOauth2Inbox(baseURL string) *oauth2.Config {
@@ -146,28 +146,40 @@ func GoogleDesktopOauth2Inbox() *oauth2.Config {
 	}
 }
 
-// outlookScopes are the Microsoft scopes for the configured transport.
+// outlookScopes are the Microsoft scopes a consent asks for: both resource
+// families, so one consent lets the worker send over Graph or over SMTP.
 //
-// api: Graph is the transport (RAW MIME sendMail + delta sync), so Mail.Send
-// (send), Mail.ReadWrite (delta sync + warmup move/mark/flag) and User.Read
-// (resolve the mailbox owner via /me). None need tenant admin consent by
-// default and all work on personal Outlook.com accounts.
+// Graph: Mail.Send (RAW MIME sendMail), Mail.ReadWrite (delta sync, warmup
+// move/mark/flag) and User.Read (resolve the mailbox owner via /me). None
+// need tenant admin consent by default and all work on personal Outlook.com
+// accounts.
 //
-// smtp: the legacy IMAP/SMTP resource instead, IMAP.AccessAsUser.All and
-// SMTP.Send, which is what outlook.office365.com and smtp.office365.com accept
-// over XOAUTH2. No Graph scope rides along (one token per resource), so the
-// owner's name and address come from the id_token and the OIDC userinfo
-// endpoint rather than from Graph /me. A mailbox consented under one set
-// must reconsent to move to the other.
+// outlook.office.com: IMAP.AccessAsUser.All and SMTP.Send, which is what
+// outlook.office365.com and smtp.office365.com accept over XOAUTH2.
 //
-// Both carry offline_access (refresh token) and the identity scopes.
+// Plus offline_access (refresh token) and the identity scopes. A mailbox
+// consented before both families were asked for must reconsent to send over
+// the path its token cannot reach; the worker falls back to the other one
+// until then.
 func outlookScopes() []string {
 	scopes := append([]string{}, identityScopes...)
 	scopes = append(scopes, "offline_access")
-	if OAuthMailboxTransport() == OAuthTransportSMTP {
-		return append(scopes, OutlookIMAPScope, OutlookSMTPScope)
-	}
-	return append(scopes, GraphUserReadScope, GraphMailSendScope, GraphMailReadWriteScope)
+	scopes = append(scopes, GraphUserReadScope, GraphMailSendScope, GraphMailReadWriteScope)
+	return append(scopes, OutlookIMAPScope, OutlookSMTPScope)
+}
+
+// OutlookGraphTokenScopes is the scope set for a Microsoft token request that
+// must yield a Graph token: the authorization code redemption and any refresh
+// for the Graph client. Identity scopes ride along so the id_token is issued.
+func OutlookGraphTokenScopes() []string {
+	scopes := append([]string{}, identityScopes...)
+	return append(scopes, "offline_access", GraphUserReadScope, GraphMailSendScope, GraphMailReadWriteScope)
+}
+
+// OutlookMailTokenScopes is the scope set for a Microsoft token request that
+// must yield an outlook.office.com token, for IMAP and SMTP XOAUTH2.
+func OutlookMailTokenScopes() []string {
+	return []string{"offline_access", OutlookIMAPScope, OutlookSMTPScope}
 }
 
 // OutlookGraphScoped reports whether a Microsoft client's consent carries a
@@ -204,8 +216,7 @@ func OutlookOauth2Inbox(baseURL string) *oauth2.Config {
 
 // OutlookDesktopOauth2Inbox is the desktop-type Microsoft client, read from
 // BOX_OUTLOOK_DESKTOP_CLIENT_ID (public client: the secret is optional). Same
-// scopes as the web client for the configured transport; Entra consents to
-// them dynamically.
+// scopes as the web client; Entra consents to them dynamically.
 func OutlookDesktopOauth2Inbox() *oauth2.Config {
 	return &oauth2.Config{
 		ClientID:     os.Getenv("BOX_OUTLOOK_DESKTOP_CLIENT_ID"),

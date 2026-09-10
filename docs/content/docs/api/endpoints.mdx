@@ -62,6 +62,7 @@ All paths below are relative to the versioned base URL `https://api.warmbly.com/
 | PATCH | `/campaigns/:id/ab-variants/:variantId` | `WRITE_CAMPAIGNS` |
 | DELETE | `/campaigns/:id/ab-variants/:variantId` | `WRITE_CAMPAIGNS` |
 | GET | `/campaigns/:id/ab-analysis` | `READ_ANALYTICS` |
+| GET | `/campaigns/:id/analytics/send-methods` | `READ_ANALYTICS` |
 | POST | `/campaigns/:id/preflight` | `SEND_CAMPAIGNS` |
 | POST | `/campaigns/:id/test-email` | `SEND_CAMPAIGNS` |
 | POST | `/campaigns/:id/start` | `SEND_CAMPAIGNS` |
@@ -75,6 +76,8 @@ All paths below are relative to the versioned base URL `https://api.warmbly.com/
 | POST | `/generation/ai-variable` | `WRITE_CAMPAIGNS` |
 
 `GET /campaigns/:id/forms` reports the forms this campaign links to and what its recipients did with them: personalized links handed out, who opened one, who started filling it in and who submitted. See the [forms guide](/guides/forms/).
+
+`GET /campaigns/:id/analytics/send-methods` breaks the campaign's confirmed sends down by the method they took, `{ "campaign_id", "methods": [ { "send_method", "sent", "delivered", "opened", "replied", "bounced", "delivery_rate", "open_rate", "reply_rate", "bounce_rate" } ] }`, most sends first. `send_method` is `<transport>_<provider>_<deployment>` (`smtp_google_cloud_run_worker`), empty for sends confirmed before the method was recorded; rates are percentages of `sent`. `GET /analytics/send-methods?period=7d|30d|90d` is the same breakdown over every campaign send of the workspace, with `period` and `date_range` alongside `methods`. A contact's sent emails (`GET /contacts/:id/emails`) carry each send's `send_method`. See [send methods](/guides/mailboxes/#send-methods).
 
 ### Contacts
 
@@ -235,7 +238,7 @@ The `agent-drafts` endpoints back the [inbox agent](/guides/inbox-agent/): the a
 
 | Method | Path | API Permission |
 |--------|------|----------------|
-| GET | `/analytics/*` (dashboard, deliverability, warmup, campaigns, accounts, usage) | `READ_ANALYTICS` |
+| GET | `/analytics/*` (dashboard, deliverability, warmup, campaigns, accounts, usage, send-methods) | `READ_ANALYTICS` |
 | GET | `/audit-logs` | `READ_AUDIT_LOGS` |
 
 ### Advisor

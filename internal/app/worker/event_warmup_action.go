@@ -39,7 +39,12 @@ func (w *WorkerService) HandleWarmupAction(ctx context.Context, action models.Wa
 		return nil
 	}
 
+	// The action names the message the way the SYNC found it (a Gmail id, a
+	// Graph id, or an IMAP UID), so it runs on the sync transport even though
+	// an OAuth mailbox holds both clients.
 	switch {
+	case mail.UsesSmtpImap() && mail.SmtpImapData != nil && mail.SmtpImapData.ImapClient != nil:
+		w.runImapWarmupActions(ctx, mail, action)
 	case mail.GoogleData != nil && mail.GoogleData.Client != nil:
 		w.runGoogleWarmupActions(ctx, mail, action)
 	case mail.GraphData != nil && mail.GraphData.Client != nil:

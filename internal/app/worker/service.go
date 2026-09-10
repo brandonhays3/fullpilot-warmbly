@@ -37,6 +37,10 @@ type WorkerService struct {
 	// TokenBroker serves mailboxes managed by Fullpilot Cloud (brokered access
 	// tokens over the internal API). Optional: nil refuses such mailboxes.
 	TokenBroker repository.BrokeredTokenClient
+	// Deployment labels where this worker runs (WORKER_DEPLOYMENT:
+	// cloud_run_worker, cloud_vm, ...). It is the last segment of the send
+	// method stamped on every send, so methods can be compared by placement.
+	Deployment string
 
 	mailManager *mailmanager.MailManager
 
