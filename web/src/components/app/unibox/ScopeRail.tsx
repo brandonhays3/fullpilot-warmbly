@@ -546,7 +546,7 @@ function FolderItem({
       title={label}
     >
       <span
-        className={cn("shrink-0", active ? "text-slate-700" : "text-slate-500")}
+        className={cn("shrink-0", active ? "text-slate-900 [&_*]:[fill:currentColor] [&_*]:[fill-opacity:0.22]" : "text-slate-500")}
       >
         {icon}
       </span>
@@ -635,7 +635,7 @@ function Item({
       title={label}
     >
       <span
-        className={cn("shrink-0", active ? "text-sky-700" : "text-slate-500")}
+        className={cn("shrink-0", active ? "text-slate-900 [&_*]:[fill:currentColor] [&_*]:[fill-opacity:0.22]" : "text-slate-500")}
       >
         {icon}
       </span>
