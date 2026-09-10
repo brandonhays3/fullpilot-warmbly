@@ -212,17 +212,9 @@ function SettingsLayoutInner() {
                 </nav>
 
                 <div className="flex-1 min-w-0 overflow-y-auto">
-                    <AnimatePresence mode="wait" initial={false}>
-                        <motion.div
-                            key={location.pathname}
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -4 }}
-                            transition={{ duration: 0.16, ease: "easeOut" }}
-                        >
-                            <Outlet />
-                        </motion.div>
-                    </AnimatePresence>
+                    {/* No transition between tabs: the content swaps in place and
+                        keeps its height, so the pane never jumps or fades. */}
+                    <Outlet />
                 </div>
             </div>
 
