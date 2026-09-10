@@ -160,12 +160,12 @@ function AIVariableChip({ node, updateAttributes, deleteNode, selected, editor }
                     Clicking it lands outside the content and dismisses via Radix. */}
                 {open &&
                     createPortal(
-                        <div className="fixed inset-0 z-40 bg-black/50 duration-200 animate-in fade-in-0" aria-hidden />,
+                        <div className="fixed inset-0 z-[205] bg-slate-900/30 duration-200 animate-in fade-in-0" aria-hidden />,
                         document.body,
                     )}
                 <DialogContent
                     showCloseButton={false}
-                    className="gap-0 overflow-hidden p-0 sm:max-w-[640px]"
+                    className="z-[210] gap-0 overflow-hidden p-0 sm:max-w-[640px]"
                     onOpenAutoFocus={(e) => e.preventDefault()}
                     onInteractOutside={(e) => {
                         const target = e.detail.originalEvent.target as HTMLElement | null;
