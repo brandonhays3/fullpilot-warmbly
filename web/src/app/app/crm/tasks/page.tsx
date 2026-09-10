@@ -37,6 +37,7 @@ import {
     UsersIcon,
     UsersRoundIcon,
     XIcon,
+    CircleDotIcon,
 } from "@/components/icons";
 import { Link } from "react-router-dom";
 import useTeams from "@/lib/api/hooks/app/teams/useTeams";
@@ -60,6 +61,7 @@ import {
     PopoverMenuContent,
     PopoverMenuItem,
     PopoverMenuTrigger,
+    SelectButton,
 } from "@/components/ui/popover-menu";
 import useSearchTasks from "@/lib/api/hooks/app/crm/tasks/useSearchTasks";
 import useTasksSummary from "@/lib/api/hooks/app/crm/tasks/useTasksSummary";
@@ -240,24 +242,24 @@ export default function TasksPage() {
                     value={filters.query}
                     onChange={(v) => setFilters((f) => ({ ...f, query: v }))}
                     placeholder="Search tasks…"
-                    className="w-full sm:w-[180px]"
+                    className="w-full sm:w-[160px]"
                 />
-                <div className="inline-flex rounded-md bg-slate-100 p-0.5 gap-0.5">
-                    {STATUS_TABS.map((t) => (
-                        <button
-                            key={t.id}
-                            type="button"
-                            onClick={() => setStatusTab(t.id)}
-                            className={`h-6 px-2 rounded text-[11px] font-medium transition-colors ${
-                                statusTab === t.id
-                                    ? "bg-white text-slate-900 shadow-sm"
-                                    : "text-slate-500 hover:text-slate-900"
-                            }`}
-                        >
-                            {t.label}
-                        </button>
-                    ))}
-                </div>
+                {/* Status is a dropdown, not five pills, so the bar fits one row. */}
+                <PopoverMenu align="start">
+                    <PopoverMenuTrigger asChild>
+                        <SelectButton
+                            icon={<CircleDotIcon className="w-3.5 h-3.5" />}
+                            label={STATUS_TABS.find((t) => t.id === statusTab)?.label ?? "All"}
+                        />
+                    </PopoverMenuTrigger>
+                    <PopoverMenuContent minWidth={160}>
+                        {STATUS_TABS.map((t) => (
+                            <PopoverMenuItem key={t.id} onSelect={() => setStatusTab(t.id)} selected={statusTab === t.id}>
+                                {t.label}
+                            </PopoverMenuItem>
+                        ))}
+                    </PopoverMenuContent>
+                </PopoverMenu>
                 <AssigneeFacet
                     members={members}
                     selected={filters.assigned_to}
