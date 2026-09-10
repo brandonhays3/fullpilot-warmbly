@@ -2,14 +2,15 @@ import type { SendMethodStats } from "@/lib/api/models/app/analytics/SendMethods
 
 // A send method is <transport>_<provider>_<deployment>; the deployment may
 // itself contain underscores, so only the first two are split off.
-function describeSendMethod(method: string): { title: string; detail: string } {
+function describeSendMethod(method: string, format?: string): { title: string; detail: string } {
     if (!method) return { title: "Not recorded", detail: "sent before methods were recorded" };
+    const formatLabel = format === "html" ? " · HTML" : format === "text" ? " · Text" : "";
     const [transport, provider, ...rest] = method.split("_");
     const transportLabel = transport === "api" ? "API" : transport === "smtp" ? "SMTP" : transport;
     const providerLabel =
         provider === "google" ? "Google" : provider === "microsoft" ? "Microsoft" : provider === "smtpimap" ? "SMTP/IMAP" : provider;
     const deployment = rest.join("_") || "unknown";
-    return { title: `${transportLabel} · ${providerLabel}`, detail: deployment };
+    return { title: `${transportLabel} · ${providerLabel}${formatLabel}`, detail: deployment };
 }
 
 const pct = (v: number | undefined) => (v == null ? "—" : `${v.toFixed(1)}%`);
@@ -40,7 +41,7 @@ export default function SendMethodRows({
     if (!methods || methods.length === 0) {
         return (
             <div className="px-5 py-4 text-[11.5px] text-slate-400">
-                No confirmed sends yet. Each send records whether it went through the provider API or SMTP, and from which worker.
+                No confirmed sends yet. Each send records whether it went through the provider API or SMTP, from which worker, and whether it carried HTML.
             </div>
         );
     }
@@ -56,9 +57,9 @@ export default function SendMethodRows({
                 </span>
             </div>
             {methods.map((m) => {
-                const d = describeSendMethod(m.send_method);
+                const d = describeSendMethod(m.send_method, m.send_format);
                 return (
-                    <div key={m.send_method || "unrecorded"} className={`${rowClassName} flex items-center gap-2`} title={m.send_method || undefined}>
+                    <div key={`${m.send_method || "unrecorded"}:${m.send_format || ""}`} className={`${rowClassName} flex items-center gap-2`} title={m.send_method || undefined}>
                         <span className="min-w-0 flex items-baseline gap-1.5 truncate">
                             <span className="text-[12px] text-slate-700 truncate">{d.title}</span>
                             <span className="font-mono text-[9.5px] text-slate-400 truncate">{d.detail}</span>

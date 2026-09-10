@@ -6,6 +6,8 @@ import type { DateRange } from "./CampaignAnalytics"
 // groups sends confirmed before the method was recorded.
 export interface SendMethodStats {
     send_method: string
+    // "text" (text/plain only) or "html" (multipart); empty before formats were recorded.
+    send_format: string
     sent: number
     delivered: number
     opened: number

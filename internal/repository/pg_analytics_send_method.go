@@ -20,6 +20,7 @@ import (
 const sendMethodSelect = `
 	SELECT
 		COALESCE(m.send_method, '') AS send_method,
+		COALESCE(m.send_format, '') AS send_format,
 		COUNT(*) AS sent,
 		COUNT(*) FILTER (WHERE ccp.bounced_at IS NULL) AS delivered,
 		COUNT(*) FILTER (WHERE ccp.opened_at IS NOT NULL) AS opened,
@@ -28,7 +29,7 @@ const sendMethodSelect = `
 	FROM campaign_contact_progress ccp
 	JOIN campaigns c ON c.id = ccp.campaign_id
 	LEFT JOIN LATERAL (
-		SELECT ct.send_method
+		SELECT ct.send_method, ct.send_format
 		FROM campaign_tasks ct
 		WHERE ct.campaign_id = ccp.campaign_id
 		  AND ct.contact_id = ccp.contact_id
@@ -40,8 +41,8 @@ const sendMethodSelect = `
 `
 
 const sendMethodGroup = `
-	GROUP BY 1
-	ORDER BY sent DESC, send_method ASC
+	GROUP BY 1, 2
+	ORDER BY sent DESC, send_method ASC, send_format ASC
 `
 
 func (r *analyticsRepository) GetCampaignSendMethodStats(ctx context.Context, campaignID uuid.UUID) ([]models.SendMethodStats, *errx.Error) {
@@ -72,7 +73,7 @@ func scanSendMethodStats(rows pgx.Rows, query string, params []any) ([]models.Se
 	out := make([]models.SendMethodStats, 0, 4)
 	for rows.Next() {
 		var s models.SendMethodStats
-		if err := rows.Scan(&s.SendMethod, &s.Sent, &s.Delivered, &s.Opened, &s.Replied, &s.Bounced); err != nil {
+		if err := rows.Scan(&s.SendMethod, &s.SendFormat, &s.Sent, &s.Delivered, &s.Opened, &s.Replied, &s.Bounced); err != nil {
 			db.CaptureError(err, query, params, "scan")
 			return nil, errx.InternalError()
 		}

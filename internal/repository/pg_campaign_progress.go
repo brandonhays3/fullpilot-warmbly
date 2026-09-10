@@ -109,6 +109,8 @@ type CampaignProgressRepository interface {
 	// EMAIL_SENT calls it, so a delivered email always ends up with the timing
 	// stamp follow-up pacing reads. Returns true when it actually repaired one.
 	StampDispatchedSend(ctx context.Context, campaignID, contactID, sequenceID uuid.UUID) (bool, error)
+	// SetSendFormat records the body format ("text" or "html") the dispatch used.
+	SetSendFormat(ctx context.Context, taskID uuid.UUID, format string) error
 	// ListStuckDispatches returns reservations older than olderThan that no
 	// worker result ever resolved.
 	ListStuckDispatches(ctx context.Context, olderThan time.Duration, limit int) ([]StuckDispatch, error)
@@ -1516,4 +1518,11 @@ func (r *campaignProgressRepository) CountUndeliverableLeads(ctx context.Context
 		}
 	}
 	return n, rows.Err()
+}
+
+// SetSendFormat records whether the send carried an HTML part, so sends can
+// be compared by format as well as by method.
+func (r *campaignProgressRepository) SetSendFormat(ctx context.Context, taskID uuid.UUID, format string) error {
+	_, err := r.db.Exec(ctx, `UPDATE campaign_tasks SET send_format = $2 WHERE id = $1`, taskID, format)
+	return err
 }

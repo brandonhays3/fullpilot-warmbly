@@ -547,11 +547,22 @@ func (s *tasksService) HandleCampaignTask(task *proto.ProcessTask) *errx.Error {
 	// STEP 10.6: A plain-text campaign ships no HTML part at all. Tracking
 	// below only rewrites HTML, so dropping it here is what makes the
 	// setting's "disables tracking" promise true.
+	// The format is an experiment axis alongside the transport: a plain-text
+	// campaign splits its sends between text-only and multipart (the HTML the
+	// editor produced) by SEND_FORMAT_HTML_PERCENT, so the two can be
+	// compared. A campaign that keeps HTML on always sends what was written.
+	sendFormat := SendFormatHTML
+	if bodyHTML == "" {
+		sendFormat = SendFormatText
+	}
 	if campaign.TextOnly {
 		if bodyPlain == "" && bodyHTML != "" {
 			bodyPlain = ExtractPlainTextFromHTML(bodyHTML)
 		}
-		bodyHTML = ""
+		if bodyHTML == "" || !sendFormatKeepsHTML(taskID) {
+			bodyHTML = ""
+			sendFormat = SendFormatText
+		}
 	}
 
 	// STEP 10.7: A hand-placed {{.UnsubscribeLink}} resolved to the bare signed
@@ -688,6 +699,9 @@ func (s *tasksService) HandleCampaignTask(task *proto.ProcessTask) *errx.Error {
 		_ = s.createCampaignTask(ctx, campaign.ID, accountID, nextTime)
 		executionStatus = "completed"
 		return nil
+	}
+	if err := s.campaignProgressRepo.SetSendFormat(ctx, taskID, sendFormat); err != nil {
+		log.Warn().Err(err).Str("task_id", taskID.String()).Msg("campaign: recording send format failed")
 	}
 
 	// STEP 16: Send email to worker via Kafka

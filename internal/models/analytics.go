@@ -76,6 +76,9 @@ type CampaignEngagementBreakdown struct {
 // was recorded.
 type SendMethodStats struct {
 	SendMethod string `json:"send_method"`
+	// SendFormat is "text" (text/plain only) or "html" (multipart); empty
+	// for sends confirmed before formats were recorded.
+	SendFormat string `json:"send_format"`
 	Sent       int    `json:"sent"`
 	Delivered  int    `json:"delivered"`
 	Opened     int    `json:"opened"`
