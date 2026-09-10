@@ -781,8 +781,13 @@ func (s *service) SelectVariant(ctx context.Context, organizationID, campaignID,
 	}
 	// Partition active variants into step-scoped (this step) and campaign-level.
 	var stepVariants, campaignVariants []models.CampaignABVariant
+	// A disabled is_control row means the step's own content gets no traffic.
+	controlDisabled := false
 	for _, v := range variants {
 		if !v.IsActive {
+			if v.IsControl && v.SequenceID != nil && *v.SequenceID == sequenceID {
+				controlDisabled = true
+			}
 			continue
 		}
 		if v.SequenceID != nil {
@@ -803,6 +808,9 @@ func (s *service) SelectVariant(ctx context.Context, organizationID, campaignID,
 		// control arm carries the zero id (or an is_control row, whose content is
 		// ignored); if it wins we send the step's own content.
 		controlWeight := abControlWeight
+		if controlDisabled {
+			controlWeight = 0
+		}
 		arms := make([]models.CampaignABVariant, 0, len(stepVariants))
 		for _, v := range stepVariants {
 			if v.IsControl {

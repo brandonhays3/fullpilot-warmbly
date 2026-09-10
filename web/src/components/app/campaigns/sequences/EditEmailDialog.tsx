@@ -440,10 +440,13 @@ function DialogBody({
                                         a.key === armKey ? (
                                             <div
                                                 key={a.key}
-                                                className={`-mb-px h-9 shrink-0 px-3.5 inline-flex items-center gap-2 border border-slate-200 border-b-white bg-white text-slate-900 ${a.active ? "" : "opacity-60"}`}
+                                                className="-mb-px h-9 shrink-0 px-3.5 inline-flex items-center gap-2 border border-slate-200 border-b-white bg-white text-slate-900"
                                             >
+                                                {!a.active && (
+                                                    <span className="h-5 px-1.5 inline-flex items-center bg-slate-900 text-[10px] font-medium uppercase tracking-[0.1em] text-white">Off</span>
+                                                )}
                                                 {a.isOriginal ? (
-                                                    <span className="text-[12.5px] font-medium">{a.name}</span>
+                                                    <span className={`text-[12.5px] font-medium ${a.active ? "" : "line-through text-slate-400"}`}>{a.name}</span>
                                                 ) : (
                                                     <input
                                                         value={variantName}
@@ -453,7 +456,7 @@ function DialogBody({
                                                             if (e.key === "Enter") e.currentTarget.blur();
                                                         }}
                                                         aria-label="Variant name"
-                                                        className="h-6 min-w-[3ch] bg-transparent text-[12.5px] font-medium text-slate-900 outline-none [field-sizing:content] focus:bg-slate-100"
+                                                        className={`h-6 min-w-[3ch] bg-transparent text-[12.5px] font-medium outline-none [field-sizing:content] focus:bg-slate-100 ${a.active ? "text-slate-900" : "line-through text-slate-400"}`}
                                                     />
                                                 )}
                                                 <input
@@ -468,30 +471,36 @@ function DialogBody({
                                                     className="h-6 min-w-[2ch] bg-transparent text-right text-[11px] tabular-nums text-slate-500 outline-none [field-sizing:content] focus:bg-slate-100 focus:text-slate-900"
                                                 />
                                                 <span className="-ml-2 text-[11px] text-slate-400">%</span>
-                                                {!a.isOriginal && variant && (
-                                                    <>
-                                                        <span className="mx-1 h-4 w-px bg-slate-200" />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => arms.togglePause(variant.id, !variant.is_active)}
-                                                            disabled={arms.busy}
-                                                            aria-label={variant.is_active ? "Disable this variant" : "Enable this variant"}
-                                                            title={variant.is_active ? "Disable: keeps the copy, sends none of the traffic" : "Enable"}
-                                                            className="inline-flex size-6 items-center justify-center text-slate-400 hover:text-slate-900"
-                                                        >
-                                                            {variant.is_active ? <EyeOffIcon className="w-3.5 h-3.5" /> : <EyeIcon className="w-3.5 h-3.5" />}
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => arms.deleteArm(variant.id, () => onArmChange(ORIGINAL_ARM))}
-                                                            disabled={arms.busy}
-                                                            aria-label="Delete this variant"
-                                                            title="Delete this variant"
-                                                            className="inline-flex size-6 items-center justify-center text-slate-400 hover:text-rose-600"
-                                                        >
-                                                            <TrashIcon className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    </>
+                                                <span className="mx-1 h-4 w-px bg-slate-200" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        a.isOriginal
+                                                            ? arms.toggleOriginal(!a.active)
+                                                            : variant && arms.togglePause(variant.id, !variant.is_active)
+                                                    }
+                                                    disabled={arms.busy}
+                                                    aria-label={a.active ? "Disable" : "Enable"}
+                                                    title={a.active ? "Disable: keeps the copy, sends none of the traffic" : "Enable"}
+                                                    className="inline-flex size-6 items-center justify-center text-slate-400 hover:text-slate-900"
+                                                >
+                                                    {a.active ? <EyeOffIcon className="w-3.5 h-3.5" /> : <EyeIcon className="w-3.5 h-3.5" />}
+                                                </button>
+                                                {(!a.isOriginal || arms.variants.length > 0) && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            a.isOriginal
+                                                                ? arms.deleteOriginal(() => onArmChange(ORIGINAL_ARM))
+                                                                : variant && arms.deleteArm(variant.id, () => onArmChange(ORIGINAL_ARM))
+                                                        }
+                                                        disabled={arms.busy}
+                                                        aria-label="Delete"
+                                                        title={a.isOriginal ? "Delete the Original: a variant becomes the step's email" : "Delete this variant"}
+                                                        className="inline-flex size-6 items-center justify-center text-slate-400 hover:text-rose-600"
+                                                    >
+                                                        <TrashIcon className="w-3.5 h-3.5" />
+                                                    </button>
                                                 )}
                                             </div>
                                         ) : (
@@ -499,11 +508,13 @@ function DialogBody({
                                                 key={a.key}
                                                 type="button"
                                                 onClick={() => void switchArm(a.key)}
-                                                className={`h-9 shrink-0 px-3.5 inline-flex items-center gap-2 border border-transparent bg-slate-50 text-[12.5px] text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 ${a.active ? "" : "opacity-60"}`}
+                                                className="h-9 shrink-0 px-3.5 inline-flex items-center gap-2 border border-transparent bg-slate-50 text-[12.5px] text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
                                             >
-                                                {a.name}
+                                                {!a.active && (
+                                                    <span className="h-5 px-1.5 inline-flex items-center bg-slate-300 text-[10px] font-medium uppercase tracking-[0.1em] text-white">Off</span>
+                                                )}
+                                                <span className={a.active ? "" : "line-through text-slate-400"}>{a.name}</span>
                                                 <span className="tabular-nums text-[11px] text-slate-400">{arms.shareOf(a.active ? a.weight : 0)}%</span>
-                                                {!a.active && <span className="text-[10px]">off</span>}
                                             </button>
                                         ),
                                     )}

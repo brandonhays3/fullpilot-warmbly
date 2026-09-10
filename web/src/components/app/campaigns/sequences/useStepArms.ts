@@ -18,6 +18,7 @@ import {
     useUpdateABVariant,
     useDeleteABVariant,
 } from "@/lib/api/hooks/app/campaigns/useCampaignABVariants";
+import useUpdateSequence from "@/lib/api/hooks/app/campaigns/sequences/useUpdateSequence";
 import { useConfirm } from "@/hooks/context/confirm";
 import type { AppError } from "@/lib/api/client/normalizeError";
 import buildError from "@/lib/helper/buildError";
@@ -47,6 +48,8 @@ export interface StepArms {
     commitWeights: (next: Record<string, number>) => void;
     evenSplit: () => void;
     togglePause: (variantId: string, active: boolean) => void;
+    toggleOriginal: (active: boolean) => void;
+    deleteOriginal: (after?: () => void) => void;
     deleteArm: (variantId: string, after?: () => void) => void;
     // Resolves to the new variant's id, or null when creation failed.
     addVariant: () => Promise<string | null>;
@@ -62,6 +65,7 @@ export default function useStepArms(campaignId: string, sequence: Sequence): Ste
     const create = useCreateABVariant(campaignId);
     const update = useUpdateABVariant(campaignId);
     const del = useDeleteABVariant(campaignId);
+    const updateSequence = useUpdateSequence(campaignId, sequence.id);
     const confirm = useConfirm();
     const busy = create.isPending || update.isPending || del.isPending;
 
@@ -75,7 +79,7 @@ export default function useStepArms(campaignId: string, sequence: Sequence): Ste
 
     const originalWeight = controlRow ? controlRow.weight : CONTROL_WEIGHT;
     const arms: SplitArm[] = [
-        { key: ORIGINAL_ARM, name: "Original", weight: originalWeight, active: true, isOriginal: true },
+        { key: ORIGINAL_ARM, name: "Original", weight: originalWeight, active: controlRow ? controlRow.is_active : true, isOriginal: true },
         ...variants.map((v, i) => ({
             key: v.id,
             name: variantLabel(v, i),
@@ -133,7 +137,61 @@ export default function useStepArms(campaignId: string, sequence: Sequence): Ste
     };
 
     const togglePause = (variantId: string, active: boolean) => {
-        update.mutate({ variantId, input: { is_active: active } }, { onError: err });
+        const v = variants.find((x) => x.id === variantId);
+        const label = v ? v.name : "this variant";
+        confirm.show(
+            active
+                ? `Enable "${label}"? It gets its share of traffic again.`
+                : `Disable "${label}"? Its copy stays, but it sends none of the traffic until enabled.`,
+            async () => {
+                await update.mutateAsync({ variantId, input: { is_active: active } });
+            },
+        );
+    };
+
+    // The Original is the step's own content. Its is_control row carries the
+    // share and the on/off state; it is created on demand.
+    const toggleOriginal = (active: boolean) => {
+        confirm.show(
+            active
+                ? "Enable the Original? It gets its share of traffic again."
+                : "Disable the Original? The step's own copy stays, but only the variants send until it is enabled.",
+            async () => {
+                if (controlRow) {
+                    await update.mutateAsync({ variantId: controlRow.id, input: { is_active: active } });
+                } else {
+                    await create.mutateAsync({
+                        name: "Original",
+                        step_id: sequence.id,
+                        weight: CONTROL_WEIGHT,
+                        is_control: true,
+                        is_active: active,
+                    });
+                }
+            },
+        );
+    };
+
+    // Deleting the Original promotes a variant: its copy becomes the step's own
+    // content and the variant row goes away.
+    const deleteOriginal = (after?: () => void) => {
+        const promoted = variants.find((v) => v.is_active) ?? variants[0];
+        if (!promoted) return;
+        confirm.show(
+            `Delete the Original? "${promoted.name}" becomes the step's email and the Original's copy is removed.`,
+            async () => {
+                await updateSequence.mutateAsync({ subject: promoted.subject, body_html: promoted.body_html });
+                await del.mutateAsync(promoted.id);
+                if (variants.length === 1 && controlRow) {
+                    try {
+                        await del.mutateAsync(controlRow.id);
+                    } catch {
+                        /* harmless */
+                    }
+                }
+                after?.();
+            },
+        );
     };
 
     const deleteArm = (variantId: string, after?: () => void) => {
@@ -185,6 +243,8 @@ export default function useStepArms(campaignId: string, sequence: Sequence): Ste
         commitWeights,
         evenSplit,
         togglePause,
+        toggleOriginal,
+        deleteOriginal,
         deleteArm,
         addVariant,
         shareOf,
