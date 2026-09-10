@@ -29,7 +29,6 @@ import { CreditsMeter } from "./CreditsMeter";
 const labelMap: Record<string, string> = {
     ai: "AI",
     "ai-skills": "AI skills",
-    unibox: "Inbox",
     app: "Home",
     emails: "Accounts",
     unibox: "Inbox",
