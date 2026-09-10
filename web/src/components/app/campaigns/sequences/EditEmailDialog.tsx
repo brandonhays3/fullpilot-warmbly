@@ -504,22 +504,6 @@ function DialogBody({
                                                 >
                                                     {a.active ? <EyeOffIcon className="w-3.5 h-3.5" /> : <EyeIcon className="w-3.5 h-3.5" />}
                                                 </button>
-                                                {(!a.isOriginal || arms.variants.length > 0) && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            a.isOriginal
-                                                                ? arms.deleteOriginal(() => onArmChange(ORIGINAL_ARM))
-                                                                : variant && arms.deleteArm(variant.id, () => onArmChange(ORIGINAL_ARM))
-                                                        }
-                                                        disabled={arms.busy}
-                                                        aria-label="Delete"
-                                                        title={a.isOriginal ? "Delete the Original: a variant becomes the step's email" : "Delete this variant"}
-                                                        className="inline-flex size-6 items-center justify-center text-slate-400 hover:text-rose-600"
-                                                    >
-                                                        <TrashIcon className="w-3.5 h-3.5" />
-                                                    </button>
-                                                )}
                                             </div>
                                         ) : (
                                             <button
@@ -565,6 +549,23 @@ function DialogBody({
                                         A/B test
                                     </button>
                                 )}
+                            </div>
+                        )}
+                        {arms.variants.length > 0 && (
+                            <div className="flex justify-end px-4 pt-3 -mb-2">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        armKey === ORIGINAL_ARM
+                                            ? arms.deleteOriginal(() => onArmChange(ORIGINAL_ARM))
+                                            : variant && arms.deleteArm(variant.id, () => onArmChange(ORIGINAL_ARM))
+                                    }
+                                    disabled={arms.busy}
+                                    className="inline-flex items-center gap-1.5 text-[11.5px] text-slate-400 hover:text-rose-600"
+                                >
+                                    <TrashIcon className="w-3.5 h-3.5" />
+                                    Delete {arms.arms.find((a) => a.key === armKey)?.name ?? "this version"}
+                                </button>
                             </div>
                         )}
                         <div className="space-y-4 p-4">
