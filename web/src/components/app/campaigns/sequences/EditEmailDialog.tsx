@@ -414,21 +414,21 @@ function DialogBody({
                         {arms.variants.length > 0 ? (
                             <div className="shrink-0 border-b border-slate-200">
                                 {/* Neutral arm tabs: name and share, selected is dark. */}
-                                <div className="flex items-center gap-2 px-3 py-2">
-                                    <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:thin]">
+                                <div className="flex items-stretch gap-2 px-3">
+                                    <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                                     {arms.arms.map((a) => (
                                         <button
                                             key={a.key}
                                             type="button"
                                             onClick={() => void switchArm(a.key)}
-                                            className={`h-7 shrink-0 px-2.5 inline-flex items-center gap-2 text-[12px] font-medium transition-colors ${
+                                            className={`relative h-10 shrink-0 px-3 inline-flex items-center gap-2 text-[12.5px] transition-colors ${
                                                 a.key === armKey
-                                                    ? "bg-slate-900 text-white"
-                                                    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                                                    ? "text-slate-900 font-medium after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-sky-600"
+                                                    : "text-slate-500 hover:text-slate-900"
                                             } ${a.active ? "" : "opacity-60"}`}
                                         >
                                             {a.name}
-                                            <span className={`tabular-nums ${a.key === armKey ? "text-white/70" : "text-slate-400"}`}>
+                                            <span className={`tabular-nums text-[11px] ${a.key === armKey ? "text-slate-500" : "text-slate-400"}`}>
                                                 {arms.shareOf(a.active ? a.weight : 0)}%
                                             </span>
                                             {!a.active && <span className="text-[10px]">paused</span>}
@@ -440,7 +440,7 @@ function DialogBody({
                                         onClick={arms.evenSplit}
                                         disabled={arms.busy}
                                         title="Split traffic evenly"
-                                        className="h-7 shrink-0 px-2.5 inline-flex items-center text-[12px] font-medium text-slate-600 hover:text-slate-900"
+                                        className="self-center h-7 shrink-0 px-2.5 inline-flex items-center text-[12px] font-medium text-slate-600 hover:text-slate-900"
                                     >
                                         Even split
                                     </button>
@@ -449,7 +449,7 @@ function DialogBody({
                                             type="button"
                                             onClick={() => void addVariant()}
                                             disabled={arms.adding}
-                                            className="h-7 shrink-0 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-700 hover:bg-slate-50"
+                                            className="self-center h-7 shrink-0 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-700 hover:bg-slate-50"
                                         >
                                             {arms.adding ? <Loader2Icon className="w-3.5 h-3.5 animate-spin" /> : <PlusIcon className="w-3.5 h-3.5" />}
                                             Variant
