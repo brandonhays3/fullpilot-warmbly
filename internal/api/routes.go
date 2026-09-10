@@ -557,6 +557,23 @@ func Run(
 				generation.POST("/ai-variable", m.RequireOrganization(), m.RequireAccess(models.PermManageCampaigns, models.APIPermWriteCampaigns), m.RequireAccess(models.PermUseAI, models.APIPermWriteCampaigns), h.GenerateAIVariable)
 			}
 
+			// Workspace AI settings: the OpenRouter key every user-facing
+			// generation call runs on, and the default model. manage_settings
+			// for members, the AI_AGENT scope for API keys. PUT and DELETE are
+			// naturally retry-safe (same key, same outcome).
+			aiSettings := protected.Group("/organization/current/ai")
+			aiSettings.Use(m.RequireOrganization(), m.RateLimitMiddleware(models.RateLimitWrite))
+			{
+				// Readable by anyone who may use AI: the editor asks whether a
+				// key exists before it lets an AI block in. The key itself is
+				// never returned, only its last four characters.
+				aiSettings.GET("", m.RequireAccess(models.PermUseAI, models.APIPermAIAgent), h.GetAISettings)
+				aiSettings.PUT("", m.RequireAccess(models.PermManageSettings, models.APIPermAIAgent), h.UpdateAISettings)
+				aiSettings.DELETE("", m.RequireAccess(models.PermManageSettings, models.APIPermAIAgent), h.DeleteAISettings)
+				// Every model the workspace key can route to, with pricing.
+				aiSettings.GET("/models", m.RequireAccess(models.PermUseAI, models.APIPermAIAgent), h.ListAIModels)
+			}
+
 			// AI skills (org playbooks). CRUD gated on manage_settings (JWT) or
 			// the AI_AGENT scope (API key); every mutation audits (ai_skill).
 			skillsGroup := protected.Group("/ai/skills")

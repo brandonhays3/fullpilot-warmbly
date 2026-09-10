@@ -1,0 +1,33 @@
+---
+title: AI settings
+description: Bring your own OpenRouter key so every AI feature your workspace uses is billed to you directly, and pick the default model your AI blocks run on.
+---
+
+Every AI feature you use from the dashboard runs on your workspace's own OpenRouter key: [AI variables](/guides/ai-variables/) in campaign copy, the writing assistant, and reply and compose drafts. OpenRouter bills your workspace directly for what those calls use. Nothing you generate this way spends Fullpilot credits.
+
+The settings live under **Settings, AI** and need the **Manage settings** permission.
+
+## Adding your key
+
+1. Create or copy a key at [openrouter.ai/keys](https://openrouter.ai/keys).
+2. Paste it under **Settings, AI** and save.
+
+The key is checked against OpenRouter as you save it, so a typo is caught immediately, and it is stored encrypted with your workspace's own data key. After that the page shows only its last four characters: use **Replace** to rotate it and **Remove** to take it out.
+
+Removing the key turns AI features off for the workspace. Anything that needs the key answers with a link back to this page, and a running campaign that reaches an AI block pauses until a key is saved again.
+
+## Default model
+
+Once a key is saved, the page lists every model your key can route to on OpenRouter, with its prompt and completion price per million tokens, searchable by id or name. The one you pick is the workspace default: AI blocks and the writing assistant use it unless an individual AI block chooses a model of its own. Leaving it unset uses a small, inexpensive general model.
+
+## What needs the key
+
+- **AI blocks in campaigns.** An AI block is written for each recipient at send time with this key. A campaign whose copy (including any A/B arm) carries an AI block cannot be started without a key: the launch is refused with a link here. A campaign that is already running when the key is removed, or when OpenRouter refuses it, pauses with the reason in its activity feed and the status **needs AI key**. Saving a working key resumes those campaigns on their own.
+- **Test sends.** Sending a step to yourself renders its AI blocks with the key, so the test shows real output. Without a key the test is refused the same way a start is.
+- **The writing assistant, reply drafts and compose drafts** answer with the same link when there is no key.
+
+Reply classification (interested, not interested, out of office and so on) and the platform-side features keep running on the instance's own model and never use your key.
+
+## Moving a workspace
+
+The key does not travel in a [workspace archive](/guides/workspace-export-import/). It is a billing credential for a third-party service, so it stays out of a file that may be handed around; paste it again on the destination.

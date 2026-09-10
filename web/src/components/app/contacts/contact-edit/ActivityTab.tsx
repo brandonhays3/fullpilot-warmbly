@@ -587,6 +587,8 @@ function campaignStatusLabel(status: string): string {
             return "auto-paused";
         case "paused_undeliverable":
             return "paused, needs verification";
+        case "paused_ai_key":
+            return "paused, needs an AI key";
         case "paused_no_accounts":
             return "paused, no accounts";
         case "paused_trial_expired":

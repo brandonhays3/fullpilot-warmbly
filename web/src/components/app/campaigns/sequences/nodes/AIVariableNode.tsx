@@ -22,6 +22,9 @@ import toast from "react-hot-toast";
 import type { AppError } from "@/lib/api/client/normalizeError";
 import buildError from "@/lib/helper/buildError";
 import useGenerateAIVariable from "@/lib/api/hooks/app/generation/useGenerateAIVariable";
+import { useAIModels, useAISettings } from "@/lib/api/hooks/app/organizations/useAISettings";
+import { AI_KEY_MISSING, AI_KEY_REJECTED, AI_SETTINGS_PATH } from "@/lib/api/models/app/organizations/AISettings";
+import ModelPicker from "@/components/app/ai/ModelPicker";
 import useTypewriter from "@/components/app/ai/useTypewriter";
 import formatUsage from "@/components/app/ai/usage";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -206,6 +209,10 @@ function AIVariableConfigBody({
 }) {
     const gen = useGenerateAIVariable();
     const typewriter = useTypewriter();
+    // The workspace key + default model, and the catalog the block may pick
+    // its own model from (only fetchable once a key is set).
+    const aiSettings = useAISettings();
+    const models = useAIModels(!!aiSettings.data?.has_key);
 
     const [draft, setDraft] = React.useState<AIVariableConfig>(config);
     const [preview, setPreview] = React.useState<string>("");
@@ -242,6 +249,7 @@ function AIVariableConfigBody({
                 web_search: draft.web_search,
                 context_before: ctx.before,
                 context_after: ctx.after,
+                model: draft.model || undefined,
             },
             {
                 onSuccess: (res) => {
@@ -250,7 +258,19 @@ function AIVariableConfigBody({
                 },
                 onError: (e) => {
                     const err = e as unknown as AppError;
-                    if (err?.status === 402) {
+                    if (err?.code === AI_KEY_MISSING || err?.code === AI_KEY_REJECTED) {
+                        // A plain anchor: the toaster mounts outside the router.
+                        toast.error(
+                            <span>
+                                {err.code === AI_KEY_MISSING
+                                    ? "AI blocks need your workspace's OpenRouter key. "
+                                    : "OpenRouter rejected the workspace key. "}
+                                <a href={AI_SETTINGS_PATH} className="underline underline-offset-2">
+                                    Open Settings, AI
+                                </a>
+                            </span>,
+                        );
+                    } else if (err?.status === 402) {
                         toast.error("You're out of AI credits. Upgrade or purchase more to preview AI blocks.");
                     } else {
                         toast.error(buildError(err));
@@ -302,7 +322,23 @@ function AIVariableConfigBody({
                         })}
                     </div>
 
-                    {/* the ONE add-on — a switch (globe left, switch on the right) */}
+                    {/* model: the workspace default unless this block picks its own */}
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span className="mr-1 text-[11px] text-slate-500">Model</span>
+                        <div className="min-w-0 flex-1">
+                            <ModelPicker
+                                value={draft.model ?? ""}
+                                onChange={(m) => patch({ model: m })}
+                                models={models.data ?? []}
+                                loading={models.isPending && !!aiSettings.data?.has_key}
+                                disabled={aiSettings.isSuccess && !aiSettings.data.has_key}
+                                defaultLabel={aiSettings.data?.model ?? "workspace default"}
+                                fullWidth
+                            />
+                        </div>
+                    </div>
+
+                    {/* the ONE add-on: a switch (globe left, switch on the right) */}
                     <button
                         type="button"
                         role="switch"
@@ -332,10 +368,10 @@ function AIVariableConfigBody({
                         </span>
                     </button>
 
-                    {/* cost — honest: it's metered by usage, not a flat number */}
+                    {/* cost: OpenRouter bills the workspace key by usage, not credits */}
                     <p className="text-[11px] leading-snug text-slate-400">
-                        Billed by usage — the tokens each snippet uses{draft.web_search ? ", plus the web search" : ""}.
-                        Preview to see a real example.
+                        Runs on your workspace's OpenRouter key. OpenRouter bills the tokens each snippet uses
+                        {draft.web_search ? ", plus the web search" : ""}. Preview to see a real example.
                     </p>
                 </div>
 

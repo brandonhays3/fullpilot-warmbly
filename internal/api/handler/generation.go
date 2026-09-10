@@ -86,26 +86,24 @@ func (h *Handler) GenerateWriting(c *gin.Context) {
 		return
 	}
 
-	// Provider must be configured.
-	if h.WritingGenerator == nil {
+	// The workspace's own OpenRouter key and default model, never the
+	// platform's.
+	ai, ok := h.orgAI(c, *orgID)
+	if !ok {
+		return
+	}
+	writer := ai.Writing
+	if writer == nil {
 		errx.JSON(c, errx.New(errx.ServiceUnavailable, "AI writing assistant is not configured."))
 		return
 	}
-
-	// Model routing by tier. Paid orgs get the stronger model; the active
-	// provider (Anthropic or OpenAI fallback) decides the concrete model ID.
-	paid, xerr := h.FeatureGateService.IsPaidOrganization(c.Request.Context(), *orgID)
-	if xerr != nil {
-		errx.JSON(c, xerr)
-		return
-	}
-	model := h.WritingGenerator.ModelForTier(paid)
+	model := ai.Model
 
 	// Consume one credit up front, unless this is a free/local model, which runs
 	// un-metered (AI_FREE). On the metered path the DB enforces the
 	// no-negative / no-replay invariants and returns 402 on a depleted balance.
 	idemKey := strings.TrimSpace(c.GetHeader("Idempotency-Key"))
-	local := h.WritingGenerator.IsLocal()
+	local := writer.IsLocal()
 	// Attribute the charge to the teammate who asked for the draft.
 	reqCtx := c.Request.Context()
 	if actor, aerr := middleware.GetUserUUID(c); aerr == nil {
@@ -141,7 +139,7 @@ func (h *Handler) GenerateWriting(c *gin.Context) {
 	// free/local path). The refund is best-effort; a failed refund is logged via
 	// the audit trail rather than surfaced.
 	voice := h.orgVoice(c.Request.Context(), *orgID, req.Tone)
-	result, gerr := h.WritingGenerator.GenerateWriting(c.Request.Context(), model, req.Prompt, voice)
+	result, gerr := writer.GenerateWriting(c.Request.Context(), model, req.Prompt, voice)
 	if gerr != nil {
 		if !local {
 			if bal, rerr := h.CreditService.Grant(reqCtx, *orgID, creditsPerWrite, "writing_assistant_refund"); rerr == nil {
@@ -152,7 +150,7 @@ func (h *Handler) GenerateWriting(c *gin.Context) {
 			errx.JSON(c, errx.New(errx.ServiceUnavailable, "AI writing assistant is not configured."))
 			return
 		}
-		errx.JSON(c, errx.New(errx.ServiceUnavailable, "The writing assistant is temporarily unavailable. Your credit was not charged."))
+		aiGenerationError(c, gerr, "The writing assistant is temporarily unavailable. Your credit was not charged.")
 		return
 	}
 

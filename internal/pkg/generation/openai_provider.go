@@ -282,6 +282,9 @@ func (p *openAIProvider) complete(ctx context.Context, model string, maxTokens i
 			if resp.StatusCode == http.StatusBadRequest && attempt < 2 && p.adaptParams(parsed.Error) {
 				continue
 			}
+			if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+				return nil, fmt.Errorf("%w (status %d)", ErrProviderAuth, resp.StatusCode)
+			}
 			if parsed.Error != nil {
 				return nil, fmt.Errorf("openai: %s: %s", parsed.Error.Type, parsed.Error.Message)
 			}
@@ -345,6 +348,9 @@ func (p *openAIProvider) completeStream(ctx context.Context, model string, maxTo
 			_ = json.Unmarshal(raw, &parsed)
 			if resp.StatusCode == http.StatusBadRequest && attempt < 3 && p.adaptParams(parsed.Error) {
 				continue
+			}
+			if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+				return nil, fmt.Errorf("%w (status %d)", ErrProviderAuth, resp.StatusCode)
 			}
 			if parsed.Error != nil {
 				return nil, fmt.Errorf("openai: %s: %s", parsed.Error.Type, parsed.Error.Message)

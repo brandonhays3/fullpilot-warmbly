@@ -203,6 +203,15 @@ var ErrApprovalRequired = errors.New("tool approval required")
 // nor an Anthropic key is configured.
 var ErrProviderNotConfigured = errors.New("no LLM provider configured: set AI_PROVIDER and AI_API_KEY")
 
+// ErrProviderAuth is returned when the LLM endpoint refuses the API key (401 or
+// 403). Callers treat it as a configuration problem to surface, not a transient
+// failure to retry: the same key will be refused again.
+var ErrProviderAuth = errors.New("the AI provider rejected the API key")
+
+// OpenRouterBaseURL is the OpenAI-compatible endpoint a workspace's own
+// OpenRouter key is used against.
+const OpenRouterBaseURL = "https://openrouter.ai/api/v1"
+
 // Default agent-loop bounds, applied when a request leaves them zero.
 const (
 	defaultMaxIterations = 12

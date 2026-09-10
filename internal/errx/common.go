@@ -163,6 +163,21 @@ var (
 	ErrEmailWorkerUnreachable = NewWithIdentifier(ServiceUnavailable, "mailbox_worker_unreachable",
 		"This mailbox could not be disconnected right now because the machine syncing it could not be reached. Nothing was removed, so try again in a moment.")
 
+	// Workspace AI key. Generation runs on the workspace's own OpenRouter key;
+	// without one every user-facing AI call, and any campaign carrying an AI
+	// block, is refused with a code the dashboard turns into a link to
+	// Settings > AI.
+	ErrAIKeyMissing = NewWithIdentifier(Conflict, "ai_key_missing",
+		"AI features need your workspace's OpenRouter key. Add one under Settings > AI.")
+	ErrCampaignAIKeyMissing = NewWithIdentifier(Conflict, "campaign_ai_key_missing",
+		"This campaign has AI blocks, and the workspace has no OpenRouter key. Add one under Settings > AI before starting it.")
+	ErrAIKeyInvalid = NewWithIdentifier(BadRequest, "ai_key_invalid",
+		"OpenRouter rejected this key. Check it at openrouter.ai/keys and try again.")
+	ErrAIModelInvalid = NewWithIdentifier(BadRequest, "ai_model_invalid",
+		"That model id is not valid. Pick one from the list.")
+	ErrAIProviderRejected = NewWithIdentifier(Conflict, "ai_key_rejected",
+		"OpenRouter rejected the workspace key. Replace it under Settings > AI.")
+
 	// Campaign
 	ErrCampaignName        = New(BadRequest, "Campaign name length must be between 3 and 50 characters.")
 	ErrCampaignDescription = New(BadRequest, "Campaign description length must be below 300 characters.")

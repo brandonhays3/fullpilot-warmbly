@@ -17,6 +17,9 @@ export interface AIVariableConfig {
     prompt: string; // a Go-template string, rendered per contact before the model call
     tone: string; // one of WRITE_TONES values ("" = model default)
     web_search: boolean; // allow one bounded web lookup (instant mode)
+    // OpenRouter model id this block runs on; "" (or absent) = the workspace
+    // default chosen under Settings > AI.
+    model?: string;
 }
 
 export const DEFAULT_AI_CONFIG: AIVariableConfig = {
@@ -25,6 +28,7 @@ export const DEFAULT_AI_CONFIG: AIVariableConfig = {
     prompt: "",
     tone: "",
     web_search: false,
+    model: "",
 };
 
 // aiToken is the plain-text marker the resolver substitutes per recipient.

@@ -2,12 +2,15 @@ package tasks
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/warmbly/warmbly/internal/app/aisettings"
 	"github.com/warmbly/warmbly/internal/errx"
 	"github.com/warmbly/warmbly/internal/models"
+	"github.com/warmbly/warmbly/internal/pkg/generation"
 )
 
 // GetCampaignSequences returns the sequences for a campaign ordered by position
@@ -51,6 +54,23 @@ func (s *tasksService) SendTestEmail(ctx context.Context, orgID uuid.UUID, accou
 		renderFor = *contact
 	}
 
+	// A step with AI blocks needs the workspace key before anything is
+	// rendered: the same gate that refuses a campaign start, so a test never
+	// ships raw [[ai:...]] tokens or fails halfway.
+	hasAI := HasAIVariables(sequence.BodyHTML)
+	if hasAI {
+		if s.aiSettings == nil {
+			return errx.ErrCampaignAIKeyMissing
+		}
+		hasKey, kerr := s.aiSettings.HasKey(ctx, orgID)
+		if kerr != nil {
+			return errx.InternalError()
+		}
+		if !hasKey {
+			return errx.ErrCampaignAIKeyMissing
+		}
+	}
+
 	// A test send carries the real opt-out footer so the sender sees exactly
 	// what a recipient will, but its link names no contact (uuid.Nil), so
 	// clicking it can never suppress anyone.
@@ -61,8 +81,24 @@ func (s *tasksService) SendTestEmail(ctx context.Context, orgID uuid.UUID, accou
 	}
 
 	rendered := previewTemplatesExtra(sequence.Subject, sequence.BodyHTML, sequence.BodyPlain, renderFor, s.sendExtra(ctx, orgID, account, unsubscribeURL))
-	bodyHTML, bodyPlain := finishBody(rendered.BodyHTML, rendered.BodyPlain, campaign.TextOnly, account, &optOut, unsubscribeURL)
-	subject := "[TEST] " + rendered.Subject
+	renderedSubject, renderedHTML, renderedPlain := rendered.Subject, rendered.BodyHTML, rendered.BodyPlain
+	if hasAI {
+		// Written fresh for the tester's contact, exactly as a send would, so
+		// the test shows real AI output rather than the block's token.
+		var aerr error
+		renderedSubject, renderedHTML, renderedPlain, aerr = s.ResolveAIVariablesForTest(ctx, orgID, &renderFor, renderedSubject, renderedHTML, renderedPlain)
+		if aerr != nil {
+			switch {
+			case errors.Is(aerr, aisettings.ErrKeyMissing):
+				return errx.ErrCampaignAIKeyMissing
+			case errors.Is(aerr, generation.ErrProviderAuth):
+				return errx.ErrAIProviderRejected
+			}
+			return errx.New(errx.ServiceUnavailable, fmt.Sprintf("could not write the AI blocks for this test: %v", aerr))
+		}
+	}
+	bodyHTML, bodyPlain := finishBody(renderedHTML, renderedPlain, campaign.TextOnly, account, &optOut, unsubscribeURL)
+	subject := "[TEST] " + renderedSubject
 
 	// Never a List-Unsubscribe header, on a test send as on a real one.
 	headerURL := ""

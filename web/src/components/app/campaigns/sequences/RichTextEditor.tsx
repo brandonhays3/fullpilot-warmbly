@@ -40,6 +40,8 @@ import useClickOutside from "@/hooks/useClickOutside";
 import { useAnchoredFloating } from "@/hooks/useAnchoredFloating";
 import RichTextAIEdit from "@/components/app/ai/RichTextAIEdit";
 import RichTextAICaret from "@/components/app/ai/RichTextAICaret";
+import AIKeyMissingDialog from "@/components/app/ai/AIKeyMissingDialog";
+import { useAISettings } from "@/lib/api/hooks/app/organizations/useAISettings";
 import { useForms } from "@/lib/api/hooks/app/forms";
 import { VariableNode } from "./nodes/VariableNode";
 import { AIVariableNode } from "./nodes/AIVariableNode";
@@ -185,6 +187,17 @@ export default function RichTextEditor({
 function Toolbar({ editor, variables, links = [] }: { editor: Editor; variables: string[]; links?: string[] }) {
     const [linkOpen, setLinkOpen] = React.useState(false);
     const [linkUrl, setLinkUrl] = React.useState("");
+    // An AI block needs the workspace's OpenRouter key at send time, so the
+    // editor refuses to insert one without it and points at Settings > AI.
+    const aiSettings = useAISettings();
+    const [aiKeyDialog, setAiKeyDialog] = React.useState(false);
+    const insertAIBlock = () => {
+        if (aiSettings.data && !aiSettings.data.has_key) {
+            setAiKeyDialog(true);
+            return;
+        }
+        editor.chain().focus().insertAIVariable().run();
+    };
 
     const applyLink = () => {
         const url = linkUrl.trim();
@@ -244,13 +257,14 @@ function Toolbar({ editor, variables, links = [] }: { editor: Editor; variables:
             <button
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => editor.chain().focus().insertAIVariable().run()}
-                title="Insert an AI block — writes unique copy for each recipient"
+                onClick={insertAIBlock}
+                title="Insert an AI block: writes unique copy for each recipient"
                 className="h-7 px-1.5 inline-flex items-center gap-1 rounded text-sky-600 transition-colors hover:bg-sky-50 hover:text-sky-700"
             >
                 <SparklesIcon className="w-3.5 h-3.5" />
                 <span className="text-[11.5px] font-medium">AI</span>
             </button>
+            <AIKeyMissingDialog open={aiKeyDialog} onClose={() => setAiKeyDialog(false)} />
             <Btn
                 onClick={() => editor.chain().focus().insertConditional().run()}
                 title="Insert a condition — show text only when a field matches"

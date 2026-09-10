@@ -931,13 +931,13 @@ func (r *campaignRepository) Update(ctx context.Context, userID, campaignID stri
 	}
 	if data.Status != nil {
 		// Valid statuses: draft, active, paused, completed, paused_trial_expired,
-		// paused_no_accounts, paused_guardrail, paused_undeliverable
+		// paused_no_accounts, paused_guardrail, paused_undeliverable, paused_ai_key
 		status := *data.Status
 		validStatuses := map[string]bool{
 			"draft": true, "active": true, "paused": true,
 			"completed": true, "paused_trial_expired": true,
 			"paused_no_accounts": true, "paused_guardrail": true,
-			"paused_undeliverable": true,
+			"paused_undeliverable": true, "paused_ai_key": true,
 		}
 		if !validStatuses[status] {
 			return nil, errx.ErrInvalid
@@ -1497,12 +1497,15 @@ func (r *campaignRepository) GetSequencesRoutingByCampaignID(ctx context.Context
 // Key is the current status, values are the statuses it can transition to.
 var validCampaignTransitions = map[string]map[string]bool{
 	"draft":              {"active": true},
-	"active":             {"paused": true, "completed": true, "paused_no_accounts": true, "paused_trial_expired": true, "paused_guardrail": true, "paused_undeliverable": true},
+	"active":             {"paused": true, "completed": true, "paused_no_accounts": true, "paused_trial_expired": true, "paused_guardrail": true, "paused_undeliverable": true, "paused_ai_key": true},
 	"paused":             {"active": true, "draft": true},
 	"paused_no_accounts": {"active": true, "paused": true},
 	// Parked because verification refused every remaining lead; resumes once
 	// they are re-verified or marked deliverable.
 	"paused_undeliverable": {"active": true, "paused": true},
+	// Parked because an AI block has no workspace OpenRouter key (or the key
+	// was refused); resumes once a key is saved under Settings > AI.
+	"paused_ai_key":        {"active": true, "paused": true},
 	"paused_trial_expired": {"active": true, "paused": true},
 	// An auto-pause is resumable, but only deliberately: the owner has to
 	// restart the campaign (or park it) after looking at why it tripped.

@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/warmbly/warmbly/internal/app/advanced"
+	"github.com/warmbly/warmbly/internal/app/aisettings"
 	"github.com/warmbly/warmbly/internal/app/cipher"
 	"github.com/warmbly/warmbly/internal/app/credits"
 	"github.com/warmbly/warmbly/internal/app/feature"
@@ -77,6 +78,9 @@ type TasksService interface {
 	// a bounded web-research agent at send time (nil = research degrades to a
 	// single completion with one optional web search).
 	SetAITools(src AIToolSource)
+	// SetAISettings wires the workspace AI key resolver. Without it every AI
+	// block is refused and its campaign parks at paused_ai_key.
+	SetAISettings(svc aisettings.Service)
 
 	// SetDomainAuthPolicy wires the sending-domain authentication gate, which
 	// stops warmup sends from a domain that has been failing SPF/DMARC past
@@ -162,6 +166,9 @@ type tasksService struct {
 	// aiTools sources the web tools research-mode AI variables run a bounded
 	// agent over (SetAITools). Nil = research degrades.
 	aiTools AIToolSource
+	// aiSettings resolves the workspace's own OpenRouter key and model for
+	// per-recipient AI blocks (SetAISettings). Nil = every AI block is refused.
+	aiSettings aisettings.Service
 
 	// warmupSettings caches the warmup generation settings in-process so the
 	// per-send AI-vs-static decision doesn't hit Postgres on every warmup.
@@ -263,6 +270,11 @@ func (s *tasksService) SetAISearch(sc generation.SearchClient) {
 
 func (s *tasksService) SetAITools(src AIToolSource) {
 	s.aiTools = src
+}
+
+// SetAISettings wires the workspace AI key resolver AI blocks generate through.
+func (s *tasksService) SetAISettings(svc aisettings.Service) {
+	s.aiSettings = svc
 }
 
 // SetDomainAuthPolicy wires the sending-domain authentication gate.

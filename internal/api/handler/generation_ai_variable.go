@@ -44,6 +44,9 @@ type generationAIVariableRequest struct {
 	// sentence it lands in (matches the send path). Optional.
 	ContextBefore string `json:"context_before"`
 	ContextAfter  string `json:"context_after"`
+	// Model pins the OpenRouter model for this block; empty means the
+	// workspace default from Settings > AI.
+	Model string `json:"model"`
 }
 
 // GenerateAIVariable — POST /generation/ai-variable
@@ -79,8 +82,9 @@ func (h *Handler) GenerateAIVariable(c *gin.Context) {
 		errx.JSON(c, errx.New(errx.Forbidden, "AI variables require an active plan or trial."))
 		return
 	}
-	if h.AIProvider == nil {
-		errx.JSON(c, errx.New(errx.ServiceUnavailable, "AI generation is not configured."))
+	// The workspace's own OpenRouter key, never the platform's.
+	ai, ok := h.orgAI(c, *orgID)
+	if !ok {
 		return
 	}
 
@@ -133,15 +137,14 @@ func (h *Handler) GenerateAIVariable(c *gin.Context) {
 		cost = credits.CostResearchRun
 	}
 
-	paid, xerr := h.FeatureGateService.IsPaidOrganization(c.Request.Context(), *orgID)
-	if xerr != nil {
-		errx.JSON(c, xerr)
-		return
+	model := ai.Model
+	if m := strings.TrimSpace(req.Model); m != "" {
+		model = m
 	}
-	model := h.AIProvider.ModelForTier(paid)
 
 	idemKey := strings.TrimSpace(c.GetHeader("Idempotency-Key"))
-	local := h.AIProvider.IsLocal()
+	// A workspace key is un-metered: the workspace pays OpenRouter directly.
+	local := ai.Provider.IsLocal()
 	reqCtx := c.Request.Context()
 	if actor, aerr := middleware.GetUserUUID(c); aerr == nil {
 		reqCtx = models.WithCreditMeta(reqCtx, models.CreditMeta{ActorID: actor})
@@ -197,7 +200,7 @@ func (h *Handler) GenerateAIVariable(c *gin.Context) {
 
 	cctx, cancel := context.WithTimeout(reqCtx, aiVarPreviewTimeout)
 	defer cancel()
-	result, gerr := h.AIProvider.Complete(cctx, generation.CompletionRequest{
+	result, gerr := ai.Provider.Complete(cctx, generation.CompletionRequest{
 		System:      system,
 		Prompt:      prompt,
 		Model:       model,
@@ -210,7 +213,7 @@ func (h *Handler) GenerateAIVariable(c *gin.Context) {
 				remaining = bal
 			}
 		}
-		errx.JSON(c, errx.New(errx.ServiceUnavailable, "AI generation is temporarily unavailable. Your credit was not charged."))
+		aiGenerationError(c, gerr, "AI generation is temporarily unavailable. Your credit was not charged.")
 		return
 	}
 

@@ -31,7 +31,7 @@ All errors follow this structure:
 | 402 | Payment Required | Out of AI credits (`insufficient_credits`) |
 | 403 | Forbidden | Authenticated but lacks permission, or the workspace's mailbox allowance is full (`mailbox_allowance_reached`) |
 | 404 | Not Found | Resource doesn't exist |
-| 409 | Conflict | Resource already exists |
+| 409 | Conflict | Resource already exists, or a workspace AI key is needed (`ai_key_missing`, `campaign_ai_key_missing`, `ai_key_rejected`) |
 | 422 | Unprocessable | Validation failed |
 | 429 | Too Many Requests | Rate limit or AI usage cap exceeded (`rate_limit_exceeded`, `usage_cap_exceeded`) |
 
@@ -370,6 +370,41 @@ A `409` whose `code` is `instantly_account_missing` comes from `POST /emails/{id
 **How to fix:**
 - Connect the mailbox in Instantly under Accounts, then repeat the request
 - SMTP and IMAP mailboxes never hit this: they are added to Instantly with their stored credentials
+
+#### `ai_key_missing`
+
+A `409` whose `code` is `ai_key_missing` means the workspace has no OpenRouter key, and the call needs one: `POST /generation/write`, `/generation/edit`, `/generation/ai-variable`, the reply and compose draft endpoints, and `GET /organization/current/ai/models`. User-facing generation always runs on the workspace's own key (see [AI settings](/guides/ai-settings/)); the instance's `AI_*` key is never used in its place.
+
+```json
+{
+  "error": "Conflict",
+  "message": "AI features need your workspace's OpenRouter key. Add one under Settings > AI.",
+  "code": "ai_key_missing",
+  "request_id": "4bbbd1b2-8f86-47dd-8a7f-9476501ad20e"
+}
+```
+
+**How to fix:**
+- Save a key with `PUT /organization/current/ai` (`{"api_key": "..."}`), or under Settings, AI in the dashboard, then repeat the request
+
+#### `campaign_ai_key_missing`
+
+A `409` whose `code` is `campaign_ai_key_missing` comes from `POST /campaigns/:id/start` or `POST /campaigns/:id/test-email` when the campaign's copy (a step or an active A/B arm) carries an AI block and the workspace has no OpenRouter key. The campaign is not started; without a key its first send would only park it again.
+
+**How to fix:**
+- Save a key as above. A campaign parked at `paused_ai_key` resumes on its own once a key is saved; a draft is started by repeating the request
+- Or remove the AI blocks from the campaign's copy
+
+#### `ai_key_rejected`
+
+A `409` whose `code` is `ai_key_rejected` means OpenRouter refused the workspace's stored key (`401` or `403` from OpenRouter) during a generation call or the model listing. The key was probably revoked or its account ran out of credit. A campaign that hits this at send time pauses at `paused_ai_key` with the reason in its activity feed.
+
+**How to fix:**
+- Replace the key with `PUT /organization/current/ai`, or under Settings, AI
+
+#### `ai_key_invalid`
+
+A `400` whose `code` is `ai_key_invalid` means `PUT /organization/current/ai` refused to store the key: it was empty, malformed, or OpenRouter answered `401`/`403` when it was verified. Nothing was changed.
 
 #### `instantly_unavailable`
 

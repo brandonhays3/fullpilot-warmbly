@@ -107,6 +107,9 @@ function CampaignStatusMark({ status, idle }: { status: string; idle?: boolean }
     } else if (status === "paused_no_accounts" || status === "paused_trial_expired") {
         Icon = AlertTriangleIcon;
         title = status === "paused_no_accounts" ? "Paused — no sending accounts" : "Paused — trial expired";
+    } else if (status === "paused_ai_key") {
+        Icon = AlertTriangleIcon;
+        title = "Paused: its AI blocks need an OpenRouter key (Settings, AI)";
     }
     return <Icon className={cn("w-3.5 h-3.5", tone)} aria-label={title} />;
 }

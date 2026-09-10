@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/warmbly/warmbly/internal/app/aisettings"
 	"github.com/warmbly/warmbly/internal/app/credits"
 	"github.com/warmbly/warmbly/internal/models"
 	"github.com/warmbly/warmbly/internal/pkg/generation"
@@ -60,6 +61,62 @@ type aiVarConfig struct {
 	Thinking  bool   `json:"thinking"`
 	WebSearch bool   `json:"web_search"`
 	Name      string `json:"name"`
+	// Model is the OpenRouter model id this block runs on; "" means the
+	// workspace default from Settings > AI.
+	Model string `json:"model"`
+}
+
+// HasAIVariables reports whether an email body carries at least one AI block.
+// The campaign start gate and the test send use it to refuse copy that would
+// fail at send time without a workspace key.
+func HasAIVariables(bodyHTML string) bool {
+	return len(findAIVarRefs(bodyHTML)) > 0
+}
+
+// orgAIProvider resolves the workspace's own provider and default model. A
+// workspace without a key gets aisettings.ErrKeyMissing, never the platform
+// key: user generation is paid for by the workspace, not the operator.
+func (s *tasksService) orgAIProvider(ctx context.Context, orgID uuid.UUID) (generation.Provider, string, error) {
+	if s.aiSettings == nil {
+		return nil, "", fmt.Errorf("%w: workspace AI settings are not available", aisettings.ErrKeyMissing)
+	}
+	resolved, err := s.aiSettings.Resolve(ctx, orgID)
+	if err != nil {
+		return nil, "", err
+	}
+	return resolved.Provider, resolved.Model, nil
+}
+
+// ResolveAIVariablesForTest generates every AI block for a test send. Nothing
+// is cached: a test is meant to show fresh output, and it names no real
+// campaign progress row. Returns aisettings.ErrKeyMissing without a key.
+func (s *tasksService) ResolveAIVariablesForTest(ctx context.Context, orgID uuid.UUID, contact *models.Contact, subject, bodyHTML, bodyPlain string) (string, string, string, error) {
+	refs := findAIVarRefs(bodyHTML)
+	if len(refs) == 0 {
+		return subject, bodyHTML, bodyPlain, nil
+	}
+	resolved := map[string]string{}
+	for _, ref := range refs {
+		cfg, ok := decodeAIVarConfig(ref.config)
+		if !ok {
+			resolved[ref.id] = ""
+			continue
+		}
+		rendered := strings.TrimSpace(RenderTemplate(cfg.Prompt, *contact))
+		if rendered == "" {
+			resolved[ref.id] = ""
+			continue
+		}
+		before, after := aiVarSurrounding(bodyPlain, "[[ai:"+ref.id+"]]")
+		text, gerr := s.generateAIVariable(ctx, orgID, contact, cfg, rendered, before, after,
+			fmt.Sprintf("test_ai_var:%s:%s", uuid.New(), ref.id))
+		if gerr != nil {
+			return subject, bodyHTML, bodyPlain, gerr
+		}
+		resolved[ref.id] = text
+	}
+	subject, bodyHTML, bodyPlain = substituteAIVariables(subject, bodyHTML, bodyPlain, resolved)
+	return subject, bodyHTML, bodyPlain, nil
 }
 
 // aiVarRef is one distinct block found in the body: its id + raw base64 config.
@@ -202,8 +259,16 @@ func decodeAIVarConfig(b64 string) (aiVarConfig, bool) {
 // cost is charged up front (instant = CostWritingAssistant, research =
 // CostResearchRun); the agent's own tool calls are covered by that flat charge.
 func (s *tasksService) generateAIVariable(ctx context.Context, orgID uuid.UUID, contact *models.Contact, cfg aiVarConfig, rendered, before, after, idemKey string) (string, error) {
-	if s.aiProvider == nil || s.aiCredits == nil {
+	if s.aiCredits == nil {
 		return "", errors.New("per-recipient AI variables are not available on this deployment")
+	}
+	// The workspace's own key and model; the block may pin a model of its own.
+	provider, model, perr := s.orgAIProvider(ctx, orgID)
+	if perr != nil {
+		return "", perr
+	}
+	if m := strings.TrimSpace(cfg.Model); m != "" {
+		model = m
 	}
 
 	research := strings.EqualFold(strings.TrimSpace(cfg.Mode), "research")
@@ -213,8 +278,7 @@ func (s *tasksService) generateAIVariable(ctx context.Context, orgID uuid.UUID, 
 		cost = credits.CostResearchRun
 	}
 
-	model := s.aiProvider.ModelForTier(cfg.Thinking)
-	if !s.aiProvider.IsLocal() {
+	if !provider.IsLocal() {
 		if _, cerr := s.aiCredits.Consume(ctx, orgID, cost, reason, model, 0, idemKey); cerr != nil {
 			switch {
 			case errors.Is(cerr, credits.ErrInsufficientCredits):
@@ -240,18 +304,18 @@ func (s *tasksService) generateAIVariable(ctx context.Context, orgID uuid.UUID, 
 		gerr   error
 	)
 	if research && s.aiTools != nil {
-		text, tokens, gerr = s.generateAIVariableResearch(ctx, orgID, contact, vc, rendered, before, after, model)
+		text, tokens, gerr = s.generateAIVariableResearch(ctx, provider, orgID, contact, vc, rendered, before, after, model)
 	}
 	// instant, research-without-a-registry, or research whose registry had no
 	// web tools all fall back to the single-completion path.
 	if !research || s.aiTools == nil || errors.Is(gerr, errAIVarNoTools) {
-		text, tokens, gerr = s.generateAIVariableCompletion(ctx, orgID, contact, vc, cfg, rendered, before, after, model, research, idemKey)
+		text, tokens, gerr = s.generateAIVariableCompletion(ctx, provider, orgID, contact, vc, cfg, rendered, before, after, model, research, idemKey)
 	}
 
 	if gerr != nil || strings.TrimSpace(text) == "" {
 		// The org paid for a snippet the provider couldn't produce: refund it (a
 		// local model was never charged).
-		if !s.aiProvider.IsLocal() {
+		if !provider.IsLocal() {
 			_, _ = s.aiCredits.Grant(ctx, orgID, cost, reason+"_refund")
 		}
 		if gerr != nil {
@@ -260,7 +324,7 @@ func (s *tasksService) generateAIVariable(ctx context.Context, orgID uuid.UUID, 
 		return "", errors.New("AI variable generation returned no output")
 	}
 
-	if !s.aiProvider.IsLocal() {
+	if !provider.IsLocal() {
 		_, _ = s.aiCredits.SettleUsage(ctx, orgID, cost, model, tokens, reason, idemKey+":usage")
 	}
 	return strings.TrimSpace(text), nil
@@ -270,7 +334,7 @@ func (s *tasksService) generateAIVariable(ctx context.Context, orgID uuid.UUID, 
 // blocks with web search on (and research degraded here), it first enriches the
 // prompt with one bounded web lookup, fenced as untrusted. Returns the snippet +
 // tokens used; the caller owns the consume/refund/settle lifecycle.
-func (s *tasksService) generateAIVariableCompletion(ctx context.Context, orgID uuid.UUID, contact *models.Contact, vc generation.VoiceContext, cfg aiVarConfig, rendered, before, after, model string, research bool, idemKey string) (string, int, error) {
+func (s *tasksService) generateAIVariableCompletion(ctx context.Context, provider generation.Provider, orgID uuid.UUID, contact *models.Contact, vc generation.VoiceContext, cfg aiVarConfig, rendered, before, after, model string, research bool, idemKey string) (string, int, error) {
 	web := ""
 	if (cfg.WebSearch || research) && s.aiSearch != nil {
 		if q := switchSearchQuery(contact); q != "" {
@@ -279,7 +343,7 @@ func (s *tasksService) generateAIVariableCompletion(ctx context.Context, orgID u
 			scancel()
 			if serr == nil && len(results) > 0 {
 				web = renderSwitchSearchResults(q, results)
-				if !s.aiProvider.IsLocal() {
+				if !provider.IsLocal() {
 					_, _ = s.aiCredits.Consume(ctx, orgID, credits.CostWebSearch, "campaign_ai_var_search", "", 0, idemKey+":search")
 				}
 			}
@@ -290,7 +354,7 @@ func (s *tasksService) generateAIVariableCompletion(ctx context.Context, orgID u
 	defer cancel()
 
 	system, prompt := buildAIVariablePrompt(vc, contact, rendered, web, before, after)
-	res, gerr := s.aiProvider.Complete(cctx, generation.CompletionRequest{
+	res, gerr := provider.Complete(cctx, generation.CompletionRequest{
 		System:      system,
 		Prompt:      prompt,
 		Model:       model,
@@ -311,7 +375,7 @@ func (s *tasksService) generateAIVariableCompletion(ctx context.Context, orgID u
 // writes the snippet. Read-only web tools need no org permission, so a bare
 // org-scoped invocation suffices. Returns errAIVarNoTools when the registry has
 // no web tools, so the caller degrades to a completion.
-func (s *tasksService) generateAIVariableResearch(ctx context.Context, orgID uuid.UUID, contact *models.Contact, vc generation.VoiceContext, rendered, before, after, model string) (string, int, error) {
+func (s *tasksService) generateAIVariableResearch(ctx context.Context, provider generation.Provider, orgID uuid.UUID, contact *models.Contact, vc generation.VoiceContext, rendered, before, after, model string) (string, int, error) {
 	searchBudget, fetchBudget := aiVarResearchSearchBudget, aiVarResearchFetchBudget
 	tools := make([]generation.ToolDef, 0, 2)
 	for _, t := range s.aiTools.WebResearchTools(orgID) {
@@ -336,7 +400,7 @@ func (s *tasksService) generateAIVariableResearch(ctx context.Context, orgID uui
 
 	rctx, cancel := context.WithTimeout(ctx, aiVarResearchTimeout)
 	defer cancel()
-	res, rerr := s.aiProvider.RunAgent(rctx, generation.AgentRequest{
+	res, rerr := provider.RunAgent(rctx, generation.AgentRequest{
 		System:        system,
 		Messages:      []generation.AgentMessage{{Role: "user", Content: user}},
 		Tools:         tools,

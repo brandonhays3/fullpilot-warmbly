@@ -72,6 +72,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/app/settings/workspace": "Workspace",
   "/app/settings/sending": "Sending",
   "/app/settings/tracking": "Website tracking",
+  "/app/settings/ai": "AI",
   "/app/settings/ai-skills": "AI skills",
   "/app/settings/billing": "Billing",
   "/app/settings/referral": "Refer & earn",

@@ -83,20 +83,21 @@ func (h *Handler) GenerateEdit(c *gin.Context) {
 		errx.JSON(c, errx.New(errx.Forbidden, "The AI writing assistant requires an active plan or trial."))
 		return
 	}
-	if h.WritingGenerator == nil {
+	// The workspace's own OpenRouter key and default model, never the
+	// platform's.
+	ai, ok := h.orgAI(c, *orgID)
+	if !ok {
+		return
+	}
+	writer := ai.Writing
+	if writer == nil {
 		errx.JSON(c, errx.New(errx.ServiceUnavailable, "AI writing assistant is not configured."))
 		return
 	}
-
-	paid, xerr := h.FeatureGateService.IsPaidOrganization(c.Request.Context(), *orgID)
-	if xerr != nil {
-		errx.JSON(c, xerr)
-		return
-	}
-	model := h.WritingGenerator.ModelForTier(paid)
+	model := ai.Model
 
 	idemKey := strings.TrimSpace(c.GetHeader("Idempotency-Key"))
-	local := h.WritingGenerator.IsLocal()
+	local := writer.IsLocal()
 	reqCtx := c.Request.Context()
 	if actor, aerr := middleware.GetUserUUID(c); aerr == nil {
 		reqCtx = models.WithCreditMeta(reqCtx, models.CreditMeta{
@@ -130,7 +131,7 @@ func (h *Handler) GenerateEdit(c *gin.Context) {
 	}
 
 	voice := h.orgVoice(c.Request.Context(), *orgID, req.Tone)
-	result, gerr := h.WritingGenerator.GenerateWriting(c.Request.Context(), model, buildEditPrompt(req), voice)
+	result, gerr := writer.GenerateWriting(c.Request.Context(), model, buildEditPrompt(req), voice)
 	if gerr != nil {
 		if !local {
 			if bal, rerr := h.CreditService.Grant(reqCtx, *orgID, creditsPerEdit, "writing_edit_refund"); rerr == nil {

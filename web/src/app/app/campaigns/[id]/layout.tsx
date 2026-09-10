@@ -23,6 +23,7 @@ import { useConfirm } from "@/hooks/context/confirm";
 import LaunchCampaignDialog from "@/components/app/campaigns/LaunchCampaignDialog";
 import CampaignActionsMenu from "@/components/app/campaigns/CampaignActionsMenu";
 import UndeliverableBanner from "@/components/app/campaigns/UndeliverableBanner";
+import AIKeyBanner from "@/components/app/campaigns/AIKeyBanner";
 import { canStartCampaign } from "@/components/app/campaigns/useCampaignActions";
 import toast from "react-hot-toast";
 import { CAMPAIGN_DELETED_EVENT, type CampaignDeletedDetail } from "@/lib/realtime/campaignDeleted";
@@ -41,6 +42,7 @@ const STATUS_PILL: Record<string, string> = {
     active: "bg-emerald-50 text-emerald-700 border-emerald-200",
     paused: "bg-amber-50 text-amber-700 border-amber-200",
     paused_undeliverable: "bg-amber-50 text-amber-700 border-amber-200",
+    paused_ai_key: "bg-amber-50 text-amber-700 border-amber-200",
     draft: "bg-slate-100 text-slate-600 border-slate-200",
     completed: "bg-slate-100 text-slate-600 border-slate-200",
     idle: "bg-sky-50 text-sky-700 border-sky-200",
@@ -189,6 +191,7 @@ export default function CampaignLayout() {
                 </div>
 
                 <UndeliverableBanner campaignId={campaign.id} status={status} />
+                <AIKeyBanner campaignId={campaign.id} status={status} />
 
                 <div className="shrink-0 px-3 flex items-center gap-1 border-b border-slate-200 overflow-x-auto no-scrollbar">
                     {TABS.map(({ label, path, Icon }) => {

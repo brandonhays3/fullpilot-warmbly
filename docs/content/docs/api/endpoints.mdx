@@ -417,6 +417,19 @@ Org playbooks the AI features follow (see the [AI skills](/guides/ai-skills/) gu
 | PATCH | `/ai/skills/:id` | `manage_settings` / `AI_AGENT` |
 | DELETE | `/ai/skills/:id` | `manage_settings` / `AI_AGENT` |
 
+### AI settings
+
+The workspace's own OpenRouter key and default model (see the [AI settings](/guides/ai-settings/) guide). Every user-facing generation call (`/generation/*`, reply and compose drafts, AI blocks at send time) runs on this key; without one those calls answer `409` with `code: ai_key_missing`, and a campaign carrying an AI block refuses to start with `campaign_ai_key_missing`. Writing the key takes `manage_settings` for JWT callers or the `AI_AGENT` scope for API keys; reading is open to anyone who may use AI, and never returns the key itself, only whether one is set and its last four characters. `PUT` and `DELETE` are naturally retry-safe.
+
+| Method | Path | Permission |
+|--------|------|------------|
+| GET | `/organization/current/ai` | `use_ai` / `AI_AGENT` |
+| PUT | `/organization/current/ai` | `manage_settings` / `AI_AGENT` |
+| DELETE | `/organization/current/ai` | `manage_settings` / `AI_AGENT` |
+| GET | `/organization/current/ai/models` | `use_ai` / `AI_AGENT` |
+
+`PUT` takes `api_key` (replaces the key; it is verified against OpenRouter first and refused with `ai_key_invalid`), `model` (the default model id; `""` restores the built-in default), or both. `GET /organization/current/ai/models` proxies OpenRouter's catalog with the workspace key and returns `data`: `id`, `name`, `context_length`, `prompt_per_million` and `completion_per_million` (USD), cached for ten minutes.
+
 ### Agent tools (REST)
 
 The AI tool registry over plain HTTP for function-calling agents that do not speak MCP (see [Agent tools](/api/agent-tools/)). Like the advisor apply path and the MCP endpoint, there is no route-level scope on purpose: each tool enforces its own permission, the list reflects only what the caller may use, and send-class tools are never exposed.

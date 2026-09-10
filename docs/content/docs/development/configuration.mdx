@@ -380,6 +380,8 @@ On the `smtp` transport the Microsoft tenant must allow SMTP AUTH for the mailbo
 
 <Callout type="warn" title="An unset provider still uses a key">
 An empty `AI_PROVIDER` with a set `AI_API_KEY` falls back to `api.openai.com`, so the key goes to OpenAI. Set both or neither.
+
+The `AI_*` key is the instance's, not a customer's. It powers reply classification (`AI_MODEL_CLASSIFY`) and the platform-side features (the dashboard assistant, contact research, automation AI nodes, the inbox agent, sequence AI steps). Everything a member generates as their own copy runs on the workspace's own OpenRouter key instead: AI blocks in campaigns, the writing assistant, and reply and compose drafts. Each workspace saves that key under Settings, AI ([AI settings](/guides/ai-settings/)); without one those calls answer `409 ai_key_missing`, and the instance key is never used in its place, so the operator is never billed for a customer's copy.
 </Callout>
 
 Set these on the backend and the consumer.

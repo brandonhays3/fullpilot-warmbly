@@ -804,6 +804,7 @@ var ExcludedTables = map[string]string{
 	"warmup_conversations":         "The instance's shared warmup content library, not workspace data.",
 	"sessions":                     "Live login sessions. They are bound to the source instance's signing key and must not survive a move.",
 	"login_history":                "Where people signed in from, kept only to compare a new sign-in against recent ones. It belongs to the person rather than the workspace, and a destination must build its own baseline before it can call anything anomalous.",
+	"organization_ai_settings":     "The workspace's own OpenRouter key and default model. A third-party billing credential is left out of an archive that may be handed around; paste the key again under Settings > AI on the destination.",
 }
 
 // TableByName indexes Tables for lookup during import.
