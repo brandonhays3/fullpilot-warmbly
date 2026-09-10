@@ -80,7 +80,53 @@ func rewriteSpacedFieldRefs(tmpl string) string {
 	if !strings.Contains(tmpl, "{{") {
 		return tmpl
 	}
-	return templateAction.ReplaceAllStringFunc(tmpl, rewriteSpacedInAction)
+	return templateAction.ReplaceAllStringFunc(tmpl, func(action string) string {
+		return rewriteSpacedInAction(rewriteBareFieldRef(action))
+	})
+}
+
+// bareFieldAction matches an action that is nothing but one bare identifier:
+// {{firstName}}, {{ FirstName }}, {{first_name}}. People write merge fields that
+// way; Go would read it as a function call and fail the whole template.
+var bareFieldAction = regexp.MustCompile(`^\{\{-?\s*([A-Za-z_][A-Za-z0-9_]*)\s*-?\}\}$`)
+
+// templateWords are identifiers that are template syntax or functions, never a
+// field, so a bare {{end}} or {{else}} is left alone.
+var templateWords = map[string]bool{
+	"if": true, "else": true, "end": true, "range": true, "with": true, "define": true,
+	"template": true, "block": true, "break": true, "continue": true, "or": true, "and": true,
+	"not": true, "len": true, "print": true, "printf": true, "println": true, "index": true,
+	"eq": true, "ne": true, "lt": true, "le": true, "gt": true, "ge": true, "html": true,
+	"js": true, "urlquery": true, "call": true, "slice": true,
+}
+
+// rewriteBareFieldRef turns a bare-identifier action into a field selector,
+// canonicalising the five standard fields case- and separator-insensitively
+// (firstName, first_name, FIRSTNAME all mean FirstName). Anything else becomes
+// a custom-field selector with the name as written.
+func rewriteBareFieldRef(action string) string {
+	m := bareFieldAction.FindStringSubmatch(action)
+	if m == nil {
+		return action
+	}
+	name := m[1]
+	if templateWords[name] || tmplfuncs.FuncMap()[name] != nil {
+		return action
+	}
+	key := strings.ToLower(strings.ReplaceAll(name, "_", ""))
+	switch key {
+	case "firstname":
+		name = "FirstName"
+	case "lastname":
+		name = "LastName"
+	case "email":
+		name = "Email"
+	case "company":
+		name = "Company"
+	case "phone":
+		name = "Phone"
+	}
+	return "{{." + name + "}}"
 }
 
 func rewriteSpacedInAction(action string) string {
