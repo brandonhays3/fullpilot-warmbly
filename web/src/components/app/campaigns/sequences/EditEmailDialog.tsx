@@ -414,33 +414,78 @@ function DialogBody({
                         {arms.variants.length > 0 ? (
                             <div className="shrink-0 border-b border-slate-200">
                                 {/* Neutral arm tabs: name and share, selected is dark. */}
-                                <div className="flex items-stretch gap-2 px-3">
-                                    <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                                {/* Folder tabs on a grey band: the selected arm is white and
+                                    joins the editor below it; actions live in the row beneath. */}
+                                <div className="flex items-end overflow-x-auto bg-slate-100 px-3 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                                     {arms.arms.map((a) => (
                                         <button
                                             key={a.key}
                                             type="button"
                                             onClick={() => void switchArm(a.key)}
-                                            className={`relative h-10 shrink-0 px-3 inline-flex items-center gap-2 text-[12.5px] transition-colors ${
+                                            className={`-mb-px h-9 shrink-0 px-3.5 inline-flex items-center gap-2 border text-[12.5px] transition-colors ${
                                                 a.key === armKey
-                                                    ? "text-slate-900 font-medium after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-sky-600"
-                                                    : "text-slate-500 hover:text-slate-900"
+                                                    ? "border-slate-200 border-b-white bg-white font-medium text-slate-900"
+                                                    : "border-transparent text-slate-500 hover:text-slate-900"
                                             } ${a.active ? "" : "opacity-60"}`}
                                         >
                                             {a.name}
-                                            <span className={`tabular-nums text-[11px] ${a.key === armKey ? "text-slate-500" : "text-slate-400"}`}>
-                                                {arms.shareOf(a.active ? a.weight : 0)}%
-                                            </span>
+                                            <span className="tabular-nums text-[11px] text-slate-400">{arms.shareOf(a.active ? a.weight : 0)}%</span>
                                             {!a.active && <span className="text-[10px]">paused</span>}
                                         </button>
                                     ))}
-                                    </div>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-2 border-t border-slate-200 px-3 py-2">
+                                    {variant ? (
+                                        <>
+                                            <TextInput
+                                                value={variantName}
+                                                onChange={setVariantName}
+                                                placeholder="Variant name"
+                                                className="w-44"
+                                                onBlur={() => {
+                                                    const name = variantName.trim();
+                                                    if (name && name !== variant.name) void updateVariant.mutateAsync({ variantId: variant.id, input: { name } });
+                                                }}
+                                            />
+                                            <label className="inline-flex items-center gap-1.5 text-[12px] text-slate-600">
+                                                Share
+                                                <NumberInput
+                                                    value={variant.weight}
+                                                    min={1}
+                                                    max={100}
+                                                    onChange={(v) => arms.commitWeights({ [variant.id]: Math.max(1, Math.min(100, v ?? 1)) })}
+                                                    className="w-20"
+                                                />
+                                                %
+                                            </label>
+                                            <button
+                                                type="button"
+                                                onClick={() => arms.togglePause(variant.id, !variant.is_active)}
+                                                disabled={arms.busy}
+                                                className="h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-700 hover:bg-slate-50"
+                                            >
+                                                {variant.is_active ? <PauseIcon className="w-3.5 h-3.5" /> : <PlayIcon className="w-3.5 h-3.5" />}
+                                                {variant.is_active ? "Pause" : "Resume"}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => arms.deleteArm(variant.id, () => onArmChange(ORIGINAL_ARM))}
+                                                disabled={arms.busy}
+                                                className="h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-rose-600 hover:bg-rose-50"
+                                            >
+                                                <TrashIcon className="w-3.5 h-3.5" />
+                                                Delete
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <span className="text-[12px] text-slate-500">The Original is the control. Traffic splits by the shares on each tab.</span>
+                                    )}
                                     <button
                                         type="button"
                                         onClick={arms.evenSplit}
                                         disabled={arms.busy}
                                         title="Split traffic evenly"
-                                        className="self-center h-7 shrink-0 px-2.5 inline-flex items-center text-[12px] font-medium text-slate-600 hover:text-slate-900"
+                                        className="ml-auto h-7 px-2.5 inline-flex items-center text-[12px] font-medium text-slate-600 hover:text-slate-900"
                                     >
                                         Even split
                                     </button>
@@ -449,56 +494,13 @@ function DialogBody({
                                             type="button"
                                             onClick={() => void addVariant()}
                                             disabled={arms.adding}
-                                            className="self-center h-7 shrink-0 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-700 hover:bg-slate-50"
+                                            className="h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-700 hover:bg-slate-50"
                                         >
                                             {arms.adding ? <Loader2Icon className="w-3.5 h-3.5 animate-spin" /> : <PlusIcon className="w-3.5 h-3.5" />}
                                             Variant
                                         </button>
                                     )}
                                 </div>
-                                {variant && (
-                                    <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 px-3 py-2">
-                                        <TextInput
-                                            value={variantName}
-                                            onChange={setVariantName}
-                                            placeholder="Variant name"
-                                            className="w-44"
-                                            onBlur={() => {
-                                                const name = variantName.trim();
-                                                if (name && name !== variant.name) void updateVariant.mutateAsync({ variantId: variant.id, input: { name } });
-                                            }}
-                                        />
-                                        <label className="inline-flex items-center gap-1.5 text-[12px] text-slate-600">
-                                            Share
-                                            <NumberInput
-                                                value={variant.weight}
-                                                min={1}
-                                                max={100}
-                                                onChange={(v) => arms.commitWeights({ [variant.id]: Math.max(1, Math.min(100, v ?? 1)) })}
-                                                className="w-20"
-                                            />
-                                            %
-                                        </label>
-                                        <button
-                                            type="button"
-                                            onClick={() => arms.togglePause(variant.id, !variant.is_active)}
-                                            disabled={arms.busy}
-                                            className="h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-700 hover:bg-slate-50"
-                                        >
-                                            {variant.is_active ? <PauseIcon className="w-3.5 h-3.5" /> : <PlayIcon className="w-3.5 h-3.5" />}
-                                            {variant.is_active ? "Pause" : "Resume"}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => arms.deleteArm(variant.id, () => onArmChange(ORIGINAL_ARM))}
-                                            disabled={arms.busy}
-                                            className="h-7 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-rose-600 hover:bg-rose-50"
-                                        >
-                                            <TrashIcon className="w-3.5 h-3.5" />
-                                            Delete variant
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                         ) : (
                             <div className="flex shrink-0 items-center gap-2 border-b border-slate-200 px-3 py-2">
