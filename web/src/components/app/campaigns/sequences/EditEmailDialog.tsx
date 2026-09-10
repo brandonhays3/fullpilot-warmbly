@@ -294,8 +294,27 @@ function DialogBody({
     }, [previewKey]);
     const live = serverPreview?.key === previewKey ? serverPreview.data : null;
     const ctx = React.useMemo(() => contactContext(previewContact), [previewContact]);
+    // Until the server render lands, any token the client could not resolve
+    // shows as a small grey chip with a spinner instead of raw braces, so the
+    // preview never flashes from {{firstName}} to the value.
+    const pendingChips = (html: string) =>
+        previewMut.isPending || !live
+            ? html.replace(
+                  /\{\{[^}]*\}\}/g,
+                  '<span class="pv-pending" aria-label="Resolving"><span class="pv-spin"></span></span>',
+              )
+            : html;
     const shownSubject = live?.subject ?? renderPreview(effective.subject, ctx);
-    const shownBody = live?.body_html ?? linkifyUnsubscribe(renderPreview(effective.bodyHtml, ctx));
+    const shownBody = live?.body_html ?? pendingChips(linkifyUnsubscribe(renderPreview(effective.bodyHtml, ctx)));
+    const shownSubjectNode = live ? shownSubject : shownSubject.split(/(\{\{[^}]*\}\})/g).map((part, i) =>
+        /^\{\{[^}]*\}\}$/.test(part) ? (
+            <span key={i} className="pv-pending" aria-label="Resolving">
+                <span className="pv-spin" />
+            </span>
+        ) : (
+            <React.Fragment key={i}>{part}</React.Fragment>
+        ),
+    );
     const shownPlain = live?.body_plain ?? "";
     const from = live?.from ?? (mailbox ? { name: mailbox.name, email: mailbox.email } : null);
     const toLabel = previewContact
@@ -601,7 +620,7 @@ function DialogBody({
                         <div className="p-4">
                             <div className="rounded-md border border-slate-200 bg-white">
                                 <div className="space-y-1 border-b border-slate-200 px-4 py-3 text-[12.5px]">
-                                    <div className="text-[14px] font-medium text-slate-900">{shownSubject || "(no subject)"}</div>
+                                    <div className="text-[14px] font-medium text-slate-900">{shownSubject ? shownSubjectNode : "(no subject)"}</div>
                                     <div className="flex flex-wrap gap-x-1 text-slate-600">
                                         <span className="text-slate-400">From</span>
                                         <span>{from ? (from.name ? `${from.name} <${from.email}>` : from.email) : "No mailbox selected"}</span>
