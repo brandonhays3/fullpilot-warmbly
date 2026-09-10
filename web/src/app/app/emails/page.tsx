@@ -96,7 +96,15 @@ export default function AddressesPage() {
 
     const [query, setQuery] = React.useState<string>("");
     const [tag, setTag] = React.useState<string>("");
-    const emailsData = useEmails({ query, tag });
+    const [provider, setProvider] = React.useState<string>("");
+    const emailsRaw = useEmails({ query, tag });
+    const emailsData = React.useMemo(
+        () =>
+            provider
+                ? { ...emailsRaw, emails: emailsRaw.emails?.filter((e) => e.provider === provider) }
+                : emailsRaw,
+        [emailsRaw, provider],
+    );
     const [selected, setSelected] = React.useState<string[]>([]);
     const [view, setView] = React.useState<string>("");
     const [viewTab, setViewTab] = React.useState<string>("overview");
@@ -280,7 +288,13 @@ export default function AddressesPage() {
                     <PopoverMenuTrigger asChild>
                         <SelectButton
                             icon={<FilterIcon className="w-3.5 h-3.5" />}
-                            label={stag.title}
+                            label={
+                                provider
+                                    ? `${stag.title} · ${
+                                          { gmail: "Google", outlook: "Microsoft", smtp_imap: "SMTP / IMAP" }[provider] ?? provider
+                                      }`
+                                    : stag.title
+                            }
                         />
                     </PopoverMenuTrigger>
                     <PopoverMenuContent minWidth={200}>
@@ -299,6 +313,22 @@ export default function AddressesPage() {
                                 selected={tag === t.id}
                             >
                                 {t.title}
+                            </PopoverMenuItem>
+                        ))}
+                        <PopoverMenuSeparator />
+                        <PopoverMenuLabel>Mailbox type</PopoverMenuLabel>
+                        {[
+                            ["", "All types"],
+                            ["gmail", "Google"],
+                            ["outlook", "Microsoft"],
+                            ["smtp_imap", "SMTP / IMAP"],
+                        ].map(([value, label]) => (
+                            <PopoverMenuItem
+                                key={value || "all"}
+                                onSelect={() => setProvider(value)}
+                                selected={provider === value}
+                            >
+                                {label}
                             </PopoverMenuItem>
                         ))}
                         <PopoverMenuSeparator />
