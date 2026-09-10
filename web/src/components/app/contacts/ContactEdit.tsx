@@ -204,7 +204,7 @@ function ContactEditPanel({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-[110] flex justify-end bg-slate-900/30 backdrop-blur-[2px]"
+            className="fixed inset-0 z-[110] flex justify-end bg-slate-900/30"
             onMouseDown={requestClose}
         >
             <motion.aside

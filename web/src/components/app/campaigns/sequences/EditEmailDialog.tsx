@@ -34,7 +34,7 @@ import useSendTestEmail from "@/lib/api/hooks/app/campaigns/useSendTestEmail";
 import useEmails from "@/lib/api/hooks/app/emails/useEmails";
 import { useUserProfile } from "@/hooks/context/user";
 import { useConfirm } from "@/hooks/context/confirm";
-import { TextInput } from "@/components/ui/field";
+import { NumberInput, TextInput } from "@/components/ui/field";
 import {
     PopoverMenu,
     PopoverMenuContent,
@@ -53,7 +53,6 @@ import { PreviewContactPicker } from "./PreviewControls";
 import { SAMPLE_CONTACT_LABEL, contactLabel, useCampaignSenderInboxes } from "./previewContext";
 import { htmlToPlain, linkifyUnsubscribe, renderPreview } from "./emailPreview";
 import { ORIGINAL_ARM, type StepArms } from "./useStepArms";
-import StepSplitAllocator from "./StepSplitAllocator";
 import { useUpdateABVariant } from "@/lib/api/hooks/app/campaigns/useCampaignABVariants";
 
 type Draft = { subject: string; bodyHtml: string };
@@ -352,7 +351,7 @@ function DialogBody({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             onMouseDown={requestClose}
-            className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/30 backdrop-blur-[2px] px-3"
+            className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/30 px-3"
         >
             <motion.div
                 key="card"
@@ -414,17 +413,49 @@ function DialogBody({
                     >
                         {arms.variants.length > 0 ? (
                             <div className="shrink-0 border-b border-slate-200">
-                                <StepSplitAllocator
-                                    arms={arms.arms}
-                                    selectedKey={armKey}
-                                    onSelect={(k) => void switchArm(k)}
-                                    onCommit={arms.commitWeights}
-                                    onAdd={() => void addVariant()}
-                                    onEven={arms.evenSplit}
-                                    canAdd={arms.canAdd}
-                                    adding={arms.adding}
-                                    busy={arms.busy}
-                                />
+                                {/* Neutral arm tabs: name and share, selected is dark. */}
+                                <div className="flex items-center gap-2 px-3 py-2">
+                                    <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:thin]">
+                                    {arms.arms.map((a) => (
+                                        <button
+                                            key={a.key}
+                                            type="button"
+                                            onClick={() => void switchArm(a.key)}
+                                            className={`h-7 shrink-0 px-2.5 inline-flex items-center gap-2 text-[12px] font-medium transition-colors ${
+                                                a.key === armKey
+                                                    ? "bg-slate-900 text-white"
+                                                    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                                            } ${a.active ? "" : "opacity-60"}`}
+                                        >
+                                            {a.name}
+                                            <span className={`tabular-nums ${a.key === armKey ? "text-white/70" : "text-slate-400"}`}>
+                                                {arms.shareOf(a.active ? a.weight : 0)}%
+                                            </span>
+                                            {!a.active && <span className="text-[10px]">paused</span>}
+                                        </button>
+                                    ))}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={arms.evenSplit}
+                                        disabled={arms.busy}
+                                        title="Split traffic evenly"
+                                        className="h-7 shrink-0 px-2.5 inline-flex items-center text-[12px] font-medium text-slate-600 hover:text-slate-900"
+                                    >
+                                        Even split
+                                    </button>
+                                    {arms.canAdd && (
+                                        <button
+                                            type="button"
+                                            onClick={() => void addVariant()}
+                                            disabled={arms.adding}
+                                            className="h-7 shrink-0 px-2.5 inline-flex items-center gap-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-700 hover:bg-slate-50"
+                                        >
+                                            {arms.adding ? <Loader2Icon className="w-3.5 h-3.5 animate-spin" /> : <PlusIcon className="w-3.5 h-3.5" />}
+                                            Variant
+                                        </button>
+                                    )}
+                                </div>
                                 {variant && (
                                     <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 px-3 py-2">
                                         <TextInput
@@ -437,6 +468,17 @@ function DialogBody({
                                                 if (name && name !== variant.name) void updateVariant.mutateAsync({ variantId: variant.id, input: { name } });
                                             }}
                                         />
+                                        <label className="inline-flex items-center gap-1.5 text-[12px] text-slate-600">
+                                            Share
+                                            <NumberInput
+                                                value={variant.weight}
+                                                min={1}
+                                                max={100}
+                                                onChange={(v) => arms.commitWeights({ [variant.id]: Math.max(1, Math.min(100, v ?? 1)) })}
+                                                className="w-20"
+                                            />
+                                            %
+                                        </label>
                                         <button
                                             type="button"
                                             onClick={() => arms.togglePause(variant.id, !variant.is_active)}

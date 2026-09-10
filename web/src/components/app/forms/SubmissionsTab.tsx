@@ -326,7 +326,7 @@ export default function SubmissionsTab({ form }: { form: Form }) {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onMouseDown={() => setSelected(null)}
-                            className="fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-[2px]"
+                            className="fixed inset-0 z-40 bg-slate-900/30"
                         />
                         <motion.aside
                             key="panel"

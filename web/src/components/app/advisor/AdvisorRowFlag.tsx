@@ -91,7 +91,7 @@ export default function AdvisorRowFlag({ findings, subject, className = "" }: Pr
                     the connection between the two. */}
                 <PopoverMenuContent
                     minWidth={320}
-                    className="max-w-[380px] border-slate-200/70 bg-white/80 py-0 backdrop-blur-xl"
+                    className="max-w-[380px] border-slate-200/70 bg-white/80 py-0"
                 >
                     <div className="flex items-center gap-1.5 border-b border-slate-200/60 px-2.5 py-2">
                         <SparklesIcon className="h-3 w-3 shrink-0 text-slate-400" />

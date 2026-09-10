@@ -182,7 +182,7 @@ export default function UpgradeDialog({
                     onMouseDown={(e) => {
                         if (e.target === e.currentTarget) requestClose();
                     }}
-                    className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/45 backdrop-blur-[4px] p-3 sm:p-6"
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/45 p-3 sm:p-6"
                 >
                     <motion.div
                         key="upgrade-card"
@@ -464,7 +464,7 @@ function Hero({
             <div className="relative z-10 max-w-2xl mx-auto">
                 <motion.span
                     {...rise(0.05)}
-                    className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full bg-white/15 border border-white/25 text-[11px] font-medium backdrop-blur-sm"
+                    className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full bg-white/15 border border-white/25 text-[11px] font-medium"
                 >
                     <LockIcon className="w-3 h-3" />
                     {request.feature} · {planLabel} and up

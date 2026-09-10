@@ -34,7 +34,7 @@ export function ScopeSheet({ open, setOpen, scope, onChange }: ScopeSheetProps) 
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.18 }}
                     onClick={() => setOpen(false)}
-                    className="fixed inset-0 z-[100] flex bg-slate-900/30 backdrop-blur-[2px] lg:hidden"
+                    className="fixed inset-0 z-[100] flex bg-slate-900/30 lg:hidden"
                 >
                     <motion.aside
                         key="panel"

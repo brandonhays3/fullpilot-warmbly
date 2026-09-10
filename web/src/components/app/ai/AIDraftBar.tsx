@@ -254,7 +254,7 @@ export default function AIDraftBar({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 6, scale: 0.97 }}
                         transition={{ type: "spring", stiffness: 480, damping: 34 }}
-                        className="pointer-events-auto h-8 pl-3 pr-1.5 rounded-full border border-slate-200 bg-white/95 backdrop-blur shadow-[0_8px_24px_-8px_rgba(15,23,42,0.25)] flex items-center gap-2"
+                        className="pointer-events-auto h-8 pl-3 pr-1.5 rounded-full border border-slate-200 bg-white/95 shadow-[0_8px_24px_-8px_rgba(15,23,42,0.25)] flex items-center gap-2"
                     >
                         <SparklesIcon className="w-3.5 h-3.5 text-sky-500 animate-pulse shrink-0" />
                         <AnimatePresence mode="wait" initial={false}>
@@ -286,7 +286,7 @@ export default function AIDraftBar({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 6, scale: 0.97 }}
                         transition={{ type: "spring", stiffness: 480, damping: 34 }}
-                        className="pointer-events-auto w-[400px] max-w-[92vw] rounded-lg border border-slate-200 bg-white/95 backdrop-blur shadow-[0_8px_24px_-8px_rgba(15,23,42,0.25)] overflow-hidden"
+                        className="pointer-events-auto w-[400px] max-w-[92vw] rounded-lg border border-slate-200 bg-white/95 shadow-[0_8px_24px_-8px_rgba(15,23,42,0.25)] overflow-hidden"
                     >
                         <div className="px-3 pt-2.5 flex items-start gap-2">
                             <MessageCircleQuestionIcon className="w-3.5 h-3.5 text-sky-500 shrink-0 mt-0.5" />
@@ -312,7 +312,7 @@ export default function AIDraftBar({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 6, scale: 0.97 }}
                         transition={{ type: "spring", stiffness: 480, damping: 34 }}
-                        className="pointer-events-auto w-[400px] max-w-[92vw] rounded-lg border border-slate-200 bg-white/95 backdrop-blur shadow-[0_8px_24px_-8px_rgba(15,23,42,0.25)] overflow-hidden"
+                        className="pointer-events-auto w-[400px] max-w-[92vw] rounded-lg border border-slate-200 bg-white/95 shadow-[0_8px_24px_-8px_rgba(15,23,42,0.25)] overflow-hidden"
                     >
                         <div className="px-3 pt-2 flex items-center gap-1.5">
                             <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-slate-900">

@@ -116,7 +116,7 @@ export default function EnterpriseInquiryDialog({
                     onMouseDown={(e) => {
                         if (e.target === e.currentTarget && !inquiry.isPending) onClose();
                     }}
-                    className="fixed inset-0 z-[160] flex items-center justify-center bg-slate-900/40 backdrop-blur-[2px] px-4"
+                    className="fixed inset-0 z-[160] flex items-center justify-center bg-slate-900/40 px-4"
                 >
                     <motion.div
                         role="dialog"

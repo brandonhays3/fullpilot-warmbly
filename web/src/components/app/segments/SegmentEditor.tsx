@@ -184,7 +184,7 @@ export default function SegmentEditor({
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.18 }}
                     onMouseDown={requestClose}
-                    className="fixed inset-0 z-[100] flex justify-end bg-slate-900/30 backdrop-blur-[2px]"
+                    className="fixed inset-0 z-[100] flex justify-end bg-slate-900/30"
                 >
                     <motion.aside
                         key="panel"

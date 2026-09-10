@@ -88,7 +88,7 @@ export default function AdvisorCard({ finding, onFix, compact = false, defaultOp
 
     return (
         <div
-            className={`group rounded-md border bg-white/70 backdrop-blur-sm transition ${
+            className={`group rounded-md border bg-white/70 transition ${
                 applied ? "border-emerald-500/25 bg-emerald-500/[0.07]" : "border-slate-200/80 hover:border-slate-300"
             }`}
         >

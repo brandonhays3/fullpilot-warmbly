@@ -465,7 +465,7 @@ export default function SendingBehaviorTab({ mailboxId, timezone }: { mailboxId:
                         animate={{ y: 0 }}
                         exit={{ y: 60 }}
                         transition={{ duration: 0.2 }}
-                        className="sticky bottom-0 z-10 h-14 px-5 flex items-center gap-2 border-t border-slate-200 bg-slate-50/95 backdrop-blur-sm"
+                        className="sticky bottom-0 z-10 h-14 px-5 flex items-center gap-2 border-t border-slate-200 bg-slate-50/95"
                     >
                         <span className="text-[11.5px] text-slate-500">Unsaved changes</span>
                         <div className="ml-auto flex items-center gap-2">

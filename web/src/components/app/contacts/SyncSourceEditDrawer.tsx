@@ -90,7 +90,7 @@ export default function SyncSourceEditDrawer({
                     type="button"
                     aria-label="Close"
                     onClick={onClose}
-                    className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px]"
+                    className="absolute inset-0 bg-slate-900/30"
                 />
                 <motion.div
                     key="panel"

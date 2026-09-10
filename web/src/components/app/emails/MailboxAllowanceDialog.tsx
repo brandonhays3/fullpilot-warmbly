@@ -124,7 +124,7 @@ export default function MailboxAllowanceDialog({
                         onClose();
                     }}
                     onClick={(e) => e.stopPropagation()}
-                    className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-900/40 backdrop-blur-[2px] px-4"
+                    className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-900/40 px-4"
                 >
                     <motion.div
                         key="allowance-card"

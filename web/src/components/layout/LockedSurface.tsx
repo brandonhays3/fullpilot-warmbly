@@ -3,7 +3,7 @@
 //
 // The page contents are still rendered behind the lock at reduced
 // opacity so the user gets a preview of what they'd unlock. The
-// overlay sits absolute with a backdrop-blur and a centered card that
+// overlay sits absolute with a and a centered card that
 // names the feature, the minimum plan and its price; the CTA opens the
 // full-screen upgrade dialog (plans, interval, one-click checkout)
 // instead of routing away to billing.
@@ -72,7 +72,7 @@ export function LockedSurface({
             </div>
 
             {/* Frosted overlay + centered upgrade card. */}
-            <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/70 to-white/90 backdrop-blur-[6px] flex items-center justify-center px-4 overflow-y-auto py-4">
+            <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/70 to-white/90 flex items-center justify-center px-4 overflow-y-auto py-4">
                 <div className="w-full max-w-[460px] my-auto rounded-lg bg-white border border-slate-200 shadow-[0_24px_48px_-12px_rgba(15,23,42,0.12),0_8px_16px_-8px_rgba(15,23,42,0.06)] overflow-hidden">
                     {/* Header row */}
                     <div className="h-12 px-4 border-b border-slate-200 flex items-center gap-2.5">

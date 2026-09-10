@@ -83,7 +83,7 @@ export default function AdvisorSummaryBar({
 
     return (
         <>
-            <section className={`overflow-hidden rounded-md border backdrop-blur-sm ${tone} ${className}`}>
+            <section className={`overflow-hidden rounded-md border ${tone} ${className}`}>
                 <button
                     type="button"
                     onClick={() => setManuallyOpen(!expanded)}

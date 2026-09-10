@@ -69,7 +69,7 @@ export default function AdvisorGroupCard({ group, onFix }: Props) {
     const busy = progress !== null;
 
     return (
-        <div className="group rounded-md border border-slate-200/80 bg-white/70 backdrop-blur-sm transition hover:border-slate-300">
+        <div className="group rounded-md border border-slate-200/80 bg-white/70 transition hover:border-slate-300">
             <div className="flex items-start gap-2 px-2.5 py-2">
                 <span
                     className={`mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full ${SEVERITY_DOT[lead.severity]}`}

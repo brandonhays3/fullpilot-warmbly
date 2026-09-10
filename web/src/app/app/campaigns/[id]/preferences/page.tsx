@@ -379,7 +379,7 @@ export default function CampaignPreferences() {
         <div className="flex flex-col md:flex-row gap-6 lg:gap-10">
             {/* Scrollspy nav */}
             <nav className="md:w-56 md:shrink-0">
-                <div className="md:sticky md:top-1 z-10 sticky top-0 -mx-5 px-5 md:mx-0 md:px-0 bg-white/90 backdrop-blur md:bg-transparent md:backdrop-blur-0">
+                <div className="md:sticky md:top-1 z-10 sticky top-0 -mx-5 px-5 md:mx-0 md:px-0 bg-white/90 md:bg-transparent md:">
                     <p className="hidden md:block px-2.5 mb-2 text-[10px] uppercase tracking-[0.14em] text-slate-400">
                         On this page
                     </p>
@@ -436,7 +436,7 @@ export default function CampaignPreferences() {
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: 24, opacity: 0 }}
                             transition={{ type: "spring", duration: 0.3, bounce: 0.2 }}
-                            className="sticky bottom-0 z-20 mt-2 py-3 bg-white/90 backdrop-blur border-t border-slate-200/70 flex items-center justify-end gap-2"
+                            className="sticky bottom-0 z-20 mt-2 py-3 bg-white/90 border-t border-slate-200/70 flex items-center justify-end gap-2"
                         >
                             {blocked && (
                                 <span className="mr-auto text-[11.5px] text-rose-500">{validationError()}</span>

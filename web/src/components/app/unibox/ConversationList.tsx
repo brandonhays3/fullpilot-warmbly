@@ -236,7 +236,7 @@ export function ConversationList({
           <>
             {grouped.map((g) => (
               <section key={g.bucket}>
-                <div className="sticky top-0 z-10 px-3 py-1 bg-slate-50/95 backdrop-blur-sm border-b border-slate-200/60 flex items-center gap-2">
+                <div className="sticky top-0 z-10 px-3 py-1 bg-slate-50/95 border-b border-slate-200/60 flex items-center gap-2">
                   <span className="text-[10px] uppercase tracking-[0.14em] text-slate-500 font-semibold">
                     {BUCKET_LABELS[g.bucket]}
                   </span>

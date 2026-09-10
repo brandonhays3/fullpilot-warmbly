@@ -345,7 +345,7 @@ export function Drawer({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.18 }}
-                className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px]"
+                className="absolute inset-0 bg-slate-900/30"
             />
             <motion.div
                 initial={{ x: 28, opacity: 0 }}

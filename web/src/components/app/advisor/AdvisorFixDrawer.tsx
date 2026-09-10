@@ -168,7 +168,7 @@ export default function AdvisorFixDrawer({ finding, onClose }: Props) {
             transition={{ duration: 0.12 }}
         >
             <div
-                className="absolute inset-0 bg-slate-900/25 backdrop-blur-sm"
+                className="absolute inset-0 bg-slate-900/25"
                 onMouseDown={() => {
                     if (!applying) onClose();
                 }}
@@ -178,7 +178,7 @@ export default function AdvisorFixDrawer({ finding, onClose }: Props) {
                 role="dialog"
                 aria-modal="true"
                 aria-label={finding.title}
-                className="relative w-full max-w-lg overflow-hidden rounded-t-lg border border-white/60 bg-white/85 shadow-[0_16px_48px_-12px_rgba(15,23,42,0.25)] backdrop-blur-2xl sm:rounded-md"
+                className="relative w-full max-w-lg overflow-hidden rounded-t-lg border border-white/60 bg-white/85 shadow-[0_16px_48px_-12px_rgba(15,23,42,0.25)] sm:rounded-md"
                 initial={{ y: 16, opacity: 0, scale: 0.99 }}
                 animate={{ y: 0, opacity: 1, scale: 1 }}
                 exit={{ y: 8, opacity: 0, scale: 0.99 }}

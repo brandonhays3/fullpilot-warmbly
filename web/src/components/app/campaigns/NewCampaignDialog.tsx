@@ -446,7 +446,7 @@ export function NewCampaignDialog({ open, onClose }: Props) {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.15 }}
                     onMouseDown={requestClose}
-                    className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/30 backdrop-blur-[2px] px-4"
+                    className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/30 px-4"
                 >
                     <motion.div
                         key="card"

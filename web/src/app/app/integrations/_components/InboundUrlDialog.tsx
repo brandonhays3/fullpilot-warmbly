@@ -53,7 +53,7 @@ export default function InboundUrlDialog({
                 type="button"
                 aria-label="Close"
                 onClick={onClose}
-                className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"
+                className="absolute inset-0 bg-slate-900/40"
             />
             <div className="relative z-10 w-[520px] max-w-[92vw] max-h-[90dvh] flex flex-col bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden">
                 <div className="h-12 px-5 border-b border-slate-200 flex items-center gap-3 shrink-0">

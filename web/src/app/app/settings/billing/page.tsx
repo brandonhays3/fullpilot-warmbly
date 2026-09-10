@@ -197,7 +197,7 @@ export default function BillingSettingsPage() {
             }
         >
             <div>
-                <div className="sticky top-0 z-20 bg-white/95 backdrop-blur px-2 md:px-6 flex items-center gap-1 border-b border-slate-200/70 overflow-x-auto">
+                <div className="sticky top-0 z-20 bg-white/95 px-2 md:px-6 flex items-center gap-1 border-b border-slate-200/70 overflow-x-auto">
                     {TABS.map(({ id, label, icon: Icon }) => {
                         const active = tab === id;
                         return (
