@@ -34,9 +34,9 @@ interface Selection {
 // Highlight tint per phase: steady while targeting, pulsing while the model
 // rewrites, green-tinged once applied.
 function cnHighlight(phase: AIEditPhase): string {
-    if (phase === "busy") return "rounded-[3px] bg-sky-300/50 animate-pulse pointer-events-none";
-    if (phase === "applied") return "rounded-[3px] bg-emerald-200/50 pointer-events-none";
-    return "rounded-[3px] bg-sky-200/45 pointer-events-none";
+    if (phase === "busy") return "rounded-none bg-sky-300/50 animate-pulse pointer-events-none";
+    if (phase === "applied") return "rounded-none bg-emerald-200/50 pointer-events-none";
+    return "rounded-none bg-sky-200/45 pointer-events-none";
 }
 
 interface TextareaAIEditProps {

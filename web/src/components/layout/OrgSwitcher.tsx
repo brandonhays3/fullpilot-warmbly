@@ -82,7 +82,7 @@ export function OrgSwitcher() {
                             <img
                                 src={orgAvatar}
                                 alt=""
-                                className="w-full h-full object-cover rounded-[4px]"
+                                className="w-full h-full object-cover rounded-none"
                             />
                         ) : (
                             <span className="text-[10px] font-bold text-white leading-none tracking-tight">
@@ -118,7 +118,7 @@ export function OrgSwitcher() {
                                             <img
                                                 src={avatar}
                                                 alt=""
-                                                className="w-full h-full object-cover rounded-[3px]"
+                                                className="w-full h-full object-cover rounded-none"
                                             />
                                         ) : (
                                             <span className="text-[9px] font-bold text-white leading-none tracking-tight">

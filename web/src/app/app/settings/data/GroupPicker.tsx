@@ -41,7 +41,7 @@ export default function GroupPicker({
                         }`}
                     >
                         <span
-                            className={`mt-px shrink-0 size-[15px] rounded-[4px] border inline-flex items-center justify-center transition-colors ${
+                            className={`mt-px shrink-0 size-[15px] rounded-none border inline-flex items-center justify-center transition-colors ${
                                 on
                                     ? "bg-sky-600 border-sky-600 text-white"
                                     : "bg-white border-slate-300"

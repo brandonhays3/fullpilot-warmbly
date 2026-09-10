@@ -473,7 +473,7 @@ function CustomizeMenu({ hidden, onToggle }: { hidden: SectionKey[]; onToggle: (
 function CheckSquare({ on }: { on: boolean }) {
     return (
         <span
-            className={`inline-flex size-3.5 items-center justify-center rounded-[3px] border transition-colors ${
+            className={`inline-flex size-3.5 items-center justify-center rounded-none border transition-colors ${
                 on ? "bg-sky-600 border-sky-600 text-white" : "border-slate-300 bg-white text-transparent"
             }`}
         >

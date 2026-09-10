@@ -80,7 +80,7 @@ export function AppHeader({ onMenu }: { onMenu?: () => void }) {
     const currentPath = `/app/${segments.join("/")}`;
 
     return (
-        <div className="h-14 flex items-center shrink-0">
+        <div className="h-14 flex items-stretch shrink-0 bg-white border-b border-slate-200">
             {/* Logo zone — sidebar-width on >=md, compact with a menu button
                 on mobile (the sidebar collapses into a drawer below md). */}
             <button
@@ -93,7 +93,7 @@ export function AppHeader({ onMenu }: { onMenu?: () => void }) {
             </button>
             <Link
                 to="/app/emails"
-                className="h-full flex items-center gap-2.5 shrink-0 group pl-2 pr-3 md:w-64 md:px-5"
+                className="h-full flex items-center gap-2.5 shrink-0 group pl-2 pr-3 md:w-64 md:px-5 md:border-r md:border-slate-200"
             >
                 {/* The word hides on mobile: the mark + the drawer's own brand
                     header carry it there, leaving room for the workspace pill. */}
@@ -124,7 +124,7 @@ export function AppHeader({ onMenu }: { onMenu?: () => void }) {
                 ))}
             </div>
 
-            <div className="flex items-center gap-2 px-2 sm:px-4 shrink-0">
+            <div className="flex items-center gap-2 px-2 sm:px-4 shrink-0 border-l border-slate-200">
                 <div className="hidden sm:flex items-center gap-2">
                     <PlanPill />
                     <CreditsMeter />

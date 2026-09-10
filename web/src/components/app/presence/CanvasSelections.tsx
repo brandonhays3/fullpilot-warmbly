@@ -39,7 +39,7 @@ export default function CanvasSelections({ selections }: { selections: RemoteSel
                         {picked.map(({ node, w, h }) => (
                             <div
                                 key={node.id}
-                                className="absolute rounded-[14px] border-2"
+                                className="absolute rounded-none border-2"
                                 style={{
                                     left: x + node.position.x * zoom - pad,
                                     top: y + node.position.y * zoom - pad,
