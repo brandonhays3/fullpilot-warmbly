@@ -322,9 +322,9 @@ function paintAreaColumn(
         const density = 1 - (y - t) / depth;
         // Hover lift: slightly more dots, slightly brighter — the fill leans
         // in while the pointer is over the chart.
-        const lit = (y & 3) < Math.ceil((density - sparse + 0.1 * lift) * 3);
-        const k = (0.08 + 0.3 * density) * (1 + 0.22 * lift);
-        ctx.fillStyle = `rgba(${r},${g},${b},${(lit ? k : k * 0.3).toFixed(3)})`;
+        const lit = y % 6 < Math.ceil((density - sparse + 0.1 * lift) * 2);
+        const k = (0.04 + 0.16 * density) * (1 + 0.15 * lift);
+        ctx.fillStyle = `rgba(${r},${g},${b},${(lit ? k : k * 0.15).toFixed(3)})`;
         ctx.fillRect(x, y, 1, 1);
     }
 }
@@ -366,11 +366,11 @@ function paintBlendedColumn(
         }
         if (wSum <= 0) continue;
         // Stacked coverage deepens the wash, capped so it stays airy.
-        const A = Math.min(0.5, 1 - trans);
-        const lit = (y & 3) < Math.ceil((dMax + 0.1 * lift) * 3);
+        const A = Math.min(0.3, 1 - trans);
+        const lit = y % 6 < Math.ceil((dMax + 0.1 * lift) * 2);
         ctx.fillStyle = `rgba(${Math.round(r / wSum)},${Math.round(g / wSum)},${Math.round(
             b / wSum,
-        )},${(lit ? A : A * 0.3).toFixed(3)})`;
+        )},${(lit ? A : A * 0.15).toFixed(3)})`;
         ctx.fillRect(x, y, 1, 1);
     }
 }
