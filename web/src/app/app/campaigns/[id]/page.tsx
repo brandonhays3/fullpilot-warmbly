@@ -172,10 +172,10 @@ export default function CampaignOverview() {
                                                 key={m.key}
                                                 type="button"
                                                 onClick={() => toggleMetric(m.key)}
-                                                className={`h-6 px-1.5 text-[11px] font-medium transition-colors inline-flex items-center gap-1.5 ${
+                                                className={`h-6 px-1.5 text-[11px] font-medium transition-all inline-flex items-center gap-1.5 cursor-pointer hover:opacity-70 ${
                                                     visible
                                                         ? "text-slate-800"
-                                                        : "text-slate-400 hover:text-slate-600 line-through decoration-slate-300"
+                                                        : "text-slate-400 line-through decoration-slate-300 opacity-60"
                                                 }`}
                                             >
                                                 <span className={`size-1.5 rounded-full ${visible ? TONE_DOT[m.tone] : "bg-slate-300"}`} />
