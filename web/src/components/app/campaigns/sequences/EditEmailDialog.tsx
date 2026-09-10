@@ -19,6 +19,7 @@ import {
     PlusIcon,
     SendIcon,
     XIcon,
+    TrashIcon,
 } from "@/components/icons";
 import type Sequence from "@/lib/api/models/app/campaigns/sequences/Sequence";
 import type Contact from "@/lib/api/models/app/contacts/Contact";
@@ -407,19 +408,33 @@ function DialogBody({
                     >
                         <div className="flex shrink-0 flex-wrap items-center gap-1 border-b border-slate-200 px-3 py-2">
                             {armTabs.map((a) => (
-                                <button
-                                    key={a.key}
-                                    type="button"
-                                    onClick={() => void switchArm(a.key)}
-                                    className={`h-7 px-2.5 inline-flex items-center gap-1.5 rounded-md text-[12px] font-medium transition-colors ${
-                                        a.key === armKey
-                                            ? "bg-slate-900 text-white"
-                                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                                    }`}
-                                >
-                                    {a.name}
-                                    {!a.active && <span className="text-[10px] opacity-70">paused</span>}
-                                </button>
+                                <div key={a.key} className="inline-flex items-center">
+                                    <button
+                                        type="button"
+                                        onClick={() => void switchArm(a.key)}
+                                        className={`h-7 px-2.5 inline-flex items-center gap-1.5 text-[12px] font-medium transition-colors ${
+                                            a.key === armKey
+                                                ? "bg-slate-900 text-white"
+                                                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                        }`}
+                                    >
+                                        {a.name}
+                                        {!a.active && <span className="text-[10px] opacity-70">paused</span>}
+                                    </button>
+                                    {/* Only a selected variant carries its delete; the Original cannot go. */}
+                                    {a.key === armKey && a.key !== ORIGINAL_ARM && (
+                                        <button
+                                            type="button"
+                                            onClick={() => arms.deleteArm(a.key, () => onArmChange(ORIGINAL_ARM))}
+                                            disabled={arms.busy}
+                                            aria-label={`Delete ${a.name}`}
+                                            title={`Delete ${a.name}`}
+                                            className="h-7 px-1.5 inline-flex items-center bg-slate-900 text-white/70 transition-colors hover:text-white disabled:opacity-60"
+                                        >
+                                            <TrashIcon className="w-3.5 h-3.5" />
+                                        </button>
+                                    )}
+                                </div>
                             ))}
                             {arms.canAdd && (
                                 <button
